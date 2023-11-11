@@ -1,0 +1,15 @@
+{
+    "name" : "cppp-repoutils",
+    "version" : "v0.1.0",
+    "file-list": "FILELIST",
+    "description": "C++ Plus repository distributing, packaging and initialization utilities.",
+    "authors": [
+        "ChenPi11"
+    ],
+    "webpage": "https://github.com/cppp-project/cppp-repoutils",
+    "subpackages": {
+
+    },
+    "license": "GPLv3",
+    "dist-profile": "dist-tools/dist.json"
+}

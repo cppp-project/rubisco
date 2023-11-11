@@ -1,0 +1,14 @@
+templates/dist.template.json
+templates/cppp-repo.template.json
+templates/variable.md
+dist-tools/build.sh
+dist-tools/build.ps1
+dist-tools/dist.json
+res/icon.ico
+repoutils.py
+FILELIST
+repoutils.spec
+cppp-repo.json
+COPYING
+ChangeLog
+README.md

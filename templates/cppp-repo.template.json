@@ -1,0 +1,34 @@
+{
+    "name" : "Name",
+    "version" : "Version, startswith 'v'",
+    "file-list": "File lists file, relative to the repository root",
+    "description": "Description",
+    "authors": [
+        "Author/Maintainer"
+    ],
+    "webpage": "Project homepage",
+    "subpackages": {
+        "Subpackage1": {
+            "path": "Subpackage path, relative to the repository root",
+            "description": "Subpackage description",
+            "remote": "git",
+            "remote-url": "Git repository url",
+            "git-branch": "Git branch name"
+        },
+        "Subpackage2": {
+            "path": "Subpackage path, relative to the repository root",
+            "description": "Subpackage description",
+            "remote": "svn",
+            "remote-url": "SVN repository url",
+            "svn-revision": "SVN revision number"
+        },
+        "Subpackage3": {
+            "path": "Subpackage path, relative to the repository root",
+            "description": "Subpackage description",
+            "remote": "tgz-archive",
+            "remote-url": "tar.gz archive url"
+        }
+    },
+    "license": "License",
+    "dist-profile": "Distribution profile file, relative to the repository root"
+}
