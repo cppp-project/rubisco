@@ -38,14 +38,104 @@ import platform
 import queue
 
 
+class Messages:
+    """Messages class."""
+
+    traceback_title = "Traceback (most recent call last):\n"
+    progress_format = " {:.2f}%"
+    repo_profile_not_exist = "Repository profile file '%s' is not exist.\n"
+    downloading = "Downloading '%s' to '%s' ...\n"
+    extracting = "Extracting '%s' to '%s' ...\n"
+    module_already_setup = "Module '%s' is already setup.\n"
+    setting_up_package = "Setting up package: '%s' ...\n"
+    subpkg_path = "\tPath: %s\n"
+    subpkg_description = "\tDescription: %s\n"
+    subpkg_remoteurl = "\tUrl: %s\n"
+    subpkg_type_is_git = "\tType: Git\n"
+    clone_repo_failed = "Failed to clone the repository.\n"
+    subpkg_type_is_svn = "\tType: Svn\n"
+    checkout_repo_failed = "Failed to checkout the repository.\n"
+    subpkg_type_is_archive = "\tType: Archive\n"
+    unknown_remote_type = "Unknown remote type.\n"
+    module_setup_suc = "Module '%s' is set up successfully.\n"
+    interrupted = "Interrupted.\n"
+    setup_module_failed = "Failed to setup module '%s': "
+    setup_complete = (
+        "Setup %d package(s), success: %d, error: %d, ignored: %d, latest: %d\n"
+    )
+    modules_will_be_deinited = "The following modules will be deinitialized:\n"
+    print_one_pkg_name = "\t%s\n"
+    ask_continue_deinit = (
+        "ALL THINGS OF SUBPACKAGES WILL BE LOST!\nAre you sure to continue? [Y/n] "
+    )
+    deinit_canceled = "Deinitialization is canceled.\n"
+    ignore_unexist_module = "Module '%s' is not exist, ignored.\n"
+    module_deinited_suc = "Module '%s' is deinitialized successfully.\n"
+    deinit_failed = "Failed to deinitialize module '%s': "
+    deinit_complete = (
+        "Deinitialized %d package(s), success: %d, error: %d, ignored: %d\n"
+    )
+    pkginfo_name = "Name: %s\n"
+    pkginfo_ver = "Version: %s\n"
+    pkginfo_description = "Description: %s\n"
+    pkginfo_license = "License: %s\n"
+    pkginfo_authors = "Author(s): %s\n"
+    pkginfo_webpage = "Webpage: %s\n"
+    making_distpkg = "Making distribution package for %s ...\n"
+    removing_exist_distdir = (
+        "Distribution directory is already exist, removing it ...\n"
+    )
+    distpkg_make_suc = "Distribution package is made successfully.\n"
+    copied_files_to = "Copied %d files to '%s'.\n"
+    distpkg_failed = "Failed to make distribution package\n"
+    building_pkg = "Building package ...\n"
+    path_not_exist = "Path '%s' is not exist.\n"
+    copying_files = "Copying files ...\n"
+    deb_copying_preinst = "Copying preinst file ...\n"
+    deb_copying_prerm = "Copying prerm file ...\n"
+    deb_copying_postinst = "Copying postinst file ...\n"
+    deb_copying_postrm = "Copying postrm file ...\n"
+    pkg_built_suc = "Package is built successfully.\n"
+    making_distpkg_by_profile = (
+        "Making '%s' binary distribution package by profile '%s' ...\n"
+    )
+    unknown_pkg_type = "Unknown package type '%s'.\n"
+    next_profile_is_same_as_cur = (
+        "Next profile is the same as current profile, ignored.\n"
+    )
+    repoutils_help = (
+        "C++ Plus repository distributing, packaging and initialization utilities."
+    )
+    root_dir_help = "The root directory of the repository."
+    command_help = "The command to execute."
+    init_help = "Initialize all required C++ Plus repository."
+    deinit_help = "Deinitialize all required C++ Plus repository."
+    info_help = "Print the package information."
+    dist_help = "Make the source distribution package."
+    distdir_help = "The directory to save the distribution package, support variables."
+    distpkg_help = "Make the distribution package."
+    distpkg_dpkg_help = "Make the Debian package."
+    var_help = "Set a variable, format: --var name=val"
+    version_help = "Print the version of the program."
+    distpkg_reqargs_help = "Required options --type [dpkg]\n"
+    unknown_command_help = "Unknown command '%s'.\n"
+    version_string = """cppp-repoutils 0.1.0
+Copyright (C) 2023 The C++ Plus Project.
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+Written by ChenPi11.
+"""
+
+
 # Repository profile file.
 REPO_PROFILE = "cppp-repo.json"
 
 # Program file path.
-program_path = os.path.abspath(sys.argv[0])
+PROGRAM_PATH = os.path.abspath(sys.argv[0])
 
 # Python interpreter path.
-python_path = sys.executable
+PYTHON_PATH = sys.executable
+
 
 # Stack
 class Stack:
@@ -133,7 +223,7 @@ def colorize_output(file, color, text):
         color_id = 36
     elif color == "white":
         color_id = 37
-    file.write("\033[1;%dm%s\033[0m" % (color_id, text))
+    file.write("\033[1;" + str(color_id) + "m" + str(text) + "\033[0m")
 
 
 def progress_bar_update(current, total):
@@ -153,23 +243,23 @@ def progress_bar_update(current, total):
         return
 
     progress = current / total
-    bar = int(progress * width)
+    barsize = int(progress * width)
 
     if progress < 0.3:
         colorize_output(
-            sys.stdout, "white", "[" + "=" * bar + " " * (width - bar) + "]"
+            sys.stdout, "white", "[" + "=" * barsize + " " * (width - barsize) + "]"
         )
     elif progress < 0.6:
         colorize_output(
-            sys.stdout, "yellow", "[" + "=" * bar + " " * (width - bar) + "]"
+            sys.stdout, "yellow", "[" + "=" * barsize + " " * (width - barsize) + "]"
         )
     elif progress < 1:
-        colorize_output(sys.stdout, "cyan", "[" + "=" * bar + " " * (width - bar) + "]")
+        colorize_output(sys.stdout, "cyan", "[" + "=" * barsize + " " * (width - barsize) + "]")
     else:
         colorize_output(
-            sys.stdout, "green", "[" + "=" * bar + " " * (width - bar) + "]"
+            sys.stdout, "green", "[" + "=" * barsize + " " * (width - barsize) + "]"
         )
-    sys.stdout.write(" {:.2f}%".format(int(progress * 10000) / 100))
+    sys.stdout.write(Messages.progress_format.format(int(progress * 10000) / 100))
     sys.stdout.write("\r")
     sys.stdout.flush()
     if progress >= 1:
@@ -190,9 +280,8 @@ def print_list(extracted_list):  # Python3 traceback override
     Returns:
         str: The formatted stack trace.
     """
-    res = ""
-    for item in traceback.StackSummary.from_list(extracted_list).format():
-        res += item
+
+    res = "".join(traceback.StackSummary.from_list(extracted_list).format())
     return res
 
 
@@ -232,7 +321,7 @@ def load_profiles():
         colorize_output(
             sys.stdout,
             "red",
-            "Repository profile file '%s' is not exist.\n" % (REPO_PROFILE),
+            Messages.repo_profile_not_exist % (REPO_PROFILE),
         )
         sys.exit(1)
 
@@ -277,9 +366,7 @@ def wget_save(url, file_path):
     """
 
     try:
-        colorize_output(
-            sys.stdout, "cyan", "Downloading '%s' to '%s' ...\n" % (url, file_path)
-        )
+        colorize_output(sys.stdout, "cyan", Messages.downloading % (url, file_path))
         exec_command(["wget", "-O", file_path, url])
     except subprocess.CalledProcessError:
         return ""
@@ -301,7 +388,7 @@ def tar_extract(file_path, extract_path):
         colorize_output(
             sys.stdout,
             "cyan",
-            "Extracting '%s' to '%s' ...\n" % (file_path, extract_path),
+            Messages.extracting % (file_path, extract_path),
         )
         exec_command(["tar", "-zxvf", file_path, "-C", extract_path])
     except subprocess.CalledProcessError:
@@ -353,9 +440,9 @@ def sum_file_md5(file_path):
         str: The md5 of the given file.
     """
 
-    with open(file_path, mode="rb") as f:
+    with open(file_path, mode="rb") as file:
         md5 = hashlib.md5()
-        md5.update(f.read())
+        md5.update(file.read())
         return md5.hexdigest()
 
 
@@ -413,19 +500,21 @@ def delete_all_temps():
             if os.path.isdir(path):
                 try:
                     shutil.rmtree(path)
-                except:
+                except OSError:
                     pass
             else:
                 try:
                     os.remove(path)
-                except:
+                except OSError:
                     pass
+
 
 # Variable operations.
 
 
 # Variables
 variables = {}
+
 
 def push_variables(name, value):
     """Push a new variable.
@@ -435,11 +524,12 @@ def push_variables(name, value):
         value (str): The value of the variable.
     """
 
-    if name in variables.keys():
+    if name in variables:
         variables[name].push(value)
     else:
         variables[name] = Stack()
         variables[name].push(value)
+
 
 def pop_variables(name):
     """Pop the top value of the given variable.
@@ -451,9 +541,10 @@ def pop_variables(name):
         str: The top value of the given variable.
     """
 
-    if name in variables.keys():
+    if name in variables:
         return variables[name].pop()
     return None
+
 
 def format_string_with_variables(string):
     """Format the string with variables.
@@ -496,7 +587,7 @@ class FormatMap(dict):
 
         if not key in self.keys() and len(args) == 0:
             raise KeyError(repr(key))
-        elif not key in self.keys() and len(args) == 1:
+        if not key in self.keys() and len(args) == 1:
             return format_string_with_variables(args[0])
         return format_string_with_variables(super().get(key))
 
@@ -528,6 +619,7 @@ class FormatMap(dict):
             var_map[key] = value
         return var_map
 
+
 # Package operations.
 
 
@@ -546,28 +638,28 @@ def setup_subpackages():
         try:
             if os.path.exists(sub_packages[pkg]["path"]):
                 colorize_output(
-                    sys.stdout, "green", "Module '%s' is already setup.\n" % (pkg)
+                    sys.stdout, "green", Messages.module_already_setup % (pkg)
                 )
                 new_count += 1
                 continue
+            colorize_output(sys.stdout, "white", Messages.setting_up_package % (pkg))
             colorize_output(
-                sys.stdout, "white", "Setting up package: '%s' ...\n" % (pkg)
-            )
-            colorize_output(
-                sys.stdout, "white", "  Path: %s\n" % (sub_packages[pkg]["path"])
+                sys.stdout, "white", Messages.subpkg_path % (sub_packages[pkg]["path"])
             )
             colorize_output(
                 sys.stdout,
                 "white",
-                "  Description: %s\n" % (sub_packages[pkg]["description"]),
+                Messages.subpkg_description % (sub_packages[pkg]["description"]),
             )
             colorize_output(
-                sys.stdout, "white", "  Url: %s\n" % (sub_packages[pkg]["remote-url"])
+                sys.stdout,
+                "white",
+                Messages.subpkg_remoteurl % (sub_packages[pkg]["remote-url"]),
             )
 
             if sub_packages[pkg]["remote"] == "git":
                 # Git repository.
-                colorize_output(sys.stdout, "white", "  Type: Git\n")
+                colorize_output(sys.stdout, "white", Messages.subpkg_type_is_git)
                 if not exec_command(
                     [
                         "git",
@@ -578,15 +670,13 @@ def setup_subpackages():
                         sub_packages[pkg]["path"],
                     ]
                 ):
-                    colorize_output(
-                        sys.stdout, "red", "Failed to clone the repository.\n"
-                    )
+                    colorize_output(sys.stdout, "red", Messages.clone_repo_failed)
                     err_count += 1
                     continue
 
             elif sub_packages[pkg]["remote"] == "svn":
                 # Subversion repository.
-                colorize_output(sys.stdout, "white", "  Type: Svn\n")
+                colorize_output(sys.stdout, "white", Messages.subpkg_type_is_svn)
                 if not exec_command(
                     [
                         "svn",
@@ -597,14 +687,12 @@ def setup_subpackages():
                         sub_packages[pkg]["path"],
                     ]
                 ):
-                    colorize_output(
-                        sys.stdout, "red", "Failed to checkout the repository.\n"
-                    )
+                    colorize_output(sys.stdout, "red", Messages.checkout_repo_failed)
                     err_count += 1
                     continue
             elif sub_packages[pkg]["remote"] == "tgz-archive":
                 # Tar.GZip archive file
-                colorize_output(sys.stdout, "white", "  Type: Archive\n")
+                colorize_output(sys.stdout, "white", Messages.subpkg_type_is_archive)
                 if not os.path.exists(sub_packages[pkg]["path"]):
                     os.makedirs(sub_packages[pkg]["path"])
                     temp_archive_file = tempfile.mktemp(".tar.gz", "cppp-repo-")
@@ -614,15 +702,13 @@ def setup_subpackages():
                     os.remove(temp_archive_file)
             else:
                 err_count += 1
-                colorize_output(sys.stdout, "red", "Unknown remote type.\n")
+                colorize_output(sys.stdout, "red", Messages.unknown_remote_type)
                 continue
-            colorize_output(
-                sys.stdout, "green", "Module '%s' is set up successfully.\n" % (pkg)
-            )
+            colorize_output(sys.stdout, "green", Messages.module_setup_suc % (pkg))
             suc_count += 1
         except KeyboardInterrupt:
             ign_count += 1
-            colorize_output(sys.stdout, "red", "Interrupted.\n")
+            colorize_output(sys.stdout, "red", Messages.interrupted)
             try:
                 shutil.rmtree(sub_packages[pkg]["path"])
             except OSError:
@@ -630,7 +716,7 @@ def setup_subpackages():
             continue
         except (OSError, subprocess.CalledProcessError):
             err_count += 1
-            colorize_output(sys.stdout, "red", "Failed to setup module '%s': " % (pkg))
+            colorize_output(sys.stdout, "red", Messages.setup_module_failed % (pkg))
             print_error()
             try:
                 shutil.rmtree(sub_packages[pkg]["path"])
@@ -641,7 +727,7 @@ def setup_subpackages():
     colorize_output(
         sys.stdout,
         "white",
-        "Setup %d package(s), success: %d, error: %d, ignored: %d, latest: %d\n"
+        Messages.setup_complete
         % (all_count, suc_count, err_count, ign_count, new_count),
     )
 
@@ -656,25 +742,19 @@ def deinit_subpackages():
     err_count = 0
     ign_count = 0
 
-    colorize_output(
-        sys.stdout, "yellow", "The following modules will be deinitialized:\n"
-    )
+    colorize_output(sys.stdout, "yellow", Messages.modules_will_be_deinited)
     for pkg in sub_packages:
-        colorize_output(sys.stdout, "blue", "  %s\n" % (pkg))
-    colorize_output(
-        sys.stdout,
-        "yellow",
-        "ALL THINGS OF SUBPACKAGES WILL BE LOST!\nAre you sure to continue? [Y/n] ",
-    )
+        colorize_output(sys.stdout, "blue", Messages.print_one_pkg_name % (pkg))
+    colorize_output(sys.stdout, "yellow", Messages.ask_continue_deinit)
     if input() != "Y":
-        colorize_output(sys.stdout, "red", "Deinitialization is canceled.\n")
+        colorize_output(sys.stdout, "red", Messages.deinit_canceled)
         return
 
     for pkg in sub_packages:
         try:
             if not os.path.exists(sub_packages[pkg]["path"]):
                 colorize_output(
-                    sys.stdout, "while", "Module '%s' is not exist, ignored.\n" % (pkg)
+                    sys.stdout, "while", Messages.ignore_unexist_module % (pkg)
                 )
                 ign_count += 1
                 continue
@@ -683,38 +763,37 @@ def deinit_subpackages():
             colorize_output(
                 sys.stdout,
                 "green",
-                "Module '%s' is deinitialized successfully.\n" % (pkg),
+                Messages.module_deinited_suc % (pkg),
             )
         except KeyboardInterrupt:
             ign_count += 1
-            colorize_output(sys.stdout, "red", "Interrupted.\n")
+            colorize_output(sys.stdout, "red", Messages.interrupted)
             continue
-        except OSError as e:
+        except OSError as error:
             err_count += 1
-            colorize_output(
-                sys.stdout, "red", "Failed to deinitialize module '%s': " % (pkg)
-            )
-            colorize_output(sys.stdout, "red", str(e) + "\n")
+            colorize_output(sys.stdout, "red", Messages.deinit_failed % (pkg))
+            colorize_output(sys.stdout, "red", str(error) + "\n")
 
     colorize_output(
         sys.stdout,
         "white",
-        "Deinitialized %d package(s), success: %d, error: %d, ignored: %d\n"
-        % (all_count, suc_count, err_count, ign_count),
+        Messages.deinit_complete % (all_count, suc_count, err_count, ign_count),
     )
 
 
 def print_package_info():
     """Print the package information."""
 
-    colorize_output(sys.stdout, "white", "Name: %s\n" % profiles["name"])
-    colorize_output(sys.stdout, "white", "Version: %s\n" % profiles["version"])
-    colorize_output(sys.stdout, "white", "Description: %s\n" % profiles["description"])
-    colorize_output(sys.stdout, "white", "License: %s\n" % profiles["license"])
+    colorize_output(sys.stdout, "white", Messages.pkginfo_name % profiles["name"])
+    colorize_output(sys.stdout, "white", Messages.pkginfo_ver % profiles["version"])
     colorize_output(
-        sys.stdout, "white", "Author(s): %s\n" % ", ".join(profiles["authors"])
+        sys.stdout, "white", Messages.pkginfo_description % profiles["description"]
     )
-    colorize_output(sys.stdout, "white", "Webpage: %s\n" % profiles["webpage"])
+    colorize_output(sys.stdout, "white", Messages.pkginfo_license % profiles["license"])
+    colorize_output(
+        sys.stdout, "white", Messages.pkginfo_authors % ", ".join(profiles["authors"])
+    )
+    colorize_output(sys.stdout, "white", Messages.pkginfo_webpage % profiles["webpage"])
 
 
 def make_subpackage_dist(subpackage, distdir):
@@ -726,8 +805,8 @@ def make_subpackage_dist(subpackage, distdir):
 
     exec_command(
         [
-            python_path,
-            program_path,
+            PYTHON_PATH,
+            PROGRAM_PATH,
             "--root",
             profiles["subpackages"][subpackage]["path"],
             "dist",
@@ -747,12 +826,12 @@ def make_dist(distdir):
     colorize_output(
         sys.stdout,
         "white",
-        "Making distribution package for %s ...\n" % profiles["name"],
+        Messages.making_distpkg % profiles["name"],
     )
     file_list_file = profiles["file-list"]
     file_list = []
-    with open(file_list_file, mode="r", encoding="utf-8") as f:
-        file_list = f.read().strip().split("\n")
+    with open(file_list_file, mode="r", encoding="utf-8") as file:
+        file_list = file.read().strip().split("\n")
 
     all_count = len(file_list)
     suc_count = 0
@@ -763,7 +842,7 @@ def make_dist(distdir):
             colorize_output(
                 sys.stdout,
                 "white",
-                "Distribution directory is already exist, removing it ...\n",
+                Messages.removing_exist_distdir,
             )
             shutil.rmtree(distdir)
         os.makedirs(distdir)
@@ -778,11 +857,9 @@ def make_dist(distdir):
             suc_count += 1
             progress_bar_update(suc_count, all_count)
 
+        colorize_output(sys.stdout, "green", Messages.distpkg_make_suc)
         colorize_output(
-            sys.stdout, "green", "Distribution package is made successfully.\n"
-        )
-        colorize_output(
-            sys.stdout, "white", "Copied %d files to '%s'.\n" % (suc_count, distdir)
+            sys.stdout, "white", Messages.copied_files_to % (suc_count, distdir)
         )
 
         # Copy subpackages.
@@ -790,7 +867,7 @@ def make_dist(distdir):
         for pkg in sub_packages:
             make_subpackage_dist(pkg, distdir)
     except KeyboardInterrupt:
-        colorize_output(sys.stdout, "red", "\nInterrupted.\n")
+        colorize_output(sys.stdout, "red", Messages.interrupted)
         try:
             shutil.rmtree(distdir)
         except OSError:
@@ -800,7 +877,7 @@ def make_dist(distdir):
             shutil.rmtree(distdir)
         except OSError:
             pass
-        colorize_output(sys.stdout, "red", "Failed to make distribution package\n")
+        colorize_output(sys.stdout, "red", Messages.distpkg_failed)
         print_error()
         return
 
@@ -828,21 +905,20 @@ def make_deb(dist_profile):
         "powerpc64": "ppc64",
         "powerpc64le": "ppc64el",
     }
-    if arch in debian_format.keys():
-        arch = debian_format[arch]
+    arch = debian_format.get(arch, arch)
 
     build_script = dist_profile["posix-build-script"]
     bin_dir = dist_profile["bin-dir"]
 
     # Build the package.
-    colorize_output(sys.stdout, "white", "Building package ...\n")
+    colorize_output(sys.stdout, "white", Messages.building_pkg)
     exec_command([os.path.abspath(os.path.join(build_script))])
     if not os.path.exists(bin_dir):
-        colorize_output(sys.stdout, "red", "Path '%s' is not exist.\n" % bin_dir)
+        colorize_output(sys.stdout, "red", Messages.path_not_exist % bin_dir)
         return
 
     # Copy files.
-    colorize_output(sys.stdout, "white", "Copying files ...\n")
+    colorize_output(sys.stdout, "white", Messages.copying_files)
     for file in list_all_files(bin_dir):
         file_rel = os.path.relpath(file, bin_dir)
         file_dir = os.path.dirname(file_rel)
@@ -871,13 +947,14 @@ def make_deb(dist_profile):
     conflicts = dist_profile.get("deb-conflicts", "")
     pre_depends = dist_profile.get("deb-pre-depends", "")
 
-    control_data = """Package: %s
+    deb_control_data = """Package: %s
 Version: %s
 Architecture: %s
 Maintainer: %s
 Description: %s
 Essential: no
-""" % (
+"""
+    control_data = deb_control_data % (
         package,
         version,
         arch,
@@ -911,54 +988,54 @@ Essential: no
         control_data += "Pre-Depends: %s\n" % (pre_depends)
     with open(
         os.path.join(tempdir, "DEBIAN", "control"), mode="w", encoding="utf-8"
-    ) as f:
-        f.write(control_data)
+    ) as file:
+        file.write(control_data)
 
     # Generate md5sums file.
     colorize_output(sys.stdout, "white", "Generating md5sums file ...\n")
     md5s = sum_files_md5(os.path.join(tempdir, "usr"))
     print(md5s)
     md5sums_data = ""
-    for file in md5s.keys():
-        md5sums_data += "%s  %s\n" % (md5s[file], os.path.relpath(file, tempdir))
+    for md5, file in md5s.items():
+        md5sums_data += md5 + "  " + os.path.relpath(file, tempdir) + "\n"
     with open(
         os.path.join(tempdir, "DEBIAN", "md5sums"), mode="w", encoding="utf-8"
-    ) as f:
-        f.write(md5sums_data)
+    ) as file:
+        file.write(md5sums_data)
 
     # Copy preinst file.
     preinst_file = dist_profile.get("posix-pre-install-script", "")
     if preinst_file != "":
-        colorize_output(sys.stdout, "white", "Copying preinst file ...\n")
+        colorize_output(sys.stdout, "white", Messages.deb_copying_preinst)
         shutil.copy(preinst_file, os.path.join(tempdir, "DEBIAN", "preinst"))
 
     # Copy prerm file.
     prerm_file = dist_profile.get("posix-pre-remove-script", "")
     if prerm_file != "":
-        colorize_output(sys.stdout, "white", "Copying prerm file ...\n")
+        colorize_output(sys.stdout, "white", Messages.deb_copying_prerm)
         shutil.copy(prerm_file, os.path.join(tempdir, "DEBIAN", "prerm"))
 
     # Copy postinst file.
     postinst_file = dist_profile.get("posix-post-install-script", "")
     if postinst_file != "":
-        colorize_output(sys.stdout, "white", "Copying postinst file ...\n")
+        colorize_output(sys.stdout, "white", Messages.deb_copying_postinst)
         shutil.copy(postinst_file, os.path.join(tempdir, "DEBIAN", "postinst"))
 
     # Copy postrm file.
     postrm_file = dist_profile.get("posix-post-remove-script", "")
     if postrm_file != "":
-        colorize_output(sys.stdout, "white", "Copying postrm file ...\n")
+        colorize_output(sys.stdout, "white", Messages.deb_copying_postrm)
         shutil.copy(postrm_file, os.path.join(tempdir, "DEBIAN", "postrm"))
 
     # Build the package.
-    colorize_output(sys.stdout, "white", "Building package ...\n")
+    colorize_output(sys.stdout, "white", Messages.building_pkg)
     output_pkg_path = dist_profile["output-package-path"]
     output_pkg_dir = os.path.dirname(output_pkg_path)
     if not os.path.exists(output_pkg_dir):
         os.makedirs(output_pkg_dir)
     exec_command(["dpkg-deb", "--build", tempdir, output_pkg_path])
 
-    colorize_output(sys.stdout, "green", "Package is built successfully.\n")
+    colorize_output(sys.stdout, "green", Messages.pkg_built_suc)
 
 
 def make_distpkg(pkgtype, profile_file):
@@ -970,20 +1047,19 @@ def make_distpkg(pkgtype, profile_file):
     """
 
     dist_profile = FormatMap()
-    with open(profile_file, mode="r", encoding="utf-8") as f:
-        dist_profile = FormatMap.from_dict(json.load(f))
+    with open(profile_file, mode="r", encoding="utf-8") as file:
+        dist_profile = FormatMap.from_dict(json.load(file))
 
     colorize_output(
         sys.stdout,
         "white",
-        "Making '%s' binary distribution package by profile '%s' ...\n"
-        % (pkgtype, profile_file),
+        Messages.making_distpkg_by_profile % (pkgtype, profile_file),
     )
 
     if pkgtype == "dpkg":
         make_deb(dist_profile)
     else:
-        colorize_output(sys.stdout, "red", "Unknown package type '%s'.\n" % pkgtype)
+        colorize_output(sys.stdout, "red", Messages.unknown_pkg_type % pkgtype)
         sys.exit(1)
 
     next_profile_path = dist_profile.get("next-profile", "")
@@ -992,37 +1068,31 @@ def make_distpkg(pkgtype, profile_file):
             colorize_output(
                 sys.stdout,
                 "red",
-                "Next profile is the same as current profile, ignored.\n",
+                Messages.next_profile_is_same_as_cur,
             )
             sys.exit(1)
         next_profile = FormatMap()
-        with open(next_profile_path, mode="r", encoding="utf-8") as f:
-            next_profile = FormatMap.from_dict(json.load(f))
+        with open(next_profile_path, mode="r", encoding="utf-8") as file:
+            next_profile = FormatMap.from_dict(json.load(file))
         make_distpkg(pkgtype, next_profile)
 
 
 # Argument parser.
-arg_parser = argparse.ArgumentParser(
-    description="C++ Plus repository distributing, packaging and initialization utilities."
-)
-arg_parser.add_argument(
-    "--root", default=".", help="The root directory of the repository."
-)
-subparsers = arg_parser.add_subparsers(dest="command", help="The command to execute.")
-subparsers.add_parser("init", help="Initialize all required C++ Plus repository.")
-subparsers.add_parser("deinit", help="Deinitialize all required C++ Plus repository.")
-subparsers.add_parser("info", help="Print the package information.")
-dist_parser = subparsers.add_parser(
-    "dist", help="Make the source distribution package."
-)
+arg_parser = argparse.ArgumentParser(description=Messages.repoutils_help)
+arg_parser.add_argument("--root", default=".", help=Messages.root_dir_help)
+subparsers = arg_parser.add_subparsers(dest="command", help=Messages.command_help)
+subparsers.add_parser("init", help=Messages.init_help)
+subparsers.add_parser("deinit", help=Messages.deinit_help)
+subparsers.add_parser("info", help=Messages.info_help)
+dist_parser = subparsers.add_parser("dist", help=Messages.dist_help)
 dist_parser.add_argument(
     "--distdir",
     default="$name-$version",
-    help="The directory to save the distribution package, support variable: $name, $version.",
+    help=Messages.distdir_help,
 )
 
-distpkg_parser = subparsers.add_parser("distpkg", help="Make the distribution package.")
-distpkg_parser.add_argument("--type", default="", help="Make the Debian package.")
+distpkg_parser = subparsers.add_parser("distpkg", help=Messages.distpkg_help)
+distpkg_parser.add_argument("--type", default="", help=Messages.distpkg_dpkg_help)
 
 var_parser = arg_parser.add_argument_group("variable")
 var_parser.add_argument(
@@ -1030,22 +1100,15 @@ var_parser.add_argument(
     "-V",
     action="append",
     default=[],
-    help="Set a variable, format: --var name=val",
+    help=Messages.var_help,
 )
 
-VERSION_STRING = \
-"""cppp-repoutils 0.1.0
-Copyright (C) 2023 The C++ Plus Project.
-This is free software; see the source for copying conditions.  There is NO
-warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-Written by ChenPi11.
-"""
 arg_parser.add_argument(
     "--version",
     "-v",
     action="store_true",
     default=False,
-    help="Print the version of the program.",
+    help=Messages.version_help,
 )
 
 # Main entry.
@@ -1073,31 +1136,24 @@ def main():
     elif args.command == "info":
         print_package_info()
     elif args.command == "dist":
-        make_dist(
-            format_string_with_variables(args.distdir)
-        )
+        make_dist(format_string_with_variables(args.distdir))
     elif args.command == "distpkg":
         if args.type == "":
-            colorize_output(sys.stdout, "red", "Required options --type [dpkg]\n")
+            colorize_output(sys.stdout, "red", Messages.distpkg_reqargs_help)
         else:
             make_distpkg(args.type, profiles["dist-profile"])
     elif args.version:
-        colorize_output(sys.stdout, "white", VERSION_STRING)
+        colorize_output(sys.stdout, "white", Messages.version_string)
     elif args.command is None:
         print_package_info()
     else:
-        colorize_output(sys.stdout, "red", "Unknown command '%s'.\n" % args.command)
+        colorize_output(sys.stdout, "red", Messages.unknown_command_help % args.command)
 
 
 if __name__ == "__main__":
     try:
         main()
-    except SystemExit:
-        raise
     except KeyboardInterrupt:
         sys.exit(3)
-    except:
-        print_error()
-        sys.exit(1)
     finally:
         delete_all_temps()
