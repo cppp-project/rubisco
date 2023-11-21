@@ -6,6 +6,7 @@ dist-tools/build.ps1
 dist-tools/dist.json
 res/icon.ico
 repoutils.py
+pylint.conf
 FILELIST
 repoutils.spec
 cppp-repo.json

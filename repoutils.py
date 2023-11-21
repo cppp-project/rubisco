@@ -136,6 +136,9 @@ PROGRAM_PATH = os.path.abspath(sys.argv[0])
 # Python interpreter path.
 PYTHON_PATH = sys.executable
 
+# Is in PyInstaller environment.
+IS_PYINSTALLER = getattr(sys, "frozen", False)
+
 
 # Stack
 class Stack:
@@ -221,6 +224,8 @@ def colorize_output(file, color, text):
         color_id = 35
     elif color == "cyan":
         color_id = 36
+    elif color == "gray":
+        color_id = 90
     elif color == "white":
         color_id = 37
     file.write("\033[1;" + str(color_id) + "m" + str(text) + "\033[0m")
@@ -254,7 +259,9 @@ def progress_bar_update(current, total):
             sys.stdout, "yellow", "[" + "=" * barsize + " " * (width - barsize) + "]"
         )
     elif progress < 1:
-        colorize_output(sys.stdout, "cyan", "[" + "=" * barsize + " " * (width - barsize) + "]")
+        colorize_output(
+            sys.stdout, "cyan", "[" + "=" * barsize + " " * (width - barsize) + "]"
+        )
     else:
         colorize_output(
             sys.stdout, "green", "[" + "=" * barsize + " " * (width - barsize) + "]"
@@ -440,7 +447,7 @@ def sum_file_md5(file_path):
         str: The md5 of the given file.
     """
 
-    with open(file_path, mode="rb") as file:
+    with open(file_path, "rb") as file:
         md5 = hashlib.md5()
         md5.update(file.read())
         return md5.hexdigest()
@@ -803,10 +810,9 @@ def make_subpackage_dist(subpackage, distdir):
         subpackage (str): The name of the subpackage.
     """
 
-    exec_command(
+    commands = [PYTHON_PATH] if IS_PYINSTALLER else [PYTHON_PATH, PROGRAM_PATH]
+    commands.extend(
         [
-            PYTHON_PATH,
-            PROGRAM_PATH,
             "--root",
             profiles["subpackages"][subpackage]["path"],
             "dist",
@@ -814,6 +820,7 @@ def make_subpackage_dist(subpackage, distdir):
             os.path.abspath(os.path.join(distdir, subpackage)),
         ]
     )
+    exec_command(commands)
 
 
 def make_dist(distdir):
@@ -830,7 +837,7 @@ def make_dist(distdir):
     )
     file_list_file = profiles["file-list"]
     file_list = []
-    with open(file_list_file, mode="r", encoding="utf-8") as file:
+    with open(file_list_file, "r", encoding="utf-8") as file:
         file_list = file.read().strip().split("\n")
 
     all_count = len(file_list)
@@ -987,19 +994,22 @@ Essential: no
     if pre_depends != "":
         control_data += "Pre-Depends: %s\n" % (pre_depends)
     with open(
-        os.path.join(tempdir, "DEBIAN", "control"), mode="w", encoding="utf-8"
+        os.path.join(tempdir, "DEBIAN", "control"), "w", encoding="utf-8"
     ) as file:
         file.write(control_data)
 
     # Generate md5sums file.
     colorize_output(sys.stdout, "white", "Generating md5sums file ...\n")
     md5s = sum_files_md5(os.path.join(tempdir, "usr"))
-    print(md5s)
+    for file, md5 in md5s.items():
+        colorize_output(
+            sys.stdout, "gray", "%s: %s\n" % (os.path.relpath(file, tempdir), md5)
+        )
     md5sums_data = ""
-    for md5, file in md5s.items():
+    for file, md5 in md5s.items():
         md5sums_data += md5 + "  " + os.path.relpath(file, tempdir) + "\n"
     with open(
-        os.path.join(tempdir, "DEBIAN", "md5sums"), mode="w", encoding="utf-8"
+        os.path.join(tempdir, "DEBIAN", "md5sums"), "w", encoding="utf-8"
     ) as file:
         file.write(md5sums_data)
 
@@ -1047,7 +1057,7 @@ def make_distpkg(pkgtype, profile_file):
     """
 
     dist_profile = FormatMap()
-    with open(profile_file, mode="r", encoding="utf-8") as file:
+    with open(profile_file, "r", encoding="utf-8") as file:
         dist_profile = FormatMap.from_dict(json.load(file))
 
     colorize_output(
@@ -1072,7 +1082,7 @@ def make_distpkg(pkgtype, profile_file):
             )
             sys.exit(1)
         next_profile = FormatMap()
-        with open(next_profile_path, mode="r", encoding="utf-8") as file:
+        with open(next_profile_path, "r", encoding="utf-8") as file:
             next_profile = FormatMap.from_dict(json.load(file))
         make_distpkg(pkgtype, next_profile)
 
@@ -1121,6 +1131,12 @@ def main():
     args = arg_parser.parse_args()
     os.chdir(os.path.abspath(args.root))
 
+    # Checking for non-repo-operation commands.
+    if args.version:
+        colorize_output(sys.stdout, "white", Messages.version_string)
+        return 0
+
+    # Load repository profiles.
     profiles = load_profiles()
 
     # Set variables.
@@ -1129,6 +1145,7 @@ def main():
     push_variables("root", os.path.abspath(os.curdir))
     push_variables("version", profiles["version"])
 
+    # Checking for repo-operation commands.
     if args.command == "init":
         setup_subpackages()
     elif args.command == "deinit":
@@ -1142,17 +1159,15 @@ def main():
             colorize_output(sys.stdout, "red", Messages.distpkg_reqargs_help)
         else:
             make_distpkg(args.type, profiles["dist-profile"])
-    elif args.version:
-        colorize_output(sys.stdout, "white", Messages.version_string)
-    elif args.command is None:
-        print_package_info()
     else:
-        colorize_output(sys.stdout, "red", Messages.unknown_command_help % args.command)
+        print_package_info()
+        return 1
+    return 0
 
 
 if __name__ == "__main__":
     try:
-        main()
+        sys.exit(main())
     except KeyboardInterrupt:
         sys.exit(3)
     finally:

@@ -1,3 +1,8 @@
+2023-11-21	ChenPi11      <wushengwuxi-msctinoulk@outlook.com>
+
+	Add Pylint config.
+	Fix bugs.
+
 2023-11-12	ChenPi11      <wushengwuxi-msctinoulk@outlook.com>
 
 	Use message map to save messages.
