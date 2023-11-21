@@ -2,6 +2,7 @@
 
 	Add Pylint config.
 	Fix bugs.
+	Add GitHub Action for Pylint.
 
 2023-11-12	ChenPi11      <wushengwuxi-msctinoulk@outlook.com>
 
