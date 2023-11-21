@@ -117,6 +117,7 @@ class Messages:
     distpkg_dpkg_help = "Make the Debian package."
     var_help = "Set a variable, format: --var name=val"
     version_help = "Print the version of the program."
+    loaded_var = "Loaded variable: %s = \"%s\".\n"
     distpkg_reqargs_help = "Required options --type [dpkg]\n"
     unknown_command_help = "Unknown command '%s'.\n"
     version_string = """cppp-repoutils 0.1.0
@@ -1144,6 +1145,10 @@ def main():
     push_variables("name", profiles["name"])
     push_variables("root", os.path.abspath(os.curdir))
     push_variables("version", profiles["version"])
+    for var in args.var:
+        key, value = var.split("=")
+        colorize_output(sys.stdout, "gray", Messages.loaded_var % (key, value))
+        push_variables(key, value)
 
     # Checking for repo-operation commands.
     if args.command == "init":

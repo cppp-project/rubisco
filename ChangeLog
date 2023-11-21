@@ -3,6 +3,7 @@
 	Add Pylint config.
 	Fix bugs.
 	Add GitHub Action for Pylint.
+	Perfect variable system.
 
 2023-11-12	ChenPi11      <wushengwuxi-msctinoulk@outlook.com>
 
