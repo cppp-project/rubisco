@@ -1,0 +1,60 @@
+name: 🛠️ Build cppp-repoutils 
+
+on:
+  release:
+    types: [published]
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    name: 🛠️ Build binary distribution
+
+    steps:
+
+    #--------------------------------------------collect--------------------------------------------
+      - name: ⬇️ Check out the repository
+        uses: actions/checkout@v4
+
+      - name: 🏷️ Get infomations
+        run: |
+          tag="${GITHUB_REF#refs/tags/}"
+          echo "tag=$tag" >> $GITHUB_ENV
+          echo "pkgname=cppp-repoutils-$tag" >> $GITHUB_ENV
+          echo "srcdir=$(pwd)" >> $GITHUB_ENV
+          echo "host=unknown-linux-gnu" >> $GITHUB_ENV
+
+      - name: 📁 Setup Python 3.12
+        uses: actions/setup-python@v4
+        with:
+            python-version: '3.12'
+
+      - name: 📁 Collect dependencies
+        run: |
+          pip3 install PyInstaller
+
+      - name: 🛠️ Build project
+        run: |
+          python3 repoutils.py --var "host=${{ env.host }}" --var "version=${{ env.tag }}" distpkg --type dpkg
+          python3 repoutils.py build
+          mv dist ${{ env.pkgname }}-${{ env.host }}
+
+      - name: 📦 Make packages
+        run: |
+          tar cvf ${{ env.pkgname }}-${{ env.host }}.tar ${{ env.pkgname }}-${{ env.host }}
+          zip -r -9 distpkg/${{ env.pkgname }}-${{ env.host }}.zip ${{ env.pkgname }}-${{ env.host }}
+          7z a distpkg/${{ env.pkgname }}-${{ env.host }}.7z ${{ env.pkgname }}-${{ env.host }}
+          xz -c -9 -k ${{ env.pkgname }}-${{ env.host }}.tar > distpkg/${{ env.pkgname }}-${{ env.host }}.tar.xz
+          gzip -c -9 -k ${{ env.pkgname }}-${{ env.host }}.tar > distpkg/${{ env.pkgname }}-${{ env.host }}.tar.gz
+
+          cd distpkg
+          for i in $(ls) ; do md5sum $i > $i.md5 ; done
+          cd ..
+
+      - name: ⬆️ Create release and upload assets
+        uses: softprops/action-gh-release@v1
+        with:
+            tag_name: ${{ env.tag }}
+            files: ./distpkg/*

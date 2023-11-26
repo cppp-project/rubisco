@@ -6,6 +6,8 @@
 	Auto detect the shell if build script cannot run directly.
 	New optional config 'cross-arch' in dist profile.
 	Update the output package's name.
+	Add GitHub Action for building.
+	Perfect output of GitHub Action.
 	Fix bugs.
 
 2023-11-21	ChenPi11      <wushengwuxi-msctinoulk@outlook.com>
