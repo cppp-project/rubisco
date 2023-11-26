@@ -18,7 +18,6 @@
 # If not, see <https://www.gnu.org/licenses/>.
 
 # This script help to build the software.
-# This script requires PyInstaller program and C/C++ compiler in the PATH.
 # This script requires to run in the root directory of the repo.
 
 # Usage: ./dist-tools/build.sh
@@ -44,28 +43,17 @@ output_log() {
     colored_output "$1" "[$2] [$timestamp] $3"
 }
 
-# Check PyInstaller program.
-if ! command -v pyinstaller > /dev/null 2>&1; then
-    output_log "red" "FATAL" "PyInstaller program not found in PATH."
-    exit 1
-fi
 # Check if we run this script in the root directory.
-if [ ! -f "repoutils.spec" ]; then
+if [ ! -f "repoutils.py" ]; then
     output_log "red" "FATAL" "Please run this script in the root directory."
     exit 1
 fi
 
 # Make package
 output_log "white" "INFO" "Making package..."
-rm -rf build
-rm -rf dist
-rm -rf distpkg
-pyinstaller --clean --noconfirm repoutils.spec
-if [ $? -ne 0 ]; then
-    output_log "red" "FATAL" "Failed to make package."
-    exit 1
-fi
 mkdir -p dist/bin
-mv dist/cppp-repoutils* dist/bin
+mkdir -p distpkg
+cp repoutils.py dist/bin/cppp-repoutils
+
 output_log "green" "SUCCESS" "Package made successfully."
 exit 0

@@ -28,6 +28,7 @@ C++ Plus source repositories and packages.
 import argparse
 import hashlib
 import json
+import locale
 import shutil
 import sys
 import tempfile
@@ -44,6 +45,7 @@ class Messages:
     traceback_title = "Traceback (most recent call last):\n"
     progress_format = " {:.2f}%"
     repo_profile_not_exist = "Repository profile file '%s' is not exist.\n"
+    command_not_found = "Command '%s' is not found. (Don't use alias)\n"
     downloading = "Downloading '%s' to '%s' ...\n"
     extracting = "Extracting '%s' to '%s' ...\n"
     module_already_setup = "Module '%s' is already setup.\n"
@@ -90,6 +92,7 @@ class Messages:
     distpkg_failed = "Failed to make distribution package\n"
     building_pkg = "Building package ...\n"
     path_not_exist = "Path '%s' is not exist.\n"
+    pkg_build_suc = "Package is built successfully, installed to '%s'.\n"
     copying_files = "Copying files ...\n"
     deb_copying_preinst = "Copying preinst file ...\n"
     deb_copying_prerm = "Copying prerm file ...\n"
@@ -99,6 +102,9 @@ class Messages:
     making_distpkg_by_profile = (
         "Making '%s' binary distribution package by profile '%s' ...\n"
     )
+    building_by_profile = "Building '%s' by profile '%s' ...\n"
+    cross_arch_is_true = "This program can run on all architectures, so we set 'arch' to unknown.\n"
+    arch_is = "Architecture is: %s\n"
     unknown_pkg_type = "Unknown package type '%s'.\n"
     next_profile_is_same_as_cur = (
         "Next profile is the same as current profile, ignored.\n"
@@ -115,6 +121,7 @@ class Messages:
     distdir_help = "The directory to save the distribution package, support variables."
     distpkg_help = "Make the distribution package."
     distpkg_dpkg_help = "Make the Debian package."
+    build_help = "Build the package."
     var_help = "Set a variable, format: --var name=val"
     version_help = "Print the version of the program."
     loaded_var = "Loaded variable: %s = \"%s\".\n"
@@ -341,7 +348,110 @@ def load_profiles():
 # Repository profiles.
 profiles = {}
 
+
 # Shell operations.
+
+
+# Which cache.
+which_cache = {}
+
+
+def which(program, strict=False):
+    """Get the absolute program in the PATH or current directory.
+
+    Args:
+        program (str): The program.
+        strict (bool): If True, raise an exception if the program is not found.
+
+    Returns:
+        str: The program path.
+    """
+
+    if program in which_cache:
+        return which_cache[program]
+
+    def is_exe(fpath):
+        return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
+
+    if is_exe(program):
+        return os.path.abspath(program)
+    for path in os.environ["PATH"].split(os.pathsep):
+        path = path.strip('"')
+        exe_file = os.path.join(path, program)
+        if is_exe(exe_file):
+            which_cache[program] = exe_file
+            return os.path.abspath(exe_file)
+    ext = os.path.splitext(program)[1]
+    if platform.system() == "Windows" \
+        and ext != ".exe" \
+        and ext != ".com" :
+
+        # On Windows, 'xxx' may mean 'xxx.exe' or 'xxx.com' but 'xxx' is not in the PATH,
+        # so we try add '.exe' or '.com' and find it again.
+        result = which(program + ".exe", strict=False)
+        if result == "":
+            result = which(program + ".com",  strict=False)
+        if result != "":
+            return result
+    if strict:
+        raise FileNotFoundError(Messages.command_not_found % program)
+    return ""
+
+
+def shell_exec(command):
+    """Find the shell in the PATH.
+
+    Args:
+        command (list): The command.
+
+    Returns:
+        list: Shell execute command
+    """
+
+    # Step 1: Check command[0] is a script.
+    script = ""
+    if len(command) > 0:
+        script = command[0]
+    if not os.path.exists(script):
+        return command
+    ext = os.path.splitext(script)[1]
+    script_exts = [".sh", ".ps1", ".psm1", ".ps2", ".cmd", ".bat"]
+    if ext not in script_exts:
+        return command
+
+    # Step 2: Find the shell in the PATH.
+    shell = ""
+    if platform.system() == "Windows":
+        if ext in [".sh", ".ps1", ".psm1", ".ps2"]:
+            shell = which("pwsh", strict=True)
+            if shell == "":
+                # New PowerShell is not installed. Use Windows PowerShell.
+                shell = which("powershell", strict=True)
+        elif ext in [".cmd", ".bat"]:
+            shell = which("cmd", strict=True)
+    else:
+        # POSIX shells.
+        if os.access(script, os.X_OK):
+            # The script is executable, so we don't need to find the shell.
+            return command
+
+        # Try to read the first line of the script.
+        try:
+            with open(script, "r", encoding=locale.getencoding()) as file:
+                line = file.readline()
+                assert line.startswith("#!")
+                shell = line[2:].strip()
+                shell = which(shell, strict=True)
+        except (UnicodeDecodeError, OSError, AssertionError):
+            # Search by common shell's level.
+            shells = ["zsh", "bash", "csh", "fish", "sh"]
+            for shell in shells:
+                shell = which(shell, strict=True)
+                if shell != "":
+                    break
+
+    # Step 3: Replace the script with the shell.
+    return [shell] + command
 
 
 def exec_command(commands):
@@ -355,6 +465,7 @@ def exec_command(commands):
     """
 
     try:
+        commands = shell_exec(commands)
         colorize_output(sys.stdout, "cyan", str(commands) + "\n")
         subprocess.check_call(commands)
     except subprocess.CalledProcessError:
@@ -411,8 +522,11 @@ def get_arch():
         str: The architecture of the operating system.
     """
 
-    arch = platform.machine()
-    return arch.lower()
+    arch = platform.machine().lower()
+    arch = variables.get("arch", arch)
+    if arch == "all":
+        return "unknown"
+    return arch
 
 
 # File operations.
@@ -554,6 +668,21 @@ def pop_variables(name):
     return None
 
 
+def get_variable(name):
+    """Get the value of the given variable.
+
+    Args:
+        name (str): The name of the variable.
+
+    Returns:
+        str: The value of the given variable.
+    """
+
+    if name in variables:
+        return variables[name].top()
+    raise KeyError(repr(name))
+
+
 def format_string_with_variables(string):
     """Format the string with variables.
 
@@ -571,7 +700,6 @@ def format_string_with_variables(string):
         string = string.replace("$" + name, values.top())
 
     return string
-
 
 # FormatMap
 class FormatMap(dict):
@@ -890,20 +1018,75 @@ def make_dist(distdir):
         return
 
 
-def make_deb(dist_profile):
-    """Make the Debian package.
+def build_profile(dist_profile):
+    """Build the project.
 
     Args:
-        pkg_root (str): The root directory of the package.
         dist_profile (FormatMap): The path of the distribution profile.
     """
 
+    build_script = dist_profile["posix-build-script"]
+    if platform.system() == "Windows":
+        build_script = dist_profile["windows-build-script"]
+    bin_dir = dist_profile["bin-dir"]
+
+    # Build the package.
+    colorize_output(sys.stdout, "white", Messages.building_pkg)
+    exec_command([os.path.abspath(os.path.join(build_script))])
+    if not os.path.exists(bin_dir):
+        colorize_output(sys.stdout, "red", Messages.path_not_exist % bin_dir)
+        sys.exit(1)
+    else:
+        colorize_output(sys.stdout, "green", Messages.pkg_build_suc % bin_dir)
+    return bin_dir
+
+
+def build_project(profile_file):
+    """Build the package.
+
+    Args:
+        profile_file (str): The path of the distribution profile.
+    """
+
+    dist_profile = FormatMap()
+    with open(profile_file, "r", encoding="utf-8") as file:
+        dist_profile = FormatMap.from_dict(json.load(file))
+
+    colorize_output(
+        sys.stdout,
+        "white",
+        Messages.building_by_profile % (profiles["name"], profile_file)
+    )
+
+    build_profile(dist_profile)
+
+    next_profile_path = dist_profile.get("next-profile", "")
+    if next_profile_path != "":
+        if os.path.abspath(next_profile_path) == os.path.abspath(profile_file):
+            colorize_output(
+                sys.stdout,
+                "red",
+                Messages.next_profile_is_same_as_cur,
+            )
+            sys.exit(1)
+        build_project(next_profile_path)
+
+
+def make_deb(dist_profile, arch):
+    """Make the Debian package.
+
+    Args:
+        dist_profile (FormatMap): The path of the distribution profile.
+        arch (str): The architecture of the package.
+    """
+
+    if arch == "unknown":
+        arch = "all"
     tempdir = tempfile.mkdtemp(".deb", "cppp-repo-")
     register_temp_path(tempdir)
     os.makedirs(os.path.join(tempdir, "DEBIAN"))
     os.makedirs(os.path.join(tempdir, "usr"))
 
-    arch = get_arch()
     # Change arch to Debian format.
     debian_format = {
         "arm": "armhf",
@@ -915,15 +1098,8 @@ def make_deb(dist_profile):
     }
     arch = debian_format.get(arch, arch)
 
-    build_script = dist_profile["posix-build-script"]
-    bin_dir = dist_profile["bin-dir"]
-
-    # Build the package.
-    colorize_output(sys.stdout, "white", Messages.building_pkg)
-    exec_command([os.path.abspath(os.path.join(build_script))])
-    if not os.path.exists(bin_dir):
-        colorize_output(sys.stdout, "red", Messages.path_not_exist % bin_dir)
-        return
+    # Build the project.
+    bin_dir = build_profile(dist_profile)
 
     # Copy files.
     colorize_output(sys.stdout, "white", Messages.copying_files)
@@ -1067,8 +1243,17 @@ def make_distpkg(pkgtype, profile_file):
         Messages.making_distpkg_by_profile % (pkgtype, profile_file),
     )
 
+    arch = get_variable("arch")
+    if dist_profile.get("cross-arch", False):
+        arch = "unknown"
+        push_variables("arch", "unknown")
+        colorize_output(sys.stdout, "white", Messages.cross_arch_is_true)
+    else:
+        push_variables("arch", arch)
+
+    colorize_output(sys.stdout, "gray", Messages.arch_is % arch)
     if pkgtype == "dpkg":
-        make_deb(dist_profile)
+        make_deb(dist_profile, arch)
     else:
         colorize_output(sys.stdout, "red", Messages.unknown_pkg_type % pkgtype)
         sys.exit(1)
@@ -1082,10 +1267,8 @@ def make_distpkg(pkgtype, profile_file):
                 Messages.next_profile_is_same_as_cur,
             )
             sys.exit(1)
-        next_profile = FormatMap()
-        with open(next_profile_path, "r", encoding="utf-8") as file:
-            next_profile = FormatMap.from_dict(json.load(file))
-        make_distpkg(pkgtype, next_profile)
+        make_distpkg(pkgtype, next_profile_path)
+    pop_variables("arch")
 
 
 # Argument parser.
@@ -1104,6 +1287,10 @@ dist_parser.add_argument(
 
 distpkg_parser = subparsers.add_parser("distpkg", help=Messages.distpkg_help)
 distpkg_parser.add_argument("--type", default="", help=Messages.distpkg_dpkg_help)
+# TODO: Build should support build flags.
+
+build_parser = subparsers.add_parser("build", help=Messages.build_help)
+# TODO: Build should support build flags.
 
 var_parser = arg_parser.add_argument_group("variable")
 var_parser.add_argument(
@@ -1111,7 +1298,7 @@ var_parser.add_argument(
     "-V",
     action="append",
     default=[],
-    help=Messages.var_help,
+    help=Messages.var_help
 )
 
 arg_parser.add_argument(
@@ -1119,7 +1306,7 @@ arg_parser.add_argument(
     "-v",
     action="store_true",
     default=False,
-    help=Messages.version_help,
+    help=Messages.version_help
 )
 
 # Main entry.
@@ -1149,6 +1336,9 @@ def main():
         key, value = var.split("=")
         colorize_output(sys.stdout, "gray", Messages.loaded_var % (key, value))
         push_variables(key, value)
+    # Architecture cannot be 'all'.
+    if get_variable("arch") == "all":
+        push_variables("arch", "unknown")
 
     # Checking for repo-operation commands.
     if args.command == "init":
@@ -1164,6 +1354,8 @@ def main():
             colorize_output(sys.stdout, "red", Messages.distpkg_reqargs_help)
         else:
             make_distpkg(args.type, profiles["dist-profile"])
+    elif args.command == "build":
+        build_project(profiles["dist-profile"])
     else:
         print_package_info()
         return 1

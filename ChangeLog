@@ -1,3 +1,13 @@
+2023-11-26	ChenPi11      <wushengwuxi-msctinoulk@outlook.com>
+
+	Do not use PyInstaller to build the project, copy the source code directly.
+	Add support on Windows.
+	Add 'build' command.
+	Auto detect the shell if build script cannot run directly.
+	New optional config 'cross-arch' in dist profile.
+	Update the output package's name.
+	Fix bugs.
+
 2023-11-21	ChenPi11      <wushengwuxi-msctinoulk@outlook.com>
 
 	Add Pylint config.
