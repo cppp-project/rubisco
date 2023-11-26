@@ -1,0 +1,12 @@
+name: "Setup C++ Plus repository utilities."
+
+description: "Set up cppp-repoutil and add the command-line tools to the PATH."
+author: "The C++ Plus Project"
+
+runs:
+  using: 'node20'
+  main: 'index.js'
+
+branding:
+  icon: 'code'
+  color: 'blue'

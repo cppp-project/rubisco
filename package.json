@@ -1,0 +1,16 @@
+{
+  "name": "setup-cppp-repoutils",
+  "version": "1.0.0",
+  "description": "Setup C++ Plus repository utilities.",
+  "main": "main.js",
+  "author": "ChenPi11",
+  "license": "GPL-3.0-or-later",
+  "devDependencies": {
+    "7zip-bin": "^5.2.0",
+    "@actions/core": "^1.10.1",
+    "@actions/exec": "^1.1.1",
+    "@types/node": "^20.9.4",
+    "node-7z": "^3.0.0",
+    "node-fetch": "^3.3.2"
+  }
+}

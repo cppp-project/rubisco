@@ -14,3 +14,7 @@ src/run.cmd
 templates/cppp-repo.template.json
 templates/dist.template.json
 templates/variable.md
+action.yml
+dist-tools/build-gh-action.sh
+main.js
+package.json

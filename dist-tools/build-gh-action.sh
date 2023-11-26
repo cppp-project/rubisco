@@ -17,10 +17,10 @@
 # License along with the cppp-repoutils software; see the file COPYING.
 # If not, see <https://www.gnu.org/licenses/>.
 
-# This script help to build the software.
+# This script help to build the GitHub Action.
 # This script requires to run in the root directory of the repo.
 
-# Usage: ./dist-tools/build.sh
+# Usage: ./dist-tools/build-gh-action.sh
 
 colored_output() {
     if [ "$1" = "red" ]; then
@@ -52,9 +52,9 @@ fi
 # Make package
 output_log "white" "INFO" "Making package..."
 
-mkdir -p dist/bin
-mkdir -p distpkg
-cp repoutils.py dist/bin/cppp-repoutils
+mkdir -p dist-gh-action
+ncc build --minify --out dist-gh-action main.js
+chmod +x $(find dist-gh-action -type f)
 
 output_log "green" "SUCCESS" "Package made successfully."
 exit 0
