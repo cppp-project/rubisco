@@ -1,3 +1,7 @@
+2023-12-19	ChenPi11      <wushengwuxi-msctinoulk@outlook.com>
+
+	Use composite GitHub Action instead of Node.
+
 2023-11-26	ChenPi11      <wushengwuxi-msctinoulk@outlook.com>
 
 	Do not use PyInstaller to build the project, copy the source code directly.

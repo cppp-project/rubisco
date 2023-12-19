@@ -1,20 +1,20 @@
 #!/usr/bin/env python3
 
 # Copyright (C) 2023 The C++ Plus Project.
-# This file is part of the cppp-reiconv library.
+# This file is part of the cppp-repoutils library.
 #
-# The cppp-reiconv library is free software; you can redistribute it
-# and/or modify it under the terms of the GNU Lesser General Public
+# The cppp-repoutils library is free software; you can redistribute it
+# and/or modify it under the terms of the GNU General Public
 # License as published by the Free Software Foundation; either version 3
 # of the License, or (at your option) any later version.
 #
-# The cppp-reiconv library is distributed in the hope that it will be
+# The cppp-repoutils library is distributed in the hope that it will be
 # useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-# Lesser General Public License for more details.
+# General Public License for more details.
 #
-# You should have received a copy of the GNU Lesser General Public
-# License along with the cppp-reiconv library; see the file COPYING.
+# You should have received a copy of the GNU General Public
+# License along with the cppp-repoutils library; see the file COPYING.
 # If not, see <https://www.gnu.org/licenses/>.
 
 """

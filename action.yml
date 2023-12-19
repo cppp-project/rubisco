@@ -1,12 +1,124 @@
-name: "Setup C++ Plus repository utilities."
+name: 📁 Setup C++ Plus repository utilities.
 
-description: "Set up cppp-repoutil and add the command-line tools to the PATH."
-author: "The C++ Plus Project"
+description: Set up cppp-repoutil and add the command-line tools to the PATH.
+author: The C++ Plus Project
+
+outputs:
+  tag:
+    description: The tag of the repository for release build, if we are not in a release build, the tag will set to the current branch name.
+    value: ${{ steps.info.outputs.tag }}
+  reponame:
+    description: The name of the repository.
+    value: ${{ steps.info.outputs.reponame }}
+  pkgname:
+    description: The name of the package.
+    value: ${{ steps.info.outputs.pkgname }}
+  srcdir:
+    description: Source directory of the repository.
+    value: ${{ steps.info.outputs.srcdir }}
 
 runs:
-  using: 'node20'
-  main: 'index.js'
+  using: composite
+  steps:
+    # Setup compress utilities: p7zip, gzip, tar, xz, zip.
+    - name: 📁 Setup compress utilities. (Ubuntu)
+      if: runner.os == 'Linux'
+      run: |
+        sudo apt-get update
+        sudo apt-get install p7zip-full gzip tar xz-utils zip -y
+      shell: pwsh
 
-branding:
-  icon: 'code'
-  color: 'blue'
+    - name: 📁 Setup compress utilities. (Windows)
+      if: runner.os == 'Windows'
+      run: |
+        choco install 7zip.portable gzip zip --yes
+      shell: pwsh
+
+    - name: 📁 Setup compress utilities. (macOS)
+      if: runner.os == 'macOS'
+      run: |
+        brew install p7zip gzip xz zip
+      shell: pwsh
+
+    # Setup other utilities: curl, wget.
+    - name: 📁 Setup other utilities. (Ubuntu)
+      if: runner.os == 'Linux'
+      run: |
+        sudo apt-get install curl wget -y
+      shell: pwsh
+
+    - name: 📁 Setup other utilities. (Windows)
+      if: runner.os == 'Windows'
+      run: |
+        choco install curl wget --yes
+      shell: pwsh
+
+    - name: 📁 Setup other utilities. (macOS)
+      if: runner.os == 'macOS'
+      run: |
+        brew install curl wget
+      shell: pwsh
+
+    # Setup Python.
+    - name: 📁 Setup Python.
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.12"
+
+    # Setup original C/C++ toolchain: llvm, clang, cmake, ninja.
+    - name: 📁 Setup C/C++ toolchain. (Ubuntu)
+      if: runner.os == 'Linux'
+      run: |
+        sudo apt-get install llvm clang cmake ninja-build -y
+      shell: pwsh
+
+    - name: 📁 Setup C/C++ toolchain. (Windows)
+      if: runner.os == 'Windows'
+      run: |
+        choco install llvm ninja cmake --yes
+      shell: pwsh
+
+    - name: 📁 Setup C/C++ toolchain. (macOS)
+      if: runner.os == 'macOS'
+      run: |
+        brew install llvm ninja cmake
+      shell: pwsh
+
+    - name: 🧳 Setup MSVC. (Windows)
+      if: runner.os == 'Windows'
+      uses: microsoft/setup-msbuild@v1
+
+    - name: 🧳 Setup XCode. (macOS)
+      if: runner.os == 'macOS'
+      uses: maxim-lobanov/setup-xcode@v1
+      with:
+        xcode-version: latest-stable
+
+    # Get repository infomation.
+    - name: 🏷️ Get repository infomation.
+      id: info
+      run: |
+        $tag="$env:GITHUB_REF_NAME"
+        if (-not $tag) {
+          $tag=$(git rev-parse --abbrev-ref HEAD)
+        }
+        $reponame=$env:GITHUB_REPOSITORY
+        try {
+          $reponame=$reponame.Split("/").Get(1)
+        }
+        catch {
+          Write-Host "Invalid repository name: '$reponame'." -ForegroundColor Red
+        }
+        Write-Output "tag=$tag" >> $env:GITHUB_OUTPUT
+        Write-Output "reponame=$reponame" >> $env:GITHUB_OUTPUT
+        Write-Output "pkgname=$reponame-$tag" >> $env:GITHUB_OUTPUT
+        Write-Output "srcdir=$PWD" >> $env:GITHUB_OUTPUT
+      shell: pwsh
+
+    # Setup cppp-repoutils.
+    - name: 📁 Setup cppp-repoutils.
+      run: |
+        Set-Location "$env:GITHUB_ACTION_PATH"
+        pwsh -file "$env:GITHUB_ACTION_PATH/dist-tools/build.ps1"
+        Write-Output "$env:GITHUB_ACTION_PATH/dist/bin" >> $env:GITHUB_PATH
+      shell: pwsh

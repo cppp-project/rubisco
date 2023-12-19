@@ -1,4 +1,4 @@
-name: 🛠️ Build cppp-repoutils 
+name: 🛠️ Build cppp-repoutils
 
 on:
   release:
