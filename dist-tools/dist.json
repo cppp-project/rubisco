@@ -5,6 +5,7 @@
     "output-package-path": "$root/distpkg/$name-$version-$host.deb",
     "installed-size": "auto",
     "cross-arch": true,
+    "deb-depends": "python3-minimal",
 
     "rpm-group": "Development/Tools"
 }

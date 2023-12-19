@@ -1,6 +1,7 @@
 2023-12-19	ChenPi11      <wushengwuxi-msctinoulk@outlook.com>
 
 	Use composite GitHub Action instead of Node.
+	Add depends of python3-minimal in dist profile.
 
 2023-11-26	ChenPi11      <wushengwuxi-msctinoulk@outlook.com>
 
