@@ -24,7 +24,7 @@ outputs:
   host:
     description: Cross-compile to build programs to run on the host system.
     value: ${{ inputs.host }}
-  
+
 
 runs:
   using: composite

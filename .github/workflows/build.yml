@@ -29,10 +29,6 @@ jobs:
     #--------------------------------------------collect--------------------------------------------
       - name: ⬇️ Checkout the repository.
         uses: actions/checkout@v4
-
-      - name: 🏷️ Get infomations
-        run: |
-          Write-Output "host=${{ matrix.target }}" >> $env:GITHUB_ENV
       
       - name: 📁 Setup cppp-repoutils.
         id: setup
@@ -42,21 +38,19 @@ jobs:
 
       - name: 🛠️ Build the package.
         run: |
-          cppp-repoutils --var "host=${{ env.host }}" --var "version=${{ steps.setup.outputs.tag }}" build
+          cppp-repoutils --var "host=${{ steps.setup.outputs.host }}" --var "version=${{ steps.setup.outputs.tag }}" build
           if ($IsLinux) {
-            cppp-repoutils --var "host=${{ env.host }}" --var "version=${{ steps.setup.outputs.tag }}" distpkg --type dpkg
+            cppp-repoutils --var "host=${{ steps.setup.outputs.host }}" --var "version=${{ steps.setup.outputs.tag }}" distpkg --type dpkg
           }
-          Move-Item -Path "dist" -Destination "${{ steps.setup.outputs.pkgname }}-${{ env.host }}"
+          Move-Item -Path "dist" -Destination "${{ steps.setup.outputs.pkgname }}-${{ steps.setup.outputs.host }}"
 
       - name: 📦 Make packages
         run: |
-          tar cvf ${{ steps.setup.outputs.pkgname }}-${{ env.host }}.tar ${{ steps.setup.outputs.pkgname }}-${{ env.host }}
-          zip -r -9 distpkg/${{ steps.setup.outputs.pkgname }}-${{ env.host }}.zip ${{ steps.setup.outputs.pkgname }}-${{ env.host }}
-          7z a distpkg/${{ steps.setup.outputs.pkgname }}-${{ env.host }}.7z ${{ steps.setup.outputs.pkgname }}-${{ env.host }}
-          xz -9 -k ${{ steps.setup.outputs.pkgname }}-${{ env.host }}.tar
-          gzip -9 -k ${{ steps.setup.outputs.pkgname }}-${{ env.host }}.tar
-          Move-Item ${{ steps.setup.outputs.pkgname }}-${{ env.host }}.tar.xz distpkg/${{ steps.setup.outputs.pkgname }}-${{ env.host }}.tar.xz
-          Move-Item ${{ steps.setup.outputs.pkgname }}-${{ env.host }}.tar.gz distpkg/${{ steps.setup.outputs.pkgname }}-${{ env.host }}.tar.gz
+          cppp-compress --type tar "${{ steps.setup.outputs.pkgname }}-${{ steps.setup.outputs.host }}" .
+          cppp-compress --type zip "${{ steps.setup.outputs.pkgname }}-${{ steps.setup.outputs.host }}" distpkg
+          cppp-compress --type 7z "${{ steps.setup.outputs.pkgname }}-${{ steps.setup.outputs.host }}" distpkg
+          cppp-compress --type xz "${{ steps.setup.outputs.pkgname }}-${{ steps.setup.outputs.host }}.tar" distpkg
+          cppp-compress --type gzip "${{ steps.setup.outputs.pkgname }}-${{ steps.setup.outputs.host }}.tar" distpkg
 
           Set-Location distpkg
           Get-ChildItem | ForEach-Object {
