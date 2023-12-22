@@ -24,17 +24,17 @@
 
 function colored_output {
     param (
-        [Parameter(Mandatory=$true)][System.String]$color,
-        [Parameter(Mandatory=$true)][string]$message
+        [Parameter(Mandatory = $true)][System.String]$color,
+        [Parameter(Mandatory = $true)][string]$message
     )
     Write-Host $message -ForegroundColor $color
 }
 
 function output_log {
     param (
-        [Parameter(Mandatory=$true)][string]$color,
-        [Parameter(Mandatory=$true)][string]$level,
-        [Parameter(Mandatory=$true)][string]$message
+        [Parameter(Mandatory = $true)][string]$color,
+        [Parameter(Mandatory = $true)][string]$level,
+        [Parameter(Mandatory = $true)][string]$message
     )
     $timestamp = Get-Date -Format "yyyy/MM/dd HH:mm:ss"
     colored_output $color "[$level] [$timestamp] $message"
@@ -50,7 +50,12 @@ output_log White INFO "Making package..."
 
 New-Item -ItemType Directory -Force -Path "dist/bin" | Out-Null
 Copy-Item -Path "src/cppp-repoutils.py" -Destination "dist/bin/cppp-repoutils" -Force | Out-Null
-Copy-Item -Path "src/cppp-repoutils.cmd" -Destination "dist/bin/cppp-repoutils.cmd" -Force | Out-Null
+Copy-Item -Path "src/cppp-compress.py" -Destination "dist/bin/cppp-compress" -Force | Out-Null
+if ($env:OS -eq "Windows_NT" -or $IsWindows) {
+    Copy-Item -Path "src/cppp-repoutils.cmd" -Destination "dist/bin/cppp-repoutils.cmd" -Force | Out-Null
+    Copy-Item -Path "src/cppp-compress.cmd" -Destination "dist/bin/cppp-compress.cmd" -Force | Out-Null
+}
+
 
 output_log Green SUCCESS "Package made successfully."
 exit 0

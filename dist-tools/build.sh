@@ -55,6 +55,9 @@ output_log "white" "INFO" "Making package..."
 mkdir -p dist/bin
 mkdir -p distpkg
 cp src/cppp-repoutils.py dist/bin/cppp-repoutils
+cp src/cppp-compress.py dist/bin/cppp-compress
+chmod +x dist/bin/cppp-repoutils
+chmod +x dist/bin/cppp-compress
 
 output_log "green" "SUCCESS" "Package made successfully."
 exit 0

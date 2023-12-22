@@ -15,11 +15,11 @@ rem
 rem You should have received a copy of the GNU General Public License
 rem along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-rem Run C++ Plus repository utilities.
+rem Run C++ Plus compress utilities.
 rem This program required py or python or python3 in PATH.
 
 rem Usage:
-rem   cppp-repoutils [command] [options]
+rem   cppp-compress [command] [options]
 
 setlocal
 set PYTHON_EXECUTABLE=python
@@ -40,7 +40,7 @@ if errorlevel 1 (
     )
 )
 
-set "SCRIPT_PATH=%~dp0\cppp-repoutils"
+set "SCRIPT_PATH=%~dp0\cppp-compress"
 "%PYTHON_EXECUTABLE%" "%SCRIPT_PATH%" %*
 set "ERRORLEVEL=%ERRORLEVEL%"
 goto end

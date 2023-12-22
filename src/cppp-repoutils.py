@@ -4,7 +4,7 @@
 # vi: set ft=python :
 
 # Copyright (C) 2023 The C++ Plus Project.
-# This file is part of the cppp-repoutils library.
+# This file is part of the cppp-repoutils.
 #
 # This file is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published
