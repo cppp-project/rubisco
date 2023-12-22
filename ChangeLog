@@ -4,6 +4,8 @@
 	Add compress program.
 	Use CR LF line-feed for Batch file.
 	Update license notice in source files.
+	Use symbolic link for 'repoutils.py'.
+	Rename sources.
 
 2023-12-19	ChenPi11      <wushengwuxi-msctinoulk@outlook.com>
 

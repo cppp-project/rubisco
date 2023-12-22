@@ -44,7 +44,7 @@ output_log() {
 }
 
 # Check if we run this script in the root directory.
-if [ ! -f "repoutils.py" ]; then
+if [ ! -f "cppp-repo.json" ]; then
     output_log "red" "FATAL" "Please run this script in the root directory."
     exit 1
 fi
@@ -54,7 +54,7 @@ output_log "white" "INFO" "Making package..."
 
 mkdir -p dist/bin
 mkdir -p distpkg
-cp repoutils.py dist/bin/cppp-repoutils
+cp src/cppp-repoutils.py dist/bin/cppp-repoutils
 
 output_log "green" "SUCCESS" "Package made successfully."
 exit 0

@@ -41,7 +41,7 @@ function output_log {
 }
 
 # Check if we run this script in the root directory.
-if (-not (Test-Path "repoutils.py")) {
+if (-not (Test-Path "cppp-repo.json")) {
     output_log Red FATAL "Please run this script in the root directory."
     exit 1
 }
@@ -49,8 +49,8 @@ if (-not (Test-Path "repoutils.py")) {
 output_log White INFO "Making package..."
 
 New-Item -ItemType Directory -Force -Path "dist/bin" | Out-Null
-Copy-Item -Path "repoutils.py" -Destination "dist/bin/cppp-repoutils" -Force | Out-Null
-Copy-Item -Path "src/run.cmd" -Destination "dist/bin/cppp-repoutils.cmd" -Force | Out-Null
+Copy-Item -Path "src/cppp-repoutils.py" -Destination "dist/bin/cppp-repoutils" -Force | Out-Null
+Copy-Item -Path "src/cppp-repoutils.cmd" -Destination "dist/bin/cppp-repoutils.cmd" -Force | Out-Null
 
 output_log Green SUCCESS "Package made successfully."
 exit 0
