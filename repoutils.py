@@ -1,28 +1,30 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+# -*- mode: python -*-
+# vi: set ft=python :
 
 # Copyright (C) 2023 The C++ Plus Project.
 # This file is part of the cppp-repoutils library.
 #
-# The cppp-repoutils library is free software; you can redistribute it
-# and/or modify it under the terms of the GNU General Public
-# License as published by the Free Software Foundation; either version 3
-# of the License, or (at your option) any later version.
+# This file is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published
+# by the Free Software Foundation, either version 3 of the License,
+# or (at your option) any later version.
 #
-# The cppp-repoutils library is distributed in the hope that it will be
-# useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-# General Public License for more details.
+# This file is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
 #
-# You should have received a copy of the GNU General Public
-# License along with the cppp-repoutils library; see the file COPYING.
-# If not, see <https://www.gnu.org/licenses/>.
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 """
 C++ Plus repository distributing, packaging and initialization utilities.
 
-This module provides a set of utilities for initializing, distributing, packaging and
-C++ Plus repositories. The utilities are designed for develop
-C++ Plus source repositories and packages.
+This module provides a set of utilities for initializing, distributing,
+packaging and C++ Plus repositories. The utilities are designed for
+develop C++ Plus source repositories and packages.
 """
 
 import argparse
@@ -236,7 +238,7 @@ def colorize_output(file, color, text):
         color_id = 90
     elif color == "white":
         color_id = 37
-    file.write("\033[1;" + str(color_id) + "m" + str(text) + "\033[0m")
+    file.write("\033[1;%sm%s\033[0m" % (color_id, text))
 
 
 def progress_bar_update(current, total):

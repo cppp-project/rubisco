@@ -1,3 +1,10 @@
+2023-12-22	ChenPi11      <wushengwuxi-msctinoulk@outlook.com>
+
+	Add GitHub Action input and output: 'host'.
+	Add compress program.
+	Use CR LF line-feed for Batch file.
+	Update license notice in source files.
+
 2023-12-19	ChenPi11      <wushengwuxi-msctinoulk@outlook.com>
 
 	Use composite GitHub Action instead of Node.

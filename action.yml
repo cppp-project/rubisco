@@ -3,6 +3,11 @@ name: 📁 Setup C++ Plus repository utilities.
 description: Set up cppp-repoutil and add the command-line tools to the PATH.
 author: The C++ Plus Project
 
+inputs:
+  host:
+    description: Cross-compile to build programs to run on the host system.
+    required: true
+
 outputs:
   tag:
     description: The tag of the repository for release build, if we are not in a release build, the tag will set to the current branch name.
@@ -16,6 +21,10 @@ outputs:
   srcdir:
     description: Source directory of the repository.
     value: ${{ steps.info.outputs.srcdir }}
+  host:
+    description: Cross-compile to build programs to run on the host system.
+    value: ${{ inputs.host }}
+  
 
 runs:
   using: composite
@@ -119,6 +128,6 @@ runs:
     - name: 📁 Setup cppp-repoutils.
       run: |
         Set-Location "$env:GITHUB_ACTION_PATH"
-        pwsh -file "$env:GITHUB_ACTION_PATH/dist-tools/build.ps1"
+        pwsh -File "$env:GITHUB_ACTION_PATH/dist-tools/build.ps1"
         Write-Output "$env:GITHUB_ACTION_PATH/dist/bin" >> $env:GITHUB_PATH
       shell: pwsh

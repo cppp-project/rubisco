@@ -8,53 +8,68 @@ jobs:
 
   build:
 
-    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { sys: ubuntu-latest, target: unknown-linux-unknown }
+          - { sys: windows-latest, target: unknown-windows-unknown }
+          - { sys: macos-latest,  target: unknown-apple-unknown }
+
+    runs-on: ${{ matrix.sys }}
 
     name: 🛠️ Build binary distribution
+
+    defaults:
+      run:
+        shell: pwsh
 
     steps:
 
     #--------------------------------------------collect--------------------------------------------
-      - name: ⬇️ Check out the repository
+      - name: ⬇️ Checkout the repository.
         uses: actions/checkout@v4
 
       - name: 🏷️ Get infomations
         run: |
-          tag="${GITHUB_REF#refs/tags/}"
-          echo "tag=$tag" >> $GITHUB_ENV
-          echo "pkgname=cppp-repoutils-$tag" >> $GITHUB_ENV
-          echo "srcdir=$(pwd)" >> $GITHUB_ENV
-          echo "host=unknown-linux-gnu" >> $GITHUB_ENV
-
-      - name: 📁 Setup Python 3.12
-        uses: actions/setup-python@v4
+          Write-Output "host=${{ matrix.target }}" >> $env:GITHUB_ENV
+      
+      - name: 📁 Setup cppp-repoutils.
+        id: setup
+        uses: cppp-project/cppp-repoutils@main
         with:
-            python-version: '3.12'
+          host: ${{ matrix.target }}
 
-      - name: 📁 Collect dependencies
+      - name: 🛠️ Build the package.
         run: |
-          pip3 install PyInstaller
-
-      - name: 🛠️ Build project
-        run: |
-          python3 repoutils.py --var "host=${{ env.host }}" --var "version=${{ env.tag }}" distpkg --type dpkg
-          python3 repoutils.py build
-          mv dist ${{ env.pkgname }}-${{ env.host }}
+          cppp-repoutils --var "host=${{ env.host }}" --var "version=${{ steps.setup.outputs.tag }}" build
+          if ($IsLinux) {
+            cppp-repoutils --var "host=${{ env.host }}" --var "version=${{ steps.setup.outputs.tag }}" distpkg --type dpkg
+          }
+          Move-Item -Path "dist" -Destination "${{ steps.setup.outputs.pkgname }}-${{ env.host }}"
 
       - name: 📦 Make packages
         run: |
-          tar cvf ${{ env.pkgname }}-${{ env.host }}.tar ${{ env.pkgname }}-${{ env.host }}
-          zip -r -9 distpkg/${{ env.pkgname }}-${{ env.host }}.zip ${{ env.pkgname }}-${{ env.host }}
-          7z a distpkg/${{ env.pkgname }}-${{ env.host }}.7z ${{ env.pkgname }}-${{ env.host }}
-          xz -c -9 -k ${{ env.pkgname }}-${{ env.host }}.tar > distpkg/${{ env.pkgname }}-${{ env.host }}.tar.xz
-          gzip -c -9 -k ${{ env.pkgname }}-${{ env.host }}.tar > distpkg/${{ env.pkgname }}-${{ env.host }}.tar.gz
+          tar cvf ${{ steps.setup.outputs.pkgname }}-${{ env.host }}.tar ${{ steps.setup.outputs.pkgname }}-${{ env.host }}
+          zip -r -9 distpkg/${{ steps.setup.outputs.pkgname }}-${{ env.host }}.zip ${{ steps.setup.outputs.pkgname }}-${{ env.host }}
+          7z a distpkg/${{ steps.setup.outputs.pkgname }}-${{ env.host }}.7z ${{ steps.setup.outputs.pkgname }}-${{ env.host }}
+          xz -9 -k ${{ steps.setup.outputs.pkgname }}-${{ env.host }}.tar
+          gzip -9 -k ${{ steps.setup.outputs.pkgname }}-${{ env.host }}.tar
+          Move-Item ${{ steps.setup.outputs.pkgname }}-${{ env.host }}.tar.xz distpkg/${{ steps.setup.outputs.pkgname }}-${{ env.host }}.tar.xz
+          Move-Item ${{ steps.setup.outputs.pkgname }}-${{ env.host }}.tar.gz distpkg/${{ steps.setup.outputs.pkgname }}-${{ env.host }}.tar.gz
 
-          cd distpkg
-          for i in $(ls) ; do md5sum $i > $i.md5 ; done
-          cd ..
+          Set-Location distpkg
+          Get-ChildItem | ForEach-Object {
+            md5sum $_.Name > ($_.Name + ".md5")
+            if ($IsWindows) {
+              dos2unix ($_.Name + ".md5")
+            }
+          }
+          Set-Location ${{ steps.setup.outputs.srcdir }}
 
       - name: ⬆️ Create release and upload assets
         uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
         with:
-            tag_name: ${{ env.tag }}
+            tag_name: ${{ steps.setup.outputs.tag }}
             files: ./distpkg/*
