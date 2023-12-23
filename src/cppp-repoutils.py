@@ -44,91 +44,92 @@ import queue
 class Messages:
     """Messages class."""
 
-    traceback_title = "Traceback (most recent call last):\n"
-    progress_format = " {:.2f}%"
-    repo_profile_not_exist = "Repository profile file '%s' is not exist.\n"
-    command_not_found = "Command '%s' is not found. (Don't use alias)\n"
-    downloading = "Downloading '%s' to '%s' ...\n"
-    extracting = "Extracting '%s' to '%s' ...\n"
-    module_already_setup = "Module '%s' is already setup.\n"
-    setting_up_package = "Setting up package: '%s' ...\n"
-    subpkg_path = "\tPath: %s\n"
-    subpkg_description = "\tDescription: %s\n"
-    subpkg_remoteurl = "\tUrl: %s\n"
-    subpkg_type_is_git = "\tType: Git\n"
-    clone_repo_failed = "Failed to clone the repository.\n"
-    subpkg_type_is_svn = "\tType: Svn\n"
-    checkout_repo_failed = "Failed to checkout the repository.\n"
-    subpkg_type_is_archive = "\tType: Archive\n"
-    unknown_remote_type = "Unknown remote type.\n"
-    module_setup_suc = "Module '%s' is set up successfully.\n"
-    interrupted = "Interrupted.\n"
-    setup_module_failed = "Failed to setup module '%s': "
-    setup_complete = (
-        "Setup %d package(s), success: %d, error: %d, ignored: %d, latest: %d\n"
-    )
-    modules_will_be_deinited = "The following modules will be deinitialized:\n"
-    print_one_pkg_name = "\t%s\n"
+    arch_is = "Architecture is: %s"
     ask_continue_deinit = (
         "ALL THINGS OF SUBPACKAGES WILL BE LOST!\nAre you sure to continue? [Y/n] "
     )
-    deinit_canceled = "Deinitialization is canceled.\n"
-    ignore_unexist_module = "Module '%s' is not exist, ignored.\n"
-    module_deinited_suc = "Module '%s' is deinitialized successfully.\n"
+    build_help = "Build the package."
+    building_by_profile = "Building '%s' by profile '%s' ..."
+    building_pkg = "Building package ..."
+    checkout_repo_failed = "Failed to checkout the repository."
+    clone_repo_failed = "Failed to clone the repository."
+    command_help = "The command to execute."
+    command_not_found = "Command '%s' is not found. (Don't use alias)"
+    copied_files_to = "Copied %d files to '%s'."
+    copying_files = "Copying files ..."
+    cross_arch_is_true = (
+        "This program can run on all architectures, so we set 'arch' to unknown."
+    )
+    deb_copying_postinst = "Copying postinst file ..."
+    deb_copying_postrm = "Copying postrm file ..."
+    deb_copying_preinst = "Copying preinst file ..."
+    deb_copying_prerm = "Copying prerm file ..."
+    deinit_canceled = "Deinitialization is canceled."
+    deinit_complete = "Deinitialized %d package(s), success: %d, error: %d, ignored: %d"
     deinit_failed = "Failed to deinitialize module '%s': "
-    deinit_complete = (
-        "Deinitialized %d package(s), success: %d, error: %d, ignored: %d\n"
-    )
-    pkginfo_name = "Name: %s\n"
-    pkginfo_ver = "Version: %s\n"
-    pkginfo_description = "Description: %s\n"
-    pkginfo_license = "License: %s\n"
-    pkginfo_authors = "Author(s): %s\n"
-    pkginfo_webpage = "Webpage: %s\n"
-    making_distpkg = "Making distribution package for %s ...\n"
-    removing_exist_distdir = (
-        "Distribution directory is already exist, removing it ...\n"
-    )
-    distpkg_make_suc = "Distribution package is made successfully.\n"
-    copied_files_to = "Copied %d files to '%s'.\n"
-    distpkg_failed = "Failed to make distribution package\n"
-    building_pkg = "Building package ...\n"
-    path_not_exist = "Path '%s' is not exist.\n"
-    pkg_build_suc = "Package is built successfully, installed to '%s'.\n"
-    copying_files = "Copying files ...\n"
-    deb_copying_preinst = "Copying preinst file ...\n"
-    deb_copying_prerm = "Copying prerm file ...\n"
-    deb_copying_postinst = "Copying postinst file ...\n"
-    deb_copying_postrm = "Copying postrm file ...\n"
-    pkg_built_suc = "Package is built successfully.\n"
+    deinit_help = "Deinitialize all required C++ Plus repository."
+    distdir_help = "The directory to save the distribution package, support variables."
+    dist_help = "Make the source distribution package."
+    distpkg_dpkg_help = "Make the Debian package."
+    distpkg_failed = "Failed to make distribution package"
+    distpkg_help = "Make the distribution package."
+    distpkg_make_suc = "Distribution package is made successfully."
+    distpkg_reqargs_help = "Required options --type [dpkg]"
+    downloading = "Downloading '%s' to '%s' ..."
+    extracting = "Extracting '%s' to '%s' ..."
+    generating = "Generating %s  ..."
+    ignore_unexist_module = "Module '%s' is not exist, ignored."
+    info_help = "Print the package information."
+    init_help = "Initialize all required C++ Plus repository."
+    interrupted = "Interrupted."
+    loaded_var = "Loaded variable: %s = '%s'."
     making_distpkg_by_profile = (
-        "Making '%s' binary distribution package by profile '%s' ...\n"
+        "Making '%s' binary distribution package by profile '%s' ..."
     )
-    building_by_profile = "Building '%s' by profile '%s' ...\n"
-    cross_arch_is_true = "This program can run on all architectures, so we set 'arch' to unknown.\n"
-    arch_is = "Architecture is: %s\n"
-    unknown_pkg_type = "Unknown package type '%s'.\n"
+    making_distpkg = "Making distribution package for %s ..."
+    module_already_setup = "Module '%s' is already setup."
+    module_deinited_suc = "Module '%s' is deinitialized successfully."
+    module_setup_suc = "Module '%s' is set up successfully."
+    modules_will_be_deinited = "The following modules will be deinitialized:"
     next_profile_is_same_as_cur = (
-        "Next profile is the same as current profile, ignored.\n"
+        "Next profile is the same as current profile, ignored."
     )
+    no_such_file = "No such file '%s'"
+    path_not_exist = "Path '%s' is not exist."
+    pkg_build_suc = "Package is built successfully, installed to '%s'."
+    pkg_built_suc = "Package is built successfully."
+    pkginfo_authors = "Author(s): %s"
+    pkginfo_description = "Description: %s"
+    pkginfo_license = "License: %s"
+    pkginfo_name = "Name: %s"
+    pkginfo_ver = "Version: %s"
+    pkginfo_webpage = "Webpage: %s"
+    print_one_pkg_name = "\t%s"
+    removing_exist_distdir = "Distribution directory is already exist, removing it ..."
+    repo_profile_not_exist = "Repository profile file '%s' is not exist."
     repoutils_help = (
         "C++ Plus repository distributing, packaging and initialization utilities."
     )
     root_dir_help = "The root directory of the repository."
-    command_help = "The command to execute."
-    init_help = "Initialize all required C++ Plus repository."
-    deinit_help = "Deinitialize all required C++ Plus repository."
-    info_help = "Print the package information."
-    dist_help = "Make the source distribution package."
-    distdir_help = "The directory to save the distribution package, support variables."
-    distpkg_help = "Make the distribution package."
-    distpkg_dpkg_help = "Make the Debian package."
-    build_help = "Build the package."
+    setting_up_package = "Setting up package: '%s' ..."
+    setup_complete = (
+        "Setup %d package(s), success: %d, error: %d, ignored: %d, latest: %d"
+    )
+    setup_module_failed = "Failed to setup module '%s': "
+    subpkg_description = "\tDescription: %s"
+    subpkg_path = "\tPath: %s"
+    subpkg_remoteurl = "\tUrl: %s"
+    subpkg_type_is_archive = "\tType: Archive"
+    subpkg_type_is_git = "\tType: Git"
+    subpkg_type_is_svn = "\tType: Svn"
+    traceback_title = "Traceback (most recent call last):"
+    unknown_command_help = "Unknown command '%s'."
+    unknown_pkg_type = "Unknown package type '%s'."
+    unknown_remote_type = "Unknown remote type."
     var_help = "Set a variable, format: --var name=val"
     version_help = "Print the version of the program."
-    loaded_var = "Loaded variable: %s = \"%s\".\n"
-    distpkg_reqargs_help = "Required options --type [dpkg]\n"
-    unknown_command_help = "Unknown command '%s'.\n"
+    warning = "WARNING: %s"
+
     version_string = """cppp-repoutils 0.1.0
 Copyright (C) 2023 The C++ Plus Project.
 This is free software; see the source for copying conditions.  There is NO
@@ -148,6 +149,9 @@ PYTHON_PATH = sys.executable
 
 # Is in PyInstaller environment.
 IS_PYINSTALLER = getattr(sys, "frozen", False)
+
+# Ignore file for dist.
+DIST_IGNORE_FILE = ".cppprepo.ignore"
 
 
 # Stack
@@ -212,13 +216,14 @@ class Stack:
 # Output operations.
 
 
-def colorize_output(file, color, text):
+def colorize_output(file, color, text, end="\n"):
     """Colorize the output text.
 
     Args:
         file (file): The output file.
         color (str): The color of the output text.
         text (str): The output text.
+        end (str): The end of the output text. (Default value is '\\n')
     """
 
     color_id = 0
@@ -238,7 +243,7 @@ def colorize_output(file, color, text):
         color_id = 90
     elif color == "white":
         color_id = 37
-    file.write("\033[1;%sm%s\033[0m" % (color_id, text))
+    file.write("\033[1;%sm%s\033[0m" % (color_id, text + end))
 
 
 def progress_bar_update(current, total):
@@ -262,21 +267,33 @@ def progress_bar_update(current, total):
 
     if progress < 0.3:
         colorize_output(
-            sys.stdout, "white", "[" + "=" * barsize + " " * (width - barsize) + "]"
+            sys.stdout,
+            "white",
+            "[" + "=" * barsize + " " * (width - barsize) + "]",
+            end="",
         )
     elif progress < 0.6:
         colorize_output(
-            sys.stdout, "yellow", "[" + "=" * barsize + " " * (width - barsize) + "]"
+            sys.stdout,
+            "yellow",
+            "[" + "=" * barsize + " " * (width - barsize) + "]",
+            end="",
         )
     elif progress < 1:
         colorize_output(
-            sys.stdout, "cyan", "[" + "=" * barsize + " " * (width - barsize) + "]"
+            sys.stdout,
+            "cyan",
+            "[" + "=" * barsize + " " * (width - barsize) + "]",
+            end="",
         )
     else:
         colorize_output(
-            sys.stdout, "green", "[" + "=" * barsize + " " * (width - barsize) + "]"
+            sys.stdout,
+            "green",
+            "[" + "=" * barsize + " " * (width - barsize) + "]",
+            end="",
         )
-    sys.stdout.write(Messages.progress_format.format(int(progress * 10000) / 100))
+    sys.stdout.write(" {:.2f}%".format(int(progress * 10000) / 100))
     sys.stdout.write("\r")
     sys.stdout.flush()
     if progress >= 1:
@@ -311,16 +328,16 @@ def get_exception():
 
     if sys.exc_info()[0] is None:
         return ""
-    res = "Traceback(most recent call last):\n"
+    res = Messages.traceback_title
     res += print_list(traceback.extract_tb(sys.exc_info()[2]))
-    res += sys.exc_info()[0].__name__ + ": " + str(sys.exc_info()[1])
+    res += "%s: %s" % (sys.exc_info()[0].__name__, str(sys.exc_info()[1]))
     return res
 
 
 def print_error():
     """Print exception infomation."""
 
-    colorize_output(sys.stderr, "red", get_exception() + "\n")
+    colorize_output(sys.stderr, "red", get_exception())
 
 
 # Profile operations.
@@ -384,15 +401,12 @@ def which(program, strict=False):
             which_cache[program] = exe_file
             return os.path.abspath(exe_file)
     ext = os.path.splitext(program)[1]
-    if platform.system() == "Windows" \
-        and ext != ".exe" \
-        and ext != ".com" :
-
+    if platform.system() == "Windows" and ext != ".exe" and ext != ".com":
         # On Windows, 'xxx' may mean 'xxx.exe' or 'xxx.com' but 'xxx' is not in the PATH,
         # so we try add '.exe' or '.com' and find it again.
         result = which(program + ".exe", strict=False)
         if result == "":
-            result = which(program + ".com",  strict=False)
+            result = which(program + ".com", strict=False)
         if result != "":
             return result
     if strict:
@@ -468,7 +482,7 @@ def exec_command(commands):
 
     try:
         commands = shell_exec(commands)
-        colorize_output(sys.stdout, "cyan", str(commands) + "\n")
+        colorize_output(sys.stdout, "cyan", str(commands))
         subprocess.check_call(commands)
     except subprocess.CalledProcessError:
         return False
@@ -507,9 +521,7 @@ def tar_extract(file_path, extract_path):
 
     try:
         colorize_output(
-            sys.stdout,
-            "cyan",
-            Messages.extracting % (file_path, extract_path),
+            sys.stdout, "cyan", Messages.extracting % (file_path, extract_path)
         )
         exec_command(["tar", "-zxvf", file_path, "-C", extract_path])
     except subprocess.CalledProcessError:
@@ -703,6 +715,7 @@ def format_string_with_variables(string):
 
     return string
 
+
 # FormatMap
 class FormatMap(dict):
     """FormatMap class."""
@@ -776,23 +789,23 @@ def setup_subpackages():
         try:
             if os.path.exists(sub_packages[pkg]["path"]):
                 colorize_output(
-                    sys.stdout, "green", Messages.module_already_setup % (pkg)
+                    sys.stdout, "green", Messages.module_already_setup % pkg
                 )
                 new_count += 1
                 continue
-            colorize_output(sys.stdout, "white", Messages.setting_up_package % (pkg))
+            colorize_output(sys.stdout, "white", Messages.setting_up_package % pkg)
             colorize_output(
-                sys.stdout, "white", Messages.subpkg_path % (sub_packages[pkg]["path"])
+                sys.stdout, "white", Messages.subpkg_path % sub_packages[pkg]["path"]
             )
             colorize_output(
                 sys.stdout,
                 "white",
-                Messages.subpkg_description % (sub_packages[pkg]["description"]),
+                Messages.subpkg_description % sub_packages[pkg]["description"],
             )
             colorize_output(
                 sys.stdout,
                 "white",
-                Messages.subpkg_remoteurl % (sub_packages[pkg]["remote-url"]),
+                Messages.subpkg_remoteurl % sub_packages[pkg]["remote-url"],
             )
 
             if sub_packages[pkg]["remote"] == "git":
@@ -842,7 +855,7 @@ def setup_subpackages():
                 err_count += 1
                 colorize_output(sys.stdout, "red", Messages.unknown_remote_type)
                 continue
-            colorize_output(sys.stdout, "green", Messages.module_setup_suc % (pkg))
+            colorize_output(sys.stdout, "green", Messages.module_setup_suc % pkg)
             suc_count += 1
         except KeyboardInterrupt:
             ign_count += 1
@@ -854,7 +867,7 @@ def setup_subpackages():
             continue
         except (OSError, subprocess.CalledProcessError):
             err_count += 1
-            colorize_output(sys.stdout, "red", Messages.setup_module_failed % (pkg))
+            colorize_output(sys.stdout, "red", Messages.setup_module_failed % pkg)
             print_error()
             try:
                 shutil.rmtree(sub_packages[pkg]["path"])
@@ -882,8 +895,8 @@ def deinit_subpackages():
 
     colorize_output(sys.stdout, "yellow", Messages.modules_will_be_deinited)
     for pkg in sub_packages:
-        colorize_output(sys.stdout, "blue", Messages.print_one_pkg_name % (pkg))
-    colorize_output(sys.stdout, "yellow", Messages.ask_continue_deinit)
+        colorize_output(sys.stdout, "blue", Messages.print_one_pkg_name % pkg)
+    colorize_output(sys.stdout, "yellow", Messages.ask_continue_deinit, end="")
     if input() != "Y":
         colorize_output(sys.stdout, "red", Messages.deinit_canceled)
         return
@@ -892,25 +905,21 @@ def deinit_subpackages():
         try:
             if not os.path.exists(sub_packages[pkg]["path"]):
                 colorize_output(
-                    sys.stdout, "while", Messages.ignore_unexist_module % (pkg)
+                    sys.stdout, "while", Messages.ignore_unexist_module % pkg
                 )
                 ign_count += 1
                 continue
             shutil.rmtree(sub_packages[pkg]["path"])
             suc_count += 1
-            colorize_output(
-                sys.stdout,
-                "green",
-                Messages.module_deinited_suc % (pkg),
-            )
+            colorize_output(sys.stdout, "green", Messages.module_deinited_suc % pkg)
         except KeyboardInterrupt:
             ign_count += 1
             colorize_output(sys.stdout, "red", Messages.interrupted)
             continue
         except OSError as error:
             err_count += 1
-            colorize_output(sys.stdout, "red", Messages.deinit_failed % (pkg))
-            colorize_output(sys.stdout, "red", str(error) + "\n")
+            colorize_output(sys.stdout, "red", Messages.deinit_failed % pkg)
+            colorize_output(sys.stdout, "red", str(error))
 
     colorize_output(
         sys.stdout,
@@ -932,6 +941,24 @@ def print_package_info():
         sys.stdout, "white", Messages.pkginfo_authors % ", ".join(profiles["authors"])
     )
     colorize_output(sys.stdout, "white", Messages.pkginfo_webpage % profiles["webpage"])
+
+
+# Package dist operations.
+
+# TODO: parse_ignorefile
+'''def parse_ignorefile(filepath):
+    """
+    Parse ignore file.
+    """
+
+    ign_list = []
+    with open(filepath, "r", encoding="utf-8") as file:
+        for line in file:
+            line = line.strip()
+            if line.startswith("#include "):
+                inc_file = line.replace("#include", "")
+                if not os.path.isfile(inc_file):
+                    colorize_output(sys.stdout, "yellow")'''
 
 
 def make_subpackage_dist(subpackage, distdir):
@@ -961,11 +988,7 @@ def make_dist(distdir):
         distdir (str): The directory to save the distribution package.
     """
 
-    colorize_output(
-        sys.stdout,
-        "white",
-        Messages.making_distpkg % profiles["name"],
-    )
+    colorize_output(sys.stdout, "white", Messages.making_distpkg % profiles["name"])
     file_list_file = profiles["file-list"]
     file_list = []
     with open(file_list_file, "r", encoding="utf-8") as file:
@@ -977,11 +1000,7 @@ def make_dist(distdir):
     try:
         # Clean and make the distribution directory.
         if os.path.exists(distdir):
-            colorize_output(
-                sys.stdout,
-                "white",
-                Messages.removing_exist_distdir,
-            )
+            colorize_output(sys.stdout, "white", Messages.removing_exist_distdir)
             shutil.rmtree(distdir)
         os.makedirs(distdir)
 
@@ -1057,7 +1076,7 @@ def build_project(profile_file):
     colorize_output(
         sys.stdout,
         "white",
-        Messages.building_by_profile % (profiles["name"], profile_file)
+        Messages.building_by_profile % (profiles["name"], profile_file),
     )
 
     build_profile(dist_profile)
@@ -1065,11 +1084,7 @@ def build_project(profile_file):
     next_profile_path = dist_profile.get("next-profile", "")
     if next_profile_path != "":
         if os.path.abspath(next_profile_path) == os.path.abspath(profile_file):
-            colorize_output(
-                sys.stdout,
-                "red",
-                Messages.next_profile_is_same_as_cur,
-            )
+            colorize_output(sys.stdout, "red", Messages.next_profile_is_same_as_cur)
             sys.exit(1)
         build_project(next_profile_path)
 
@@ -1178,15 +1193,15 @@ Essential: no
         file.write(control_data)
 
     # Generate md5sums file.
-    colorize_output(sys.stdout, "white", "Generating md5sums file ...\n")
+    colorize_output(sys.stdout, "white", Messages.generating % "md5sums")
     md5s = sum_files_md5(os.path.join(tempdir, "usr"))
     for file, md5 in md5s.items():
         colorize_output(
-            sys.stdout, "gray", "%s: %s\n" % (os.path.relpath(file, tempdir), md5)
+            sys.stdout, "gray", "%s: %s" % (os.path.relpath(file, tempdir), md5)
         )
     md5sums_data = ""
     for file, md5 in md5s.items():
-        md5sums_data += md5 + "  " + os.path.relpath(file, tempdir) + "\n"
+        md5sums_data += "%s %s\n" % (md5, os.path.relpath(file, tempdir))
     with open(
         os.path.join(tempdir, "DEBIAN", "md5sums"), "w", encoding="utf-8"
     ) as file:
@@ -1263,11 +1278,7 @@ def make_distpkg(pkgtype, profile_file):
     next_profile_path = dist_profile.get("next-profile", "")
     if next_profile_path != "":
         if os.path.abspath(next_profile_path) == os.path.abspath(profile_file):
-            colorize_output(
-                sys.stdout,
-                "red",
-                Messages.next_profile_is_same_as_cur,
-            )
+            colorize_output(sys.stdout, "red", Messages.next_profile_is_same_as_cur)
             sys.exit(1)
         make_distpkg(pkgtype, next_profile_path)
     pop_variables("arch")
@@ -1296,19 +1307,11 @@ build_parser = subparsers.add_parser("build", help=Messages.build_help)
 
 var_parser = arg_parser.add_argument_group("variable")
 var_parser.add_argument(
-    "--var",
-    "-V",
-    action="append",
-    default=[],
-    help=Messages.var_help
+    "--var", "-V", action="append", default=[], help=Messages.var_help
 )
 
 arg_parser.add_argument(
-    "--version",
-    "-v",
-    action="store_true",
-    default=False,
-    help=Messages.version_help
+    "--version", "-v", action="store_true", default=False, help=Messages.version_help
 )
 
 # Main entry.
