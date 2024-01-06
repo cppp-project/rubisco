@@ -1,0 +1,321 @@
+# English translations for cppp-repoutils package.
+# Copyright (C) 2023 THE cppp-repoutils'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the cppp-repoutils package.
+#  <cpppteam@email.cn>, 2023.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: cppp-repoutils v0.1.0\n"
+"Report-Msgid-Bugs-To: cpppteam@email.cn\n"
+"POT-Creation-Date: 2023-12-24 20:46+0800\n"
+"PO-Revision-Date: 2023-12-24 20:36+0800\n"
+"Last-Translator:  <cpppteam@email.cn>\n"
+"Language-Team: English\n"
+"Language: en_US\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=ASCII\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#, python-brace-format
+msgid "\tDescription: {description}"
+msgstr "\tDescription: {description}"
+
+#, python-brace-format
+msgid "\tPath: {path}"
+msgstr "\tPath: {path}"
+
+msgid "\tType: Archive"
+msgstr "\tType: Archive"
+
+msgid "\tType: Git"
+msgstr "\tType: Git"
+
+msgid "\tType: Svn"
+msgstr "\tType: Svn"
+
+#, python-brace-format
+msgid "\tUrl: {url}"
+msgstr "\tUrl: {url}"
+
+msgid ""
+"ALL THINGS OF SUBPACKAGES WILL BE LOST!\n"
+"Are you sure to continue? [Y/n] "
+msgstr ""
+"ALL THINGS OF SUBPACKAGES WILL BE LOST!\n"
+"Are you sure to continue? [Y/n] "
+
+#, python-brace-format
+msgid "Architecture: {arch}"
+msgstr "Architecture: {arch}"
+
+#, python-brace-format
+msgid "Author(s): {authors}"
+msgstr "Author(s): {authors}"
+
+msgid "Build the package."
+msgstr "Build the package."
+
+#, python-brace-format
+msgid "Building '{pkg}' by profile '{path}' ..."
+msgstr "Building '{pkg}' by profile '{path}' ..."
+
+msgid "Building package ..."
+msgstr "Building package ..."
+
+msgid "C++ Plus repository distributing, packaging and initialization utilities."
+msgstr "C++ Plus repository distributing, packaging and initialization utilities."
+
+#, python-brace-format
+msgid "Command '{cmd}' is not found. (Don't use alias)"
+msgstr "Command '{cmd}' is not found. (Don't use alias)"
+
+#, python-brace-format
+msgid "Compressed {type}: '{path}'."
+msgstr "Compressed {type}: '{path}'."
+
+msgid "Compressing failed."
+msgstr "Compressing failed."
+
+msgid "Compressing utilities."
+msgstr "Compressing utilities."
+
+#, python-brace-format
+msgid "Copied {suc} files to '{path}'."
+msgstr "Copied {suc} files to '{path}'."
+
+msgid "Copying files ..."
+msgstr "Copying files ..."
+
+msgid "Copying postinst file ..."
+msgstr "Copying postinst file ..."
+
+msgid "Copying postrm file ..."
+msgstr "Copying postrm file ..."
+
+msgid "Copying preinst file ..."
+msgstr "Copying preinst file ..."
+
+msgid "Copying prerm file ..."
+msgstr "Copying prerm file ..."
+
+msgid "Deinitialization is canceled."
+msgstr "Deinitialization is canceled."
+
+msgid "Deinitialize all required C++ Plus repository."
+msgstr "Deinitialize all required C++ Plus repository."
+
+#, python-brace-format
+msgid "Deinitialized {all} package(s), success: {suc}, error: {err}, ignored: {ign}."
+msgstr ""
+
+#, python-brace-format
+msgid "Description: {description}"
+msgstr "Description: {description}"
+
+msgid "Distribution directory is already exist, removing it ..."
+msgstr "Distribution directory is already exist, removing it ..."
+
+msgid "Distribution package is made successfully."
+msgstr "Distribution package is made successfully."
+
+#, python-brace-format
+msgid "Downloading '{url}' to '{path}' ..."
+msgstr "Downloading '{url}' to '{path}' ..."
+
+#, python-brace-format
+msgid "Error: {error}"
+msgstr "Error: {error}"
+
+#, python-brace-format
+msgid "Extracting '{filepath}' to '{extractpath}' ..."
+msgstr "Extracting '{filepath}' to '{extractpath}' ..."
+
+msgid "Failed to checkout the repository."
+msgstr "Failed to checkout the repository."
+
+msgid "Failed to clone the repository."
+msgstr "Failed to clone the repository."
+
+#, python-brace-format
+msgid "Failed to deinitialize module '{module}': "
+msgstr "Failed to deinitialize module '{module}': "
+
+msgid "Failed to make distribution package."
+msgstr "Failed to make distribution package."
+
+#, python-brace-format
+msgid "Failed to setup module '{module}'."
+msgstr "Failed to setup module '{module}'."
+
+#, python-brace-format
+msgid "Generating '{file}'  ..."
+msgstr "Generating '{file}'  ..."
+
+msgid "Initialize all required C++ Plus repository."
+msgstr "Initialize all required C++ Plus repository."
+
+msgid "Interrupted by user."
+msgstr "Interrupted by user."
+
+#, python-brace-format
+msgid "License: {license}"
+msgstr "License: {license}"
+
+#, python-brace-format
+msgid "Loaded variable: {key} = '{val}'"
+msgstr "Loaded variable: {key} = '{val}'"
+
+msgid "Make the Debian package."
+msgstr "Make the Debian package."
+
+msgid "Make the distribution package."
+msgstr "Make the distribution package."
+
+msgid "Make the source distribution package."
+msgstr "Make the source distribution package."
+
+#, python-brace-format
+msgid "Making '{type}' binary distribution package by profile '{path}' ..."
+msgstr "Making '{type}' binary distribution package by profile '{path}' ..."
+
+#, python-brace-format
+msgid "Making distribution package for '{pkg}' ..."
+msgstr "Making distribution package for '{pkg}' ..."
+
+#, python-brace-format
+msgid "Module '{module}' is already setup."
+msgstr "Module '{module}' is already setup."
+
+#, python-brace-format
+msgid "Module '{module}' is deinitialized successfully."
+msgstr "Module '{module}' is deinitialized successfully."
+
+#, python-brace-format
+msgid "Module '{module}' is not exist, ignored."
+msgstr "Module '{module}' is not exist, ignored."
+
+#, python-brace-format
+msgid "Module '{module}' is set up successfully."
+msgstr "Module '{module}' is set up successfully."
+
+#, python-brace-format
+msgid "Name: {name}"
+msgstr "Name: {name}"
+
+msgid "Next profile is the same as current profile, ignored."
+msgstr "Next profile is the same as current profile, ignored."
+
+msgid "Options:"
+msgstr "Options:"
+
+msgid "Output package directory."
+msgstr "Output package directory."
+
+#, python-brace-format
+msgid "Package is built successfully, installed to '{path}'."
+msgstr "Package is built successfully, installed to '{path}'."
+
+msgid "Package is built successfully."
+msgstr "Package is built successfully."
+
+#, python-brace-format
+msgid "Path '{path}' is not exist."
+msgstr "Path '{path}' is not exist."
+
+msgid "Positional arguments:"
+msgstr "Positional arguments:"
+
+msgid "Print the package information."
+msgstr "Print the package information."
+
+msgid "Print the version of the program."
+msgstr "Print the version of the program."
+
+#, python-brace-format
+msgid "Repository profile file '{file}' is not exist."
+msgstr "Repository profile file '{file}' is not exist."
+
+msgid "Required options --type [dpkg]"
+msgstr "Required options --type [dpkg]"
+
+msgid "Set a variable, format: --var name"
+msgstr "Set a variable, format: --var name"
+
+#, python-brace-format
+msgid "Setting up package: '{package}' ..."
+msgstr "Setting up package: '{package}' ..."
+
+#, python-brace-format
+msgid "Setup {all} package(s), success: {suc}, error: {err}, ignored: {ign}, latest: {lts}."
+msgstr ""
+
+msgid "Show this help message and exit."
+msgstr "Show this help message and exit."
+
+#, python-brace-format
+msgid "Target '{target}' does not exist."
+msgstr "Target '{target}' does not exist."
+
+msgid "Target file or directory."
+msgstr "Target file or directory."
+
+msgid "The command to execute."
+msgstr "The command to execute."
+
+msgid "The directory to save the distribution package, support variables."
+msgstr "The directory to save the distribution package, support variables."
+
+msgid "The following modules will be deinitialized:"
+msgstr "The following modules will be deinitialized:"
+
+msgid "The root directory of the repository."
+msgstr "The root directory of the repository."
+
+msgid "The start directory."
+msgstr "The start directory."
+
+msgid "The type of the archive."
+msgstr "The type of the archive."
+
+msgid "This program can run on all architectures, so we set 'arch' to unknown."
+msgstr "This program can run on all architectures, so we set 'arch' to unknown."
+
+msgid "Traceback (most recent call last):"
+msgstr "Traceback (most recent call last):"
+
+#, python-brace-format
+msgid "Unknown package type '{type}'."
+msgstr "Unknown package type '{type}'."
+
+msgid "Unknown remote type."
+msgstr "Unknown remote type."
+
+msgid "Usage:"
+msgstr "Usage:"
+
+#, python-brace-format
+msgid "Version: {ver}"
+msgstr "Version: {ver}"
+
+#, python-brace-format
+msgid "Webpage: {webpage}"
+msgstr "Webpage: {webpage}"
+
+#, python-brace-format
+msgid ""
+"{name} {ver}\n"
+"{copyright}\n"
+"This is free software; see the source for copying conditions.  There is NO\n"
+"warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n"
+"Written by {author}."
+msgstr ""
+"{name} {ver}\n"
+"{copyright}\n"
+"This is free software; see the source for copying conditions.  There is NO\n"
+"warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n"
+"Written by {author}."
+
+#, python-brace-format
+#~ msgid "Setup {all} package(s), success: {suc}, error: {err}, ignored: {ign}, latest: {lts}"
+#~ msgstr "Setup {all} package(s), success: {suc}, error: {err}, ignored: {ign}, latest: {lts}"

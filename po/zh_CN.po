@@ -1,0 +1,315 @@
+# Chinese translations for cppp-repoutils package.
+# Copyright (C) 2023 The C++ Plus Project.
+# This file is distributed under the same license as the cppp-repoutils package.
+#  <cpppteam@email.cn>, 2023.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: cppp-repoutils v0.1.0\n"
+"Report-Msgid-Bugs-To: cpppteam@email.cn\n"
+"POT-Creation-Date: 2023-12-24 20:46+0800\n"
+"PO-Revision-Date: 2023-12-24 20:02+0800\n"
+"Last-Translator:  <cpppteam@email.cn>\n"
+"Language-Team: Chinese (simplified) <i18n-zh@googlegroups.com>\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#, python-brace-format
+msgid "\tDescription: {description}"
+msgstr "\t描述： {description}"
+
+#, python-brace-format
+msgid "\tPath: {path}"
+msgstr "\t路径： {path}"
+
+msgid "\tType: Archive"
+msgstr "\t类型： 归档"
+
+msgid "\tType: Git"
+msgstr "\t类型： Git"
+
+msgid "\tType: Svn"
+msgstr "\t类型： Svn"
+
+#, python-brace-format
+msgid "\tUrl: {url}"
+msgstr "\t网址： {url}"
+
+msgid ""
+"ALL THINGS OF SUBPACKAGES WILL BE LOST!\n"
+"Are you sure to continue? [Y/n] "
+msgstr ""
+"所有子包的东西都将丢失！\n"
+"确定要继续吗？ [Y/n] "
+
+#, python-brace-format
+msgid "Architecture: {arch}"
+msgstr "架构: {arch}"
+
+#, python-brace-format
+msgid "Author(s): {authors}"
+msgstr "作者： {authors}"
+
+msgid "Build the package."
+msgstr "构建包。"
+
+#, python-brace-format
+msgid "Building '{pkg}' by profile '{path}' ..."
+msgstr "正在使用配置文件 '{path}' 构建 '{pkg}' ..."
+
+msgid "Building package ..."
+msgstr "正在构建包 ..."
+
+msgid "C++ Plus repository distributing, packaging and initialization utilities."
+msgstr "C++ Plus 仓库分发、打包和初始化工具。"
+
+#, python-brace-format
+msgid "Command '{cmd}' is not found. (Don't use alias)"
+msgstr "命令 '{cmd}' 未找到。（不要使用别名）"
+
+#, python-brace-format
+msgid "Compressed {type}: '{path}'."
+msgstr "已压缩 {type} 归档： '{path}'。"
+
+msgid "Compressing failed."
+msgstr "压缩失败。"
+
+msgid "Compressing utilities."
+msgstr "压缩工具。"
+
+#, python-brace-format
+msgid "Copied {suc} files to '{path}'."
+msgstr "已复制 {suc} 个文件到 '{path}'。"
+
+msgid "Copying files ..."
+msgstr "正在复制文件 ..."
+
+msgid "Copying postinst file ..."
+msgstr "正在复制 postinst 文件 ..."
+
+msgid "Copying postrm file ..."
+msgstr "正在复制 postrm 文件 ..."
+
+msgid "Copying preinst file ..."
+msgstr "正在复制 preinst 文件 ..."
+
+msgid "Copying prerm file ..."
+msgstr "正在复制 prerm 文件 ..."
+
+msgid "Deinitialization is canceled."
+msgstr "取消了反初始化。"
+
+msgid "Deinitialize all required C++ Plus repository."
+msgstr "反初始化所有依赖的 C++ Plus 仓库。"
+
+#, python-brace-format
+msgid "Deinitialized {all} package(s), success: {suc}, error: {err}, ignored: {ign}."
+msgstr "反初始化 {all} 个包，成功 {suc} 个，失败 {err} 个，忽略 {ign} 个。"
+
+#, python-brace-format
+msgid "Description: {description}"
+msgstr "描述： {description}"
+
+msgid "Distribution directory is already exist, removing it ..."
+msgstr "分发目录已存在，正在删除 ..."
+
+msgid "Distribution package is made successfully."
+msgstr "分发包已成功构建。"
+
+#, python-brace-format
+msgid "Downloading '{url}' to '{path}' ..."
+msgstr "正在从 '{url}' 下载到 '{path}' ..."
+
+#, python-brace-format
+msgid "Error: {error}"
+msgstr "错误： {error}"
+
+#, python-brace-format
+msgid "Extracting '{filepath}' to '{extractpath}' ..."
+msgstr "正在从 '{filepath}' 解压到 '{extractpath}' ..."
+
+msgid "Failed to checkout the repository."
+msgstr "检出仓库失败。"
+
+msgid "Failed to clone the repository."
+msgstr "克隆仓库失败。"
+
+#, python-brace-format
+msgid "Failed to deinitialize module '{module}': "
+msgstr "反初始化模块 '{module}' 失败： "
+
+msgid "Failed to make distribution package."
+msgstr "构建分发包失败。"
+
+#, python-brace-format
+msgid "Failed to setup module '{module}'."
+msgstr "设置模块 '{module}' 失败。"
+
+#, python-brace-format
+msgid "Generating '{file}'  ..."
+msgstr "正在生成 '{file}'  ..."
+
+msgid "Initialize all required C++ Plus repository."
+msgstr "初始化所有依赖的 C++ Plus 仓库。"
+
+msgid "Interrupted by user."
+msgstr "被用户中断。"
+
+#, python-brace-format
+msgid "License: {license}"
+msgstr "许可证： {license}"
+
+#, python-brace-format
+msgid "Loaded variable: {key} = '{val}'"
+msgstr "已加载变量： {key} = '{val}'"
+
+msgid "Make the Debian package."
+msgstr "构建 Debian 包。"
+
+msgid "Make the distribution package."
+msgstr "构建分发包。"
+
+msgid "Make the source distribution package."
+msgstr "构建源码包。"
+
+#, python-brace-format
+msgid "Making '{type}' binary distribution package by profile '{path}' ..."
+msgstr "正在使用配置文件 '{path}' 构建 '{type}' 二进制分发包 ..."
+
+#, python-brace-format
+msgid "Making distribution package for '{pkg}' ..."
+msgstr "正在构建 '{pkg}' 的分发包 ..."
+
+#, python-brace-format
+msgid "Module '{module}' is already setup."
+msgstr "模块 '{module}' 已经初始化。"
+
+#, python-brace-format
+msgid "Module '{module}' is deinitialized successfully."
+msgstr "模块 '{module}' 已成功反初始化。"
+
+#, python-brace-format
+msgid "Module '{module}' is not exist, ignored."
+msgstr "模块 '{module}' 不存在，忽略。"
+
+#, python-brace-format
+msgid "Module '{module}' is set up successfully."
+msgstr "模块 '{module}' 已成功初始化。"
+
+#, python-brace-format
+msgid "Name: {name}"
+msgstr "名称： {name}"
+
+msgid "Next profile is the same as current profile, ignored."
+msgstr "下一个配置文件与当前配置文件相同，忽略。"
+
+msgid "Options:"
+msgstr "选项："
+
+msgid "Output package directory."
+msgstr "输出包目录。"
+
+#, python-brace-format
+msgid "Package is built successfully, installed to '{path}'."
+msgstr "包已成功构建，安装到 '{path}'。"
+
+msgid "Package is built successfully."
+msgstr "包已成功构建。"
+
+#, python-brace-format
+msgid "Path '{path}' is not exist."
+msgstr "路径 '{path}' 不存在。"
+
+msgid "Positional arguments:"
+msgstr "位置参数："
+
+msgid "Print the package information."
+msgstr "显示包信息。"
+
+msgid "Print the version of the program."
+msgstr "显示程序版本。"
+
+#, python-brace-format
+msgid "Repository profile file '{file}' is not exist."
+msgstr "仓库配置文件 '{file}' 不存在。"
+
+msgid "Required options --type [dpkg]"
+msgstr "需要选项 --type [dpkg]"
+
+msgid "Set a variable, format: --var name"
+msgstr "设置变量，格式： --var name"
+
+#, python-brace-format
+msgid "Setting up package: '{package}' ..."
+msgstr "正在初始化包： '{package}' ..."
+
+#, python-brace-format
+msgid "Setup {all} package(s), success: {suc}, error: {err}, ignored: {ign}, latest: {lts}."
+msgstr "初始化了 {all} 个包，成功 {suc} 个，失败 {err} 个，忽略 {ign} 个，最新 {lts} 个。"
+
+msgid "Show this help message and exit."
+msgstr "显示此帮助信息并退出。"
+
+#, python-brace-format
+msgid "Target '{target}' does not exist."
+msgstr "目标 '{target}' 不存在。"
+
+msgid "Target file or directory."
+msgstr "目标文件或目录。"
+
+msgid "The command to execute."
+msgstr "要执行的命令。"
+
+msgid "The directory to save the distribution package, support variables."
+msgstr "保存分发包的目录，支持使用变量。"
+
+msgid "The following modules will be deinitialized:"
+msgstr "将反初始化以下模块："
+
+msgid "The root directory of the repository."
+msgstr "仓库的根目录。"
+
+msgid "The start directory."
+msgstr "起始目录。"
+
+msgid "The type of the archive."
+msgstr "归档类型。"
+
+msgid "This program can run on all architectures, so we set 'arch' to unknown."
+msgstr "此程序可以运行在所有架构上，所以我们将 'arch' 设置为 unknown。"
+
+msgid "Traceback (most recent call last):"
+msgstr "异常跟踪（最近的调用在最前）："
+
+#, python-brace-format
+msgid "Unknown package type '{type}'."
+msgstr "未知的包类型 '{type}'。"
+
+msgid "Unknown remote type."
+msgstr "未知的远程类型。"
+
+msgid "Usage:"
+msgstr "用法："
+
+#, python-brace-format
+msgid "Version: {ver}"
+msgstr "版本： {ver}"
+
+#, python-brace-format
+msgid "Webpage: {webpage}"
+msgstr "网页： {webpage}"
+
+#, python-brace-format
+msgid ""
+"{name} {ver}\n"
+"{copyright}\n"
+"This is free software; see the source for copying conditions.  There is NO\n"
+"warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n"
+"Written by {author}."
+msgstr ""
+"{name} {ver}\n"
+"{copyright}\n"
+"这是自由软件；请查看源代码以获取复制条件。没有任何保证；甚至没有适合特定目的的保证。\n"
+"由 {author} 编写。"
