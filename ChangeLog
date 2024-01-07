@@ -1,5 +1,9 @@
 2024-01-06	ChenPi11      <wushengwuxi-msctinoulk@outlook.com>
 
+	Remove repoutils.py in repo root.
+
+2024-01-06	ChenPi11      <wushengwuxi-msctinoulk@outlook.com>
+
 	Using gettext for NLS.
 
 2023-12-22	ChenPi11      <wushengwuxi-msctinoulk@outlook.com>
