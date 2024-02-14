@@ -28,7 +28,7 @@ import re
 import locale
 import subprocess
 from typing import Optional
-from repoutils.shell_command import command
+from cppp_repoutils.utils.shell_command import command
 
 __all__ = ["is_this_app", "which", "find_python3"]
 

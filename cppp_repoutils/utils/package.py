@@ -24,21 +24,73 @@ Package utils.
 
 import json
 from pathlib import Path
-from repoutils.nls import _
-from repoutils.ignorefile import load_cppp_ignore, IgnoreChecker
-from repoutils.constants import REPO_PROFILE, DEFAULT_CHARSET
-from repoutils.variable import AutoFormatDict
-from repoutils.log import logger
-from repoutils.output import output
+from enum import Enum
+from cppp_repoutils.utils.gitclone import clone
+from cppp_repoutils.utils.nls import _
+from cppp_repoutils.constants import REPO_PROFILE, DEFAULT_CHARSET
+from cppp_repoutils.utils.variable import AutoFormatDict
+from cppp_repoutils.utils.log import logger
+from cppp_repoutils.utils.output import output_step
 
 
-class Package: # pylint: disable=too-many-instance-attributes
+class SubpackageTypes(Enum):
+    """Subpackage types."""
+
+    KEY_NAME = "name"
+    KEY_PATH = "path"
+    KEY_REMOTE_TYPE = "remote-type"
+    KEY_REMOTE_URL = "remote-url"
+    KEY_GIT_BRANCH = "git-branch"
+
+
+class Subpackage:
+    """Subpackage type."""
+
+    name: str
+    path: Path
+    remote_url: str
+    git_branch: str
+
+    def __init__(self, config: dict) -> None:
+        """Initialize subpackage object.
+
+        Args:
+            config (dict): Subpackage config.
+        """
+
+        self.name = config[SubpackageTypes.KEY_NAME]
+        self.path = Path(config[SubpackageTypes.KEY_PATH])
+        self.remote_type = config[SubpackageTypes.KEY_REMOTE_TYPE]
+        self.remote_url = config[SubpackageTypes.KEY_REMOTE_URL]
+
+        self.git_branch = config[SubpackageTypes.KEY_GIT_BRANCH]
+
+    def __str__(self) -> str:
+        return repr(self)
+
+    def __repr__(self) -> str:
+        return f"Subpackage({self.name})"
+
+    def __eq__(self, other: "Subpackage") -> bool:
+        return self.name == other.name
+
+    def __hash__(self) -> int:
+        return hash(self.name)
+
+    def setup(self) -> "Package":
+        """Setup subpackage."""
+
+        clone(self.remote_url, self.path, self.git_branch)
+        pkg = Package(self.path / REPO_PROFILE)
+        return pkg
+
+
+class Package:  # pylint: disable=too-many-instance-attributes
     """Package type."""
 
     profile: AutoFormatDict
     name: str
     version: str
-    ign_checker: IgnoreChecker
     desc: str
     authors: list[str]
     webpage: str
@@ -59,7 +111,6 @@ class Package: # pylint: disable=too-many-instance-attributes
         try:
             self.name = self.profile["name"]
             self.version = self.profile["version"]
-            self.ign_checker = load_cppp_ignore()
             self.desc = self.profile["description"]
             self.authors = self.profile["authors"]
             self.webpage = self.profile["webpage"]
@@ -67,11 +118,7 @@ class Package: # pylint: disable=too-many-instance-attributes
             self.__subpackages = self.profile["subpackages"]
         except KeyError as exc:
             logger.fatal("Cannot load profile '%s': Key '%s' required.")
-            output(
-                _("Cannot load profile '{path}': Key '{key}' required."),
-                fmt={"path", str(profile_path), "key", str(exc)},
-                color="red"
-            )
+            raise KeyError(exc.args[0], str(profile_path)) from exc
 
-    def _load_subpkgs():
-        
+    def _load_subpkgs(self):
+        pass

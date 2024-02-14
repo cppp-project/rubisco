@@ -26,7 +26,7 @@ import gettext
 import locale
 from pathlib import Path
 from typing import Optional
-from repoutils.constants import TEXT_DOMAIN, PROGRAM_DIR, RESOURCE_PATH
+from cppp_repoutils.constants import TEXT_DOMAIN, PROGRAM_DIR, RESOURCE_PATH
 
 __all__ = ["locale_language", "has_domain", "find_locale_dir", "_"]
 
@@ -98,14 +98,9 @@ def find_locale_dir() -> Path:
     return locale_dir if locale_dir is not None else Path()
 
 
-def init_gettext():
-    """Initialize gettext."""
+# Initialize gettext.
 
-    gettext.bindtextdomain(TEXT_DOMAIN, find_locale_dir())
-    gettext.textdomain(TEXT_DOMAIN)
-    gettext.install(TEXT_DOMAIN)
-
-
-init_gettext()  # Initialize gettext.
-
+gettext.bindtextdomain(TEXT_DOMAIN, find_locale_dir())
+gettext.textdomain(TEXT_DOMAIN)
+gettext.install(TEXT_DOMAIN)
 _ = gettext.gettext  # Fix undefined name '_' of some IDEs.

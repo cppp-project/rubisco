@@ -25,40 +25,42 @@ Logging system.
 import logging
 import sys
 
-from repoutils.constants import LOG_LEVEL, LOG_FILE, LOG_FORMAT, DEFAULT_CHARSET, IS_DEV
+from cppp_repoutils.constants import (
+    APP_NAME,
+    DEFAULT_CHARSET,
+    LOG_FILE,
+    LOG_FORMAT,
+    LOG_LEVEL,
+)
 
 __all__ = ["logger"]
 
 # The global logger.
-logger = logging.getLogger("cppp-repoutils")
+logger = logging.getLogger(APP_NAME)
 
+"""Initialize the logger."""
 
-def init_logger():
-    """Initialize the logger."""
+logger.setLevel(LOG_LEVEL)
 
-    logger.setLevel(logging.INFO)
-    if IS_DEV:
-        logger.setLevel(logging.DEBUG)
+if (
+    "--enable-log" in sys.argv
+):  # Don't use argparse here, because it's not initialized yet.
+    logger_handler = logging.FileHandler(LOG_FILE, encoding=DEFAULT_CHARSET)
+    logger_handler.setLevel(LOG_LEVEL)
 
-    if (
-        "--enable-log" in sys.argv
-    ):  # Don't use argparse here, because it's not initialized yet.
-        logger_handler = logging.FileHandler(LOG_FILE, encoding=DEFAULT_CHARSET)
-        logger_handler.setLevel(LOG_LEVEL)
+    logger_formatter = logging.Formatter(LOG_FORMAT)
+    logger_handler.setFormatter(logger_formatter)
 
-        logger_formatter = logging.Formatter(LOG_FORMAT)
-        logger_handler.setFormatter(logger_formatter)
-
-        logger.addHandler(logger_handler)
-    else: # Disable logging.
-        logger.addHandler(logging.NullHandler())
-
-
-init_logger()  # Call it when import this module.
+    logger.addHandler(logger_handler)
+else:  # Disable logging.
+    logger.handlers.clear()
+    logger.addHandler(logging.NullHandler())
 
 
 if __name__ == "__main__":
     print(f"{__file__}: {__doc__.strip()}")
+
+    print("hint: Run with '--enable-log' to enable logging.")
 
     # Use StreamHandler for testing.
     handler = logging.StreamHandler()

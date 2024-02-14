@@ -19,37 +19,5 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 """
-Generate shell command from a list of arguments.
+Utilities.
 """
-
-__all__ = ["command"]
-
-
-def command(args: list[str]) -> str:
-    """Generate shell command from a list of arguments.
-
-    Args:
-        command (list): The list of arguments.
-
-    Returns:
-        str: The shell command.
-    """
-
-    res_command = ""
-    for arg in args:
-        if '"' in arg:
-            arg = arg.replace('"', '\\"')
-        if " " in arg:
-            res_command += f'"{arg}" '
-        else:
-            res_command += f"{arg} "
-    return res_command.strip()
-
-
-if __name__ == "__main__":
-    print(f"{__file__}: {__doc__.strip()}")
-
-    cmd = ["git", "clone", "<part1> <part2>"]
-    print(cmd)
-    print()
-    print(command(cmd))

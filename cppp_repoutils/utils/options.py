@@ -24,6 +24,8 @@ Get or set program options.
 
 from typing import Any
 
+# TODO: Refactor.
+
 __all__ = ["get_option", "set_option"]
 
 options: dict[str, Any] = {}

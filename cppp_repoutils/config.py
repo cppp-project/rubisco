@@ -19,27 +19,20 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 """
-Ignore file utils.
+Module configuration.
 """
 
-from typing import Callable
-import gitignore_parser
-
-from repoutils.log import logger
-from repoutils.constants import DIST_IGNORE_FILE
-
-__all__ = ["load_cppp_ignore"]
-
-# Ignore file checker.
-IgnoreChecker = Callable
-
-
-def load_cppp_ignore() -> IgnoreChecker:
-    """Load cppp-repoutils ignore file.
-
-    Returns:
-        IgnoreChecker: Ignore checker.
-    """
-
-    logger.info("Loading ignore file '%s'", DIST_IGNORE_FILE)
-    return gitignore_parser.parse_gitignore(DIST_IGNORE_FILE)
+APP_DEFAULT_NAME = "cppp-repoutils"
+APP_VERSION = (0, 1, 0)
+TEXT_DOMAIN = APP_DEFAULT_NAME
+REPO_PROFILE_NAME = "cppp-repo.json"
+DEFAULT_CHARSET = "UTF-8"
+DEFAULT_IGNFILE_NAME = ".cpppignore"
+DEFAULT_LANGUAGE = "en_US"
+LOG_FILE = "cppp-repoutils.log"
+LOG_FORMAT = "[%(asctime)s] [%(name)s] [%(levelname)s] %(message)s"
+LOG_LEVEL = "DEBUG"
+TIMEOUT = 15
+COPY_BUFSIZE_WINDOWS = 1024 * 1024
+COPY_BUFSIZE_OTHERS = 64 * 1024
+WGET_BUFSIZE = 8 * 1024

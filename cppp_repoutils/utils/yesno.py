@@ -24,9 +24,9 @@ Ask yes or no.
 
 __all__ = ["yesno"]
 
-from repoutils.output import output
-from repoutils.nls import _
-from repoutils.log import logger
+from cppp_repoutils.utils.output import output
+from cppp_repoutils.utils.nls import _
+from cppp_repoutils.utils.log import logger
 
 
 # WHY FUCKING PYLINT REPORT THIS?

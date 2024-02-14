@@ -24,14 +24,14 @@ cppp-repoutils variable system.
 
 from typing import Any
 
-from repoutils.stack import Stack
+from cppp_repoutils.utils.stack import Stack
 
 __all__ = [
     "variables",
     "push_variables",
     "pop_variables",
     "get_variable",
-    "format_string_with_variables",
+    "format_str",
     "AutoFormatDict",
 ]
 
@@ -84,16 +84,7 @@ def get_variable(name: str):
     raise KeyError(repr(name))
 
 
-# This function ignores unused and unformatted variables.
-def _format(message: str, fmt: dict[str, str] = None):
-    if fmt is None:
-        fmt = {}
-    for key, val in fmt.items():
-        message = message.replace(f"{{{key}}}", str(val))
-    return message
-
-
-def format_string_with_variables(string: str, fmt: dict[str, str] = None):
+def format_str(string: str, fmt: dict[str, str] = None):
     """Format the string with variables.
 
     Args:
@@ -109,10 +100,11 @@ def format_string_with_variables(string: str, fmt: dict[str, str] = None):
     if fmt is None:
         fmt = {}
 
-    string = _format(string, fmt)
+    for key, val in fmt.items():  # Ignore unused and unformatted keys.
+        string = string.replace(f"{{{key}}}", str(val))
 
     for name, values in variables.items():
-        string = string.replace("{" + name + "}", values.top())  # {name} -> value
+        string = string.replace(f"{{{name}}}", values.top())  # {name} -> value
 
     return string
 
@@ -136,11 +128,11 @@ class AutoFormatDict(dict):
             str: The value of the given key.
         """
 
-        if not key in self.keys() and len(args) == 0:
+        if key not in self.keys() and len(args) == 0:
             raise KeyError(repr(key))
-        if not key in self.keys() and len(args) == 1:
-            return format_string_with_variables(args[0])
-        return format_string_with_variables(super().get(key))
+        if key not in self.keys() and len(args) == 1:
+            return format_str(args[0])
+        return format_str(super().get(key))
 
     def __getitem__(self, key: str):
         """Get the value of the given key.
@@ -154,9 +146,18 @@ class AutoFormatDict(dict):
 
         return self.get(key)
 
+    def __repr__(self, *args, **kwargs):
+        """Return the representation of the AutoFormatDict.
+
+        Returns:
+            str: The representation of the AutoFormatDict.
+        """
+
+        return f"{type(self).__name__}({super().__repr__(*args, **kwargs)})"
+
     @staticmethod
     def from_dict(srcdict: dict[str, Any]):
-        """Create a AutoFormatDict from the given dict.
+        """Create a AutoFormatDict from the given dict recursively.
 
         Args:
             src (dict[str, Any]): The dict to create AutoFormatDict.
@@ -165,7 +166,34 @@ class AutoFormatDict(dict):
             AutoFormatDict: The created AutoFormatDict.
         """
 
+        srcdict = srcdict.copy()
+
+        return convert_to_autoformatdict(srcdict)
+
+
+def convert_to_autoformatdict(src: dict[str, Any] | Any) -> AutoFormatDict | Any:
+    """Convert the given dict to AutoFormatDict recursively.
+
+    Args:
+        src (dict[str, Any] | Any): The dict to convert. If it is not a dict, return it directly.
+
+    Returns:
+        AutoFormatDict | Any: The converted AutoFormatDict.
+    """
+
+    if isinstance(src, list | tuple | set):
+        for index, value in enumerate(src):
+            src[index] = convert_to_autoformatdict(value)
+
+    if isinstance(src, dict):
+        for key, value in src.items():
+            if isinstance(value, list | tuple | set | dict):  # Avoid dynamic iterable.
+                src[key] = convert_to_autoformatdict(value)
+                src.update(src)
+
         afdict = AutoFormatDict()
-        for key, value in srcdict.items():
+        for key, value in src.items():
             afdict[key] = value
-        return afdict
+        src = afdict
+
+    return src
