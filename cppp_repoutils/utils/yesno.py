@@ -51,37 +51,32 @@ def yesno(  # pylint: disable=too-many-arguments
     logger.info("Asking question to user: '%s'", prompt)
     output(prompt, end=" ", suffix=suffix, fmt=fmt, color=color)
     inp: str = None
-    try:
-        match (default):
-            case -1:  # No default answer.
-                try:
-                    inp = input("[y/n] ").strip().upper()
-                except EOFError:
-                    logger.critical("EOFError, interrupt.")
-                    output(_("EOFError, interrupt."), color="red")
-                    raise
-            case 0:  # Default answer is NO.
-                try:
-                    inp = input("[y/N] ").strip().upper()
-                except EOFError:
-                    logger.warning("EOFError, but we have default answer 'N'.")
-                    inp = ""
-                if not inp:
-                    logger.info("Return NO.")
-                    return False
-            case 1:  # Default answer is YES.
-                try:
-                    inp = input("[Y/n] ").strip().upper()
-                except EOFError:
-                    logger.warning("EOFError, but we have default answer 'Y'.")
-                    inp = ""
-                if not inp:
-                    logger.info("Return YES.")
-                    return True
-    except KeyboardInterrupt:
-        logger.critical("Interrupted by user.")
-        output(_("Interrupted by user."), color="red")
-        raise
+    match (default):
+        case -1:  # No default answer.
+            try:
+                inp = input("[y/n] ").strip().upper()
+            except EOFError:
+                logger.critical("EOFError, interrupt.")
+                output(_("EOFError, interrupt."), color="red")
+                raise
+        case 0:  # Default answer is NO.
+            try:
+                inp = input("[y/N] ").strip().upper()
+            except EOFError:
+                logger.warning("EOFError, but we have default answer 'N'.")
+                inp = ""
+            if not inp:
+                logger.info("Return NO.")
+                return False
+        case 1:  # Default answer is YES.
+            try:
+                inp = input("[Y/n] ").strip().upper()
+            except EOFError:
+                logger.warning("EOFError, but we have default answer 'Y'.")
+                inp = ""
+            if not inp:
+                logger.info("Return YES.")
+                return True
 
     if inp == "Y":
         logger.info("Return YES.")

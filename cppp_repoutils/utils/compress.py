@@ -25,23 +25,33 @@ Compression utils.
 from pathlib import Path
 import tarfile
 import zipfile
-import shutil
-import lzma
-import py7zr
 from cppp_repoutils.utils.log import logger
 from cppp_repoutils.utils.output import ProgressBar
 from cppp_repoutils.utils.ignore_file import IgnoreChecker
 from cppp_repoutils.utils.nls import _
+from cppp_repoutils.utils.yesno import yesno
 
 
-def compress_tar_xz(name: Path, directory: Path, ign_checker: IgnoreChecker):
+def compress_tar_xz(
+    name: Path, directory: Path, arcname: Path, ign_checker: IgnoreChecker
+):
     """Compress directory to tar.xz.
 
     Args:
         name (Path): Directory to compress.
         directory (Path): Directory to compress.
+        arcname (Path): The alternative name for the file in the archive.
         ign_checker (IgnoreChecker): Ignore file checker.
     """
+
+    if name.exists():
+        logger.warning("'%s' already exists.", name)
+        if not yesno(
+            _("{yellow}{underline}{path}{reset} already exists. Overwrite?"),
+            default=0,
+            fmt={"path": name},
+        ):
+            raise FileExistsError(name)
 
     with tarfile.open(name, "w:xz") as archive:
         total_length = sum(1 for _ in directory.rglob("*"))
@@ -51,23 +61,39 @@ def compress_tar_xz(name: Path, directory: Path, ign_checker: IgnoreChecker):
                 "Compressing '{underline}{name}{reset}' into '{underline}{archive}{reset}' ..."
             ),
             total=total_length,
+            desc_fmt={"name": directory, "archive": name},
         ):
             file: Path
             if file.is_dir() or ign_checker(file):
                 continue
-            archive.add(file, file.relative_to(directory), recursive=False)
+            archive.add(
+                file, arcname / file.relative_to(directory.parent), recursive=False
+            )
     logger.info("Compressed '%s' into '%s'.", directory, name)
 
-def compress_7z(name: Path, directory: Path, ign_checker: IgnoreChecker):
-    """Compress directory to 7z.
+
+def compress_zip(
+    name: Path, directory: Path, arcname: Path, ign_checker: IgnoreChecker
+):
+    """Compress directory to zip.
 
     Args:
         name (Path): Directory to compress.
         directory (Path): Directory to compress.
+        arcname (Path): The alternative name for the file in the archive.
         ign_checker (IgnoreChecker): Ignore file checker.
     """
 
-    with py7zr.SevenZipFile(name, "w") as archive:
+    if name.exists():
+        logger.warning("'%s' already exists.", name)
+        if not yesno(
+            _("{yellow}{underline}{path}{reset} already exists. Overwrite?"),
+            default=0,
+            fmt={"path": name},
+        ):
+            raise FileExistsError(name)
+
+    with zipfile.ZipFile(name, "w", compresslevel=9) as archive:
         total_length = sum(1 for _ in directory.rglob("*"))
         for file in ProgressBar(
             directory.rglob("*"),
@@ -75,19 +101,26 @@ def compress_7z(name: Path, directory: Path, ign_checker: IgnoreChecker):
                 "Compressing '{underline}{name}{reset}' into '{underline}{archive}{reset}' ..."
             ),
             total=total_length,
+            desc_fmt={"name": directory, "archive": name},
         ):
             file: Path
             if file.is_dir() or ign_checker(file):
                 continue
-            archive.write(file, file.relative_to(directory))
+            archive.write(
+                file,
+                arcname / file.relative_to(directory.parent),
+                compress_type=zipfile.ZIP_DEFLATED,
+            )
+    logger.info("Compressed '%s' into '%s'.", directory, name)
+
 
 if __name__ == "__main__":
     print(f"{__file__}: {__doc__.strip()}")
 
     output = Path(input("tar.xz output path: "))
     compress_dir = Path(input("Directory to compress: "))
-    compress_tar_xz(output, compress_dir, lambda x: False)
+    compress_tar_xz(output, compress_dir, Path(), lambda x: False)
 
-    output = Path(input("7z output path: "))
+    output = Path(input("zip output path: "))
     compress_dir = Path(input("Directory to compress: "))
-    compress_7z(output, compress_dir, lambda x: False)
+    compress_zip(output, compress_dir, Path(), lambda x: False)

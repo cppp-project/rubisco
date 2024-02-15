@@ -159,6 +159,9 @@ class ProgressBar(tqdm):
         "{percentage:3.0f}%|{green}{bar}{reset}| {n_fmt}/{total_fmt} {rate_fmt}]"
     )
 
+    __last_precent: int
+    __ignored_precent_sum: int
+
     def __init__(
         self,
         iterable: Iterable | None = None,
@@ -182,6 +185,9 @@ class ProgressBar(tqdm):
 
         output_step(desc, fmt=desc_fmt)
         _windows_taskbar_progress(_WindowsTaskbarProgressState.DEFAULT, 0)
+
+        self.__last_precent = 0
+        self.__ignored_precent_sum = 0
 
         super().__init__(
             iterable=iterable,
@@ -211,6 +217,17 @@ class ProgressBar(tqdm):
 
         current = self.n + n
         percent = int(current / self.total * 100)
+
+        if 1 < percent - self.__last_precent < 1:
+            # Ignore small changes.
+            self.__last_precent = percent
+            self.__ignored_precent_sum += percent
+            return None
+
+        percent += self.__ignored_precent_sum
+        self.__last_precent = percent
+        self.__ignored_precent_sum = 0
+
         if percent <= 20:
             self.bar_format = self.FORMAT_WHITE
         elif percent <= 40:
@@ -254,7 +271,7 @@ if __name__ == "__main__":
     for i in ProgressBar(range(100), desc="Progress"):
         time.sleep(0.01)
 
-    with ProgressBar(desc="Progress 2", total=100) as pbar:
+    with ProgressBar(desc="Progress 2", total=50) as pbar:
         for i in range(100):
             time.sleep(0.05)
-            pbar.update(1)
+            pbar.update(0.5)
