@@ -27,21 +27,21 @@ import platform
 import re
 import locale
 import subprocess
-from typing import Optional
 from cppp_repoutils.utils.shell_command import command
 
 __all__ = ["is_this_app", "which", "find_python3"]
 
 
 def is_this_app(
-    path: str, verinfo_format: str, verinfo_command: Optional[str] = "--version"
+    path: str, verinfo_format: str, verinfo_command: str = "--version" # noqa
 ) -> bool:
     """Check whether the file is this application.
 
     Args:
         path (str): The path to the file.
         verinfo_format (str): The version information format string.
-        verinfo_command (str, optional): The version information command. Defaults to "--version".
+        verinfo_command (str, optional): The version information command.
+            Defaults to "--version".
 
     Returns:
         bool: True if the file is a Python interpreter, otherwise False.
@@ -91,7 +91,8 @@ def which(program: str):
             return os.path.abspath(exe_file)
     ext = os.path.splitext(program)[1]
     if platform.system() == "Windows" and ext != ".exe" and ext != ".com":
-        # On Windows, 'xxx' may mean 'xxx.exe' or 'xxx.com' but 'xxx' is not in the PATH,
+        # On Windows, 'xxx' may mean 'xxx.exe' or 'xxx.com' but 'xxx' is not
+        # in the PATH,
         # so we try add '.exe' or '.com' and find it again.
         result = which(program + ".exe")
         if result == program + ".exe":

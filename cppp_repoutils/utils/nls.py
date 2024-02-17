@@ -62,15 +62,14 @@ def has_domain(domain: str, locale_dir: Path) -> bool:
 
 
 def _find_locale_dir(root_dir: Path) -> Optional[Path]:
-    if has_domain(TEXT_DOMAIN, root_dir):  # <root_dir>
-        return root_dir.resolve()
-    if has_domain(TEXT_DOMAIN, root_dir / "locale"):  # <root_dir>/locale
-        return (root_dir / "locale").resolve()
-    if has_domain(TEXT_DOMAIN, root_dir / ".." / "locale"):  # <root_dir>/../locale
-        return (root_dir / ".." / "locale").resolve()
-    if has_domain(
-        TEXT_DOMAIN, root_dir / "share" / "locale"
-    ):  # <root_dir>/share/locale
+    if has_domain(TEXT_DOMAIN, root_dir):
+        return root_dir.resolve()  # <root_dir>
+    if has_domain(TEXT_DOMAIN, root_dir / "locale"):
+        return (root_dir / "locale").resolve()  # <root_dir>/locale
+    if has_domain(TEXT_DOMAIN, root_dir / ".." / "locale"):
+        return (root_dir / ".." / "locale").resolve()  # <root_dir>/../locale
+    if has_domain(TEXT_DOMAIN, root_dir / "share" / "locale"):
+        # <root_dir>/share/locale
         return (root_dir / "share" / "locale").resolve()
     return None
 
@@ -89,7 +88,7 @@ def find_locale_dir() -> Path:
     locale_dir = _find_locale_dir(RESOURCE_PATH)  # Resource directory.
     if locale_dir is not None:
         return locale_dir
-    locale_dir = _find_locale_dir(Path("/usr/share/locale"))  # Unix System Resources.
+    locale_dir = _find_locale_dir(Path("/usr/share/locale"))  # USR.
     if locale_dir is not None:
         return locale_dir
     locale_dir = _find_locale_dir(

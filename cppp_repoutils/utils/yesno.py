@@ -41,8 +41,8 @@ def yesno(  # pylint: disable=too-many-arguments
 
     Args:
         prompt (str): The prompt message.
-        default (int, optional): The default answer. -1 means no default answer.
-            0 means NO, 1 means YES.
+        default (int, optional): The default answer. -1 means
+            no default answer. 0 means NO, 1 means YES.
 
     Returns:
         bool: True if the answer is yes, False otherwise.

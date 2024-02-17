@@ -30,6 +30,8 @@ from cppp_repoutils.utils.log import logger
 from cppp_repoutils.utils.nls import _
 from cppp_repoutils.utils.output import ProgressBar
 
+# TODO: Refactor.
+
 __all__ = ["wget"]
 
 
@@ -49,7 +51,7 @@ def wget(url: str) -> TemporaryObject:
         content_length = int(response.headers.get("Content-Length", 0))
 
         response.raise_for_status()
-        file_obj = TemporaryObject(TemporaryObject.TYPE_FILE)
+        file_obj = TemporaryObject.new_file()
         with open(file_obj.path, "wb") as file:
             with requests.get(url, stream=True, timeout=TIMEOUT) as response:
                 response.raise_for_status()

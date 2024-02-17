@@ -168,14 +168,15 @@ class AutoFormatDict(dict):
 
         srcdict = srcdict.copy()
 
-        return convert_to_autoformatdict(srcdict)
+        return convert_to_afd(srcdict)
 
 
-def convert_to_autoformatdict(src: dict[str, Any] | Any) -> AutoFormatDict | Any:
+def convert_to_afd(src: dict[str, Any] | Any) -> AutoFormatDict | Any:
     """Convert the given dict to AutoFormatDict recursively.
 
     Args:
-        src (dict[str, Any] | Any): The dict to convert. If it is not a dict, return it directly.
+        src (dict[str, Any] | Any): The dict to convert. If it is not a dict,
+            return it directly.
 
     Returns:
         AutoFormatDict | Any: The converted AutoFormatDict.
@@ -183,12 +184,12 @@ def convert_to_autoformatdict(src: dict[str, Any] | Any) -> AutoFormatDict | Any
 
     if isinstance(src, list | tuple | set):
         for index, value in enumerate(src):
-            src[index] = convert_to_autoformatdict(value)
+            src[index] = convert_to_afd(value)
 
     if isinstance(src, dict):
         for key, value in src.items():
-            if isinstance(value, list | tuple | set | dict):  # Avoid dynamic iterable.
-                src[key] = convert_to_autoformatdict(value)
+            if isinstance(value, list | tuple | set | dict):
+                src[key] = convert_to_afd(value)
                 src.update(src)
 
         afdict = AutoFormatDict()

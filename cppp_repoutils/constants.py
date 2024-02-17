@@ -66,7 +66,7 @@ __all__ = [
     "IS_PACKED",
 ]
 
-APP_VERSION_STRING: str = ".".join(map(str, APP_VERSION))  # App version string. (X.X.X)
+APP_VERSION_STRING: str = ".".join(map(str, APP_VERSION))  # (X.X.X)
 COPY_BUFSIZE = COPY_BUFSIZE_WINDOWS if os.name == "nt" else COPY_BUFSIZE_OTHERS
 PROGRAM_PATH: Path = Path(sys.argv[0]).resolve()
 PROGRAM_DIR: Path = PROGRAM_PATH.parent.absolute()
@@ -76,7 +76,8 @@ DEFAULT_IGNFILE: Path = Path(DEFAULT_IGNFILE_NAME)
 RESOURCE_PATH: Path = Path(getattr(sys, "_MEIPASS", PROGRAM_DIR)).absolute()
 STDOUT_IS_TTY = sys.stdout.isatty()
 
-# Is packed, if true, it means that the program is running in a packed environment.
+# Is packed, if true, it means that the program is running in a packed
+# environment.
 # (e.g. PyInstaller)
 IS_PACKED = (
     getattr(sys, "frozen", False)

@@ -32,6 +32,7 @@ from cppp_repoutils.utils.variable import AutoFormatDict
 from cppp_repoutils.utils.log import logger
 from cppp_repoutils.utils.output import output_step
 
+# TODO: Refactor.
 
 class SubpackageTypes(Enum):
     """Subpackage types."""

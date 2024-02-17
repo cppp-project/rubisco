@@ -68,6 +68,7 @@ def run_command(cmd: list[str] | str) -> int:
         proc.wait()
         return proc.returncode
 
+
 if os.name == "nt":
     COMMAND_NOT_FOUND_ERROR = 9009
 else:

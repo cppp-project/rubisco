@@ -114,7 +114,9 @@ def new_tempdir(prefix: str = "", suffix: str = "") -> Path:
     """
 
     path = Path(
-        tempfile.mkdtemp(suffix=suffix, prefix=prefix, dir=tempfile.gettempdir())
+        tempfile.mkdtemp(
+            suffix=suffix, prefix=prefix, dir=tempfile.gettempdir()  # noqa: E501
+        )
     ).absolute()
 
     return path
@@ -131,7 +133,9 @@ def new_tempfile(prefix: str = "", suffix: str = "") -> Path:
     """
 
     path = Path(
-        tempfile.mkstemp(suffix=suffix, prefix=prefix, dir=tempfile.gettempdir())[1]
+        tempfile.mkstemp(
+            suffix=suffix, prefix=prefix, dir=tempfile.gettempdir()  # noqa: E501
+        )[1]
     ).absolute()
 
     return path
@@ -183,7 +187,8 @@ class TemporaryObject:
 
         Args:
             temp_type (int): The type of the temporary object.
-                Can be TemporaryObject.TYPE_FILE or TemporaryObject.TYPE_DIRECTORY.
+                Can be TemporaryObject.TYPE_FILE or
+                TemporaryObject.TYPE_DIRECTORY.
             path (Path): The path of the temporary object.
                 We will register it for temporary later.
         """
@@ -248,7 +253,8 @@ class TemporaryObject:
             obj (object): The object to compare.
 
         Returns:
-            bool: True if the temporary object is equal to the object, False otherwise.
+            bool: True if the temporary object is equal to the object,
+                False otherwise.
         """
 
         if not isinstance(obj, TemporaryObject):
@@ -262,7 +268,8 @@ class TemporaryObject:
             obj (object): The object to compare.
 
         Returns:
-            bool: True if the temporary object is not equal to the object, False otherwise.
+            bool: True if the temporary object is not equal to the object,
+                False otherwise.
         """
 
         return not self == obj
@@ -337,12 +344,16 @@ class TemporaryObject:
         return self.path
 
     @classmethod
-    def new_file(cls, prefix: str = APP_NAME, suffix: str = "") -> "TemporaryObject":
+    def new_file(
+        cls, prefix: str = APP_NAME, suffix: str = ""  # noqa: E501
+    ) -> "TemporaryObject":
         """Create a temporary file.
 
         Args:
-            prefix (str, optional): Prefix of the temporary path. Defaults to APP_NAME.
-            suffix (str, optional): Suffix of the temporary path. Defaults to "".
+            prefix (str, optional): Prefix of the temporary path.
+                Defaults to APP_NAME.
+            suffix (str, optional): Suffix of the temporary path.
+                Defaults to "".
 
         Returns:
             TemporaryObject: The temporary file.
@@ -357,14 +368,18 @@ class TemporaryObject:
         """Create a temporary directory.
 
         Args:
-            prefix (str, optional): Prefix of the temporary path. Defaults to APP_NAME.
-            suffix (str, optional): Suffix of the temporary path. Defaults to "".
+            prefix (str, optional): Prefix of the temporary path.
+                Defaults to APP_NAME.
+            suffix (str, optional): Suffix of the temporary path.
+                Defaults to "".
 
         Returns:
             TemporaryObject: The temporary directory.
         """
 
-        return cls(cls.TYPE_DIRECTORY, new_tempdir(prefix=prefix, suffix=suffix))
+        return cls(
+            cls.TYPE_DIRECTORY, new_tempdir(prefix=prefix, suffix=suffix)  # noqa: E501
+        )
 
     @classmethod
     def register_tempobject(cls, path: Path) -> "TemporaryObject":
@@ -377,7 +392,9 @@ class TemporaryObject:
             TemporaryObject: Registered temporary object.
         """
 
-        return cls(cls.TYPE_DIRECTORY if path.is_dir() else cls.TYPE_FILE, path)
+        return cls(
+            cls.TYPE_DIRECTORY if path.is_dir() else cls.TYPE_FILE, path  # noqa: E501
+        )
 
     @classmethod
     def cleanup(cls) -> None:

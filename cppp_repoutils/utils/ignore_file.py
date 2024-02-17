@@ -48,7 +48,9 @@ def load_ignore(directory: Path) -> IgnoreChecker:
         if (sub_dir / DEFAULT_IGNFILE).exists():
             ignlist.append(sub_dir.relative_to(directory))
 
-    gitign_checker = gitignore_parser.parse_gitignore(directory / DEFAULT_IGNFILE)
+    gitign_checker = gitignore_parser.parse_gitignore(  # noqa: E501
+        directory / DEFAULT_IGNFILE
+    )
 
     def _ignore_checker(path: Path) -> bool:
         path = path.resolve()

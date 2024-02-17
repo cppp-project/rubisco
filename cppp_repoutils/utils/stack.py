@@ -58,7 +58,7 @@ class Stack:
             self.__stack = list(args[0]).copy()
         else:
             raise TypeError(
-                f"Stack() takes 0 or 1 positional arguments but {len(args)} were given."
+                f"Stack() takes 0 or 1 positional arguments but {len(args)} were given."  # noqa: E501 # pylint: disable=line-too-long
             )
 
     def __str__(self) -> str:
@@ -232,7 +232,8 @@ class Stack:
             other (Stack): The other stack.
 
         Returns:
-            True if the stack is less than or equal to the other stack, otherwise False.
+            True if the stack is less than or equal to the other stack,
+                otherwise False.
         """
 
         return self.__stack <= list(other)
@@ -256,7 +257,8 @@ class Stack:
             other (Stack): The other stack.
 
         Returns:
-            True if the stack is greater than or equal to the other stack, otherwise False.
+            True if the stack is greater than or equal to the other stack,
+                otherwise False.
         """
 
         return self.__stack >= list(other)
@@ -305,7 +307,9 @@ class Stack:
             items (Iterable[Any]): The items to be pushed.
         """
 
-        await asyncio.get_event_loop().run_in_executor(None, self.push_all, items)
+        await asyncio.get_event_loop().run_in_executor(  # noqa: E501
+            None, self.push_all, items
+        )
 
     def pop(self):
         """Pop the top item of the stack.
@@ -347,7 +351,9 @@ class Stack:
             list[Any]: The items of the stack.
         """
 
-        return await asyncio.get_event_loop().run_in_executor(None, self.pop_all)
+        return await asyncio.get_event_loop().run_in_executor(  # noqa: E501
+            None, self.pop_all
+        )
 
     def top(self) -> Any:
         """Get the top item of the stack.
@@ -435,7 +441,7 @@ if __name__ == "__main__":
 
     stack_copy = stack.copy()
     print(
-        f"This is the copy of the stack: {repr(stack_copy)}, {id(stack)} => {id(stack_copy)}"
+        f"This is the copy of the stack: {repr(stack_copy)}, {id(stack)} => {id(stack_copy)}"  # noqa: E501 # pylint: disable=line-too-long
     )
     print(f"{stack_copy} == {stack}: {stack_copy == stack}")
 
@@ -444,7 +450,9 @@ if __name__ == "__main__":
     async def _check_async():
         print(f"Push an item to the stack asynchronously: {repr(stack)}")
         await stack.push_async(7)
-        print(f"Push a list of items to the stack asynchronously: {repr(stack)}")
+        print(
+            f"Push a list of items to the stack asynchronously: {repr(stack)}"
+        )  # noqa: E501 # pylint: disable=line-too-long
         await stack.push_all_async([8, 9, 10])
         print(f"Pop the top item of the stack asynchronously: {repr(stack)}")
         await stack.pop_async()
@@ -459,7 +467,7 @@ if __name__ == "__main__":
         print(f"Now the stack has 3 items: {repr(stack)}")
         stack_copy2 = await stack.copy_async()
         print(
-            f"This is the copy of the stack: {repr(stack_copy2)}, {id(stack)} => {id(stack_copy2)}"
+            f"This is the copy of the stack: {repr(stack_copy2)}, {id(stack)} => {id(stack_copy2)}"  # noqa: E501 # pylint: disable=line-too-long
         )
 
     asyncio.run(_check_async())

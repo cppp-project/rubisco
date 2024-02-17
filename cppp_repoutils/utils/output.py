@@ -70,7 +70,8 @@ def output(  # pylint: disable=too-many-arguments
         message (str): The message to output.
         end (str, optional): The end of the message. Defaults to "\n".
         suffix (str, optional): The suffix of the message. Defaults to "".
-        fmt (dict[str, str], optional): The format of the message. Defaults to None.
+        fmt (dict[str, str], optional): The format of the message.
+            Defaults to None.
         color (str, optional): The color of the message. Defaults to "".
         flush (bool, optional): Flush the output. Defaults to False.
     """
@@ -100,20 +101,28 @@ def output_step(  # pylint: disable=too-many-arguments
         message (str): The step message to output.
         end (str, optional): The end of the message. Defaults to "\n".
         suffix (str, optional): The suffix of the message. Defaults to "".
-        fmt (dict[str, str], optional): The format of the message. Defaults to None.
+        fmt (dict[str, str], optional): The format of the message.
+            Defaults to None.
         color (str, optional): The color of the message. Defaults to "".
         flush (bool, optional): Flush the output. Defaults to False.
     """
 
     if message:
         output("=> ", end="", color="blue", flush=False)
-        output(message, end=end, suffix=suffix, fmt=fmt, color=color, flush=flush)
+        output(
+            message,
+            end=end,
+            suffix=suffix,
+            fmt=fmt,
+            color=color,
+            flush=flush,
+        )
 
 
 class _WindowsTaskbarProgressState(Enum):
     """
     Windows taskbar progress state.
-    See https://learn.microsoft.com/en-us/windows/terminal/tutorials/progress-bar-sequences.
+    See https://learn.microsoft.com/en-us/windows/terminal/tutorials/progress-bar-sequences. # noqa: E501 # pylint: disable=line-too-long
     """
 
     HIDDEN = 0
@@ -147,34 +156,34 @@ class ProgressBar(tqdm):
     """A progress bar."""
 
     FORMAT_WHITE = format_str(
-        "{percentage:3.0f}%|{white}{bar}{reset}| [{n_fmt}/{total_fmt} {rate_fmt}]"
+        "{percentage:3.0f}%|{white}{bar}{reset}| [{n_fmt}/{total_fmt} {rate_fmt}]"  # noqa: E501 # pylint: disable=line-too-long
     )
     FORMAT_BOLDWHITE = format_str(
-        "{percentage:3.0f}%|{bold}{white}{bar}{reset}| [{n_fmt}/{total_fmt} {rate_fmt}]"
+        "{percentage:3.0f}%|{bold}{white}{bar}{reset}| [{n_fmt}/{total_fmt} {rate_fmt}]"  # noqa: E501 # pylint: disable=line-too-long
     )
     FORMAT_MAGENTA = format_str(
-        "{percentage:3.0f}%|{magenta}{bar}{reset}| [{n_fmt}/{total_fmt} {rate_fmt}]"
+        "{percentage:3.0f}%|{magenta}{bar}{reset}| [{n_fmt}/{total_fmt} {rate_fmt}]"  # noqa: E501 # pylint: disable=line-too-long
     )
     FORMAT_BOLDMAGENTA = format_str(
-        "{percentage:3.0f}%|{bold}{magenta}{bar}{reset}| [{n_fmt}/{total_fmt} {rate_fmt}]"
+        "{percentage:3.0f}%|{bold}{magenta}{bar}{reset}| [{n_fmt}/{total_fmt} {rate_fmt}]"  # noqa: E501 # pylint: disable=line-too-long
     )
     FORMAT_YELLOW = format_str(
-        "{percentage:3.0f}%|{yellow}{bar}{reset}| [{n_fmt}/{total_fmt} {rate_fmt}]"
+        "{percentage:3.0f}%|{yellow}{bar}{reset}| [{n_fmt}/{total_fmt} {rate_fmt}]"  # noqa: E501 # pylint: disable=line-too-long
     )
     FORMAT_BOLDYELLOW = format_str(
-        "{percentage:3.0f}%|{bold}{yellow}{bar}{reset}| [{n_fmt}/{total_fmt} {rate_fmt}]"
+        "{percentage:3.0f}%|{bold}{yellow}{bar}{reset}| [{n_fmt}/{total_fmt} {rate_fmt}]"  # noqa: E501 # pylint: disable=line-too-long
     )
     FORMAT_CYAN = format_str(
-        "{percentage:3.0f}%|{cyan}{bar}{reset}| [{n_fmt}/{total_fmt} {rate_fmt}]"
+        "{percentage:3.0f}%|{cyan}{bar}{reset}| [{n_fmt}/{total_fmt} {rate_fmt}]"  # noqa: E501 # pylint: disable=line-too-long
     )
     FORMAT_BOLDCYAN = format_str(
-        "{percentage:3.0f}%|{bold}{cyan}{bar}{reset}| [{n_fmt}/{total_fmt} {rate_fmt}]"
+        "{percentage:3.0f}%|{bold}{cyan}{bar}{reset}| [{n_fmt}/{total_fmt} {rate_fmt}]"  # noqa: E501 # pylint: disable=line-too-long
     )
     FORMAT_GREEN = format_str(
-        "{percentage:3.0f}%|{green}{bar}{reset}| [{n_fmt}/{total_fmt} {rate_fmt}]"
+        "{percentage:3.0f}%|{green}{bar}{reset}| [{n_fmt}/{total_fmt} {rate_fmt}]"  # noqa: E501 # pylint: disable=line-too-long
     )
     FORMAT_BOLDGREEN = format_str(
-        "{percentage:3.0f}%|{bold}{green}{bar}{reset}| [{n_fmt}/{total_fmt} {rate_fmt}]"
+        "{percentage:3.0f}%|{bold}{green}{bar}{reset}| [{n_fmt}/{total_fmt} {rate_fmt}]"  # noqa: E501 # pylint: disable=line-too-long
     )
 
     __last_precent: int
@@ -191,11 +200,14 @@ class ProgressBar(tqdm):
         """Create a progressbar.
 
         Args:
-            iterable (Iterable | None, optional): Iterable to decorate with a progressbar.
+            iterable (Iterable | None, optional): Iterable to decorate
+                with a progressbar. Defaults to None.
+            desc (str | None, optional): Progress description.
                 Defaults to None.
-            desc (str | None, optional): Progress description. Defaults to None.
-            desc_fmt (dict[str, str] | None, optional): The format of the message. Defaults to None.
-            total (float | None, optional): The number of expected iterations. Defaults to None.
+            desc_fmt (dict[str, str] | None, optional): The format of
+                the message. Defaults to None.
+            total (float | None, optional): The number of expected iterations.
+                Defaults to None.
         """
 
         if not STDOUT_IS_TTY:
@@ -267,7 +279,9 @@ class ProgressBar(tqdm):
         else:
             self.bar_format = self.FORMAT_BOLDGREEN
 
-        _windows_taskbar_progress(_WindowsTaskbarProgressState.DEFAULT, int(percent))
+        _windows_taskbar_progress(
+            _WindowsTaskbarProgressState.DEFAULT, int(percent)  # noqa: E501
+        )
         return super().update(n)
 
     def close(self) -> None:

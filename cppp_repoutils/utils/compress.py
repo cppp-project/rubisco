@@ -29,7 +29,7 @@ from cppp_repoutils.utils.log import logger
 from cppp_repoutils.utils.output import ProgressBar
 from cppp_repoutils.utils.ignore_file import IgnoreChecker
 from cppp_repoutils.utils.nls import _
-from cppp_repoutils.utils.yesno import yesno
+from cppp_repoutils.utils.fileutil import assert_file_exists
 
 
 def compress_tar(
@@ -46,27 +46,25 @@ def compress_tar(
         directory (Path): Directory to compress.
         arcname (Path): The alternative name for the file in the archive.
         ign_checker (IgnoreChecker): Ignore file checker.
-        compress_type (str): Compression type. Can be 'gz', 'bz2', 'xz' or ''(no compression).
+        compress_type (str): Compression type. Can be 'gz', 'bz2', 'xz' or
+            ''(no compression).
 
     Raises:
-        FileExistsError: If the file already exists and user doesn't want to overwrite it.
+        AssertionError: If the file already exists and user doesn't want to
+            overwrite it.
     """
 
     if name.exists():
         logger.warning("'%s' already exists.", name)
-        if not yesno(
-            _("{yellow}{underline}{path}{reset} already exists. Overwrite?"),
-            default=0,
-            fmt={"path": name},
-        ):
-            raise FileExistsError(name)
+        assert_file_exists(name)
 
     with tarfile.open(name, ":".join(["w", compress_type])) as archive:
         total_length = sum(1 for _ in directory.rglob("*"))
         for file in ProgressBar(
             directory.rglob("*"),
             desc=_(
-                "Compressing '{underline}{name}{reset}' into '{underline}{archive}{reset}' ..."
+                "Compressing '{underline}{name}{reset}' into "
+                "'{underline}{archive}{reset}' ..."
             ),
             total=total_length,
             desc_fmt={"name": directory, "archive": name},
@@ -74,9 +72,8 @@ def compress_tar(
             file: Path
             if file.is_dir() or ign_checker(file):
                 continue
-            archive.add(
-                file, arcname / file.relative_to(directory.parent), recursive=False
-            )
+            relpath = arcname / file.relative_to(directory.parent)
+            archive.add(file, relpath, recursive=False)
     logger.info("Compressed '%s' into '%s'.", directory, name)
 
 
@@ -92,24 +89,21 @@ def compress_zip(
         ign_checker (IgnoreChecker): Ignore file checker.
 
     Raises:
-        FileExistsError: If the file already exists and user doesn't want to overwrite it.
+        AssertionError: If the file already exists and user doesn't want to
+            overwrite it.
     """
 
     if name.exists():
         logger.warning("'%s' already exists.", name)
-        if not yesno(
-            _("{yellow}{underline}{path}{reset} already exists. Overwrite?"),
-            default=0,
-            fmt={"path": name},
-        ):
-            raise FileExistsError(name)
+        assert_file_exists(name)
 
     with zipfile.ZipFile(name, "w", compresslevel=9) as archive:
         total_length = sum(1 for _ in directory.rglob("*"))
         for file in ProgressBar(
             directory.rglob("*"),
             desc=_(
-                "Compressing '{underline}{name}{reset}' into '{underline}{archive}{reset}' ..."
+                "Compressing '{underline}{name}{reset}' into "
+                "'{underline}{archive}{reset}' ..."
             ),
             total=total_length,
             desc_fmt={"name": directory, "archive": name},
@@ -140,11 +134,13 @@ def compress(
         arcname (Path): The alternative name for the file in the archive.
         ign_checker (IgnoreChecker): Ignore file checker.
         compress_type (str): Compression type.
-            Can be 'tar', 'tar.gz', 'tar.bz2', 'tar.xz', 'zip' or ''(no compression).
+            Can be 'tar', 'tar.gz', 'tar.bz2', 'tar.xz', 'zip' or
+                ''(no compression).
 
     Raises:
-        ValueError: If the compress_type is unknown.
-        FileExistsError: If the file already exists and user doesn't want to overwrite it.
+        AssertionError: If the compress_type is unknown.
+        AssertionError: If the file already exists and user doesn't want to
+            overwrite it.
     """
 
     match (compress_type):
@@ -159,21 +155,23 @@ def compress(
         case "zip":
             compress_zip(name, directory, arcname, ign_checker)
         case _:
-            raise ValueError(
+            raise AssertionError(
                 _("Unknown compress_type: {type}").format(type=compress_type)
             )
 
 
-def extract_tar(archive_path: Path, target_directory: Path, compress_type: str):
+def extract_tar(archive_path: Path, target_dir: Path, compress_type: str):
     """Extract tar file.
 
     Args:
         archive_path (Path): The archive file path.
-        target_directory (Path): The destination directory.
-        compress_type (str): Compression type. Can be 'gz', 'bz2', 'xz' or ''(tar).
+        target_dir (Path): The destination directory.
+        compress_type (str): Compression type. Can be 'gz', 'bz2', 'xz' or
+            ''(tar).
 
     Raises:
-        FileExistsError: If the file already exists and user doesn't want to overwrite it.
+        AssertionError: If the file already exists and user doesn't want to
+            overwrite it.
     """
 
     with tarfile.open(archive_path, ":".join(["r", compress_type])) as archive:
@@ -181,36 +179,33 @@ def extract_tar(archive_path: Path, target_directory: Path, compress_type: str):
         for member in ProgressBar(
             archive.getmembers(),
             desc=_(
-                "Extracting '{underline}{archive}{reset}' into '{underline}{directory}{reset}' ..."
+                "Extracting '{underline}{archive}{reset}' into "
+                "'{underline}{directory}{reset}' ..."
             ),
             total=total_length,
-            desc_fmt={"archive": archive_path, "directory": target_directory},
+            desc_fmt={"archive": archive_path, "directory": target_dir},
         ):
             member: tarfile.TarInfo
             if member.isdir():
                 continue
-            output_path = target_directory / member.name
+            output_path = target_dir / member.name
             if output_path.exists():
                 logger.warning("'%s' already exists.", output_path)
-                if not yesno(
-                    _("{yellow}{underline}{path}{reset} already exists. Overwrite?"),
-                    default=0,
-                    fmt={"path": output_path},
-                ):
-                    raise FileExistsError(output_path)
-            archive.extract(member, target_directory)
-    logger.info("Extracted '%s' into '%s'.", archive_path, target_directory)
+                assert_file_exists(output_path)
+            archive.extract(member, target_dir)
+    logger.info("Extracted '%s' into '%s'.", archive_path, target_dir)
 
 
-def extract_zip(archive_path: Path, target_directory: Path):
+def extract_zip(archive_path: Path, target_dir: Path):
     """Extract zip file.
 
     Args:
         archive_path (Path): The archive file path.
-        target_directory (Path): The destination directory.
+        target_dir (Path): The destination directory.
 
     Raises:
-        FileExistsError: If the file already exists and user doesn't want to overwrite it.
+        AssertionError: If the file already exists and user doesn't want to
+            overwrite it.
     """
 
     with zipfile.ZipFile(archive_path, "r") as archive:
@@ -218,53 +213,50 @@ def extract_zip(archive_path: Path, target_directory: Path):
         for member in ProgressBar(
             archive.infolist(),
             desc=_(
-                "Extracting '{underline}{archive}{reset}' into '{underline}{directory}{reset}' ..."
+                "Extracting '{underline}{archive}{reset}' into "
+                "'{underline}{directory}{reset}' ..."
             ),
             total=total_length,
-            desc_fmt={"archive": archive_path, "directory": target_directory},
+            desc_fmt={"archive": archive_path, "directory": target_dir},
         ):
             member: zipfile.ZipInfo
             if member.is_dir():
                 continue
-            output_path = target_directory / member.filename
+            output_path = target_dir / member.filename
             if output_path.exists():
                 logger.warning("'%s' already exists.", output_path)
-                if not yesno(
-                    _("{yellow}{underline}{path}{reset} already exists. Overwrite?"),
-                    default=0,
-                    fmt={"path": output_path},
-                ):
-                    raise FileExistsError(output_path)
-            archive.extract(member, target_directory)
-    logger.info("Extracted '%s' into '%s'.", archive_path, target_directory)
+                assert_file_exists(output_path)
+            archive.extract(member, target_dir)
+    logger.info("Extracted '%s' into '%s'.", archive_path, target_dir)
 
 
-def extract(archive_path: Path, target_directory: Path, compress_type: str):
+def extract(archive_path: Path, target_dir: Path, compress_type: str):
     """Extract archive file.
 
     Args:
         archive_path (Path): The archive file path.
-        target_directory (Path): The destination directory.
+        target_dir (Path): The destination directory.
         compress_type (str): Compression type.
-            Can be 'tar', 'tar.gz', 'tar.bz2', 'tar.xz', 'zip' or ''(no compression).
+            Can be 'tar', 'tar.gz', 'tar.bz2', 'tar.xz', 'zip' or
+                ''(no compression).
 
     Raises:
-        ValueError: If the compress_type is unknown.
+        AssertionError: If the compress_type is unknown.
     """
 
     match (compress_type):
         case "tar":
-            extract_tar(archive_path, target_directory, "")
+            extract_tar(archive_path, target_dir, "")
         case "tar.gz":
-            extract_tar(archive_path, target_directory, "gz")
+            extract_tar(archive_path, target_dir, "gz")
         case "tar.bz2":
-            extract_tar(archive_path, target_directory, "bz2")
+            extract_tar(archive_path, target_dir, "bz2")
         case "tar.xz":
-            extract_tar(archive_path, target_directory, "xz")
+            extract_tar(archive_path, target_dir, "xz")
         case "zip":
-            extract_zip(archive_path, target_directory)
+            extract_zip(archive_path, target_dir)
         case _:
-            raise ValueError(
+            raise AssertionError(
                 _("Unknown compress_type: {type}").format(type=compress_type)
             )
 

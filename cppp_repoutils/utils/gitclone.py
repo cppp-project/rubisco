@@ -114,7 +114,9 @@ def clone(url, path, branch="main", depth=None) -> Repo:
     """
 
     output_step(
-        _("Cloning '{underline}{url}{reset}' into '{underline}{path}{reset}' ..."),
+        _(
+            "Cloning '{underline}{url}{reset}' into '{underline}{path}{reset}' ..."  # noqa: E501
+        ),
         fmt={"url": url, "path": path},
     )
 
