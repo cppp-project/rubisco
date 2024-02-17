@@ -47,21 +47,28 @@ def assert_file_exists(path: Path):
         path (Path): The path to check.
 
     Raises:
-        AssertionError: If the file or directory exists and user choose to skip.
+        AssertionError: If the file or directory exists and user choose to
+            skip.
     """
 
     if path.exists():
         choice = yesno(
             format_str(
-                _("File or directory '{path}' already exists, overwrite it?"),
-                fmt={"path", path},
+                _(
+                    "File or directory '{yellow}{underline}{path}{reset}' "
+                    "already exists, overwrite it?"
+                ),
+                fmt={"path": path},
             ),
             default=0,
         )
         if not choice:
             raise AssertionError(
                 format_str(
-                    _("File or directory '{path}' already exists."), fmt={"path", path}
+                    _(
+                        "File or directory '{underline}{path}{reset}' already exists."  # noqa: E501
+                    ),
+                    fmt={"path": path},
                 )
             )
     rm_recursive(path, strict=True)
