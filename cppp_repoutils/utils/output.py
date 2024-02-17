@@ -147,16 +147,34 @@ class ProgressBar(tqdm):
     """A progress bar."""
 
     FORMAT_WHITE = format_str(
-        "{percentage:3.0f}%|{white}{bar}{reset}| {n_fmt}/{total_fmt} {rate_fmt}]"
+        "{percentage:3.0f}%|{white}{bar}{reset}| [{n_fmt}/{total_fmt} {rate_fmt}]"
+    )
+    FORMAT_BOLDWHITE = format_str(
+        "{percentage:3.0f}%|{bold}{white}{bar}{reset}| [{n_fmt}/{total_fmt} {rate_fmt}]"
+    )
+    FORMAT_MAGENTA = format_str(
+        "{percentage:3.0f}%|{magenta}{bar}{reset}| [{n_fmt}/{total_fmt} {rate_fmt}]"
+    )
+    FORMAT_BOLDMAGENTA = format_str(
+        "{percentage:3.0f}%|{bold}{magenta}{bar}{reset}| [{n_fmt}/{total_fmt} {rate_fmt}]"
     )
     FORMAT_YELLOW = format_str(
-        "{percentage:3.0f}%|{yellow}{bar}{reset}| {n_fmt}/{total_fmt} {rate_fmt}]"
+        "{percentage:3.0f}%|{yellow}{bar}{reset}| [{n_fmt}/{total_fmt} {rate_fmt}]"
+    )
+    FORMAT_BOLDYELLOW = format_str(
+        "{percentage:3.0f}%|{bold}{yellow}{bar}{reset}| [{n_fmt}/{total_fmt} {rate_fmt}]"
     )
     FORMAT_CYAN = format_str(
-        "{percentage:3.0f}%|{cyan}{bar}{reset}| {n_fmt}/{total_fmt} {rate_fmt}]"
+        "{percentage:3.0f}%|{cyan}{bar}{reset}| [{n_fmt}/{total_fmt} {rate_fmt}]"
+    )
+    FORMAT_BOLDCYAN = format_str(
+        "{percentage:3.0f}%|{bold}{cyan}{bar}{reset}| [{n_fmt}/{total_fmt} {rate_fmt}]"
     )
     FORMAT_GREEN = format_str(
-        "{percentage:3.0f}%|{green}{bar}{reset}| {n_fmt}/{total_fmt} {rate_fmt}]"
+        "{percentage:3.0f}%|{green}{bar}{reset}| [{n_fmt}/{total_fmt} {rate_fmt}]"
+    )
+    FORMAT_BOLDGREEN = format_str(
+        "{percentage:3.0f}%|{bold}{green}{bar}{reset}| [{n_fmt}/{total_fmt} {rate_fmt}]"
     )
 
     __last_precent: int
@@ -230,12 +248,24 @@ class ProgressBar(tqdm):
 
         if percent <= 20:
             self.bar_format = self.FORMAT_WHITE
+        elif percent <= 30:
+            self.bar_format = self.FORMAT_BOLDWHITE
         elif percent <= 40:
-            self.bar_format = self.FORMAT_YELLOW
+            self.bar_format = self.FORMAT_MAGENTA
+        elif percent <= 50:
+            self.bar_format = self.FORMAT_BOLDMAGENTA
         elif percent <= 60:
+            self.bar_format = self.FORMAT_YELLOW
+        elif percent <= 70:
+            self.bar_format = self.FORMAT_BOLDYELLOW
+        elif percent <= 80:
             self.bar_format = self.FORMAT_CYAN
-        else:
+        elif percent <= 90:
+            self.bar_format = self.FORMAT_BOLDCYAN
+        elif percent <= 95:
             self.bar_format = self.FORMAT_GREEN
+        else:
+            self.bar_format = self.FORMAT_BOLDGREEN
 
         _windows_taskbar_progress(_WindowsTaskbarProgressState.DEFAULT, int(percent))
         return super().update(n)
