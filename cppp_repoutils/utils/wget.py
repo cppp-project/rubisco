@@ -22,28 +22,29 @@
 Download a file from the Internet.
 """
 
+from pathlib import Path
 import requests
 
 from cppp_repoutils.constants import COPY_BUFSIZE, TIMEOUT
-from cppp_repoutils.utils.fileutil import TemporaryObject
 from cppp_repoutils.utils.log import logger
 from cppp_repoutils.utils.nls import _
 from cppp_repoutils.utils.output import ProgressBar
+from cppp_repoutils.utils.fileutil import assert_file_exists
 
-# TODO: Refactor.
 
 __all__ = ["wget"]
 
 
-def wget(url: str) -> TemporaryObject:
+def wget(url: str, save_to: Path) -> None:
     """Download a file from the Internet.
 
     Args:
         url (str): The URL of the file.
+        save_to (Path): The path to save the file to.
 
-    Returns:
-        TemporaryObject: The downloaded file.
     """
+
+    assert_file_exists(save_to)
 
     logger.debug("Downloading '%s' ...", url)
 
@@ -51,8 +52,7 @@ def wget(url: str) -> TemporaryObject:
         content_length = int(response.headers.get("Content-Length", 0))
 
         response.raise_for_status()
-        file_obj = TemporaryObject.new_file()
-        with open(file_obj.path, "wb") as file:
+        with open(save_to, "wb") as file:
             with requests.get(url, stream=True, timeout=TIMEOUT) as response:
                 response.raise_for_status()
                 progress_bar = ProgressBar(
@@ -64,19 +64,14 @@ def wget(url: str) -> TemporaryObject:
                     file.write(chunk)
                     file.flush()
                     progress_bar.update(len(chunk))
-
-        return file_obj
+                progress_bar.close()
+    logger.debug("Downloaded '%s' to '%s'.", url, save_to)
 
 
 if __name__ == "__main__":
     print(f"{__file__}: {__doc__.strip()}")
 
-    from cppp_repoutils.utils.yesno import yesno
+    URL = "https://ftp.gnu.org/pub/gnu/libiconv/libiconv-1.17.tar.gz"
+    TARGET = Path("libiconv-1.17.tar.gz")
 
-    test_file = wget("https://ftp.gnu.org/pub/gnu/libiconv/libiconv-1.17.tar.gz")
-    print("Downloaded", test_file)
-    if yesno("Remove the downloaded file?", default=1, color="yellow"):
-        test_file.remove()
-        print("Removed", test_file)
-    else:
-        test_file.move()
+    wget(URL, TARGET)

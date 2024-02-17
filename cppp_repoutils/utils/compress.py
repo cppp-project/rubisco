@@ -31,6 +31,8 @@ from cppp_repoutils.utils.ignore_file import IgnoreChecker
 from cppp_repoutils.utils.nls import _
 from cppp_repoutils.utils.fileutil import assert_file_exists
 
+__all__ = ["compress", "extract"]
+
 
 def compress_tar(
     name: Path,

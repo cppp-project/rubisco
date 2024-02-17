@@ -214,7 +214,11 @@ class ProgressBar(tqdm):
             self.disable = True
 
         output_step(desc, fmt=desc_fmt)
-        _windows_taskbar_progress(_WindowsTaskbarProgressState.DEFAULT, 0)
+        _windows_taskbar_progress(
+            _WindowsTaskbarProgressState.INDETERMINATE, 0  # noqa: E501
+        )
+        if not total:
+            self.disable = True
 
         self.__last_precent = 0
         self.__ignored_precent_sum = 0
@@ -244,6 +248,9 @@ class ProgressBar(tqdm):
         Args:
             n (float, optional): The progress value. Defaults to 1.
         """
+
+        if self.disable:
+            return None
 
         current = self.n + n
         percent = int(current / self.total * 100)
