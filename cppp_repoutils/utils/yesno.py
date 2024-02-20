@@ -46,61 +46,68 @@ def yesno(  # pylint: disable=too-many-arguments
 
     Returns:
         bool: True if the answer is yes, False otherwise.
+
+    Raises:
+        EOFError: When stdin is EOF and no default answer.
     """
 
-    logger.info("Asking question to user: '%s'", prompt)
-    output(prompt, end=" ", suffix=suffix, fmt=fmt, color=color)
-    inp: str = None
-    match (default):
-        case -1:  # No default answer.
-            try:
+    while True:
+        logger.info("Asking question to user: '%s'", prompt)
+        output(prompt, end=" ", suffix=suffix, fmt=fmt, color=color)
+        inp: str = ""
+        match (default):
+            case -1:  # No default answer.
                 inp = input("[y/n] ").strip().upper()
-            except EOFError:
-                logger.critical("EOFError, interrupt.")
-                output(_("EOFError, interrupt."), color="red")
-                raise
-        case 0:  # Default answer is NO.
-            try:
-                inp = input("[y/N] ").strip().upper()
-            except EOFError:
-                logger.warning("EOFError, but we have default answer 'N'.")
-                inp = ""
-            if not inp:
-                logger.info("Return NO.")
-                return False
-        case 1:  # Default answer is YES.
-            try:
-                inp = input("[Y/n] ").strip().upper()
-            except EOFError:
-                logger.warning("EOFError, but we have default answer 'Y'.")
-                inp = ""
-            if not inp:
-                logger.info("Return YES.")
-                return True
+            case 0:  # Default answer is NO.
+                try:
+                    inp = input("[y/N] ").strip().upper()
+                except EOFError:
+                    logger.warning("EOFError, but we have default answer 'N'.")
+                    output("N")
+                    inp = "N"
+            case 1:  # Default answer is YES.
+                try:
+                    inp = input("[Y/n] ").strip().upper()
+                except EOFError:
+                    logger.warning("EOFError, but we have default answer 'Y'.")
+                    output("Y")
+                    inp = "Y"
 
-    if inp == "Y":
-        logger.info("Return YES.")
-        return True
-    if inp == "N":
-        logger.info("Return NO.")
-        return False
+        if inp == "Y":
+            logger.info("Return YES.")
+            return True
+        if inp == "N":
+            logger.info("Return NO.")
+            return False
+        if default != -1:
+            return bool(default)
 
-    output(_("Invalid input, please input 'Y' or 'N'."), color="yellow")
-    logger.warning("Invalid input, please input 'Y' or 'N'.")
-    return yesno(prompt, default=default, suffix=suffix, fmt=fmt, color=color)
+        output(_("Invalid input, please input 'Y' or 'N'."), color="yellow")
+        logger.warning("Invalid input (only 'Y'/'N' supported).")
 
 
 if __name__ == "__main__":
     print(f"{__file__}: {__doc__.strip()}")
 
+    from cppp_repoutils.utils.output import output_step
+
     try:
-        res = yesno("Q1: Without default answer", default=-1)
-        print("=> Result:", res)
-        res = yesno("Q2: Default answer is NO", default=0)
-        print("=> Result:", res)
-        res = yesno("Q3: Default answer is YES", default=1)
-        print("=> Result:", res)
+        res = yesno(  # pylint: disable=invalid-name
+            "Q1: Without default answer", default=-1
+        )
+        output_step(f"Result: '{res}'")
+
+        res = yesno(  # pylint: disable=invalid-name
+            "Q2: Default answer is NO", default=0
+        )
+        output_step(f"Result: '{res}'")
+
+        res = yesno(  # pylint: disable=invalid-name
+            "Q3: Default answer is YES", default=1
+        )
+        output_step(f"Result: '{res}'")
+
     except EOFError:
-        print("=> EOF caught.")
+        output_step("EOF caught.")
     except KeyboardInterrupt:
-        print("=> KeyboardInterrupt caught.")
+        output_step("KeyboardInterrupt caught.")
