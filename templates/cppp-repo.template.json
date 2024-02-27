@@ -1,34 +1,29 @@
 {
-    "name" : "Name",
-    "version" : "Version, startswith 'v'",
-    "file-list": "File lists file, relative to the repository root",
+    "name": "Name",
+    "version": "Version X.X.X",
     "description": "Description",
-    "authors": [
-        "Author/Maintainer"
-    ],
+    "authors": ["Author/Maintainer"],
     "webpage": "Project homepage",
-    "subpackages": {
-        "Subpackage1": {
-            "path": "Subpackage path, relative to the repository root",
-            "description": "Subpackage description",
-            "remote": "git",
-            "remote-url": "Git repository url",
-            "git-branch": "Git branch name"
+    "license": "License",
+    "subprojects": { // Subprojects. It will be checkout and init in 'init' command.
+        "Subprojects 1": {
+            "type": "git", // Subproject type, support 'git' and 'archive'.
+            "path": "subproject1", // Path to checkout subproject.
+            "remote-url": "", // Remote url of subproject.
+            "git-branch": "master", // Branch of subproject.
         },
-        "Subpackage2": {
-            "path": "Subpackage path, relative to the repository root",
-            "description": "Subpackage description",
-            "remote": "svn",
-            "remote-url": "SVN repository url",
-            "svn-revision": "SVN revision number"
-        },
-        "Subpackage3": {
-            "path": "Subpackage path, relative to the repository root",
-            "description": "Subpackage description",
-            "remote": "tgz-archive",
-            "remote-url": "tar.gz archive url"
+        "Subprojects 2": {
+            "type": "archive",
+            "path": "subproject2",
+            "remote-url": "",
+            "archive-url": "",
+            "archive-type": "tar.xz"
         }
     },
-    "license": "License",
-    "dist-profile": "Distribution profile file, relative to the repository root"
+    "post-init-unix": "echo 'Post init unix command'", // Post init command for U*ix.
+    "post-init-windows": "echo 'Post init windows command'", // Post init command for Windows.
+
+    "includes": [
+        "build.template.json", // Include profile
+    ]
 }
