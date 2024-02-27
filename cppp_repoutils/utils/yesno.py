@@ -34,15 +34,18 @@ def yesno(  # pylint: disable=too-many-arguments
     prompt: str,
     default: int,
     suffix: str = "",
-    fmt: dict[str, str] = None,
+    fmt: dict[str, str] | None = None,
     color: str = "",
 ) -> bool:
     """Ask yes or no.
 
     Args:
-        prompt (str): The prompt message.
-        default (int, optional): The default answer. -1 means
-            no default answer. 0 means NO, 1 means YES.
+        default (int): The default answer. -1 means no default answer.
+            0 means NO, 1 means YES.
+        suffix (str, optional): Prompt suffix. Defaults to "".
+        fmt (dict[str, str] | None, optional): Prompt message format.
+            Defaults to None.
+        color (str, optional): Prompt message color. Defaults to "".
 
     Returns:
         bool: True if the answer is yes, False otherwise.

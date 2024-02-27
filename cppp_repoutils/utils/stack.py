@@ -395,7 +395,7 @@ class Stack:
             self.__stack.clear()
         return self
 
-    def clear_async(self) -> "Stack":
+    def clear_async(self) -> asyncio.Future["Stack"]:
         """Clear the stack asynchronously."""
 
         return asyncio.get_event_loop().run_in_executor(None, self.clear)
@@ -409,7 +409,7 @@ class Stack:
 
         return copy.copy(self)
 
-    def copy_async(self) -> "Stack":
+    def copy_async(self) -> asyncio.Future["Stack"]:
         """Copy the stack asynchronously.
 
         Returns:

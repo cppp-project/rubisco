@@ -84,14 +84,17 @@ def get_variable(name: str):
     raise KeyError(repr(name))
 
 
-def format_str(string: str, fmt: dict[str, str] = None):
+def format_str(
+    string: str | Any, fmt: dict[str, str] | None = None  # noqa: E501
+) -> str | Any:
     """Format the string with variables.
 
     Args:
-        string (str): The string to format.
+        string (str | Any): The string to format.
 
     Returns:
-        str: The formatted string.
+        str | Any: The formatted string. If the input is not a string,
+            return itself.
     """
 
     if not isinstance(string, str):
@@ -183,10 +186,11 @@ def convert_to_afd(src: dict[str, Any] | Any) -> AutoFormatDict | Any:
     """
 
     if isinstance(src, list | tuple | set):
-        for index, value in enumerate(src):
-            src[index] = convert_to_afd(value)
-
-    if isinstance(src, dict):
+        tmp_src = list(src)
+        for index, value in enumerate(tmp_src):
+            tmp_src[index] = convert_to_afd(value)
+        src = type(src)(tmp_src)
+    elif isinstance(src, dict):
         for key, value in src.items():
             if isinstance(value, list | tuple | set | dict):
                 src[key] = convert_to_afd(value)

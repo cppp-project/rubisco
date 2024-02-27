@@ -60,7 +60,7 @@ def output(  # pylint: disable=too-many-arguments
     message: str,
     end: str = "\n",
     suffix: str = "",
-    fmt: dict[str, str] = None,
+    fmt: dict[str, str] | None = None,
     color: str = "",
     flush: bool = False,
 ) -> None:
@@ -91,7 +91,7 @@ def output_step(  # pylint: disable=too-many-arguments
     message: str,
     end: str = "\n",
     suffix: str = "",
-    fmt: dict[str, str] = None,
+    fmt: dict[str, str] | None = None,
     color: str = "",
     flush: bool = False,
 ) -> None:
@@ -213,7 +213,10 @@ class ProgressBar(tqdm):
         if not STDOUT_IS_TTY:
             self.disable = True
 
-        output_step(desc, fmt=desc_fmt)
+        if desc is not None:
+            if desc_fmt is None:
+                desc_fmt = {}
+            output_step(desc, fmt=desc_fmt)
         _windows_taskbar_progress(
             _WindowsTaskbarProgressState.INDETERMINATE, 0  # noqa: E501
         )
