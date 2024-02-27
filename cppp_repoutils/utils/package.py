@@ -23,67 +23,133 @@ Package utils.
 """
 
 import json
+from typing import Union
 from pathlib import Path
-from enum import Enum
+from cppp_repoutils.utils.compress import extract
+from cppp_repoutils.utils.wget import wget
 from cppp_repoutils.utils.gitclone import clone
 from cppp_repoutils.utils.nls import _
-from cppp_repoutils.constants import REPO_PROFILE, DEFAULT_CHARSET
 from cppp_repoutils.utils.variable import AutoFormatDict
 from cppp_repoutils.utils.log import logger
 from cppp_repoutils.utils.output import output_step
+from cppp_repoutils.utils.fileutil import TemporaryObject
+from cppp_repoutils.constants import (
+    REPO_PROFILE,
+    DEFAULT_CHARSET,
+    PACKAGE_TYPE_GIT,
+    PACKAGE_TYPE_ARCHIVE,
+    PACKAGE_TYPE_VIRTUAL,
+    PACKAGE_KEY_PATH,
+    PACKAGE_KEY_TYPE,
+    PACKAGE_KEY_REMOTE_URL,
+    PACKAGE_KEY_GIT_BRANCH,
+    PACKAGE_KEY_ARCHIVE_TYPE,
+    PACKAGE_KEY_NAME,
+    PACKAGE_KEY_VERSION,
+    PACKAGE_KEY_DESC,
+    PACKAGE_KEY_AUTHORS,
+    PACKAGE_KEY_WEBPAGE,
+    PACKAGE_KEY_LICENSE,
+    PACKAGE_KEY_SUBPKGS,
+)
 
 # TODO: Refactor.
-
-class SubpackageTypes(Enum):
-    """Subpackage types."""
-
-    KEY_NAME = "name"
-    KEY_PATH = "path"
-    KEY_REMOTE_TYPE = "remote-type"
-    KEY_REMOTE_URL = "remote-url"
-    KEY_GIT_BRANCH = "git-branch"
 
 
 class Subpackage:
     """Subpackage type."""
 
-    name: str
     path: Path
-    remote_url: str
-    git_branch: str
+    pkgtype: str
 
-    def __init__(self, config: dict) -> None:
+    attrs: AutoFormatDict[str]
+
+    def __init__(self, config: AutoFormatDict) -> None:
         """Initialize subpackage object.
 
         Args:
-            config (dict): Subpackage config.
+            config (AutoFormatDict): Subpackage config.
         """
 
-        self.name = config[SubpackageTypes.KEY_NAME]
-        self.path = Path(config[SubpackageTypes.KEY_PATH])
-        self.remote_type = config[SubpackageTypes.KEY_REMOTE_TYPE]
-        self.remote_url = config[SubpackageTypes.KEY_REMOTE_URL]
-
-        self.git_branch = config[SubpackageTypes.KEY_GIT_BRANCH]
+        self.path = Path(config[PACKAGE_KEY_PATH])
+        self.pkgtype = config[PACKAGE_KEY_TYPE]
+        self.attrs = AutoFormatDict({})
+        if self.pkgtype == PACKAGE_TYPE_GIT:
+            self.attrs[PACKAGE_KEY_REMOTE_URL] = config[PACKAGE_KEY_REMOTE_URL]
+            self.attrs[PACKAGE_KEY_GIT_BRANCH] = config.get(
+                PACKAGE_KEY_GIT_BRANCH, None
+            )
+        elif self.pkgtype == PACKAGE_TYPE_ARCHIVE:
+            self.attrs[PACKAGE_KEY_ARCHIVE_TYPE] = config[
+                PACKAGE_KEY_ARCHIVE_TYPE
+            ]  # noqa: E501
+            self.attrs[PACKAGE_KEY_REMOTE_URL] = config[PACKAGE_KEY_REMOTE_URL]
+        elif self.pkgtype == PACKAGE_TYPE_VIRTUAL:
+            # TODO: Implement virtual subpackage.
+            raise NotImplementedError("Virtual subpkg is not implemented yet.")
+        else:
+            raise ValueError(
+                _("Invalid subpackage type: {type}").format(type=self.pkgtype)
+            )
 
     def __str__(self) -> str:
         return repr(self)
 
     def __repr__(self) -> str:
-        return f"Subpackage({self.name})"
+        return f"Subpackage({self.path})"
 
     def __eq__(self, other: "Subpackage") -> bool:
-        return self.name == other.name
+        return self.path == other.path
 
     def __hash__(self) -> int:
-        return hash(self.name)
+        return hash(self.path)
 
-    def setup(self) -> "Package":
-        """Setup subpackage."""
+    def setup(
+        self, recursive: bool = True, shallow: bool = False  # noqa: E501
+    ) -> Union["Package", None]:
+        """Setup subpackage.
 
-        clone(self.remote_url, self.path, self.git_branch)
-        pkg = Package(self.path / REPO_PROFILE)
-        return pkg
+        Args:
+            recursive (bool, optional): Setup subpackages recursively. Defaults
+                to True.
+            shallow (bool, optional): Only for git subpackages. Whether to
+                perform a shallow clone. Default is True.
+
+        Returns:
+            Union["Package", None]: The package object of this subpackage. If the
+                subpackage is not a cppp-repo, return None.
+        """
+
+        pkgobj: Package
+        subpkg_profile = self.path / REPO_PROFILE
+        if self.pkgtype == PACKAGE_TYPE_GIT:
+            clone(
+                self.attrs[PACKAGE_KEY_REMOTE_URL],
+                self.path,
+                branch=self.attrs[PACKAGE_KEY_GIT_BRANCH],
+                shallow=shallow,
+            )
+            if not subpkg_profile.exists():
+                return None
+            pkgobj = Package()
+        elif self.pkgtype == PACKAGE_TYPE_ARCHIVE:
+            with TemporaryObject.new_file() as tmpfile:
+                wget(self.attrs[PACKAGE_KEY_REMOTE_URL], tmpfile.path)
+                extract(
+                    tmpfile.path,
+                    self.path,
+                    self.attrs[PACKAGE_KEY_ARCHIVE_TYPE],
+                )
+            if not subpkg_profile.exists():
+                return None
+            pkgobj = Package(self.path / REPO_PROFILE)
+        elif self.pkgtype == PACKAGE_TYPE_VIRTUAL:
+            # TODO: Implement virtual subpackage.
+            raise NotImplementedError("Virtual subpkg is not implemented yet.")
+
+        if recursive:
+            pkgobj.setup_subpkgs(True, shallow)
+        return pkgobj
 
 
 class Package:  # pylint: disable=too-many-instance-attributes
@@ -97,8 +163,9 @@ class Package:  # pylint: disable=too-many-instance-attributes
     webpage: str
     license: str
     subpackages: list["Package"]
+    __subpkgs: list[AutoFormatDict]
 
-    def __init__(self, profile_path: Path = REPO_PROFILE):
+    def __init__(self, profile_path: Path = REPO_PROFILE) -> None:
         """Initialize package object.
 
         Args:
@@ -110,16 +177,46 @@ class Package:  # pylint: disable=too-many-instance-attributes
             self.profile = AutoFormatDict.from_dict(self.profile)
 
         try:
-            self.name = self.profile["name"]
-            self.version = self.profile["version"]
-            self.desc = self.profile["description"]
-            self.authors = self.profile["authors"]
-            self.webpage = self.profile["webpage"]
-            self.license = self.profile["license"]
-            self.__subpackages = self.profile["subpackages"]
+            self.name = self.profile[PACKAGE_KEY_NAME]
+            self.version = self.profile[PACKAGE_KEY_VERSION]
+            self.desc = self.profile.get(PACKAGE_KEY_DESC, "")
+            self.authors = self.profile.get(
+                PACKAGE_KEY_AUTHORS, [_("Anonymous")]  # noqa: E501
+            )
+            self.webpage = self.profile.get(PACKAGE_KEY_WEBPAGE, "")
+            self.license = self.profile[PACKAGE_KEY_LICENSE]
+            self.__subpkgs = self.profile.get(PACKAGE_KEY_SUBPKGS, [])
+            logger.info("Loaded package '%s'.", profile_path)
         except KeyError as exc:
             logger.fatal("Cannot load profile '%s': Key '%s' required.")
-            raise KeyError(exc.args[0], str(profile_path)) from exc
+            raise KeyError(exc.args[0], profile_path) from exc
 
-    def _load_subpkgs(self):
-        pass
+    def setup_subpkgs(
+        self, recursive: bool = True, shallow: bool = False  # noqa: E501
+    ) -> None:
+        """Setup subpackage.
+
+        Args:
+            recursive (bool, optional): Setup subpackages recursively. Defaults
+                to True.
+            shallow (bool, optional): Only for git subpackages. Whether to
+                perform a shallow clone. Default is True.
+        """
+
+        self.subpackages = []
+        for subpkg in self.__subpkgs:
+            output_step(
+                _("Setting up subpackage `{underline}{path}{reset}` ..."),
+                fmt={"path": subpkg[PACKAGE_KEY_PATH]},
+            )
+            subpkg = Subpackage(subpkg)
+            subpkg_object = subpkg.setup(recursive, shallow)
+            self.subpackages.append(subpkg_object)
+
+
+if __name__ == "__main__":
+    print(f"{__file__}: {__doc__.strip()}")
+
+    test_pkg = Package()
+    test_pkg.setup_subpkgs()
+    print(test_pkg)

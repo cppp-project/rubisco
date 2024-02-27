@@ -35,16 +35,17 @@ from cppp_repoutils.utils.fileutil import assert_file_exists
 __all__ = ["wget"]
 
 
-def wget(url: str, save_to: Path) -> None:
+def wget(url: str, save_to: Path, overwrite: bool = True) -> None:
     """Download a file from the Internet.
 
     Args:
         url (str): The URL of the file.
         save_to (Path): The path to save the file to.
-
+        overwrite (bool): Whether to overwrite the file if it already exists.
     """
 
-    assert_file_exists(save_to)
+    if not overwrite:
+        assert_file_exists(save_to)
 
     logger.debug("Downloading '%s' ...", url)
 

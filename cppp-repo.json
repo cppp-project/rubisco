@@ -7,9 +7,19 @@
         "ChenPi11"
     ],
     "webpage": "https://github.com/cppp-project/cppp-repoutils",
-    "subpackages": {
-
-    },
+    "subpackages": [
+        {
+            "path": "KitX",
+            "type": "git",
+            "remote-url": "https://hub.yzuu.cf/Crequency/KitX.git"
+        },
+        {
+            "path": "libiconv",
+            "type": "archive",
+            "remote-url": "https://ftp.gnu.org/pub/gnu/libiconv/libiconv-1.17.tar.gz",
+            "archive-type": "tar.gz"
+        }
+    ],
     "license": "GPLv3",
     "dist-profile": "dist-tools/dist.json"
 }

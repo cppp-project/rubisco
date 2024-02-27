@@ -129,7 +129,7 @@ class AutoFormatDict(dict):
         """
 
         if key not in self.keys() and len(args) == 0:
-            raise KeyError(repr(key))
+            raise KeyError(key)
         if key not in self.keys() and len(args) == 1:
             return format_str(args[0])
         return format_str(super().get(key))
