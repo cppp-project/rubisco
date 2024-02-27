@@ -29,7 +29,7 @@ MO_EXT = .mo
 $(PACKAGE)$(POT_EXT):
 	for file in $$($(FIND) $(srccode_dir) -name "*$(PYTHON_EXT)"); do \
 		export files="$$files $$file"; \
-	done
+	done && \
 	$(XGETTEXT_) --language=$(LANGUAGE) \
 			--default-domain=$(PACKAGE) --package-name=$(PACKAGE) --package-version=$(VERSION) \
 			--msgid-bugs-address=$(PACKAGE_BUGREPORT) \
