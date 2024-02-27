@@ -26,4 +26,5 @@ import sys
 from cppp_repoutils.constants import MINIMUM_PYTHON_VERSION
 
 if sys.version_info < MINIMUM_PYTHON_VERSION:
-    sys.exit("Python version 3.12 or later is required.")
+    VERSION = ".".join([str(i) for i in MINIMUM_PYTHON_VERSION])
+    sys.exit(f"Python {VERSION} or later is required.")

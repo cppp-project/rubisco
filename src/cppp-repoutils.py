@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+
+# DEPRECATED: This file is deprecated and will be removed in the future.
+
 # -*- coding: utf-8 -*-
 # -*- mode: python -*-
 # vi: set ft=python :
@@ -40,6 +43,8 @@ import subprocess
 import os
 import platform
 import queue
+
+sys.exit("DEPRECATED: This file is deprecated and will be removed in the future.")
 
 
 # Application name.
