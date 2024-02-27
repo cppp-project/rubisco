@@ -23,11 +23,19 @@ Generate shell command from a list of arguments.
 """
 
 from subprocess import Popen
+from pathlib import Path
 import os
 import sys
-from cppp_repoutils.utils.output import output
+from cppp_repoutils.utils.output import output_step
+from cppp_repoutils.utils.nls import _
+from cppp_repoutils.utils.log import logger
 
 __all__ = ["command", "run_command", "COMMAND_NOT_FOUND_ERROR"]
+
+if os.name == "nt":
+    COMMAND_NOT_FOUND_ERROR = 9009
+else:
+    COMMAND_NOT_FOUND_ERROR = 127
 
 
 def command(args: list[str]) -> str:
@@ -51,28 +59,43 @@ def command(args: list[str]) -> str:
     return res_command.strip()
 
 
-def run_command(cmd: list[str] | str) -> int:
+class CommandExecutionError(RuntimeError):
+    """Command execution error."""
+
+    def __init__(self, cmd: str, returncode: int):
+        super().__init__(cmd, returncode)
+        self.cmd = cmd
+        self.returncode = returncode
+
+
+def run_command(
+    cmd: list[str] | str, strict: bool = True, cwd: Path | None = None
+) -> int:
     """Run shell command.
 
     Args:
         cmd (list[str] | str): The list of arguments or the shell command.
+        strict (bool): If True, raise an exception if the command returns a
+            non-zero exit code.
+        cwd (Path): The working directory. Default is the current working.
 
     Returns:
-        int: The return code.
+        int: The return code. If strict is True, it will always be 0.
     """
 
     if isinstance(cmd, list):
         cmd = command(cmd)
-    output(cmd, color="cyan")
-    with Popen(cmd, shell=True, stdout=sys.stdout, stderr=sys.stderr) as proc:
+    output_step(_("Running command: {cyan}{cmd}{reset}"), fmt={"cmd": cmd})
+    logger.debug("Running command: %s", cmd)
+    if cwd:
+        cwd = cwd.absolute()
+    with Popen(
+        cmd, shell=True, stdout=sys.stdout, stderr=sys.stderr, cwd=cwd  # noqa: E501
+    ) as proc:
         proc.wait()
+        if strict and proc.returncode != 0:
+            raise CommandExecutionError(cmd, proc.returncode)
         return proc.returncode
-
-
-if os.name == "nt":
-    COMMAND_NOT_FOUND_ERROR = 9009
-else:
-    COMMAND_NOT_FOUND_ERROR = 127
 
 
 if __name__ == "__main__":
@@ -80,9 +103,7 @@ if __name__ == "__main__":
 
     test_cmd = ["git", "clone", "<part1> <part2>"]
     print(test_cmd)
-    print()
     print(command(test_cmd))
 
-    print("===== Returned: ", run_command(["aabbccdd", "Test: return != 0"]))
-
-    print("===== Returned: ", run_command('echo "Test: return == 0"'))
+    print("===== Returned: ", run_command(["", "return != 0"], strict=False))
+    print("===== Returned: ", run_command('echo "return == 0"'))

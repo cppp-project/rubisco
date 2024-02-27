@@ -69,7 +69,7 @@ def compress_tar(
                 "'{underline}{archive}{reset}' ..."
             ),
             total=total_length,
-            desc_fmt={"name": directory, "archive": name},
+            desc_fmt={"name": str(directory), "archive": str(name)},
         ):
             file: Path
             if file.is_dir() or ign_checker(file):
@@ -108,7 +108,7 @@ def compress_zip(
                 "'{underline}{archive}{reset}' ..."
             ),
             total=total_length,
-            desc_fmt={"name": directory, "archive": name},
+            desc_fmt={"name": str(directory), "archive": str(name)},
         ):
             file: Path
             if file.is_dir() or ign_checker(file):
@@ -145,7 +145,7 @@ def compress(
             overwrite it.
     """
 
-    match (compress_type):
+    match compress_type:
         case "tar":
             compress_tar(name, directory, arcname, ign_checker, "")
         case "tar.gz":
@@ -185,7 +185,7 @@ def extract_tar(archive_path: Path, target_dir: Path, compress_type: str):
                 "'{underline}{directory}{reset}' ..."
             ),
             total=total_length,
-            desc_fmt={"archive": archive_path, "directory": target_dir},
+            desc_fmt={"archive": str(archive_path), "directory": str(target_dir)},  # noqa: E501
         ):
             member: tarfile.TarInfo
             if member.isdir():
@@ -194,7 +194,7 @@ def extract_tar(archive_path: Path, target_dir: Path, compress_type: str):
             if output_path.exists():
                 logger.warning("'%s' already exists.", output_path)
                 assert_file_exists(output_path)
-            archive.extract(member, target_dir)
+            archive.extract(member, target_dir, filter="tar")
     logger.info("Extracted '%s' into '%s'.", archive_path, target_dir)
 
 
@@ -219,7 +219,7 @@ def extract_zip(archive_path: Path, target_dir: Path):
                 "'{underline}{directory}{reset}' ..."
             ),
             total=total_length,
-            desc_fmt={"archive": archive_path, "directory": target_dir},
+            desc_fmt={"archive": str(archive_path), "directory": str(target_dir)},  # noqa: E501
         ):
             member: zipfile.ZipInfo
             if member.is_dir():
@@ -246,7 +246,7 @@ def extract(archive_path: Path, target_dir: Path, compress_type: str):
         AssertionError: If the compress_type is unknown.
     """
 
-    match (compress_type):
+    match compress_type:
         case "tar":
             extract_tar(archive_path, target_dir, "")
         case "tar.gz":

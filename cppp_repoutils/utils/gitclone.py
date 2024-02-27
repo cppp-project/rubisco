@@ -22,122 +22,73 @@
 Clone a git repository.
 """
 
-from threading import Lock
-from typing import Union
-import git.cmd
-from git.repo import Repo
-from git.remote import RemoteProgress
-from cppp_repoutils.utils.output import output_step, ProgressBar
+import os
+from pathlib import Path
+from cppp_repoutils.utils.shell_command import run_command
+from cppp_repoutils.utils.output import output_step
 from cppp_repoutils.utils.nls import _
 from cppp_repoutils.utils.log import logger
 
-__all__ = ["clone"]
 
-git.cmd.log = logger
-
-
-class _ProgressPrinter(RemoteProgress):
-
-    __progress_bar: ProgressBar = None
-    __lock: Lock = Lock()
-
-    def line_dropped(self, line: str) -> None:
-        pass
-
-    def update(
-        self,
-        op_code: int,
-        cur_count: Union[str, float],
-        max_count: Union[str, float, None] = None,
-        message: str = "",
-    ) -> None:
-        with self.__lock:
-            if not isinstance(cur_count, float | int) or not isinstance(
-                max_count, float | int
-            ):
-                return
-            if op_code & RemoteProgress.BEGIN:
-                if op_code & RemoteProgress.CHECKING_OUT:
-                    self.__progress_bar = ProgressBar(
-                        desc=_("Checking out files ..."),
-                        total=max_count,
-                    )
-                elif op_code & RemoteProgress.COMPRESSING:
-                    self.__progress_bar = ProgressBar(
-                        desc=_("Compressing objects ..."),
-                        total=max_count,
-                    )
-                elif op_code & RemoteProgress.COUNTING:
-                    self.__progress_bar = ProgressBar(
-                        desc=_("Counting objects ..."),
-                        total=max_count,
-                    )
-                elif op_code & RemoteProgress.FINDING_SOURCES:
-                    self.__progress_bar = ProgressBar(
-                        desc=_("Finding sources ..."),
-                        total=max_count,
-                    )
-                elif op_code & RemoteProgress.RECEIVING:
-                    self.__progress_bar = ProgressBar(
-                        desc=_("Receiving objects ..."),
-                        total=max_count,
-                    )
-                elif op_code & RemoteProgress.RESOLVING:
-                    self.__progress_bar = ProgressBar(
-                        desc=_("Resolving deltas ..."),
-                        total=max_count,
-                    )
-                elif op_code & RemoteProgress.WRITING:
-                    self.__progress_bar = ProgressBar(
-                        desc=_("Writing objects ..."),
-                        total=max_count,
-                    )
-            elif op_code & RemoteProgress.END:
-                # self.__progress_bar.update(max_count)
-                self.__progress_bar.close()
-            else:
-                self.__progress_bar.set_progress(cur_count)
-
-
-def clone(url, path, branch="main", depth=None) -> Repo:
+def clone(
+    url: str, path: Path, branch: str | None = None, shallow: bool = True
+) -> None:
     """
     Clone a git repository.
 
     Args:
         url: The URL of the git repository.
         path: The path to clone the repository to.
-        branch: The branch to clone.
-        depth: The depth to clone.
-
-    Returns:
-        The git repository object.
+        branch: The branch to clone. Default is None.
+        shallow: Whether to perform a shallow clone. Default is True.
     """
+
+    path = path.absolute()
 
     output_step(
         _(
-            "Cloning '{underline}{url}{reset}' into '{underline}{path}{reset}' ..."  # noqa: E501
+            "Cloning '{underline}{url}{reset}' to '{underline}{path}{reset}' ..."  # noqa: E501
         ),
-        fmt={"url": url, "path": path},
+        fmt={"url": url, "path": str(path)},
     )
 
-    repo = Repo.clone_from(
-        url,
-        path,
-        progress=_ProgressPrinter(),
-        branch=branch,
-        depth=depth,
-        allow_unsafe_protocols=True,
-        allow_unsafe_options=True,
+    if path.exists():
+        logger.warning("'%s' already exists, Ignored.", path)
+        output_step(
+            _("{underline}{path}{reset} already exists, Ignored."),
+            fmt={"path": str(path)},
+        )
+        return
+
+    # Clone repository.
+    command = [
+        "git",
+        "clone",
+        str(url),
+        str(path.absolute()),
+    ]
+    command.extend(
+        [
+            "--progress",
+            "--verbose",
+            "--recurse-submodules",
+            "--remote-submodules",
+            "--jobs",
+            str(os.cpu_count()),
+        ]
     )
-    return repo
+
+    if branch is not None:
+        command.extend(["--branch", str(branch)])
+    if shallow:
+        command.extend(["--depth", "1", "--shallow-submodules"])
+    os.makedirs(path.parent, exist_ok=True)
+    run_command(command, strict=True, cwd=path.parent)
+
+    # Clone submodules.
 
 
 if __name__ == "__main__":
     print(f"{__file__}: {__doc__.strip()}")
 
-    clone(
-        "https://git.savannah.gnu.org/git/libiconv.git",
-        "libiconv",
-        branch="master",
-        depth=None,
-    )
+    clone("https://github.com/Crequency/KitX.git", Path("KitX"))

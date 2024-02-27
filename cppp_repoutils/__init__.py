@@ -21,3 +21,9 @@
 """
 C++ Plus repository distributing, packaging and initialization utilities.
 """
+
+import sys
+from cppp_repoutils.constants import MINIMUM_PYTHON_VERSION
+
+if sys.version_info < MINIMUM_PYTHON_VERSION:
+    sys.exit("Python version 3.12 or later is required.")

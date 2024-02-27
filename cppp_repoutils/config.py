@@ -26,13 +26,32 @@ APP_DEFAULT_NAME = "cppp-repoutils"
 APP_VERSION = (0, 1, 0)
 TEXT_DOMAIN = APP_DEFAULT_NAME
 REPO_PROFILE_NAME = "cppp-repo.json"
+SETUP_TEMP_CACHE_NAME = "repoutils-setup.cache"
 DEFAULT_CHARSET = "UTF-8"
 DEFAULT_IGNFILE_NAME = ".cpppignore"
-DEFAULT_LANGUAGE = "en_US"
 LOG_FILE = "cppp-repoutils.log"
 LOG_FORMAT = "[%(asctime)s] [%(name)s] [%(levelname)s] %(message)s"
 LOG_LEVEL = "DEBUG"
 TIMEOUT = 15
 COPY_BUFSIZE_WINDOWS = 1024 * 1024
 COPY_BUFSIZE_OTHERS = 64 * 1024
+MINIMUM_PYTHON_VERSION = (3, 10, 0)
 WGET_BUFSIZE = 8 * 1024
+
+PACKAGE_TYPE_GIT = "git"
+PACKAGE_TYPE_ARCHIVE = "archive"
+# Virtual subpackage type. Virtual subpackages can be used to fetch
+# subpackages from other packing tools like cargo, npm, etc.
+PACKAGE_TYPE_VIRTUAL = "virt"
+PACKAGE_KEY_PATH = "path"  # For checking if the package is initialized.
+PACKAGE_KEY_TYPE = "type"
+PACKAGE_KEY_REMOTE_URL = "remote-url"
+PACKAGE_KEY_GIT_BRANCH = "git-branch"
+PACKAGE_KEY_ARCHIVE_TYPE = "archive-type"
+PACKAGE_KEY_NAME = "name"
+PACKAGE_KEY_VERSION = "version"
+PACKAGE_KEY_DESC = "desc"
+PACKAGE_KEY_AUTHORS = "authors"
+PACKAGE_KEY_WEBPAGE = "webpage"
+PACKAGE_KEY_LICENSE = "license"
+PACKAGE_KEY_SUBPKGS = "subpackages"

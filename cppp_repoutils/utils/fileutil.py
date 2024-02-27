@@ -58,7 +58,7 @@ def assert_file_exists(path: Path):
                     "File or directory '{yellow}{underline}{path}{reset}' "
                     "already exists, overwrite it?"
                 ),
-                fmt={"path": path},
+                fmt={"path": str(path)},
             ),
             default=0,
         )
@@ -68,7 +68,7 @@ def assert_file_exists(path: Path):
                     _(
                         "File or directory '{underline}{path}{reset}' already exists."  # noqa: E501
                     ),
-                    fmt={"path": path},
+                    fmt={"path": str(path)},
                 )
             )
     rm_recursive(path, strict=True)
@@ -226,7 +226,7 @@ class TemporaryObject:
             str: The string representation of the temporary object.
         """
 
-        return str(self.path)
+        return self.path
 
     def __repr__(self) -> str:
         """Get the string representation of the temporary object.
