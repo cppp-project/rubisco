@@ -31,8 +31,12 @@ from cppp_repoutils.utils.gitclone import clone
 from cppp_repoutils.utils.nls import _
 from cppp_repoutils.utils.variable import AutoFormatDict
 from cppp_repoutils.utils.log import logger
-from cppp_repoutils.utils.output import output_step
-from cppp_repoutils.utils.fileutil import TemporaryObject
+from cppp_repoutils.utils.output import output_step, output
+from cppp_repoutils.utils.fileutil import (
+    TemporaryObject,
+    assert_rel_path,
+    rm_recursive,
+)
 from cppp_repoutils.constants import (
     REPO_PROFILE,
     DEFAULT_CHARSET,
@@ -51,27 +55,173 @@ from cppp_repoutils.constants import (
     PACKAGE_KEY_WEBPAGE,
     PACKAGE_KEY_LICENSE,
     PACKAGE_KEY_SUBPKGS,
+    SETUP_TEMP_CACHE,
 )
 
-# TODO: Refactor.
+
+class PackageLoaderCache:
+    """
+    This class is only used like a namespace to store functions that manage
+    temp cache when setup packages.
+    """
+
+    cache: dict[str, dict[str, str | bool]] = {"setup": {}}
+
+    @staticmethod
+    def update_cache() -> None:
+        """
+        Sync cache to file. If the cache file does not exist, create it.
+        Call this function when the cache is updated.
+        """
+
+        try:
+            SETUP_TEMP_CACHE.touch(mode=0o666, exist_ok=True)
+            with open(SETUP_TEMP_CACHE, "w", encoding=DEFAULT_CHARSET) as file:
+                json.dump(PackageLoaderCache.cache, file)
+            logger.info("Cache updated.")
+        except KeyboardInterrupt:
+            # Avoid user interrupting the writing process.
+            PackageLoaderCache.update_cache()
+        except OSError:
+            output(
+                _(
+                    "WARNING: Cannot write cache to file '{underline}{path}{reset}'."  # noqa: E501
+                ),
+                fmt={"path": str(SETUP_TEMP_CACHE)},
+            )
+
+    @staticmethod
+    def load_cache() -> None:
+        """
+        Load cache from file. If the cache file does not exist, create it.
+        Call this function when the cache is loaded.
+        """
+
+        try:
+            if SETUP_TEMP_CACHE.exists():
+                with open(
+                    SETUP_TEMP_CACHE, "r", encoding=DEFAULT_CHARSET
+                ) as file:  # noqa: E501
+                    PackageLoaderCache.cache = json.load(file)
+        except KeyboardInterrupt:
+            PackageLoaderCache.load_cache()
+        except OSError:
+            output(
+                _(
+                    "WARNING: Cannot load cache from file '{underline}{path}{reset}'."  # noqa: E501
+                ),
+                fmt={"path": str(SETUP_TEMP_CACHE)},
+            )
+
+    @staticmethod
+    def clear_cache() -> None:
+        """
+        Clear cache and remove cache file.
+        """
+
+        PackageLoaderCache.cache = {}
+        SETUP_TEMP_CACHE.unlink(missing_ok=True)
+
+    @staticmethod
+    def register_init_failed(name: str) -> None:
+        """
+        Register the package that failed to initialize.
+
+        Args:
+            name (str): Package name.
+        """
+
+        PackageLoaderCache.cache["setup"][name] = True
+        PackageLoaderCache.update_cache()
+        logger.debug("Registered package '%s' as failed to initialize.", name)
+
+    @staticmethod
+    def unregister_init_failed(name: str) -> None:
+        """
+        Unregister the package that failed to initialize.
+
+        Args:
+            name (str): Package name.
+        """
+
+        if name in PackageLoaderCache.cache["setup"]:
+            del PackageLoaderCache.cache["setup"][name]
+            PackageLoaderCache.update_cache()
+            logger.debug(
+                "Unregistered package '%s' as failed to initialize.",
+                name,
+            )
+
+    @staticmethod
+    def is_init_failed(name: str) -> bool:
+        """
+        Check if the package failed to initialize.
+
+        Args:
+            name (str): Package name.
+
+        Returns:
+            bool: True if the package failed to initialize, otherwise False.
+        """
+
+        return bool(PackageLoaderCache.cache["setup"].get(name, False))
 
 
 class Subpackage:
     """Subpackage type."""
 
+    name: str
     path: Path
     pkgtype: str
 
-    attrs: AutoFormatDict[str]
+    attrs: AutoFormatDict
 
-    def __init__(self, config: AutoFormatDict) -> None:
+    def __init__(self, config: AutoFormatDict, name: str) -> None:
         """Initialize subpackage object.
 
         Args:
             config (AutoFormatDict): Subpackage config.
+            name (str): Subpackge name.
         """
 
-        self.path = Path(config[PACKAGE_KEY_PATH])
+        self.name = name
+        _path = config.get(PACKAGE_KEY_PATH)
+        _path: list[str]
+        if not isinstance(_path, list):
+            _path = [_path]
+        if len(_path) == 0:
+            raise ValueError(
+                _("List '{key}' must have at least {num} objects.").format(
+                    key=PACKAGE_KEY_PATH, num=1
+                )
+            )
+        if not isinstance(_path[0], str):
+            raise ValueError(
+                _(
+                    "The value of key {key} needs to be {type} instead of {vtype}.",  # noqa: E501
+                ).format(
+                    key=repr(PACKAGE_KEY_PATH),
+                    type=repr("type"),
+                    vtype=repr(type(_path[0]).__name__),
+                )
+            )
+        self.path = Path(_path[0])
+        for one_path in _path:
+            if not isinstance(one_path, str):
+                raise ValueError(
+                    _(
+                        "The value of key {key} needs to be {type} instead of {vtype}",  # noqa: E501 # pylint: disable-name-too-long
+                    ).format(
+                        key=repr(PACKAGE_KEY_PATH),
+                        type=repr("type"),
+                        vtype=repr(type(one_path).__name__),
+                    )
+                )
+            path = Path(one_path)
+            assert_rel_path(path)
+            if path.exists():
+                self.path = path
+                break
         self.pkgtype = config[PACKAGE_KEY_TYPE]
         self.attrs = AutoFormatDict({})
         if self.pkgtype == PACKAGE_TYPE_GIT:
@@ -93,35 +243,71 @@ class Subpackage:
             )
 
     def __str__(self) -> str:
-        return repr(self)
+        return self.name
 
     def __repr__(self) -> str:
         return f"Subpackage({self.path})"
 
     def __eq__(self, other: "Subpackage") -> bool:
-        return self.path == other.path
+        return self.name == other.name
 
     def __hash__(self) -> int:
         return hash(self.path)
 
     def setup(
-        self, recursive: bool = True, shallow: bool = False  # noqa: E501
-    ) -> Union["Package", None]:
-        """Setup subpackage.
+        self,
+        recursive: bool = True,
+        shallow: bool = False,
+        can_skip: bool = True,
+    ) -> bool:
+        """Setup subpackages.
 
         Args:
             recursive (bool, optional): Setup subpackages recursively. Defaults
                 to True.
             shallow (bool, optional): Only for git subpackages. Whether to
                 perform a shallow clone. Default is True.
+            can_skip (bool, optional): Whether to skip the setup process if the
+                subpackage has been initialized. Default is True.
 
         Returns:
-            Union["Package", None]: The package object of this subpackage. If the
-                subpackage is not a cppp-repo, return None.
+            bool: True if the subpackage skipped, otherwise False.
         """
 
-        pkgobj: Package
-        subpkg_profile = self.path / REPO_PROFILE
+        logger.info("Setting up subpackage '%s'...", self.name)
+
+        if can_skip and self.path.exists():
+            output_step(
+                _(
+                    "Subpackage '{name}' already exists at "
+                    "'{underline}{path}{reset}'."
+                ),
+                fmt={"name": self.name, "path": str(self.path)},
+            )
+            logger.info(
+                "Subpackage '%s' is already exists at '%s'",
+                self.name,
+                self.path,
+            )
+            return True
+        output_step(
+            _(
+                "Setting up subpackage '{name}' to '{underline}{path}{reset}'..."  # noqa: E501
+            ),
+            fmt={"name": self.name, "path": str(self.path)},
+        )
+
+        if not can_skip and self.path.exists():
+            logger.info("Removing old subpackage '%s'...", self.name)
+            output_step(
+                _(
+                    "Removing old subpackage '{name}' "
+                    "('{underline}{path}{reset}') ..."
+                ),
+                fmt={"name": self.name, "path": str(self.path)},
+            )
+            rm_recursive(self.path)
+
         if self.pkgtype == PACKAGE_TYPE_GIT:
             clone(
                 self.attrs[PACKAGE_KEY_REMOTE_URL],
@@ -129,9 +315,6 @@ class Subpackage:
                 branch=self.attrs[PACKAGE_KEY_GIT_BRANCH],
                 shallow=shallow,
             )
-            if not subpkg_profile.exists():
-                return None
-            pkgobj = Package()
         elif self.pkgtype == PACKAGE_TYPE_ARCHIVE:
             with TemporaryObject.new_file() as tmpfile:
                 wget(self.attrs[PACKAGE_KEY_REMOTE_URL], tmpfile.path)
@@ -140,16 +323,30 @@ class Subpackage:
                     self.path,
                     self.attrs[PACKAGE_KEY_ARCHIVE_TYPE],
                 )
-            if not subpkg_profile.exists():
-                return None
-            pkgobj = Package(self.path / REPO_PROFILE)
         elif self.pkgtype == PACKAGE_TYPE_VIRTUAL:
             # TODO: Implement virtual subpackage.
             raise NotImplementedError("Virtual subpkg is not implemented yet.")
 
         if recursive:
-            pkgobj.setup_subpkgs(True, shallow)
-        return pkgobj
+            pkgobj = self.get_package()
+            if pkgobj:
+                pkgobj.setup_subpkgs(True, shallow)
+
+        logger.info("Subpackage '%s' setup finished.", self.name)
+        return False
+
+    def get_package(self) -> Union["Package", None]:
+        """Get package object from subpackage.
+
+        Returns:
+            Union[Package, None]: Package object. If the subpackage is not a
+                cppp package, return None.
+        """
+
+        subpkg_profile = self.path / REPO_PROFILE
+        if subpkg_profile.exists():
+            return Package(subpkg_profile)
+        return None
 
 
 class Package:  # pylint: disable=too-many-instance-attributes
@@ -162,8 +359,8 @@ class Package:  # pylint: disable=too-many-instance-attributes
     authors: list[str]
     webpage: str
     license: str
-    subpackages: list["Package"]
-    __subpkgs: list[AutoFormatDict]
+    subpackages: list[Subpackage]
+    __subpkgs: AutoFormatDict
 
     def __init__(self, profile_path: Path = REPO_PROFILE) -> None:
         """Initialize package object.
@@ -177,15 +374,31 @@ class Package:  # pylint: disable=too-many-instance-attributes
             self.profile = AutoFormatDict.from_dict(self.profile)
 
         try:
-            self.name = self.profile[PACKAGE_KEY_NAME]
-            self.version = self.profile[PACKAGE_KEY_VERSION]
-            self.desc = self.profile.get(PACKAGE_KEY_DESC, "")
-            self.authors = self.profile.get(
-                PACKAGE_KEY_AUTHORS, [_("Anonymous")]  # noqa: E501
+            self.name = self.profile.get(
+                PACKAGE_KEY_NAME,
+                profile_path.stem,
+                valtype=str,
             )
-            self.webpage = self.profile.get(PACKAGE_KEY_WEBPAGE, "")
-            self.license = self.profile[PACKAGE_KEY_LICENSE]
-            self.__subpkgs = self.profile.get(PACKAGE_KEY_SUBPKGS, [])
+            self.version = self.profile.get(PACKAGE_KEY_VERSION, valtype=str)
+            self.desc = self.profile.get(PACKAGE_KEY_DESC, "", valtype=str)
+            self.authors = self.profile.get(  # type: ignore
+                PACKAGE_KEY_AUTHORS, [_("Anonymous")], valtype=list
+            )  # noqa: E501
+            self.webpage = self.profile.get(
+                PACKAGE_KEY_WEBPAGE,
+                "",
+                valtype=str,
+            )
+            self.license = self.profile.get(
+                PACKAGE_KEY_LICENSE,
+                _("Unknown"),
+                valtype=str,
+            )
+            self.__subpkgs = self.profile.get(  # type: ignore
+                PACKAGE_KEY_SUBPKGS,
+                {},
+                valtype=dict,
+            )
             logger.info("Loaded package '%s'.", profile_path)
         except KeyError as exc:
             logger.fatal("Cannot load profile '%s': Key '%s' required.")
@@ -204,14 +417,62 @@ class Package:  # pylint: disable=too-many-instance-attributes
         """
 
         self.subpackages = []
-        for subpkg in self.__subpkgs:
-            output_step(
-                _("Setting up subpackage `{underline}{path}{reset}` ..."),
-                fmt={"path": subpkg[PACKAGE_KEY_PATH]},
-            )
-            subpkg = Subpackage(subpkg)
-            subpkg_object = subpkg.setup(recursive, shallow)
-            self.subpackages.append(subpkg_object)
+        suc_count = 0
+        err_count = 0
+        ign_count = 0
+        PackageLoaderCache.load_cache()
+        for name, subpkg in self.__subpkgs.items():
+            try:
+                subpkg_object = Subpackage(subpkg, name)
+                self.subpackages.append(subpkg_object)
+                try:
+                    can_skip = not PackageLoaderCache.is_init_failed(
+                        subpkg_object.name,
+                    )
+                    if subpkg_object.setup(recursive, shallow, can_skip):
+                        ign_count += 1
+                    else:
+                        suc_count += 1
+                    PackageLoaderCache.unregister_init_failed(
+                        subpkg_object.name,
+                    )
+                except:  # noqa: E722
+                    logger.exception(
+                        "Failed to initialize subpackage '%s'.",
+                        subpkg_object.name,
+                    )
+                    PackageLoaderCache.register_init_failed(subpkg_object.name)
+                    err_count += 1
+                    raise
+            except KeyboardInterrupt:
+                output(
+                    _(
+                        "{red}ERROR: "
+                        "Submodule '{underline}{name}{reset}{red}' "
+                        "setup interrupted.{reset}"
+                    ),
+                    fmt={"name": name},
+                )
+        output(_("Subpackages setup finished:"), end=" ")
+        output(
+            _("{count} succeeded,"),
+            fmt={"count": str(suc_count)},
+            end=" ",
+            color="green" if suc_count else "",
+        )
+        output(
+            _("{count} ignored,"),
+            fmt={"count": str(ign_count)},
+            end=" ",
+            color="green" if ign_count else "",
+        )
+        output(
+            _("{count} failed."),
+            fmt={"count": str(err_count)},
+            color="red" if err_count else "",
+        )
+        if not err_count:  # Only remove cache when all subpackages are set up.
+            PackageLoaderCache.clear_cache()
 
 
 if __name__ == "__main__":

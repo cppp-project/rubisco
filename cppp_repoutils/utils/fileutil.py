@@ -38,7 +38,7 @@ from cppp_repoutils.utils.nls import _
 __all__ = ["assert_file_exists", "rm_recursive", "TemporaryObject"]
 
 
-def assert_file_exists(path: Path):
+def assert_file_exists(path: Path) -> None:
     """Ask user how to deal with the file or directory if 'path' exists.
         If user choose to overwrite, remove the file or directory.
         If user choose to skip, raise an exception.
@@ -72,6 +72,25 @@ def assert_file_exists(path: Path):
                 )
             )
     rm_recursive(path, strict=True)
+
+
+def assert_rel_path(path: Path) -> None:
+    """Assert that the path is a relative path.
+
+    Args:
+        path (Path): The path to assert.
+
+    Raises:
+        ValueError: If the path is not a relative path.
+    """
+
+    if path.is_absolute():
+        raise ValueError(
+            format_str(
+                _("Absolute path '{underline}{path}{reset}' is not allowed."),
+                fmt={"path": str(path)},
+            )
+        )
 
 
 def rm_recursive(path: Path, strict=False):

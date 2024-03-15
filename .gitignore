@@ -125,6 +125,7 @@ dmypy.json
 .vscode
 .cache
 .idea
+repoutils-setup.cache
 
 # Dist directory
 cppp-repoutils-v*

@@ -22,9 +22,10 @@
 cppp-repoutils variable system.
 """
 
-from typing import Any
+from typing import Any, overload
 
 from cppp_repoutils.utils.stack import Stack
+from cppp_repoutils.utils.nls import _
 
 __all__ = [
     "variables",
@@ -39,7 +40,7 @@ __all__ = [
 variables: dict[str, Stack] = {}
 
 
-def push_variables(name, value: str):
+def push_variables(name, value: str) -> None:
     """Push a new variable.
 
     Args:
@@ -54,7 +55,7 @@ def push_variables(name, value: str):
         variables[name].push(value)
 
 
-def pop_variables(name: str):
+def pop_variables(name: str) -> None:
     """Pop the top value of the given variable.
 
     Args:
@@ -69,7 +70,7 @@ def pop_variables(name: str):
     return None
 
 
-def get_variable(name: str):
+def get_variable(name: str) -> None:
     """Get the value of the given variable.
 
     Args:
@@ -115,41 +116,125 @@ def format_str(
 class AutoFormatDict(dict):
     """A dictionary that can format value automatically with variables."""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         """Initialize AutoFormatDict."""
 
         super().__init__(*args, **kwargs)
 
-    def get(self, key: str, *args):
+    @overload
+    def get(self, key: str) -> str | Any:
         """Get the value of the given key.
 
         Args:
             key (str): The key to get value.
-            default (str): The default value.
 
         Returns:
-            str: The value of the given key.
+            str | Any: The value of the given key.
+
+        Raises:
+            KeyError: If the key is not in the dict.
         """
 
+    @overload
+    def get(self, key: str, default: str | Any) -> str | Any:
+        """Get the value of the given key.
+
+        Args:
+            key (str): The key to get value.
+            default (str | Any): The default value.
+
+        Returns:
+            str | Any: The value of the given key.
+        """
+
+    @overload
+    def get(self, key: str, valtype: type) -> str | Any:
+        """Get the value of the given key.
+
+        Args:
+            key (str): The key to get value.
+            valtype (type): The type of the value. If it is not None, we will
+                check the type of the value.
+
+        Returns:
+            str | Any: The value of the given key.
+
+        Raises:
+            TypeError: If the type of the value is not the same as the given
+                type.
+        """
+
+    @overload
+    def get(self, key: str, default: str | Any, valtype: type) -> str | Any:
+        """Get the value of the given key.
+
+        Args:
+            key (str): The key to get value.
+            default (str | Any): The default value.
+            valtype (type): The type of the value. If it is not None, we will
+                check the type of the value.
+
+        Returns:
+            str | Any: The value of the given key.
+
+        Raises:
+            TypeError: If the type of the value is not the same as the given
+                type.
+        """
+
+    def get(self, key: str, *args, **kwargs) -> str | Any:
+        res: str | Any
         if key not in self.keys() and len(args) == 0:
             raise KeyError(key)
         if key not in self.keys() and len(args) == 1:
-            return format_str(args[0])
-        return format_str(super().get(key))
+            res = format_str(args[0])
+        else:
+            res = format_str(super().get(key))
+        typecheck = kwargs.get("valtype", object)
+        if len(args) == 2:
+            typecheck = args[1]
 
-    def __getitem__(self, key: str):
+        if isinstance(typecheck, type) and not isinstance(res, typecheck):
+            vtype = type(res)
+            if vtype == AutoFormatDict:
+                vtype = dict  # Make it more readable.
+            raise TypeError(
+                _(
+                    "The value of key {key} needs to be {type} instead of {vtype}",  # noqa: E501
+                ).format(
+                    key=repr(key),
+                    type=repr(typecheck.__name__),
+                    vtype=repr(vtype.__name__),
+                )
+            )
+
+        return res
+
+    def __setitem__(self, key: str, value: str | Any) -> None:
+        """Set the value of the given key.
+
+        Args:
+            key (str): The key to set value.
+            value (str | Any): The value to set.
+        """
+
+        if isinstance(value, str):
+            value = format_str(value)
+        super().__setitem__(key, AutoFormatDict.from_dict(value))
+
+    def __getitem__(self, key: str) -> str | Any:
         """Get the value of the given key.
 
         Args:
             key (str): The key to get value.
 
         Returns:
-            str: The value of the given key.
+            str | Any: The value of the given key.
         """
 
         return self.get(key)
 
-    def __repr__(self, *args, **kwargs):
+    def __repr__(self, *args, **kwargs) -> str:
         """Return the representation of the AutoFormatDict.
 
         Returns:
@@ -159,17 +244,19 @@ class AutoFormatDict(dict):
         return f"{type(self).__name__}({super().__repr__(*args, **kwargs)})"
 
     @staticmethod
-    def from_dict(srcdict: dict[str, Any]):
+    def from_dict(srcdict: dict[str, Any] | Any) -> "AutoFormatDict":
         """Create a AutoFormatDict from the given dict recursively.
 
         Args:
-            src (dict[str, Any]): The dict to create AutoFormatDict.
+            src (dict[str, Any]): The dict to create AutoFormatDict. If it is
+                not a dict, return it directly.
 
         Returns:
             AutoFormatDict: The created AutoFormatDict.
         """
 
-        srcdict = srcdict.copy()
+        if isinstance(srcdict, dict):
+            srcdict = srcdict.copy()
 
         return convert_to_afd(srcdict)
 

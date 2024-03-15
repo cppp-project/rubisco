@@ -97,9 +97,21 @@ def find_locale_dir() -> Path:
     return locale_dir if locale_dir is not None else Path()
 
 
+# Update locale information.
+locale.setlocale(locale.LC_ALL, "")  # Let's Python use the system's locale.
+
 # Initialize gettext.
 
 gettext.bindtextdomain(TEXT_DOMAIN, find_locale_dir())
 gettext.textdomain(TEXT_DOMAIN)
 gettext.install(TEXT_DOMAIN)
 _ = gettext.gettext  # Fix undefined name '_' of some IDEs.
+
+if __name__ == "__main__":
+    print(f"{__file__}: {__doc__.strip()}")
+
+    import os
+
+    print("locale_language(): ", locale_language())
+    print("find_locale_dir(): ", find_locale_dir())
+    print("os.strerror(2): ", os.strerror(2))
