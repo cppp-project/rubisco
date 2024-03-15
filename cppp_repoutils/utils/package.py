@@ -185,7 +185,7 @@ class Subpackage:
         """
 
         self.name = name
-        _path = config.get(PACKAGE_KEY_PATH)
+        _path = config.get(PACKAGE_KEY_PATH)  # type: ignore
         _path: list[str]
         if not isinstance(_path, list):
             _path = [_path]
@@ -394,15 +394,34 @@ class Package:  # pylint: disable=too-many-instance-attributes
                 _("Unknown"),
                 valtype=str,
             )
-            self.__subpkgs = self.profile.get(  # type: ignore
-                PACKAGE_KEY_SUBPKGS,
-                {},
-                valtype=dict,
+            self.__subpkgs = AutoFormatDict.from_dict(
+                self.profile.get(
+                    PACKAGE_KEY_SUBPKGS,
+                    {},
+                    valtype=dict,
+                )
             )
+            self.subpackages = []
+            for name, subpkg in self.__subpkgs.items():
+                subpkg = Subpackage(subpkg, name)
+                self.subpackages.append(subpkg)
+
             logger.info("Loaded package '%s'.", profile_path)
         except KeyError as exc:
             logger.fatal("Cannot load profile '%s': Key '%s' required.")
             raise KeyError(exc.args[0], profile_path) from exc
+
+    def __str__(self) -> str:
+        return self.name
+
+    def __repr__(self) -> str:
+        return f"Package({self.name})"
+
+    def __eq__(self, other: "Package") -> bool:
+        return self.name == other.name
+
+    def __hash__(self) -> int:
+        return hash(self.name)
 
     def setup_subpkgs(
         self, recursive: bool = True, shallow: bool = False  # noqa: E501
@@ -416,32 +435,29 @@ class Package:  # pylint: disable=too-many-instance-attributes
                 perform a shallow clone. Default is True.
         """
 
-        self.subpackages = []
         suc_count = 0
         err_count = 0
         ign_count = 0
         PackageLoaderCache.load_cache()
-        for name, subpkg in self.__subpkgs.items():
+        for subpkg in self.subpackages:
             try:
-                subpkg_object = Subpackage(subpkg, name)
-                self.subpackages.append(subpkg_object)
                 try:
                     can_skip = not PackageLoaderCache.is_init_failed(
-                        subpkg_object.name,
+                        subpkg.name,
                     )
-                    if subpkg_object.setup(recursive, shallow, can_skip):
+                    if subpkg.setup(recursive, shallow, can_skip):
                         ign_count += 1
                     else:
                         suc_count += 1
                     PackageLoaderCache.unregister_init_failed(
-                        subpkg_object.name,
+                        subpkg.name,
                     )
                 except:  # noqa: E722
                     logger.exception(
                         "Failed to initialize subpackage '%s'.",
-                        subpkg_object.name,
+                        subpkg.name,
                     )
-                    PackageLoaderCache.register_init_failed(subpkg_object.name)
+                    PackageLoaderCache.register_init_failed(subpkg.name)
                     err_count += 1
                     raise
             except KeyboardInterrupt:
@@ -451,7 +467,7 @@ class Package:  # pylint: disable=too-many-instance-attributes
                         "Submodule '{underline}{name}{reset}{red}' "
                         "setup interrupted.{reset}"
                     ),
-                    fmt={"name": name},
+                    fmt={"name": subpkg.name},
                 )
         output(_("Subpackages setup finished:"), end=" ")
         output(
@@ -474,10 +490,96 @@ class Package:  # pylint: disable=too-many-instance-attributes
         if not err_count:  # Only remove cache when all subpackages are set up.
             PackageLoaderCache.clear_cache()
 
+    def deinit_subpkgs(self) -> None:
+        """Deinitialize subpackages."""
+
+        suc_count = 0
+        err_count = 0
+        ign_count = 0
+
+        for subpkg in self.subpackages:
+            try:
+                if subpkg.path.exists():
+                    output_step(
+                        _(
+                            "Removing subpackage '{name}' "
+                            "('{underline}{path}{reset}') ..."
+                        ),
+                        fmt={"name": subpkg.name, "path": str(subpkg.path)},
+                    )
+                    rm_recursive(subpkg.path)
+                    logger.info(
+                        "Removed subpackage '%s' ('%s').",
+                        subpkg.name,
+                        subpkg.path,
+                    )
+                    suc_count += 1
+                else:
+                    output_step(
+                        _(
+                            "Subpackage '{name}' "
+                            "('{underline}{path}{reset}') "
+                            "does not exist. Ignored."
+                        ),
+                        fmt={"name": subpkg.name, "path": str(subpkg.path)},
+                    )
+                    logger.info(
+                        "Subpackage '%s' ('%s') does not exist. Ignored.",
+                        subpkg.name,
+                        subpkg.path,
+                    )
+                    ign_count += 1
+            except KeyboardInterrupt:
+                err_count += 1
+                output(
+                    _(
+                        "{red}ERROR: "
+                        "Submodule '{underline}{name}{reset}{red}' "
+                        "removal interrupted.{reset}"
+                    ),
+                    fmt={"name": subpkg.name},
+                )
+                logger.error(
+                    "Submodule '%s' removal interrupted.",
+                    subpkg.name,
+                )
+            except OSError:
+                err_count += 1
+                output(
+                    _(
+                        "{red}ERROR: "
+                        "Failed to remove submodule '{underline}{name}{reset}{red}'.{reset}"  # noqa: E501 # pylint: disable=line-too-long
+                    ),
+                    fmt={"name": subpkg.name},
+                )
+                logger.error(
+                    "Failed to remove submodule '%s'.",
+                    subpkg.name,
+                )
+        self.subpackages = []
+        output(_("Subpackages deinitialization finished:"), end=" ")
+        output(
+            _("{count} succeeded,"),
+            fmt={"count": str(suc_count)},
+            end=" ",
+            color="green" if suc_count else "",
+        )
+        output(
+            _("{count} ignored,"),
+            fmt={"count": str(ign_count)},
+            end=" ",
+            color="green" if ign_count else "",
+        )
+        output(
+            _("{count} failed."),
+            fmt={"count": str(err_count)},
+            color="red" if err_count else "",
+        )
+
 
 if __name__ == "__main__":
     print(f"{__file__}: {__doc__.strip()}")
 
     test_pkg = Package()
-    test_pkg.setup_subpkgs()
-    print(test_pkg)
+    test_pkg.deinit_subpkgs()
+    print(repr(test_pkg))

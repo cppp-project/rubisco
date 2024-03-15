@@ -12,7 +12,7 @@
             "NOTICE": "This is only for testing purpose. cppp-repoutils doesn't depend on KitX and libiconv.",
             "path": "KitX",
             "type": "git",
-            "remote-url": "https://hub.yzuu.cf/Crequency/KitX.git"
+            "remote-url": "https://github.com/Crequency/KitX.git"
         },
         "libiconv-name": {
             "path": "libiconv",
