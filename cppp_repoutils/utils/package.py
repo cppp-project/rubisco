@@ -138,7 +138,7 @@ class PackageLoaderCache:
         Clear cache and remove cache file.
         """
 
-        PackageLoaderCache.cache = {}
+        PackageLoaderCache.cache = {"setup": {}}
         SETUP_TEMP_CACHE.unlink(missing_ok=True)
 
     @staticmethod
@@ -200,12 +200,13 @@ class Subpackage:
 
     attrs: AutoFormatDict
 
-    def __init__(self, config: AutoFormatDict, name: str) -> None:
+    def __init__(self, config: AutoFormatDict, name: str, basepath: Path) -> None:  # noqa: E501
         """Initialize subpackage object.
 
         Args:
             config (AutoFormatDict): Subpackage config.
             name (str): Subpackge name.
+            basepath (Path): Base path of the subpackage.
         """
 
         self.name = name
@@ -246,6 +247,7 @@ class Subpackage:
             if path.exists():
                 self.path = path
                 break
+        self.path = basepath / self.path
         self.pkgtype = config[PACKAGE_KEY_TYPE]
         self.attrs = AutoFormatDict({})
         if self.pkgtype == PACKAGE_TYPE_GIT:
@@ -449,7 +451,7 @@ class Package:  # pylint: disable=too-many-instance-attributes
             )
             self.subpackages = []
             for name, subpkg in self.__subpkgs.items():
-                subpkg = Subpackage(subpkg, name)
+                subpkg = Subpackage(subpkg, name, profile_path.parent)
                 self.subpackages.append(subpkg)
 
             logger.info("Loaded package '%s'.", profile_path)
