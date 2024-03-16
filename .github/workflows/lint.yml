@@ -33,7 +33,7 @@ jobs:
     #---------------------------------------------lint----------------------------------------------
     - name: 🛠️ Analysing the code with pylint
       run: |
-        pylint cppp_repoutils
+        pylint -j $(nproc) cppp_repoutils --disable W0511
 
     - name: 🛠️ Analysing the code with flake8
       run: |

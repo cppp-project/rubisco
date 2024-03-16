@@ -161,6 +161,10 @@ def show_package() -> None:
 
 
 class MyArgumentParser(argparse.ArgumentParser):
+    """
+    Customized ArgumentParser.
+    """
+
     def format_help(self):
         msg = super().format_help()
         msg = msg.replace("usage:", _("Usage:"))
@@ -236,12 +240,12 @@ def main() -> int:
     if parsed_args.command == "init":
         # TODO: init
         raise NotImplementedError
-    elif parsed_args.command == "show":
+    if parsed_args.command == "show":
         show_package()
         return 0
-    else:
-        arg_parser.print_help()
-        return 1
+
+    arg_parser.print_help()
+    return 1
 
 
 if __name__ == "__main__":
