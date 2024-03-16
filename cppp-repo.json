@@ -2,11 +2,12 @@
     "name" : "cppp-repoutils",
     "version" : "v0.1.0",
     "file-list": "FILELIST",
-    "description": "C++ Plus repository distributing, packaging and initialization utilities.",
+    "desc": "C++ Plus repository distributing, packaging and initialization utilities.",
     "authors": [
         "ChenPi11"
     ],
-    "webpage": "https://github.com/cppp-project/cppp-repoutils",
+    "tags": ["tag1", "tag2"],
+    "homepage": "https://github.com/cppp-project/cppp-repoutils",
     "subpackages": {
         "KitX-name": {
             "NOTICE": "This is only for testing purpose. cppp-repoutils doesn't depend on KitX and libiconv.",
@@ -19,7 +20,14 @@
             "type": "archive",
             "remote-url": "https://ftp.gnu.org/pub/gnu/libiconv/libiconv-1.17.tar.gz",
             "archive-type": "tar.gz"
+        },
+        "libiconv2-name": {
+            "path": "libiconv2",
+            "type": "archive",
+            "remote-url": "https://ftp.gnu.org/pub/gnu/libiconv/libiconv-1.17.tar.gz",
+            "archive-type": "tar.gz"
         }
+        
     },
     "license": "GPLv3",
     "dist-profile": "dist-tools/dist.json"

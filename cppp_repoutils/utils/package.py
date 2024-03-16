@@ -31,7 +31,12 @@ from cppp_repoutils.utils.gitclone import clone
 from cppp_repoutils.utils.nls import _
 from cppp_repoutils.utils.variable import AutoFormatDict
 from cppp_repoutils.utils.log import logger
-from cppp_repoutils.utils.output import output_step, output
+from cppp_repoutils.utils.output import (
+    output_step,
+    output_warning,
+    output_error,
+    output,
+)
 from cppp_repoutils.utils.fileutil import (
     TemporaryObject,
     assert_rel_path,
@@ -52,11 +57,29 @@ from cppp_repoutils.constants import (
     PACKAGE_KEY_VERSION,
     PACKAGE_KEY_DESC,
     PACKAGE_KEY_AUTHORS,
-    PACKAGE_KEY_WEBPAGE,
+    PACKAGE_KEY_HOMEPAGE,
     PACKAGE_KEY_LICENSE,
     PACKAGE_KEY_SUBPKGS,
+    PACKAGE_KEY_TAGS,
     SETUP_TEMP_CACHE,
 )
+
+
+def assert_is_cppp_package(path: Path):
+    """Raise error if the path is not a cppp package.
+
+    Args:
+        path (Path): The path to check.
+
+    Raises:
+        AssertionError: If the path is not a cppp package.
+
+    """
+
+    if not (path / REPO_PROFILE).exists():
+        raise AssertionError(
+            _("'{path}' is not a cppp package.").format(path=path),
+        )
 
 
 class PackageLoaderCache:
@@ -83,10 +106,8 @@ class PackageLoaderCache:
             # Avoid user interrupting the writing process.
             PackageLoaderCache.update_cache()
         except OSError:
-            output(
-                _(
-                    "WARNING: Cannot write cache to file '{underline}{path}{reset}'."  # noqa: E501
-                ),
+            output_warning(
+                _("Cannot write cache to file '{underline}{path}{reset}'."),
                 fmt={"path": str(SETUP_TEMP_CACHE)},
             )
 
@@ -106,10 +127,8 @@ class PackageLoaderCache:
         except KeyboardInterrupt:
             PackageLoaderCache.load_cache()
         except OSError:
-            output(
-                _(
-                    "WARNING: Cannot load cache from file '{underline}{path}{reset}'."  # noqa: E501
-                ),
+            output_warning(
+                _("Cannot load cache from file '{underline}{path}{reset}'."),
                 fmt={"path": str(SETUP_TEMP_CACHE)},
             )
 
@@ -165,6 +184,11 @@ class PackageLoaderCache:
         """
 
         return bool(PackageLoaderCache.cache["setup"].get(name, False))
+
+
+SETUPSTAT_NOTSETUP = 0
+SETUPSTAT_SUCCESS = 1
+SETUPSTAT_FAILED = 2
 
 
 class Subpackage:
@@ -348,6 +372,24 @@ class Subpackage:
             return Package(subpkg_profile)
         return None
 
+    def setup_stat(self) -> int:
+        """Return the setup status of the subpackage.
+
+        Returns:
+            int: Setup status.
+        """
+
+        stat = SETUPSTAT_NOTSETUP
+        if self.path.exists():
+            stat = SETUPSTAT_SUCCESS
+        else:
+            return stat
+        PackageLoaderCache.load_cache()
+        if PackageLoaderCache.is_init_failed(self.name):
+            stat = SETUPSTAT_FAILED
+
+        return stat
+
 
 class Package:  # pylint: disable=too-many-instance-attributes
     """Package type."""
@@ -357,8 +399,9 @@ class Package:  # pylint: disable=too-many-instance-attributes
     version: str
     desc: str
     authors: list[str]
-    webpage: str
+    homepage: str
     license: str
+    tags: list[str]
     subpackages: list[Subpackage]
     __subpkgs: AutoFormatDict
 
@@ -368,6 +411,8 @@ class Package:  # pylint: disable=too-many-instance-attributes
         Args:
             profile_path (Path): Profile file path.
         """
+
+        assert_is_cppp_package(profile_path.parent)
 
         with open(profile_path, "r", encoding=DEFAULT_CHARSET) as file:
             self.profile = json.load(file)
@@ -382,10 +427,10 @@ class Package:  # pylint: disable=too-many-instance-attributes
             self.version = self.profile.get(PACKAGE_KEY_VERSION, valtype=str)
             self.desc = self.profile.get(PACKAGE_KEY_DESC, "", valtype=str)
             self.authors = self.profile.get(  # type: ignore
-                PACKAGE_KEY_AUTHORS, [_("Anonymous")], valtype=list
+                PACKAGE_KEY_AUTHORS, [], valtype=list
             )  # noqa: E501
-            self.webpage = self.profile.get(
-                PACKAGE_KEY_WEBPAGE,
+            self.homepage = self.profile.get(
+                PACKAGE_KEY_HOMEPAGE,
                 "",
                 valtype=str,
             )
@@ -394,6 +439,7 @@ class Package:  # pylint: disable=too-many-instance-attributes
                 _("Unknown"),
                 valtype=str,
             )
+            self.tags = self.profile.get(PACKAGE_KEY_TAGS, [], valtype=list)
             self.__subpkgs = AutoFormatDict.from_dict(
                 self.profile.get(
                     PACKAGE_KEY_SUBPKGS,
@@ -461,11 +507,10 @@ class Package:  # pylint: disable=too-many-instance-attributes
                     err_count += 1
                     raise
             except KeyboardInterrupt:
-                output(
+                output_error(
                     _(
-                        "{red}ERROR: "
-                        "Submodule '{underline}{name}{reset}{red}' "
-                        "setup interrupted.{reset}"
+                        "Submodule '{underline}{name}{reset}{red}' setup "
+                        "interrupted."
                     ),
                     fmt={"name": subpkg.name},
                 )
@@ -531,11 +576,10 @@ class Package:  # pylint: disable=too-many-instance-attributes
                     ign_count += 1
             except KeyboardInterrupt:
                 err_count += 1
-                output(
+                output_error(
                     _(
-                        "{red}ERROR: "
-                        "Submodule '{underline}{name}{reset}{red}' "
-                        "removal interrupted.{reset}"
+                        "Submodule '{underline}{name}{reset}{red}' removal "
+                        "interrupted."
                     ),
                     fmt={"name": subpkg.name},
                 )
@@ -545,10 +589,9 @@ class Package:  # pylint: disable=too-many-instance-attributes
                 )
             except OSError:
                 err_count += 1
-                output(
+                output_error(
                     _(
-                        "{red}ERROR: "
-                        "Failed to remove submodule '{underline}{name}{reset}{red}'.{reset}"  # noqa: E501 # pylint: disable=line-too-long
+                        "Failed to remove submodule '{underline}{name}{reset}{red}'."  # noqa: E501
                     ),
                     fmt={"name": subpkg.name},
                 )
@@ -581,5 +624,5 @@ if __name__ == "__main__":
     print(f"{__file__}: {__doc__.strip()}")
 
     test_pkg = Package()
-    test_pkg.deinit_subpkgs()
+    test_pkg.setup_subpkgs()
     print(repr(test_pkg))

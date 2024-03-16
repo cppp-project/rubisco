@@ -30,9 +30,17 @@ from colorama import init, Fore, Style
 from colorama.ansi import code_to_chars
 from cppp_repoutils.constants import STDOUT_IS_TTY
 from cppp_repoutils.utils.variable import push_variables, format_str
+from cppp_repoutils.utils.nls import _
 
 
-__all__ = ["output", "output_step", "format_str", "ProgressBar"]
+__all__ = [
+    "output",
+    "output_step",
+    "output_error",
+    "output_warning",
+    "format_str",
+    "ProgressBar",
+]
 
 init(autoreset=True)
 
@@ -117,6 +125,62 @@ def output_step(  # pylint: disable=too-many-arguments
             color=color,
             flush=flush,
         )
+
+
+def output_error(
+    message: str,
+    end: str = "\n",
+    suffix: str = "",
+    fmt: dict[str, str] | None = None,
+    flush: bool = False,
+) -> None:
+    """Output a error message to the console.
+
+    Args:
+        message (str): The message to output.
+        end (str, optional): The end of the message. Defaults to "\n".
+        suffix (str, optional): The suffix of the message. Defaults to "".
+        fmt (dict[str, str], optional): The format of the message.
+            Defaults to None.
+        flush (bool, optional): Flush the output. Defaults to False.
+    """
+
+    output(
+        f'{_("ERROR:")} {message}',
+        end=end,
+        suffix=suffix,
+        fmt=fmt,
+        color="red",
+        flush=flush,
+    )
+
+
+def output_warning(
+    message: str,
+    end: str = "\n",
+    suffix: str = "",
+    fmt: dict[str, str] | None = None,
+    flush: bool = False,
+) -> None:
+    """Output a warning message to the console.
+
+    Args:
+        message (str): The message to output.
+        end (str, optional): The end of the message. Defaults to "\n".
+        suffix (str, optional): The suffix of the message. Defaults to "".
+        fmt (dict[str, str], optional): The format of the message.
+            Defaults to None.
+        flush (bool, optional): Flush the output. Defaults to False.
+    """
+
+    output(
+        f'{_("WARNING:")} {message}',
+        end=end,
+        suffix=suffix,
+        fmt=fmt,
+        color="yellow",
+        flush=flush,
+    )
 
 
 class _WindowsTaskbarProgressState(Enum):
@@ -321,6 +385,10 @@ if __name__ == "__main__":
     output("{reverse}REVERSE{reset}")
     output("{hidden}HIDDEN{reset}(HIDDEN)")
     output("{italic}ITALIC{reset}")
+
+    output_step("output_step()")
+    output_error("output_error()")
+    output_warning("output_warning()")
 
     for i in ProgressBar(range(100), desc="Progress"):
         time.sleep(0.01)
