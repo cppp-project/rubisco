@@ -22,9 +22,9 @@
 Package utils.
 """
 
-import json
 from typing import Union
 from pathlib import Path
+import json5 as json
 from cppp_repoutils.utils.compress import extract
 from cppp_repoutils.utils.wget import wget
 from cppp_repoutils.utils.gitclone import clone
@@ -32,6 +32,7 @@ from cppp_repoutils.utils.nls import _
 from cppp_repoutils.utils.variable import AutoFormatDict
 from cppp_repoutils.utils.log import logger
 from cppp_repoutils.utils.output import (
+    str_output,
     output_step,
     output_warning,
     output_error,
@@ -78,7 +79,10 @@ def assert_is_cppp_package(path: Path):
 
     if not (path / REPO_PROFILE).exists():
         raise AssertionError(
-            _("'{path}' is not a cppp package.").format(path=path),
+            str_output(
+                _("'{path}' is not a cppp package."),
+                fmt={"path": str(path)},
+            )
         )
 
 
@@ -126,7 +130,7 @@ class PackageLoaderCache:
                     PackageLoaderCache.cache = json.load(file)
         except KeyboardInterrupt:
             PackageLoaderCache.load_cache()
-        except OSError:
+        except (OSError, json.JSONDecodeError):
             output_warning(
                 _("Cannot load cache from file '{underline}{path}{reset}'."),
                 fmt={"path": str(SETUP_TEMP_CACHE)},
@@ -200,7 +204,9 @@ class Subpackage:
 
     attrs: AutoFormatDict
 
-    def __init__(self, config: AutoFormatDict, name: str, basepath: Path) -> None:  # noqa: E501
+    def __init__(
+        self, config: AutoFormatDict, name: str, basepath: Path
+    ) -> None:  # noqa: E501
         """Initialize subpackage object.
 
         Args:
@@ -210,43 +216,8 @@ class Subpackage:
         """
 
         self.name = name
-        _path = config.get(PACKAGE_KEY_PATH)  # type: ignore
-        _path: list[str]
-        if not isinstance(_path, list):
-            _path = [_path]
-        if len(_path) == 0:
-            raise ValueError(
-                _("List '{key}' must have at least {num} objects.").format(
-                    key=PACKAGE_KEY_PATH, num=1
-                )
-            )
-        if not isinstance(_path[0], str):
-            raise ValueError(
-                _(
-                    "The value of key {key} needs to be {type} instead of {vtype}.",  # noqa: E501
-                ).format(
-                    key=repr(PACKAGE_KEY_PATH),
-                    type=repr("type"),
-                    vtype=repr(type(_path[0]).__name__),
-                )
-            )
-        self.path = Path(_path[0])
-        for one_path in _path:
-            if not isinstance(one_path, str):
-                raise ValueError(
-                    _(
-                        "The value of key {key} needs to be {type} instead of {vtype}",  # noqa: E501 # pylint: disable-name-too-long
-                    ).format(
-                        key=repr(PACKAGE_KEY_PATH),
-                        type=repr("type"),
-                        vtype=repr(type(one_path).__name__),
-                    )
-                )
-            path = Path(one_path)
-            assert_rel_path(path)
-            if path.exists():
-                self.path = path
-                break
+        self.path = Path(config.get(PACKAGE_KEY_PATH, valtype=str))
+        assert_rel_path(self.path)
         self.path = basepath / self.path
         self.pkgtype = config[PACKAGE_KEY_TYPE]
         self.attrs = AutoFormatDict({})
@@ -441,7 +412,9 @@ class Package:  # pylint: disable=too-many-instance-attributes
                 _("Unknown"),
                 valtype=str,
             )
-            self.tags = self.profile.get(PACKAGE_KEY_TAGS, [], valtype=list)
+            self.tags = list(  # Avoid type check.
+                self.profile.get(PACKAGE_KEY_TAGS, [], valtype=list),
+            )
             self.__subpkgs = AutoFormatDict.from_dict(
                 self.profile.get(
                     PACKAGE_KEY_SUBPKGS,

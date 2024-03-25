@@ -33,6 +33,8 @@ from cppp_repoutils.config import (
     COPY_BUFSIZE_WINDOWS,
     DEFAULT_CHARSET,
     DEFAULT_IGNFILE_NAME,
+    USER_PROFILE_DIR_NAME,
+    MIRRORLIST_FILE_NAME,
     LOG_FILE,
     LOG_FORMAT,
     LOG_LEVEL,
@@ -57,7 +59,7 @@ from cppp_repoutils.config import (
     PACKAGE_KEY_HOMEPAGE,
     PACKAGE_KEY_LICENSE,
     PACKAGE_KEY_SUBPKGS,
-    PACKAGE_KEY_TAGS
+    PACKAGE_KEY_TAGS,
 )
 
 __all__ = [
@@ -66,6 +68,9 @@ __all__ = [
     "TEXT_DOMAIN",
     "DEFAULT_CHARSET",
     "DEFAULT_IGNFILE",
+    "USER_HOME_DIR",
+    "USER_PROFILE_DIR",
+    "MIRRORLIST_FILE",
     "LOG_FILE",
     "LOG_FORMAT",
     "LOG_LEVEL",
@@ -97,7 +102,7 @@ __all__ = [
     "PACKAGE_KEY_HOMEPAGE",
     "PACKAGE_KEY_LICENSE",
     "PACKAGE_KEY_SUBPKGS",
-    "PACKAGE_KEY_TAGS"
+    "PACKAGE_KEY_TAGS",
 ]
 
 APP_VERSION_STRING: str = ".".join(map(str, APP_VERSION))  # (X.X.X)
@@ -108,6 +113,9 @@ PYTHON_PATH: Path | None = Path(sys.executable).resolve()
 REPO_PROFILE: Path = Path(REPO_PROFILE_NAME)
 SETUP_TEMP_CACHE: Path = Path(SETUP_TEMP_CACHE_NAME)
 DEFAULT_IGNFILE: Path = Path(DEFAULT_IGNFILE_NAME)
+USER_HOME_DIR: Path = Path.home().absolute()
+USER_PROFILE_DIR: Path = USER_HOME_DIR / USER_PROFILE_DIR_NAME
+MIRRORLIST_FILE: Path = USER_PROFILE_DIR / MIRRORLIST_FILE_NAME
 RESOURCE_PATH: Path = Path(getattr(sys, "_MEIPASS", PROGRAM_DIR)).absolute()
 STDOUT_IS_TTY = sys.stdout.isatty()
 

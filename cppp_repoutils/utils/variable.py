@@ -70,14 +70,14 @@ def pop_variables(name: str) -> None:
     return None
 
 
-def get_variable(name: str) -> None:
+def get_variable(name: str) -> Any:
     """Get the value of the given variable.
 
     Args:
         name (str): The name of the variable.
 
     Returns:
-        str: The value of the given variable.
+        Any: The value of the given variable.
     """
 
     if name in variables:

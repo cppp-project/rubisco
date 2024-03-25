@@ -19,31 +19,34 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 """
-cppp-repoutils CLI main entry point.
+Load cppp-repoutils mirrorlist.
 """
 
-import atexit
-import sys
-
-from cppp_repoutils.cli import main
+import json5 as json
+from cppp_repoutils.constants import MIRRORLIST_FILE
 from cppp_repoutils.utils.log import logger
-from cppp_repoutils.constants import APP_VERSION_STRING
 
 
-def on_exit() -> None:
+MIRRORLIST_DEFAULT_DATA = '''
+{
+    "git": {
+        "github": {
+            "https": [
+                "https://github.com/${user}/${repo}.git",
+                "https://gitclone.com/github.com/${user}/${repo}.git",
+                "https://hub.fastgit.org/${user}/${repo}.git",
+                "https://hub.yzuu.cf/${user}/${repo}.git"
+            ],
+            "ssh": "git@github.com:${user}/${repo}.git"
+        },
+    }
+}
+'''
+
+def load_mirrorlist():
     """
-    Exit handler.
+    Load user mirrorlist
     """
 
-    logger.debug("on_exit() called.")
-    logger.info("cppp-repoutils running finished.")
-
-
-atexit.register(on_exit)
-
-if __name__ == "__main__":
-    logger.info(
-        "C++ Plus Repository Utilities %s started.",
-        APP_VERSION_STRING,
-    )
-    sys.exit(main())
+    if not MIRRORLIST_FILE.exists():
+        # If not exists, 

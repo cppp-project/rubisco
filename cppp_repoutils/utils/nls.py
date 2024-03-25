@@ -61,7 +61,7 @@ def has_domain(domain: str, locale_dir: Path) -> bool:
         return False
 
 
-def _find_locale_dir(root_dir: Path) -> Optional[Path]:
+def _find_locale_dir(root_dir: Path) -> Optional[Path] | None:
     if has_domain(TEXT_DOMAIN, root_dir):
         return root_dir.resolve()  # <root_dir>
     if has_domain(TEXT_DOMAIN, root_dir / "locale"):

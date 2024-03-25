@@ -32,7 +32,7 @@ from pathlib import Path
 from cppp_repoutils.constants import APP_NAME
 from cppp_repoutils.utils.log import logger
 from cppp_repoutils.utils.yesno import yesno
-from cppp_repoutils.utils.output import format_str
+from cppp_repoutils.utils.output import str_output
 from cppp_repoutils.utils.nls import _
 
 __all__ = ["assert_file_exists", "rm_recursive", "TemporaryObject"]
@@ -53,7 +53,7 @@ def assert_file_exists(path: Path) -> None:
 
     if path.exists():
         choice = yesno(
-            format_str(
+            str_output(
                 _(
                     "File or directory '{yellow}{underline}{path}{reset}' "
                     "already exists, overwrite it?"
@@ -64,7 +64,7 @@ def assert_file_exists(path: Path) -> None:
         )
         if not choice:
             raise AssertionError(
-                format_str(
+                str_output(
                     _(
                         "File or directory '{underline}{path}{reset}' already exists."  # noqa: E501
                     ),
@@ -81,12 +81,12 @@ def assert_rel_path(path: Path) -> None:
         path (Path): The path to assert.
 
     Raises:
-        ValueError: If the path is not a relative path.
+        AssertionError: If the path is not a relative path.
     """
 
     if path.is_absolute():
-        raise ValueError(
-            format_str(
+        raise AssertionError(
+            str_output(
                 _("Absolute path '{underline}{path}{reset}' is not allowed."),
                 fmt={"path": str(path)},
             )

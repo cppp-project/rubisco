@@ -24,7 +24,6 @@ Download a file from the Internet.
 
 from pathlib import Path
 import requests
-
 from cppp_repoutils.constants import COPY_BUFSIZE, TIMEOUT
 from cppp_repoutils.utils.log import logger
 from cppp_repoutils.utils.nls import _

@@ -29,7 +29,11 @@ from tqdm import tqdm
 from colorama import init, Fore, Style
 from colorama.ansi import code_to_chars
 from cppp_repoutils.constants import STDOUT_IS_TTY
-from cppp_repoutils.utils.variable import push_variables, format_str
+from cppp_repoutils.utils.variable import (
+    push_variables,
+    format_str,
+    get_variable,
+)
 from cppp_repoutils.utils.nls import _
 
 
@@ -38,7 +42,7 @@ __all__ = [
     "output_step",
     "output_error",
     "output_warning",
-    "format_str",
+    "output_hint",
     "ProgressBar",
 ]
 
@@ -64,6 +68,39 @@ push_variables("hidden", code_to_chars(8) if STDOUT_IS_TTY else "")
 push_variables("italic", code_to_chars(3) if STDOUT_IS_TTY else "")
 
 
+def str_output(  # pylint: disable=too-many-arguments
+    message: str,
+    end: str = "\n",
+    suffix: str = "",
+    fmt: dict[str, str] | None = None,
+    color: str = "",
+) -> str:
+    """Output a message to string.
+
+    Args:
+        message (str): The message to output.
+        end (str, optional): The end of the message. Defaults to "\n".
+        suffix (str, optional): The suffix of the message. Defaults to "".
+        fmt (dict[str, str], optional): The format of the message.
+            Defaults to None.
+        color (str, optional): The color of the message. Defaults to "".
+
+    Returns:
+        str : The result string.
+    """
+
+    if color:
+        message = message.replace("{reset}", f"{{reset}}{{{color}}}")
+        message = message.replace(
+            get_variable("reset"),
+            f"{{reset}}{{{color}}}",
+        )
+        message = f"{{{color}}}{message}{{reset}}"
+    message = format_str(message, fmt)
+    message = f"{suffix}{message}{end}"
+    return message
+
+
 def output(  # pylint: disable=too-many-arguments
     message: str,
     end: str = "\n",
@@ -84,13 +121,7 @@ def output(  # pylint: disable=too-many-arguments
         flush (bool, optional): Flush the output. Defaults to False.
     """
 
-    if color:
-        message = (
-            f"{{{color}}}" + f"{message}" + "{reset}"
-        )  # Don't use f-string for {reset}.
-    message = format_str(message, fmt)
-    message = f"{suffix}{message}{end}"
-    sys.stdout.write(message)
+    sys.stdout.write(str_output(message, end, suffix, fmt, color))
     if flush:
         sys.stdout.flush()
 
@@ -179,6 +210,34 @@ def output_warning(
         suffix=suffix,
         fmt=fmt,
         color="yellow",
+        flush=flush,
+    )
+
+
+def output_hint(
+    message: str,
+    end: str = "\n",
+    suffix: str = "",
+    fmt: dict[str, str] | None = None,
+    flush: bool = False,
+) -> None:
+    """Output a hint message to the console.
+
+    Args:
+        message (str): The message to output.
+        end (str, optional): The end of the message. Defaults to "\n".
+        suffix (str, optional): The suffix of the message. Defaults to "".
+        fmt (dict[str, str], optional): The format of the message.
+            Defaults to None.
+        flush (bool, optional): Flush the output. Defaults to False.
+    """
+
+    output(_("HINT:"), end=" ", color="cyan")
+    output(
+        message,
+        end=end,
+        suffix=suffix,
+        fmt=fmt,
         flush=flush,
     )
 

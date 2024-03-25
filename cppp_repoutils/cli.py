@@ -36,19 +36,30 @@ cppp-repoutils CLI entry point.
 
 import argparse
 import sys
+import signal
 
 from cppp_repoutils.constants import APP_VERSION_STRING
 from cppp_repoutils.utils.nls import _
 from cppp_repoutils.utils.log import logger
-from cppp_repoutils.utils.output import output, output_warning
+from cppp_repoutils.utils.output import (
+    output,
+    output_warning,
+    output_hint,
+    output_error,
+)
 from cppp_repoutils.utils.package import (
     Package,
     SETUPSTAT_NOTSETUP,
     SETUPSTAT_SUCCESS,
     SETUPSTAT_FAILED,
 )
+from cppp_repoutils.utils.shell_command import (
+    COMMAND_NOT_FOUND_ERROR,
+    CommandExecutionError,
+)
 
-current_package = Package()
+# This object will be init in main()
+current_package: Package
 
 
 def show_version() -> None:
@@ -151,13 +162,33 @@ def show_package() -> None:
         if error_count:
             output_warning(
                 _("There are {count} subpackages failed to setup."),
-                fmt={"count": error_count},
+                fmt={"count": str(error_count)},
             )
         if notsetup_count:
             output_warning(
                 _("There are {count} subpackages not setup."),
-                fmt={"count": notsetup_count},
+                fmt={"count": str(notsetup_count)},
             )
+
+
+def deinit_subpkgs() -> None:
+    """
+    Deinitialize all subpackages.
+    """
+
+    output_warning(_("You are about to remove all subpackages."))
+    output_warning(_("This action is {red}IRREVERSIBLE{yellow}."))
+    output_warning(_("You will lose {red}ALL{yellow} changes in subpackages."))
+    output_warning(_("You should know what you are doing!"))
+    output(
+        _("If you really want to do this, type [{red}Do what I say{reset}]: "),
+        end="",
+    )
+    if input() == "Do what I say":
+        current_package.deinit_subpkgs()
+        output(_("All subpackages removed."))
+    else:
+        output(_("Aborted."))
 
 
 class MyArgumentParser(argparse.ArgumentParser):
@@ -222,30 +253,63 @@ arg_parser.add_argument(
     help=_("Enable log output"),
 )
 
-subparser.add_parser("init", help=_("Initialize a new repository"))
-subparser.add_parser("show", help=_("Show the current repository information"))
+subparser.add_parser("show", help=_("Show the repository information"))
+subparser.add_parser("fetch", help=_("Fetch all subpackages"))
+subparser.add_parser("deinit", help=_("Remove all subpackages"))
 
 
-def main() -> int:
+def main() -> int:  # pylint: disable=too-many-return-statements
     """Main entry point.
 
     Returns:
         int: The exit code of the application.
     """
 
-    parsed_args = arg_parser.parse_args()
-    if parsed_args.version:
-        show_version()
-        return 0
-    if parsed_args.command == "init":
-        # TODO: init
-        raise NotImplementedError
-    if parsed_args.command == "show":
-        show_package()
-        return 0
+    try:
+        # Some times global-statement is very useful.
+        global current_package  # pylint: disable=global-statement
+        current_package = Package()
 
-    arg_parser.print_help()
-    return 1
+        parsed_args = arg_parser.parse_args()
+        if parsed_args.version:
+            show_version()
+            return 0
+        if parsed_args.command == "show":
+            show_package()
+            return 0
+        if parsed_args.command == "fetch":
+            current_package.setup_subpkgs()
+            return 0
+        if parsed_args.command == "deinit":
+            deinit_subpkgs()
+            return 0
+
+        arg_parser.print_help()
+        return 1
+    except SystemExit as exc:
+        raise exc from exc
+    except KeyboardInterrupt:
+        output(_("Interrupted by user."), suffix="\n", color="red")
+        logger.info("Interrupted by user.")
+        return signal.SIGINT
+    except AssertionError as exc:
+        output_error(str(exc))
+        return 1
+    except CommandExecutionError as exc:
+        output(
+            _("Command '{cmd}' failed with return code {retcode}."),
+            fmt={"cmd": exc.cmd, "retcode": str(exc.returncode)},
+            suffix="\n",
+            color="red",
+        )
+        if exc.returncode == COMMAND_NOT_FOUND_ERROR:
+            output_hint(
+                _(
+                    "The returned code is '{code}'. It may mean that the command is not found."  # noqa: E501 # pylint: disable=line-too-long
+                ),
+                fmt={"code": str(exc.returncode)},
+            )
+        return exc.returncode
 
 
 if __name__ == "__main__":
