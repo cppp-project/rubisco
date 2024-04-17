@@ -26,8 +26,8 @@ from pathlib import Path
 import tarfile
 import zipfile
 from cppp_repoutils.utils.log import logger
-from cppp_repoutils.utils.output import ProgressBar
-from cppp_repoutils.utils.ignore_file import IgnoreChecker
+from cppp_repoutils.cli.output import ProgressBar
+from cppp_repoutils.extentions.builtin.ignore_file import IgnoreChecker
 from cppp_repoutils.utils.nls import _
 from cppp_repoutils.utils.fileutil import assert_file_exists
 

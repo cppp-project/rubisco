@@ -147,7 +147,7 @@ def output_step(  # pylint: disable=too-many-arguments
     """
 
     if message:
-        output("=> ", end="", color="blue", flush=False)
+        output("=> ", end="", suffix="\n", color="blue", flush=False)
         output(
             message,
             end=end,

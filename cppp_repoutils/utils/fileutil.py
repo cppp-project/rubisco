@@ -31,8 +31,8 @@ from pathlib import Path
 
 from cppp_repoutils.constants import APP_NAME
 from cppp_repoutils.utils.log import logger
-from cppp_repoutils.utils.yesno import yesno
-from cppp_repoutils.utils.output import str_output
+from cppp_repoutils.cli.yesno import yesno
+from cppp_repoutils.cli.output import str_output
 from cppp_repoutils.utils.nls import _
 
 __all__ = ["assert_file_exists", "rm_recursive", "TemporaryObject"]

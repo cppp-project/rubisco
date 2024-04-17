@@ -22,11 +22,12 @@
 Generate shell command from a list of arguments.
 """
 
-from subprocess import Popen
+from subprocess import Popen, PIPE
 from pathlib import Path
 import os
 import sys
-from cppp_repoutils.utils.output import output_step
+from cppp_repoutils.constants import DEFAULT_CHARSET
+from cppp_repoutils.cli.output import output_step
 from cppp_repoutils.utils.nls import _
 from cppp_repoutils.utils.log import logger
 
@@ -96,6 +97,46 @@ def run_command(
         if strict and proc.returncode != 0:
             raise CommandExecutionError(cmd, proc.returncode)
         return proc.returncode
+
+
+def popen_command(
+    cmd: list[str] | str,
+    cwd: Path | None = None,
+    stdout: bool = True,
+    stderr: bool = True,
+) -> tuple[str, str]:
+    """Run shell command and return stripped stdout and stderr.
+
+    Args:
+        cmd (list[str] | str): The list of arguments or the shell command.
+        cwd (Path | None, optional): The working directory. Defaults to None.
+        stdout (bool, optional): Use stdout. Defaults to True.
+        stderr (bool, optional): Use stderr. Defaults to True.
+            If stdout and stderr are False, return an empty string.
+
+    Returns:
+        tuple[str, str]: The stdout and stderr.
+    """
+
+    if isinstance(cmd, list):
+        cmd = command(cmd)
+    output_step(_("Running command: {cyan}{cmd}{reset}"), fmt={"cmd": cmd})
+    logger.debug("Running command: %s", cmd)
+    if cwd:
+        cwd = cwd.absolute()
+    with Popen(
+        cmd,
+        shell=True,
+        stdout=PIPE if stdout else sys.stdout,
+        stderr=PIPE if stderr else sys.stderr,
+        cwd=cwd,
+        encoding=DEFAULT_CHARSET,
+    ) as proc:
+        retcode = proc.wait()
+        if retcode != 0:
+            raise CommandExecutionError(cmd, retcode)
+        stdout_data, stderr_data = proc.communicate()
+        return stdout_data.strip(), stderr_data.strip()
 
 
 if __name__ == "__main__":

@@ -27,7 +27,7 @@ import requests
 from cppp_repoutils.constants import COPY_BUFSIZE, TIMEOUT
 from cppp_repoutils.utils.log import logger
 from cppp_repoutils.utils.nls import _
-from cppp_repoutils.utils.output import ProgressBar
+from cppp_repoutils.cli.output import ProgressBar
 from cppp_repoutils.utils.fileutil import assert_file_exists
 
 

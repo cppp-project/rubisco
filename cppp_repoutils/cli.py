@@ -41,7 +41,7 @@ import signal
 from cppp_repoutils.constants import APP_VERSION_STRING
 from cppp_repoutils.utils.nls import _
 from cppp_repoutils.utils.log import logger
-from cppp_repoutils.utils.output import (
+from cppp_repoutils.cli.output import (
     output,
     output_warning,
     output_hint,

@@ -25,13 +25,13 @@ Package utils.
 from typing import Union
 from pathlib import Path
 import json5 as json
-from cppp_repoutils.utils.compress import extract
+from cppp_repoutils.extentions.builtin.compress import extract
 from cppp_repoutils.utils.wget import wget
-from cppp_repoutils.utils.gitclone import clone
+from cppp_repoutils.extentions.builtin.git import clone
 from cppp_repoutils.utils.nls import _
 from cppp_repoutils.utils.variable import AutoFormatDict
 from cppp_repoutils.utils.log import logger
-from cppp_repoutils.utils.output import (
+from cppp_repoutils.cli.output import (
     str_output,
     output_step,
     output_warning,

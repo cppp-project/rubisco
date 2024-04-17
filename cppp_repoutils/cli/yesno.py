@@ -24,7 +24,7 @@ Ask yes or no.
 
 __all__ = ["yesno"]
 
-from cppp_repoutils.utils.output import output
+from cppp_repoutils.cli.output import output
 from cppp_repoutils.utils.nls import _
 from cppp_repoutils.utils.log import logger
 
@@ -92,7 +92,7 @@ def yesno(  # pylint: disable=too-many-arguments
 if __name__ == "__main__":
     print(f"{__file__}: {__doc__.strip()}")
 
-    from cppp_repoutils.utils.output import output_step
+    from cppp_repoutils.cli.output import output_step
 
     try:
         res = yesno(  # pylint: disable=invalid-name

@@ -27,22 +27,6 @@ from cppp_repoutils.constants import MIRRORLIST_FILE
 from cppp_repoutils.utils.log import logger
 
 
-MIRRORLIST_DEFAULT_DATA = '''
-{
-    "git": {
-        "github": {
-            "https": [
-                "https://github.com/${user}/${repo}.git",
-                "https://gitclone.com/github.com/${user}/${repo}.git",
-                "https://hub.fastgit.org/${user}/${repo}.git",
-                "https://hub.yzuu.cf/${user}/${repo}.git"
-            ],
-            "ssh": "git@github.com:${user}/${repo}.git"
-        },
-    }
-}
-'''
-
 def load_mirrorlist():
     """
     Load user mirrorlist
@@ -50,3 +34,4 @@ def load_mirrorlist():
 
     if not MIRRORLIST_FILE.exists():
         # If not exists, 
+        pass

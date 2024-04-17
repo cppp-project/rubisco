@@ -9,11 +9,17 @@
     "tags": ["tag1", "tag2"],
     "homepage": "https://github.com/cppp-project/cppp-repoutils",
     "subpackages": {
-        "repoutils": {
+        "alisp": {
             "NOTICE": "This is only for testing purpose. cppp-repoutils doesn't depend on KitX and libiconv.",
-            "path": "repoutils-path",
+            "path": "alisp",
             "type": "git",
-            "remote-url": "https://github.com/cppp-project/cppp-repoutils.git"
+            "remote-url": "https://git.savannah.gnu.org/git/alisp.git"
+        },
+        "libiconv": {
+            "path": "libiconv",
+            "type": "archive",
+            "archive-type": "tar.gz",
+            "remote-url": "https://ftp.gnu.org/pub/gnu/libiconv/libiconv-1.17.tar.gz"
         }
     },
     "license": "GPLv3",
