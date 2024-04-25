@@ -25,13 +25,8 @@ Logging system.
 import logging
 import sys
 
-from repoutils.constants import (
-    APP_NAME,
-    DEFAULT_CHARSET,
-    LOG_FILE,
-    LOG_FORMAT,
-    LOG_LEVEL,
-)
+from repoutils.constants import (APP_NAME, DEFAULT_CHARSET, LOG_FILE,
+                                 LOG_FORMAT, LOG_LEVEL)
 
 __all__ = ["logger"]
 

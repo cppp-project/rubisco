@@ -22,27 +22,17 @@
 Constants for the repoutils module.
 """
 
-from pathlib import Path
-import sys
 import os
+import sys
+from pathlib import Path
+
+from repoutils.config import (APP_NAME, APP_VERSION, COPY_BUFSIZE_UNIX,
+                              COPY_BUFSIZE_WINDOWS, DEFAULT_CHARSET, LOG_FILE,
+                              LOG_FORMAT, LOG_LEVEL, MINIMUM_PYTHON_VERSION,
+                              MIRRORLIST_FILE, REPO_PROFILE, TEXT_DOMAIN,
+                              TIMEOUT, USER_PROFILE_DIR)
 from repoutils.lib.command import command
 from repoutils.lib.version import Version
-from repoutils.config import (
-    APP_NAME,
-    APP_VERSION,
-    DEFAULT_CHARSET,
-    USER_PROFILE_DIR,
-    MIRRORLIST_FILE,
-    LOG_FILE,
-    LOG_FORMAT,
-    LOG_LEVEL,
-    REPO_PROFILE,
-    TEXT_DOMAIN,
-    TIMEOUT,
-    COPY_BUFSIZE_WINDOWS,
-    COPY_BUFSIZE_UNIX,
-    MINIMUM_PYTHON_VERSION
-)
 
 __all__ = [
     "APP_NAME",

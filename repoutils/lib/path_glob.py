@@ -22,8 +22,8 @@
 Path resolver with globbing support.
 """
 
-from pathlib import Path
 import glob
+from pathlib import Path
 
 __all__ = ["resolve_path", "glob_path"]
 

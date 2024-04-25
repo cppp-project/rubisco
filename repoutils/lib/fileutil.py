@@ -24,16 +24,16 @@ File utilities.
 
 import atexit
 import os
-import tempfile
-from types import TracebackType
 import shutil
+import tempfile
 from pathlib import Path
+from types import TracebackType
 
 from repoutils.constants import APP_NAME
-from repoutils.lib.log import logger
 from repoutils.lib.l10n import _
-from repoutils.shared.ktrigger import call_ktrigger, IKernelTrigger
+from repoutils.lib.log import logger
 from repoutils.lib.variable import format_str
+from repoutils.shared.ktrigger import IKernelTrigger, call_ktrigger
 
 __all__ = [
     "check_file_exists",

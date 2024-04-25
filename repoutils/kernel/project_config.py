@@ -23,14 +23,15 @@ Project configuration loader.
 """
 
 from pathlib import Path
+
 import json5 as json
 
 from repoutils.constants import REPO_PROFILE
-from repoutils.lib.variable import AutoFormatDict, format_str
-from repoutils.lib.version import Version
 from repoutils.lib.exceptions import RUValueException
 from repoutils.lib.l10n import _
-from repoutils.lib.path_glob import resolve_path, glob_path
+from repoutils.lib.path_glob import glob_path, resolve_path
+from repoutils.lib.variable import AutoFormatDict, format_str
+from repoutils.lib.version import Version
 
 __all__ = [
     "ProjectConfigration",

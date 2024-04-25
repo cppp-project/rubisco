@@ -23,14 +23,15 @@ Download a file from the Internet.
 """
 
 from pathlib import Path
-import requests
-from repoutils.constants import COPY_BUFSIZE, TIMEOUT
-from repoutils.lib.log import logger
-from repoutils.lib.l10n import _
-from repoutils.lib.fileutil import check_file_exists
-from repoutils.lib.variable import format_str
-from repoutils.shared.ktrigger import call_ktrigger, IKernelTrigger
 
+import requests
+
+from repoutils.constants import COPY_BUFSIZE, TIMEOUT
+from repoutils.lib.fileutil import check_file_exists
+from repoutils.lib.l10n import _
+from repoutils.lib.log import logger
+from repoutils.lib.variable import format_str
+from repoutils.shared.ktrigger import IKernelTrigger, call_ktrigger
 
 __all__ = ["wget"]
 
@@ -89,8 +90,8 @@ if __name__ == "__main__":
 
     print("Make sure you have Internet connection. Otherwise, it will fail.")
 
-    from repoutils.shared.ktrigger import bind_ktrigger_interface
     from repoutils.lib.fileutil import rm_recursive
+    from repoutils.shared.ktrigger import bind_ktrigger_interface
 
     URL = "https://musl.libc.org/releases/musl-1.2.5.tar.gz"
     TARGET = Path("musl-1.2.5.tar.gz")

@@ -23,12 +23,12 @@ Repoutils variable system.
 """
 
 import os
+import sys
+from pathlib import Path
 from platform import uname
 from queue import Empty, LifoQueue
-import sys
 from time import monotonic as time
 from typing import Any, overload
-from pathlib import Path
 
 from repoutils.constants import APP_VERSION, REPOUTILS_COMMAND
 from repoutils.lib.l10n import _
