@@ -22,10 +22,15 @@
 Repoutils variable system.
 """
 
+import os
+from platform import uname
 from queue import Empty, LifoQueue
+import sys
 from time import monotonic as time
 from typing import Any, overload
+from pathlib import Path
 
+from repoutils.constants import APP_VERSION, REPOUTILS_COMMAND
 from repoutils.lib.l10n import _
 
 __all__ = [
@@ -147,6 +152,41 @@ def get_variable(name: str) -> Any:
     if name in variables:
         return variables[name].top()
     raise KeyError(repr(name))
+
+
+uname_result = uname()
+
+# Built-in variables.
+push_variables("home", str(Path.home().absolute()))
+push_variables("cwd", str(Path.cwd().absolute()))
+push_variables("repoutils_version", str(APP_VERSION))
+push_variables("repoutils_command", str(REPOUTILS_COMMAND))
+push_variables("host_os", os.name)
+push_variables("host_system", uname_result.system)
+push_variables("host_node", uname_result.node)
+push_variables("host_release", uname_result.release)
+push_variables("host_version", uname_result.version)
+push_variables("host_machine", uname_result.machine)
+push_variables("host_processor", uname_result.processor)
+push_variables("repoutils_python_version", sys.version)
+push_variables("repoutils_python_implementation", sys.implementation.name)
+# Built-in variables for colorized output. Default to empty string.
+# UCI (User Control Interface) can replace them.
+push_variables("red", "")
+push_variables("yellow", "")
+push_variables("green", "")
+push_variables("cyan", "")
+push_variables("blue", "")
+push_variables("magenta", "")
+push_variables("gray", "")
+push_variables("white", "")
+push_variables("reset", "")
+push_variables("bold", "")
+push_variables("underline", "")
+push_variables("blink", "")
+push_variables("reverse", "")
+push_variables("hidden", "")
+push_variables("italic", "")
 
 
 def format_str(

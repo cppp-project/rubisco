@@ -26,35 +26,12 @@ import ctypes
 import os
 import subprocess
 
+from repoutils.lib.command import command
 from repoutils.lib.exceptions import RUShellExecutionException
 from repoutils.lib.log import logger
 from repoutils.shared.ktrigger import IKernelTrigger, call_ktrigger
 
-__all__ = ["command", "Process"]
-
-
-def command(args: list[str] | str) -> str:
-    """Generate shell command from a list of arguments.
-
-    Args:
-        command (list[str] | str): The list of arguments.
-
-    Returns:
-        str: The shell command.
-    """
-
-    if isinstance(args, str):
-        return args
-
-    res_command = ""
-    for arg in args:
-        if '"' in arg:
-            arg = arg.replace('"', '\\"')
-        if " " in arg:
-            res_command += f'"{arg}" '
-        else:
-            res_command += f"{arg} "
-    return res_command.strip()
+__all__ = ["Process"]
 
 
 def _win32_set_console_visiable(visiable: bool) -> None:

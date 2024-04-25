@@ -25,7 +25,7 @@ Project configuration loader.
 from pathlib import Path
 import json5 as json
 
-from repoutils.config import REPO_PROFILE_NAME
+from repoutils.constants import REPO_PROFILE
 from repoutils.lib.variable import AutoFormatDict, format_str
 from repoutils.lib.version import Version
 from repoutils.lib.exceptions import RUValueException
@@ -108,9 +108,18 @@ def _load_config(config_file: Path, loaded_list: list[Path]) -> AutoFormatDict:
                 hint=_("Configuration must be a json5 object. (dict)"),
             )
         for include in config.get("includes", [], valtype=list):
+            if not isinstance(include, str):
+                raise RUValueException(
+                    format_str(
+                        _(
+                            "Invalid path in '{underline}{path}{reset}'."
+                        ),
+                        fmt={"path": str(config_file)},
+                    )
+                )
             include_file = config_file.parent / include
             if include_file.is_dir():
-                include_file = include_file / REPO_PROFILE_NAME
+                include_file = include_file / REPO_PROFILE
             include_file = resolve_path(include_file)
             for one_file in glob_path(include_file):
                 if one_file in loaded_list:
@@ -141,7 +150,7 @@ def load_project_config(project_dir: Path) -> ProjectConfigration:
         ProjectConfigration: The project configuration instance.
     """
 
-    return ProjectConfigration(project_dir / REPO_PROFILE_NAME)
+    return ProjectConfigration(project_dir / REPO_PROFILE)
 
 
 if __name__ == "__main__":

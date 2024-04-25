@@ -23,6 +23,7 @@ Version numbering analysis and comparison module.
 """
 
 import re
+from typing import overload
 
 __all__ = ["Version"]
 
@@ -38,6 +39,7 @@ class Version:
     pre: str
     build: str
 
+    @overload
     def __init__(self, version: str) -> None:
         """Analyze the version string.
 
@@ -45,13 +47,47 @@ class Version:
             version (str): The version string.
         """
 
+    @overload
+    def __init__(self, version: "Version") -> None:
+        """Copy a version info.
+
+        Args:
+            version (Version): The version.
+        """
+
+    @overload
+    def __init__(self, version: tuple) -> None:
+        """Analyze the version tuple.
+
+        Args:
+            version (tuple): The version tuple.
+        """
+
+    def __init__(self, version: "str | Version | tuple") -> None:
         self.major = 0
         self.minor = 0
         self.patch = 0
         self.pre = ""
         self.build = ""
 
-        self._analyze(version)
+        if isinstance(version, str):
+            self._analyze(version)
+        elif isinstance(version, Version):
+            self.major = version.major
+            self.minor = version.minor
+            self.patch = version.patch
+            self.pre = version.pre
+            self.build = version.build
+        elif isinstance(version, tuple):
+            self.major = int(version[0])
+            self.minor = int(version[1])
+            self.patch = int(version[2])
+            if len(version) > 3:
+                self.pre = str(version[3])
+            if len(version) > 4:
+                self.build = str(version[4])
+        else:
+            raise ValueError("Invalid version type.")
 
     def _analyze(self, version: str) -> None:
         """Analyze the version string.
@@ -94,7 +130,7 @@ class Version:
 
         return f"Version({str(self)})"
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: "Version") -> bool:
         """Compare two versions for equality.
 
         Args:
@@ -186,10 +222,21 @@ if __name__ == "__main__":
     assert ver2.pre == "alpha"
     assert ver2.build == "build"
 
-    print(ver1, ver2)
-
     # Test: Version comparison
     assert (ver1 == ver2) is False
     assert (ver1 != ver2) is True
     assert (ver1 > ver2) is True
     assert (ver1 < ver2) is False
+
+    # Test: Version copy
+    ver3 = Version(ver1)
+    assert (ver1 == ver3) is True
+
+    # Test: Version tuple
+    ver4 = Version((1, 2, 3, "alpha", "build"))
+    assert str(ver4) == "1.2.3-alpha+build"
+    assert ver4.major == 1
+    assert ver4.minor == 2
+    assert ver4.patch == 3
+    assert ver4.pre == "alpha"
+    assert ver4.build == "build"

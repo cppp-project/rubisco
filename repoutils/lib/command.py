@@ -19,20 +19,31 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 """
-Module configuration.
+Generate command line.
 """
 
-APP_NAME = "repoutils"
-APP_VERSION = (0, 1, 0)
-TEXT_DOMAIN = APP_NAME
-REPO_PROFILE = "repo.config"
-DEFAULT_CHARSET = "UTF-8"
-USER_PROFILE_DIR = ".repoutils"
-MIRRORLIST_FILE = "mirrorlist.json"
-LOG_FILE = "repoutils.log"
-LOG_FORMAT = "[%(asctime)s] [%(name)s] [%(levelname)s] %(message)s"
-LOG_LEVEL = "DEBUG"
-TIMEOUT = 15
-COPY_BUFSIZE_WINDOWS = 1024 * 1024
-COPY_BUFSIZE_UNIX = 64 * 1024
-MINIMUM_PYTHON_VERSION = (3, 10, 0)
+__all__ = ["command"]
+
+
+def command(args: list[str] | str) -> str:
+    """Generate shell command from a list of arguments.
+
+    Args:
+        command (list[str] | str): The list of arguments.
+
+    Returns:
+        str: The shell command.
+    """
+
+    if isinstance(args, str):
+        return args
+
+    res_command = ""
+    for arg in args:
+        if '"' in arg:
+            arg = arg.replace('"', '\\"')
+        if " " in arg:
+            res_command += f'"{arg}" '
+        else:
+            res_command += f"{arg} "
+    return res_command.strip()

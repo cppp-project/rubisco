@@ -27,7 +27,7 @@ import locale
 import sys
 from pathlib import Path
 
-from repoutils.config import TEXT_DOMAIN
+from repoutils.constants import TEXT_DOMAIN
 from repoutils.lib.l10n_lang_names import LOCALE_NAMES
 from repoutils.lib.log import logger
 

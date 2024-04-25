@@ -25,21 +25,24 @@ Logging system.
 import logging
 import sys
 
-from repoutils.config import (APP_DEFAULT_NAME, DEFAULT_CHARSET, LOG_FILE,
-                              LOG_FORMAT, LOG_LEVEL)
+from repoutils.constants import (
+    APP_NAME,
+    DEFAULT_CHARSET,
+    LOG_FILE,
+    LOG_FORMAT,
+    LOG_LEVEL,
+)
 
 __all__ = ["logger"]
 
 # The global logger.
-logger = logging.getLogger(APP_DEFAULT_NAME)
+logger = logging.getLogger(APP_NAME)
 
 # Initialize the global logger.
 
 logger.setLevel(LOG_LEVEL)
 
-if (
-    "--debug" in sys.argv
-):  # Don't use argparse here, because it's not initialized yet.
+if "--debug" in sys.argv:  # Don't use argparse here.
     logger_handler = logging.FileHandler(LOG_FILE, encoding=DEFAULT_CHARSET)
     logger_handler.setLevel(LOG_LEVEL)
 

@@ -53,6 +53,9 @@ class IKernelTrigger:
     Kernel trigger interface.
     """
 
+    TASK_DOWNLOAD = "download"
+    TASK_EXTRACT = "extract"
+
     def pre_exec_process(self, proc: Any) -> None:
         """Pre-exec process.
 
@@ -82,6 +85,66 @@ class IKernelTrigger:
             retcode=retcode,
             raise_exc=raise_exc,
         )
+
+    def file_exists(self, path: str) -> None:
+        """Ask user to overwrite a file.
+
+        Args:
+            path (str): File path.
+        """
+
+        _null_trigger("file_exists", path=path)
+
+    def on_new_task(
+        self,
+        task_name: str,
+        task_type: int,
+        total: int | float,
+    ) -> None:
+        """When a progressive task is created.
+
+        Args:
+            task_name (str): Task name.
+            task_type (int): Task type.
+            total (int | float): Total steps.
+        """
+
+        _null_trigger(
+            "on_progressive_task",
+            task_name=task_name,
+            task_type=task_type,
+            total=total,
+        )
+
+    def on_progress(
+        self,
+        task_name: str,
+        current: int | float,
+        delta: bool = False,
+    ):
+        """When the progressive task progress is updated.
+
+        Args:
+            task_name (str): Task name.
+            current (int | float): Current step.
+            delta (bool): If the current is delta.
+        """
+
+        _null_trigger(
+            "on_progress",
+            task_name=task_name,
+            current=current,
+            delta=delta,
+        )
+
+    def on_finish_task(self, task_name: str):
+        """When a progressive task is finished.
+
+        Args:
+            task_name (str): Task name.
+        """
+
+        _null_trigger("on_finish_task", task_name=task_name)
 
 
 # KTrigger instances.
@@ -139,8 +202,13 @@ def call_ktrigger(name: str | Callable, *args, **kwargs) -> None:
 if __name__ == "__main__":
     print(f"{__file__}: {__doc__.strip()}")
 
+    import time
+
     # Test: Bind a KTrigger.
     class _TestKTrigger(IKernelTrigger):
+        _prog_total: int | float
+        _prog_current: int | float
+
         def on_test0(self) -> None:
             "Test0: KTrigger without arguments."
 
@@ -161,6 +229,35 @@ if __name__ == "__main__":
         def on_test3(self) -> None:
             "Test3: KTrigger raises an exception."
             raise ValueError("Test3 exception.")
+
+        def on_new_task(
+            self, task_name: str, task_type: int, total: int | float
+        ) -> None:
+            print("on_new_task():", task_name, task_type, total)
+            self._prog_total = total
+            self._prog_current = 0
+
+        def on_progress(
+            self,
+            task_name: str,
+            current: int | float,
+            delta: bool = False,
+        ):
+            if delta:
+                self._prog_current += current
+            else:
+                self._prog_current = current
+            print(
+                "on_progress():",
+                task_name,
+                self._prog_current,
+                "/",
+                self._prog_total,
+                end="\r",
+            )
+
+        def on_finish_task(self, task_name: str):
+            print("on_finish_task():", task_name)
 
     kt = _TestKTrigger()
     bind_ktrigger_interface("test", kt)
@@ -188,3 +285,16 @@ if __name__ == "__main__":
 
     # Test: Call a non-exists KTrigger.
     call_ktrigger("non_exists")
+
+    # Test: Progressive task.
+    call_ktrigger(
+        "on_new_task",
+        task_name="TestTask",
+        task_type=IKernelTrigger.TASK_DOWNLOAD,
+        total=100,
+    )
+    for i in range(101):
+        call_ktrigger("on_progress", task_name="TestTask", current=i)
+        time.sleep(0.01)
+    print()
+    call_ktrigger("on_finish_task", task_name="TestTask")
