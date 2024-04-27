@@ -123,17 +123,8 @@ def _load_config(config_file: Path, loaded_list: list[Path]) -> AutoFormatDict:
                 include_file = include_file / REPO_PROFILE
             include_file = resolve_path(include_file)
             for one_file in glob_path(include_file):
-                if one_file in loaded_list:
-                    raise RUValueException(
-                        format_str(
-                            _(
-                                "Circular includes detected in '{underline}"
-                                "{path}{reset}'."
-                            ),
-                            fmt={"path": str(one_file)},
-                        ),
-                        hint=_("Remove the circular includes."),
-                    )
+                if one_file in loaded_list:  # Avoid circular dependencies.
+                    continue  # Skip already loaded files.
                 loaded_list.append(one_file)
 
             config.merge(_load_config(include_file, loaded_list))

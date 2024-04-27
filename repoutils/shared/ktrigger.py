@@ -137,6 +137,20 @@ class IKernelTrigger:
             delta=delta,
         )
 
+    def set_progress_total(self, task_name: str, total: int | float):
+        """Set the total steps of a progressive task.
+
+        Args:
+            task_name (str): Task name.
+            total (int | float): Total steps.
+        """
+
+        _null_trigger(
+            "set_progress_total",
+            task_name=task_name,
+            total=total,
+        )
+
     def on_finish_task(self, task_name: str):
         """When a progressive task is finished.
 

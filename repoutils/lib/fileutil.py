@@ -34,11 +34,13 @@ from repoutils.lib.l10n import _
 from repoutils.lib.log import logger
 from repoutils.lib.variable import format_str
 from repoutils.shared.ktrigger import IKernelTrigger, call_ktrigger
+from repoutils.lib.exceptions import RUShellExecutionException
 
 __all__ = [
     "check_file_exists",
     "rm_recursive",
     "human_readable_size",
+    "find_command",
     "TemporaryObject",
 ]
 
@@ -428,6 +430,35 @@ def human_readable_size(size: int | float) -> str:
     return f"{size:.2f}{unit}"
 
 
+def find_command(cmd: str, strict: bool = False) -> str:
+    """Find the command in the system.
+
+    Args:
+        cmd (str): The command to find.
+
+    Returns:
+        str: The command path.
+    """
+
+    logger.debug("Checking for command '%s' ...", cmd)
+
+    res = shutil.which(cmd)
+
+    logger.info(
+        "Checking for command '%s' ... %s",
+        cmd,
+        res if res else _("not found."),
+    )
+
+    if strict and res is None:
+        raise RUShellExecutionException(
+            format_str(_("Command '{cmd}' not found."), fmt={"cmd": cmd}),
+            retcode=RUShellExecutionException.RETCODE_COMMAND_NOT_FOUND,
+        )
+
+    return res if res else cmd
+
+
 # Register cleanup function.
 atexit.register(TemporaryObject.cleanup)
 
@@ -487,3 +518,23 @@ if __name__ == "__main__":
     assert not temp2.path.exists()
     assert not temp3.path.exists()
     assert not temp4.path.exists()
+
+    # Test4: Human readable size.
+    assert human_readable_size(1023) == "1023.00B"
+    assert human_readable_size(1024) == "1.00KiB"
+    assert human_readable_size(1024**2) == "1.00MiB"
+    assert human_readable_size(1024**3) == "1.00GiB"
+    assert human_readable_size(1024**4) == "1.00TiB"
+    assert human_readable_size(1024**5) == "1.00PiB"
+    assert human_readable_size(1024**6) == "1.00EiB"
+    assert human_readable_size(0) == "0.00B"
+
+    # Test5: Find command.
+    assert find_command("whoami") == shutil.which("whoami")
+    try:
+        find_command("_Not_Exist_Command_", strict=True)
+        assert False
+    except RUShellExecutionException as exc_:
+        assert (
+            exc_.retcode == RUShellExecutionException.RETCODE_COMMAND_NOT_FOUND
+        )  # noqa: E501

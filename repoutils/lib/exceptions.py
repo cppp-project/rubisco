@@ -101,7 +101,7 @@ class RUShellExecutionException(RUException):
     if os.name == "nt":
         RETCODE_COMMAND_NOT_FOUND = 9009
     else:
-        RETCODE_COMMAND_NOT_FOUND = 1
+        RETCODE_COMMAND_NOT_FOUND = 127
 
     retcode: int
 

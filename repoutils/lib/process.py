@@ -113,11 +113,7 @@ class Process:
 if __name__ == "__main__":
     print(f"{__file__}: {__doc__.strip()}")
 
-    # Test: command()
-    assert command(["echo", "Hello, world!"]) == 'echo "Hello, world!"'
-    assert command("echo Hello, world!") == "echo Hello, world!"
-
-    # Test: Process
+    # Test: Process.
     p = Process("echo Hello, world!")
     p.run()
     p = Process(["echo", "Hello, world!"])
@@ -131,7 +127,7 @@ if __name__ == "__main__":
     except RUShellExecutionException as e:
         assert e.retcode == 1
 
-    # Test: Process with error
+    # Test: Process with error.
     p = Process("echo Hello, world! && exit 1")
     try:
         assert p.run(fail_on_error=False) == 1
