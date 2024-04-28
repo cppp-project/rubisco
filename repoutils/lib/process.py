@@ -24,14 +24,15 @@ Repoutils process control.
 
 import ctypes
 import os
-import subprocess
+from subprocess import Popen, PIPE
 
+from repoutils.constants import DEFAULT_CHARSET
 from repoutils.lib.command import command
 from repoutils.lib.exceptions import RUShellExecutionException
 from repoutils.lib.log import logger
 from repoutils.shared.ktrigger import IKernelTrigger, call_ktrigger
 
-__all__ = ["Process"]
+__all__ = ["Process", "popen"]
 
 
 def _win32_set_console_visiable(visiable: bool) -> None:
@@ -57,7 +58,7 @@ class Process:
     """
 
     cmd: str
-    process: subprocess.Popen
+    process: Popen
 
     def __init__(
         self,
@@ -77,7 +78,7 @@ class Process:
 
         call_ktrigger(IKernelTrigger.pre_exec_process, proc=self)
         _win32_set_console_visiable(True)
-        with subprocess.Popen(self.cmd, shell=True) as self.process:
+        with Popen(self.cmd, shell=True) as self.process:
             try:
                 ret = self.process.wait()
                 raise_exc = ret != 0 and fail_on_error
@@ -107,7 +108,45 @@ class Process:
             str: The string representation.
         """
 
-        return f'Process({repr(self.cmd)})'
+        return f"Process({repr(self.cmd)})"
+
+
+def popen(
+    cmd: list[str] | str, stdout: bool = True, stderr: bool = True
+) -> tuple[str, str]:
+    """Run the command and return the stdout and stderr.
+
+    Args:
+        cmd (list[str] | str): The command.
+        stdout (bool, optional): Return stdout. Defaults to True.
+        stderr (bool, optional): Return stderr. Defaults to True.
+
+    Returns:
+        tuple[str, str]: The stdout and stderr. If stdout or stderr is not
+            required, it will be "".
+    """
+
+    cmd = command(cmd)
+    logger.debug("Popen: %s", cmd)
+    with Popen(
+        cmd,
+        shell=True,
+        stdout=PIPE,
+        stderr=PIPE,
+    ) as process:
+        process.wait()
+        return (
+            (
+                process.stdout.read().decode(DEFAULT_CHARSET)  # type: ignore
+                if stdout
+                else ""
+            ),
+            (
+                process.stderr.read().decode(DEFAULT_CHARSET)  # type: ignore
+                if stderr
+                else ""
+            ),
+        )
 
 
 if __name__ == "__main__":
@@ -133,3 +172,8 @@ if __name__ == "__main__":
         assert p.run(fail_on_error=False) == 1
     except RUShellExecutionException:
         assert False
+
+    # Test: Popen.
+    stdout_, stderr_ = popen("echo Hello, world!")
+    assert stdout_ == "Hello, world!\n"
+    assert stderr_ == ""

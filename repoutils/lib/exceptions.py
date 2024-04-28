@@ -127,5 +127,5 @@ class RUShellExecutionException(RUException):
                 fmt={"retcode": str(retcode)},
             )
 
-        super().__init__(docurl="", hint=hint, *args, **kwargs)
+        super().__init__(hint=hint, *args, **kwargs)
         self.retcode = retcode

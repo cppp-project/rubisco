@@ -65,4 +65,5 @@ if __name__ == "__main__":
         raise RuntimeError("Test exception.")
     except RuntimeError:
         logger.exception("EXCEPTION")
+        logger.warning("Warning with exception.", exc_info=True)
     logger.info("END")
