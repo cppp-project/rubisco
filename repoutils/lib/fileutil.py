@@ -29,7 +29,7 @@ import tempfile
 from pathlib import Path
 from types import TracebackType
 
-from repoutils.constants import APP_NAME
+from repoutils.config import APP_NAME
 from repoutils.lib.l10n import _
 from repoutils.lib.log import logger
 from repoutils.lib.variable import format_str

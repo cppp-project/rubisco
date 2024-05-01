@@ -160,6 +160,24 @@ class IKernelTrigger:
 
         _null_trigger("on_finish_task", task_name=task_name)
 
+    def on_syspkg_installation_skip(
+        self,
+        packages: list[str],
+        message: str,
+    ) -> None:
+        """When a system package installation is skipped.
+
+        Args:
+            packages (list[str]): Package name.
+            message (str): Skip reason.
+        """
+
+        _null_trigger(
+            "on_syspkg_installation_skip",
+            packages=packages,
+            message=message,
+        )
+
 
 # KTrigger instances.
 ktriggers: dict[str, IKernelTrigger] = {}

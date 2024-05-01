@@ -26,7 +26,7 @@ from pathlib import Path
 
 import json5 as json
 
-from repoutils.constants import REPO_PROFILE
+from repoutils.config import USER_REPO_CONFIG
 from repoutils.lib.exceptions import RUValueException
 from repoutils.lib.l10n import _
 from repoutils.lib.path_glob import glob_path, resolve_path
@@ -120,7 +120,7 @@ def _load_config(config_file: Path, loaded_list: list[Path]) -> AutoFormatDict:
                 )
             include_file = config_file.parent / include
             if include_file.is_dir():
-                include_file = include_file / REPO_PROFILE
+                include_file = include_file / USER_REPO_CONFIG
             include_file = resolve_path(include_file)
             for one_file in glob_path(include_file):
                 if one_file in loaded_list:  # Avoid circular dependencies.
@@ -142,7 +142,7 @@ def load_project_config(project_dir: Path) -> ProjectConfigration:
         ProjectConfigration: The project configuration instance.
     """
 
-    return ProjectConfigration(project_dir / REPO_PROFILE)
+    return ProjectConfigration(project_dir / USER_REPO_CONFIG)
 
 
 if __name__ == "__main__":

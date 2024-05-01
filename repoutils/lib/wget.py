@@ -26,7 +26,7 @@ from pathlib import Path
 
 import requests
 
-from repoutils.constants import COPY_BUFSIZE, TIMEOUT
+from repoutils.config import COPY_BUFSIZE, TIMEOUT
 from repoutils.lib.fileutil import check_file_exists
 from repoutils.lib.l10n import _
 from repoutils.lib.log import logger

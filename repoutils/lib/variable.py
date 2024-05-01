@@ -30,7 +30,7 @@ from queue import Empty, LifoQueue
 from time import monotonic as time
 from typing import Any, overload
 
-from repoutils.constants import APP_VERSION, REPOUTILS_COMMAND
+from repoutils.config import APP_VERSION, REPOUTILS_COMMAND
 from repoutils.lib.l10n import _
 
 __all__ = [

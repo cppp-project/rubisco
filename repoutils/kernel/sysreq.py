@@ -27,7 +27,7 @@ import ctypes
 import os
 import platform
 
-from repoutils.constants import DEFAULT_CHARSET
+from repoutils.config import DEFAULT_CHARSET
 from repoutils.lib.process import popen, Process
 from repoutils.lib.l10n import _
 from repoutils.lib.fileutil import find_command
