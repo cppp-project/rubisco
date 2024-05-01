@@ -23,16 +23,24 @@ Repoutils extentions interface.
 """
 
 from __future__ import absolute_import
+
 from pathlib import Path
+
+from repoutils.config import (GLOBAL_EXTENSIONS_DIR, USER_EXTENSIONS_DIR,
+                              WORKSPACE_EXTENSIONS_DIR)
+from repoutils.lib.exceptions import RUValueException
+from repoutils.lib.l10n import _
+from repoutils.lib.log import logger
+from repoutils.lib.variable import format_str
 from repoutils.lib.version import Version
-from repoutils.shared.ktrigger import IKernelTrigger
+from repoutils.shared.ktrigger import IKernelTrigger, bind_ktrigger_interface
 
 __all__ = ["IRUExtention"]
 
 
 class IRUExtention:
     """
-    Repoutils extentions interface.
+    Repoutils extention interface.
     """
 
     name: str
@@ -42,12 +50,12 @@ class IRUExtention:
 
     def __init__(self) -> None:
         """
-        Constructor. Please DO NOT initialize the extentions here.
+        Constructor. Please DO NOT initialize the extention here.
         """
 
     def extention_can_load_now(self) -> bool:
         """
-        Check if the extentions can load now. Some extentionss may initialize
+        Check if the extention can load now. Some extentions may initialize
         optionally like 'CMake' or 'Rust'.
 
         This method MUST be implemented by the subclass.
@@ -56,15 +64,15 @@ class IRUExtention:
             NotImplementedError: Raise if the method is not implemented.
 
         Returns:
-            bool: True if the extentions can load now, otherwise False.
+            bool: True if the extention can load now, otherwise False.
         """
 
         raise NotImplementedError
 
     def on_load(self) -> None:
         """
-        Load the extentions.
-        Initialize the extentions here.
+        Load the extention.
+        Initialize the extention here.
 
         This method MUST be implemented by the subclass.
         """
@@ -99,19 +107,112 @@ class IRUExtention:
         raise NotImplementedError
 
 
+invalid_ext_names = ["repoutils"]  # Avoid logger's name conflict.
+
+
 # A basic extention contains these modules or variables:
 #   - extention/        directory    ---- The extention directory.
 #       - __init__.py   file         ---- The extention module.
 #           - instance  IRUExtention ---- The extention instance
-
-def load_extentions(path: Path | str) -> None:
-    """Load the extentions.
+def load_extention(path: Path | str) -> None:
+    """Load the extention.
 
     Args:
-        path (Path | str): The path of the extentions or it's name.
-            If the path is a name, the extentions will be loaded from the
-            default extentions directory.
+        path (Path | str): The path of the extention or it's name.
+            If the path is a name, the extention will be loaded from the
+            default extention directory.
     """
 
     if isinstance(path, str):
         path = Path(path)
+    path = path.absolute()
+
+    if not path.is_dir():
+        raise RUValueException(
+            format_str(
+                _(
+                    "The extention path '{underline}{path}{reset}' is not a "
+                    "directory."
+                ),
+                fmt={"path": str(path)},
+            ),
+        )
+
+    # Load the extention.
+    module = __import__(path.name, fromlist=[str(path.parent)])
+    if not hasattr(module, "instance"):
+        raise RUValueException(
+            format_str(
+                _(
+                    "The extention '{underline}{path}{reset}' does not have an instance."  # noqa
+                ),
+                fmt={"path": str(path)},
+            ),
+            hint=format_str(
+                _(
+                    "Please make sure this extention is a valid extention.",
+                )
+            ),
+        )
+    instance: IRUExtention = module.instance
+
+    # Security check.
+    if instance.name in invalid_ext_names:
+        raise RUValueException(
+            format_str(
+                _("The extention name '{underline}{name}{reset}' is invalid."),
+                fmt={"name": instance.name},
+            ),
+            hint=format_str(
+                _(
+                    "Please use a different name for the extention.",
+                ),
+            ),
+        )
+
+    logger.info("Loading extention '%s'...", instance.name)
+
+    # Check if the extention can load now.
+    if not instance.extention_can_load_now():
+        logger.info("Skipping extention '%s'...", instance.name)
+        return
+
+    # Load the extention.
+    if not instance.reqs_is_sloved():
+        logger.info(
+            "Solving system requirements for extention '%s'...",
+            instance.name,
+        )
+        instance.reqs_solve()
+        if not instance.reqs_is_sloved():
+            logger.error(
+                "Failed to solve system requirements for extention '%s'.",
+                instance.name,
+            )
+            return
+
+        instance.on_load()
+        bind_ktrigger_interface(
+            instance.name,
+            instance.ktrigger,
+        )
+        logger.info("Loaded extention '%s'.", instance.name)
+
+
+def load_all_extentions() -> None:
+    """Load all extentions."""
+
+    # Load the global extentions.
+    for path in GLOBAL_EXTENSIONS_DIR.iterdir():
+        if path.is_dir():
+            load_extention(path)
+
+    # Load the user extentions.
+    for path in USER_EXTENSIONS_DIR.iterdir():
+        if path.is_dir():
+            load_extention(path)
+
+    # Load the workspace extentions.
+    for path in WORKSPACE_EXTENSIONS_DIR.iterdir():
+        if path.is_dir():
+            load_extention(path)

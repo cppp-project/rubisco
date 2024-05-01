@@ -30,11 +30,11 @@ from pathlib import Path
 from types import TracebackType
 
 from repoutils.config import APP_NAME
+from repoutils.lib.exceptions import RUShellExecutionException
 from repoutils.lib.l10n import _
 from repoutils.lib.log import logger
 from repoutils.lib.variable import format_str
 from repoutils.shared.ktrigger import IKernelTrigger, call_ktrigger
-from repoutils.lib.exceptions import RUShellExecutionException
 
 __all__ = [
     "check_file_exists",

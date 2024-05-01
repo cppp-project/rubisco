@@ -29,7 +29,6 @@ from pathlib import Path
 from repoutils.lib.command import command
 from repoutils.lib.version import Version
 
-
 # Application basic configurations.
 APP_NAME = "repoutils"
 APP_VERSION = Version((0, 1, 0))

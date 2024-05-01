@@ -28,14 +28,13 @@ import os
 import platform
 
 from repoutils.config import DEFAULT_CHARSET
-from repoutils.lib.process import popen, Process
-from repoutils.lib.l10n import _
-from repoutils.lib.fileutil import find_command
-from repoutils.lib.log import logger
-from repoutils.lib.exceptions import RUShellExecutionException
 from repoutils.lib.command import command
-from repoutils.shared.ktrigger import call_ktrigger, IKernelTrigger
-
+from repoutils.lib.exceptions import RUShellExecutionException
+from repoutils.lib.fileutil import find_command
+from repoutils.lib.l10n import _
+from repoutils.lib.log import logger
+from repoutils.lib.process import Process, popen
+from repoutils.shared.ktrigger import IKernelTrigger, call_ktrigger
 
 # Detect OS.
 OS: str | None = None

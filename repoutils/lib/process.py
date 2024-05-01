@@ -24,7 +24,7 @@ Repoutils process control.
 
 import ctypes
 import os
-from subprocess import Popen, PIPE
+from subprocess import PIPE, Popen
 
 from repoutils.config import DEFAULT_CHARSET
 from repoutils.lib.command import command
