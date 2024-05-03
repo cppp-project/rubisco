@@ -25,6 +25,7 @@ Interface can do something before or after kernel operations.
 """
 
 from functools import partial
+from pathlib import Path
 from typing import Any, Callable
 
 from repoutils.lib.exceptions import RUValueException
@@ -178,6 +179,45 @@ class IKernelTrigger:
             message=message,
         )
 
+    def on_update_git_repo(
+        self,
+        path: Path,
+        branch: str,
+    ) -> None:
+        """When a git repository is updating.
+
+        Args:
+            path (Path): Repository path.
+            branch (str): Branch name.
+        """
+
+        _null_trigger(
+            "on_update_git_repo",
+            path=path,
+            branch=branch,
+        )
+
+    def on_clone_git_repo(
+        self,
+        url: str,
+        path: Path,
+        branch: str,
+    ) -> None:
+        """When a git repository is cloning.
+
+        Args:
+            url (str): Repository URL.
+            path (Path): Repository path.
+            branch (str): Branch name.
+        """
+
+        _null_trigger(
+            "on_clone_git_repo",
+            url=url,
+            path=path,
+            branch=branch,
+        )
+
 
 # KTrigger instances.
 ktriggers: dict[str, IKernelTrigger] = {}
@@ -192,7 +232,16 @@ def bind_ktrigger_interface(sign: str, instance: IKernelTrigger) -> None:
 
     Raises:
         RUValueException: If sign is already exists.
+        TypeError: If instance is not a IKernelTrigger instance.
     """
+
+    if not isinstance(instance, IKernelTrigger):
+        raise TypeError(
+            format_str(
+                _("'{name}' is not a IKernelTrigger instance."),
+                fmt={"name": repr(instance)},
+            )
+        )
 
     if sign in ktriggers:
         raise RUValueException(
@@ -234,8 +283,6 @@ def call_ktrigger(name: str | Callable, *args, **kwargs) -> None:
 if __name__ == "__main__":
     print(f"{__file__}: {__doc__.strip()}")
 
-    import time
-
     # Test: Bind a KTrigger.
     class _TestKTrigger(IKernelTrigger):
         _prog_total: int | float
@@ -261,35 +308,6 @@ if __name__ == "__main__":
         def on_test3(self) -> None:
             "Test3: KTrigger raises an exception."
             raise ValueError("Test3 exception.")
-
-        def on_new_task(
-            self, task_name: str, task_type: int, total: int | float
-        ) -> None:
-            print("on_new_task():", task_name, task_type, total)
-            self._prog_total = total
-            self._prog_current = 0
-
-        def on_progress(
-            self,
-            task_name: str,
-            current: int | float,
-            delta: bool = False,
-        ):
-            if delta:
-                self._prog_current += current
-            else:
-                self._prog_current = current
-            print(
-                "on_progress():",
-                task_name,
-                self._prog_current,
-                "/",
-                self._prog_total,
-                end="\r",
-            )
-
-        def on_finish_task(self, task_name: str):
-            print("on_finish_task():", task_name)
 
     kt = _TestKTrigger()
     bind_ktrigger_interface("test", kt)
@@ -317,16 +335,3 @@ if __name__ == "__main__":
 
     # Test: Call a non-exists KTrigger.
     call_ktrigger("non_exists")
-
-    # Test: Progressive task.
-    call_ktrigger(
-        "on_new_task",
-        task_name="TestTask",
-        task_type=IKernelTrigger.TASK_DOWNLOAD,
-        total=100,
-    )
-    for i in range(101):
-        call_ktrigger("on_progress", task_name="TestTask", current=i)
-        time.sleep(0.01)
-    print()
-    call_ktrigger("on_finish_task", task_name="TestTask")

@@ -23,7 +23,9 @@ Logging system.
 """
 
 import logging
+import os
 import sys
+from pathlib import Path
 
 from repoutils.config import (APP_NAME, DEFAULT_CHARSET, LOG_FILE, LOG_FORMAT,
                               LOG_LEVEL)
@@ -38,6 +40,8 @@ logger = logging.getLogger(APP_NAME)
 logger.setLevel(LOG_LEVEL)
 
 if "--debug" in sys.argv:  # Don't use argparse here.
+    if not Path(LOG_FILE).parent.exists():
+        os.makedirs(Path(LOG_FILE).parent, exist_ok=True)
     logger_handler = logging.FileHandler(LOG_FILE, encoding=DEFAULT_CHARSET)
     logger_handler.setLevel(LOG_LEVEL)
 

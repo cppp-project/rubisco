@@ -24,6 +24,7 @@ Repoutils process control.
 
 import ctypes
 import os
+from pathlib import Path
 from subprocess import PIPE, Popen
 
 from repoutils.config import DEFAULT_CHARSET
@@ -58,13 +59,16 @@ class Process:
     """
 
     cmd: str
+    cwd: Path
     process: Popen
 
     def __init__(
         self,
         cmd: list[str] | str,
+        cwd: Path = Path.cwd(),
     ) -> None:
         self.cmd = command(cmd)
+        self.cwd = cwd
 
     def run(self, fail_on_error: bool = True) -> int:
         """Run the process.
@@ -78,7 +82,7 @@ class Process:
 
         call_ktrigger(IKernelTrigger.pre_exec_process, proc=self)
         _win32_set_console_visiable(True)
-        with Popen(self.cmd, shell=True) as self.process:
+        with Popen(self.cmd, shell=True, cwd=str(self.cwd)) as self.process:
             try:
                 ret = self.process.wait()
                 raise_exc = ret != 0 and fail_on_error
