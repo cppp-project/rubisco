@@ -1,8 +1,7 @@
 {
     "github" : {
         "git": {
-            "origin": "https://github.com",
-            "cdn": "https://cdn.jsdelivr.net/gh"
+            "origin": "https://github.com/$user/$repo.git"
         }
     }
 }
