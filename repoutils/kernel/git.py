@@ -24,11 +24,21 @@ Mirrorlist for extention installer.
 
 from pathlib import Path
 
+from repoutils.kernel.mirrorlist import get_url
 from repoutils.lib.l10n import _
 from repoutils.lib.log import logger
 from repoutils.lib.process import Process, popen
 from repoutils.lib.variable import format_str
 from repoutils.shared.ktrigger import IKernelTrigger, call_ktrigger
+
+__all__ = [
+    "git_clone",
+    "git_has_remote",
+    "git_set_remote",
+    "git_get_remote",
+    "git_update",
+    "is_git_repo",
+]
 
 
 def is_git_repo(path: Path) -> bool:
@@ -40,6 +50,9 @@ def is_git_repo(path: Path) -> bool:
     Returns:
         bool: True if the directory is a git repository.
     """
+
+    if not path.exists():
+        return False
 
     _stdout, _stderr, retcode = popen(
         ["git", "rev-parse", "--is-inside-work-tree"],
@@ -80,6 +93,7 @@ def git_clone(
     branch: str = "main",
     shallow: bool = True,
     strict: bool = False,
+    use_fastest: bool = True,
 ):
     """Clone a git repository.
 
@@ -91,6 +105,7 @@ def git_clone(
         strict (bool, optional): Raise an error if the repository already
             exists. If False, the repository will be updated. Defaults to
             False.
+        use_fastest (bool, optional): Use the fastest mirror. Defaults to True.
     """
 
     if is_git_repo(path):
@@ -106,6 +121,9 @@ def git_clone(
         git_update(path, branch)
         return
 
+    old_url = url
+    url = get_url(url, use_fastest=use_fastest)
+
     logger.info("Cloning repository '%s' to '%s'...", url, str(path))
     call_ktrigger(
         IKernelTrigger.on_clone_git_repo,
@@ -120,6 +138,32 @@ def git_clone(
     Process(cmd).run()
     logger.info("Repository '%s' cloned.", str(path))
 
+    if old_url != url:  # Reset the origin URL to official.
+        git_set_remote(path, "origin", get_url(old_url, use_fastest=False))
+        git_set_remote(path, "mirror", url)
+        git_branch_set_upstream(path, branch, "origin")
+
+
+def git_has_remote(path: Path, remote: str) -> bool:
+    """Check if a remote repository exists.
+
+    Args:
+        path (Path): Path to the repository.
+        remote (str, optional): Remote name.
+
+    Returns:
+        bool: True if the remote repository exists.
+    """
+
+    _stdout, _stderr, retcode = popen(
+        ["git", "remote", "get-url", remote],
+        cwd=path,
+        stderr=False,
+        stdout=False,
+        strict=False,
+    )
+    return retcode == 0
+
 
 def git_get_remote(path: Path, remote: str = "origin") -> str:
     """Get the URL of a remote repository.
@@ -132,9 +176,11 @@ def git_get_remote(path: Path, remote: str = "origin") -> str:
         str: Remote URL.
     """
 
-    return popen(["git", "remote", "get-url", remote], cwd=path, stderr=False)[
-        0
-    ]  # noqa: E501
+    return popen(
+        ["git", "remote", "get-url", remote],
+        cwd=path,
+        stderr=False,
+    )[0]
 
 
 def git_set_remote(path: Path, remote: str, url: str):
@@ -146,7 +192,25 @@ def git_set_remote(path: Path, remote: str, url: str):
         url (str): Remote URL.
     """
 
-    popen(["git", "remote", "set-url", remote, url], cwd=path)
+    if git_has_remote(path, remote):
+        Process(["git", "remote", "set-url", remote, url], cwd=path).run()
+        return
+    Process(["git", "remote", "add", remote, url], cwd=path).run()
+
+
+def git_branch_set_upstream(path: Path, branch: str, remote: str = "origin"):
+    """Set the upstream of a branch.
+
+    Args:
+        path (Path): Path to the repository.
+        branch (str): Branch name.
+        remote (str, optional): Remote name. Defaults to "origin".
+    """
+
+    Process(
+        ["git", "branch", "--set-upstream-to", f"{remote}/{branch}", branch],
+        cwd=path,
+    ).run()
 
 
 if __name__ == "__main__":
@@ -158,6 +222,38 @@ if __name__ == "__main__":
     from repoutils.shared.ktrigger import bind_ktrigger_interface
 
     class _TestKTrigger(IKernelTrigger):
+        console_lines: dict[str, int]
+
+        def __init__(self):
+            super().__init__()
+            self.console_lines = {}
+
+        def pre_speedtest(self, host: str):
+            self.console_lines[host] = (
+                max(
+                    self.console_lines.values(),
+                    default=0,
+                )
+                + 1
+            )
+            print(f"Testing {host} ...", end="\n")
+
+        def post_speedtest(self, host: str, speed: int):
+            jump = (
+                max(
+                    self.console_lines.values(),
+                    default=0,
+                )
+                - self.console_lines[host]
+            )
+            print(f"\x1b[{jump+1}A", end="")
+            speed_str = (
+                f"{speed} us" if speed != -1 else "\x1b[31mCANCELED\x1b[0m"
+            )  # noqa: E501
+            print(f"Testing {host} {speed_str}", end="\n")  # noqa: E501
+            print(f"\x1b[{jump}B", end="")
+            del self.console_lines[host]
+
         def pre_exec_process(self, proc: Process) -> None:
             print(f"=> Executing: {proc.cmd} ...")
 
@@ -189,16 +285,16 @@ if __name__ == "__main__":
 
     # Test: Clone a repository shallowly.
     git_clone(
-        "https://git.savannah.gnu.org/git/autoconf.git",
-        Path("autoconf"),
-        branch="master",
+        "cppp-project/cppp-reiconv@github",
+        Path("cppp-reiconv"),
+        branch="main",
         shallow=True,
     )
 
     # Test: Clone a existing repository without strict mode.
     git_clone(
-        "https://git.savannah.gnu.org/git/autoconf.git",
-        Path("autoconf"),
+        "/hello@savannah",
+        Path("hello"),
         branch="master",
         shallow=True,
         strict=False,
@@ -207,8 +303,8 @@ if __name__ == "__main__":
     # Test: Clone a existing repository with strict mode.
     try:
         git_clone(
-            "https://git.savannah.gnu.org/git/autoconf.git",
-            Path("autoconf"),
+            "/hello@savannah",
+            Path("hello"),
             branch="master",
             shallow=True,
             strict=True,
@@ -218,14 +314,15 @@ if __name__ == "__main__":
         pass
 
     # Test: Update a repository.
-    git_update(Path("autoconf"), branch="master")
+    git_update(Path("hello"), branch="master")
 
     # Test: Update a non-existing repository.
     try:
-        git_update(Path("autoconf2"), branch="master")
+        git_update(Path("libiconv"), branch="master")
         assert False, "Should raise a FileNotFoundError."
     except FileNotFoundError:
         pass
 
-    shutil.rmtree("autoconf")
+    shutil.rmtree("hello")
+    shutil.rmtree("cppp-reiconv")
     print("=> Done.")

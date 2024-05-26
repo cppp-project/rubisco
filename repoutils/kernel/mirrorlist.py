@@ -32,10 +32,13 @@ from urllib3.util import parse_url
 
 from repoutils.config import (DEFAULT_CHARSET, GLOBAL_CONFIG_DIR,
                               USER_CONFIG_DIR, WORKSPACE_CONFIG_DIR)
+from repoutils.lib.l10n import _
 from repoutils.lib.log import logger
 from repoutils.lib.speedtest import C_INTMAX, url_speedtest
 from repoutils.lib.variable import AutoFormatDict, format_str
 from repoutils.shared.ktrigger import IKernelTrigger, call_ktrigger
+
+__all__ = ["get_url"]
 
 WORKSPACE_MIRRORLIST_FILE = WORKSPACE_CONFIG_DIR / "mirrorlist.json"
 USER_MIRRORLIST_FILE = USER_CONFIG_DIR / "mirrorlist.json"
@@ -75,7 +78,7 @@ async def _speedtest(future: asyncio.Future, mirror: str, url: str):
 async def find_fastest_mirror(
     host: str,
     protocol: str = "http",
-) -> tuple[str, str]:
+) -> str:
     """Find the fastest mirror in mirrorlist.
 
     Args:
@@ -84,7 +87,7 @@ async def find_fastest_mirror(
             We only support HTTP(s) for now.
 
     Returns:
-        tuple[str, str]: The mirror host name and its url.
+        str: The mirror name.
     """
 
     try:
@@ -101,18 +104,23 @@ async def find_fastest_mirror(
             task.cancel("Fastest mirror found.")
         fastest = future.result()
         if fastest == C_INTMAX:
-            return ("official", mlist.get("official", valtype=str))
+            return "official"
         return fastest
     except KeyError:
-        return ("official", host)
+        return "official"
 
 
-def get_url(remote: str, protocol: str = "http") -> str:
+def get_url(
+    remote: str,
+    protocol: str = "http",
+    use_fastest: bool = True,
+) -> str:
     """Get the mirror URL of a remote Git repository.
 
     Args:
         remote (str): The remote URL.
         protocol (str, optional): The protocol to use. Defaults to "http".
+        use_fastest (bool, optional): Use the fastest mirror. Defaults to True.
 
     Returns:
         str: The mirror URL.
@@ -126,7 +134,10 @@ def get_url(remote: str, protocol: str = "http") -> str:
     )  # user/repo@website.
     if matched:
         user, repo, website = matched.groups()
-        mirror = asyncio.run(find_fastest_mirror(website))
+        if use_fastest:
+            mirror = asyncio.run(find_fastest_mirror(website))
+        else:
+            mirror = "official"
         try:
             url_template = (
                 mirrorlist.get(website, valtype=dict)
@@ -136,7 +147,16 @@ def get_url(remote: str, protocol: str = "http") -> str:
             logger.info("Selected mirror: %s ('%s')", mirror, url_template)
             return format_str(url_template, fmt={"user": user, "repo": repo})
         except KeyError:
-            logger.warning("Mirror not found: %s", mirror[0], exc_info=True)
+            logger.critical("Website not found: %s", mirror[0], exc_info=True)
+            message = format_str(
+                _("Source '{protocol}/{website}/{name}' not found."),
+                fmt={
+                    "website": website,
+                    "protocol": protocol,
+                    "name": mirror,
+                },
+            )
+            raise ValueError(message) from None
     return remote
 
 
@@ -187,3 +207,10 @@ if __name__ == "__main__":
     # Test: Get the mirror URL.
     url_ = get_url("cppp-project/cppp-repoutils@github")
     print(url_)
+
+    # Test: Get a non-exist mirror URL.
+    try:
+        url_ = get_url("cppp-project/cppp-repoutils@non-exist")
+        assert False
+    except ValueError as exc:
+        print("Exception catched: ", exc)

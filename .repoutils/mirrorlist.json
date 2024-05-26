@@ -6,5 +6,32 @@
             "githubfast": "https://githubfast.com/{user}/{repo}.git",
             "bgithub.xyz": "https://bgithub.xyz/{user}/{repo}.git"
         }
+    },
+    "savannah" : {
+        "http": {
+            "official": "https://git.savannah.gnu.org/git/{repo}.git",
+            "nognu": "https://git.savannah.nongnu.org/git/{repo}",
+            "debian": "https://cdimage.debian.org/mirror/gnu.org/gnu/{repo}"
+        }
+    },
+    "gitlab" : {
+        "http": {
+            "official": "https://gitlab.com/{user}/{repo}.git"
+        }
+    },
+    "bitbucket" : {
+        "http": {
+            "official": "https://bitbucket.org/{user}/{repo}.git"
+        }
+    },
+    "gitee" : {
+        "http": {
+            "official": "https://gitee.com/{user}/{repo}.git"
+        }
+    },
+    "gitea" : {
+        "http": {
+            "official": "https://try.gitea.io/{user}/{repo}.git"
+        }
     }
 }
