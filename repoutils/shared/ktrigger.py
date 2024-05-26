@@ -218,6 +218,35 @@ class IKernelTrigger:
             branch=branch,
         )
 
+    def on_error(self, message: str) -> None:
+        """When a error is raised.
+
+        Args:
+            message (str): Error message.
+        """
+
+        _null_trigger("on_error", message=message)
+
+    def pre_speedtest(self, host: str) -> None:
+        """When a speed test task is started.
+
+        Args:
+            host (str): Host to test.
+        """
+
+        _null_trigger("pre_speedtest", host=host)
+
+    def post_speedtest(self, host: str, speed: int) -> None:
+        """When a speed test task is finished.
+
+        Args:
+            host (str): Host to test.
+            speed (int): Speed of the host. (us)
+                -1 means canceled, C_INTMAX means failed.
+        """
+
+        _null_trigger("post_speedtest", host=host, speed=speed)
+
 
 # KTrigger instances.
 ktriggers: dict[str, IKernelTrigger] = {}

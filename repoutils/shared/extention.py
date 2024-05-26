@@ -33,7 +33,8 @@ from repoutils.lib.l10n import _
 from repoutils.lib.log import logger
 from repoutils.lib.variable import format_str
 from repoutils.lib.version import Version
-from repoutils.shared.ktrigger import IKernelTrigger, bind_ktrigger_interface
+from repoutils.shared.ktrigger import (IKernelTrigger, bind_ktrigger_interface,
+                                       call_ktrigger)
 
 __all__ = ["IRUExtention"]
 
@@ -114,82 +115,85 @@ invalid_ext_names = ["repoutils"]  # Avoid logger's name conflict.
 #   - extention/        directory    ---- The extention directory.
 #       - __init__.py   file         ---- The extention module.
 #           - instance  IRUExtention ---- The extention instance
-def load_extention(path: Path | str) -> None:
+def load_extention(path: Path | str, strict: bool = False) -> None:
     """Load the extention.
 
     Args:
         path (Path | str): The path of the extention or it's name.
             If the path is a name, the extention will be loaded from the
             default extention directory.
+        strict (bool, optional): If True, raise an exception if the extention
     """
 
-    if isinstance(path, str):
-        path = Path(path)
-    path = path.absolute()
+    try:
+        if isinstance(path, str):
+            path = Path(path)
+        path = path.absolute()
 
-    if not path.is_dir():
-        raise RUValueException(
-            format_str(
-                _(
-                    "The extention path '{underline}{path}{reset}' is not a "
-                    "directory."
+        if not path.is_dir():
+            raise RUValueException(
+                format_str(
+                    _(
+                        "The extention path '{underline}{path}{reset}' is not "
+                        "a directory."
+                    ),
+                    fmt={"path": str(path)},
                 ),
-                fmt={"path": str(path)},
-            ),
-        )
+            )
 
-    # Load the extention.
-    module = __import__(path.name, fromlist=[str(path.parent)])
-    if not hasattr(module, "instance"):
-        raise RUValueException(
-            format_str(
-                _(
-                    "The extention '{underline}{path}{reset}' does not have an instance."  # noqa
+        # Load the extention.
+        module = __import__(path.name, fromlist=[str(path.parent)])
+        if not hasattr(module, "instance"):
+            raise RUValueException(
+                format_str(
+                    _(
+                        "The extention '{underline}{path}{reset}' does not "
+                        "have an instance."
+                    ),
+                    fmt={"path": str(path)},
                 ),
-                fmt={"path": str(path)},
-            ),
-            hint=format_str(
-                _(
-                    "Please make sure this extention is a valid extention.",
-                )
-            ),
-        )
-    instance: IRUExtention = module.instance
-
-    # Security check.
-    if instance.name in invalid_ext_names:
-        raise RUValueException(
-            format_str(
-                _("The extention name '{underline}{name}{reset}' is invalid."),
-                fmt={"name": instance.name},
-            ),
-            hint=format_str(
-                _(
-                    "Please use a different name for the extention.",
+                hint=format_str(
+                    _(
+                        "Please make sure this extention is valid.",
+                    )
                 ),
-            ),
-        )
+            )
+        instance: IRUExtention = module.instance
 
-    logger.info("Loading extention '%s'...", instance.name)
+        # Security check.
+        if instance.name in invalid_ext_names:
+            raise RUValueException(
+                format_str(
+                    _("Invalid extention name: '{underline}{name}{reset}' ."),
+                    fmt={"name": instance.name},
+                ),
+                hint=format_str(
+                    _(
+                        "Please use a different name for the extention.",
+                    ),
+                ),
+            )
 
-    # Check if the extention can load now.
-    if not instance.extention_can_load_now():
-        logger.info("Skipping extention '%s'...", instance.name)
-        return
+        logger.info("Loading extention '%s'...", instance.name)
 
-    # Load the extention.
-    if not instance.reqs_is_sloved():
-        logger.info(
-            "Solving system requirements for extention '%s'...",
-            instance.name,
-        )
-        instance.reqs_solve()
+        # Check if the extention can load now.
+        if not instance.extention_can_load_now():
+            logger.info("Skipping extention '%s'...", instance.name)
+            return
+
+        # Load the extention.
         if not instance.reqs_is_sloved():
-            logger.error(
-                "Failed to solve system requirements for extention '%s'.",
+            logger.info(
+                "Solving system requirements for extention '%s'...",
                 instance.name,
             )
-            return
+            instance.reqs_solve()
+            if not instance.reqs_is_sloved():
+                logger.error(
+                    "Failed to solve system requirements for extention '%s'.",
+                    instance.name,
+                )
+                return
 
         instance.on_load()
         bind_ktrigger_interface(
@@ -197,22 +201,42 @@ def load_extention(path: Path | str) -> None:
             instance.ktrigger,
         )
         logger.info("Loaded extention '%s'.", instance.name)
+    except Exception as exc:  # pylint: disable=broad-except
+        if strict:
+            raise exc
+        logger.exception("Failed to load extention '%s': %s", path, exc)
+        call_ktrigger(
+            IKernelTrigger.on_error,
+            message=format_str(
+                _("Failed to load extention '{name}': {exc}."),
+                fmt={"name": str(path), "exc": str(exc)},
+            ),
+        )
 
 
 def load_all_extentions() -> None:
     """Load all extentions."""
 
-    # Load the global extentions.
-    for path in GLOBAL_EXTENSIONS_DIR.iterdir():
-        if path.is_dir():
-            load_extention(path)
+    # Load the workspace extentions.
+    try:
+        for path in WORKSPACE_EXTENSIONS_DIR.iterdir():
+            if path.is_dir():
+                load_extention(path)
+    except OSError as exc:
+        logger.warning("Failed to load workspace extentions: %s", exc)
 
     # Load the user extentions.
-    for path in USER_EXTENSIONS_DIR.iterdir():
-        if path.is_dir():
-            load_extention(path)
+    try:
+        for path in USER_EXTENSIONS_DIR.iterdir():
+            if path.is_dir():
+                load_extention(path)
+    except OSError as exc:
+        logger.warning("Failed to load user extentions: %s", exc)
 
-    # Load the workspace extentions.
-    for path in WORKSPACE_EXTENSIONS_DIR.iterdir():
-        if path.is_dir():
-            load_extention(path)
+    # Load the global extentions.
+    try:
+        for path in GLOBAL_EXTENSIONS_DIR.iterdir():
+            if path.is_dir():
+                load_extention(path)
+    except OSError as exc:
+        logger.warning("Failed to load global extentions: %s", exc)

@@ -116,29 +116,42 @@ class Process:
 
 
 def popen(
-    cmd: list[str] | str, stdout: bool = True, stderr: bool = True
-) -> tuple[str, str]:
+    cmd: list[str] | str,
+    cwd: Path = Path.cwd(),
+    stdout: bool = True,
+    stderr: bool = True,
+    strict: bool = False,
+) -> tuple[str, str, int]:
     """Run the command and return the stdout and stderr.
 
     Args:
         cmd (list[str] | str): The command.
+        cwd (Path): The working directory.
         stdout (bool, optional): Return stdout. Defaults to True.
         stderr (bool, optional): Return stderr. Defaults to True.
+        strict (bool): Raise an exception if return code is not 0.
+            Defaults to True.
 
     Returns:
         tuple[str, str]: The stdout and stderr. If stdout or stderr is not
             required, it will be "".
+
+    Raises:
+        RUShellExecutionException: If retcode !=0 and we are in strict mode.
     """
 
     cmd = command(cmd)
     logger.debug("Popen: %s", cmd)
     with Popen(
         cmd,
+        cwd=str(cwd),
         shell=True,
         stdout=PIPE,
         stderr=PIPE,
     ) as process:
         process.wait()
+        if strict and process.returncode:
+            raise RUShellExecutionException(retcode=process.returncode)
         return (
             (
                 process.stdout.read().decode(DEFAULT_CHARSET)  # type: ignore
@@ -150,6 +163,7 @@ def popen(
                 if stderr
                 else ""
             ),
+            process.returncode,
         )
 
 
@@ -178,6 +192,19 @@ if __name__ == "__main__":
         assert False
 
     # Test: Popen.
-    stdout_, stderr_ = popen("echo Hello, world!")
+    stdout_, stderr_, retcode_ = popen("echo Hello, world!", strict=False)
     assert stdout_ == "Hello, world!\n"
     assert stderr_ == ""
+    assert retcode_ == 0
+
+    # Test: Popen with an exception.
+    try:
+        stdout_, stderr_, retcode_ = popen(
+            "false",
+            stdout=False,
+            stderr=False,
+            strict=True,
+        )
+        assert 0
+    except RUShellExecutionException:
+        print("Exception catched.")

@@ -70,7 +70,7 @@ if OS == "Linux":  # Only Linux has a lots of distributions.
             )
             # Try to detect distribution by 'lsb_release'.
             try:
-                stdout, stderr = popen(
+                stdout, stderr, retcode = popen(
                     ["lsb_release", "-is"],
                     stdout=True,
                     stderr=False,

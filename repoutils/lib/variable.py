@@ -157,6 +157,8 @@ def get_variable(name: str) -> Any:
 uname_result = uname()
 
 # Built-in variables.
+push_variables("{", "{")  # Escape the { and }.
+push_variables("}", "}")
 push_variables("home", str(Path.home().absolute()))
 push_variables("cwd", str(Path.cwd().absolute()))
 push_variables("repoutils_version", str(APP_VERSION))
@@ -266,6 +268,7 @@ class AutoFormatDict(dict):
         Raises:
             RUValueException: If the type of the value is not the same as the
                 given type.
+            KeyError: If the key is not in the dict.
         """
 
     @overload
@@ -302,7 +305,7 @@ class AutoFormatDict(dict):
             vtype = type(res)
             if vtype == AutoFormatDict:
                 vtype = dict  # Make it more readable.
-            # This exception need hint, but we can't use the RUValueException.
+            # This exception needs hint, but we can't use the RUValueException.
             # Because it may cause circular import. So we use ValueError
             # instead.
             exc = ValueError(
@@ -446,3 +449,30 @@ def merge_object(obj: AutoFormatDict, src: AutoFormatDict) -> None:
             obj[key].extend(src.get(key, []))  # type: ignore
         else:
             obj[key] = src.get(key, value)  # Overwrite the value.
+    for key, value in src.items():
+        if key not in obj:
+            obj[key] = value
+
+
+if __name__ == "__main__":
+    print(f"{__file__}: {__doc__.strip()}")
+
+    BLUE = "\033[1;34m" if sys.stdout.isatty() else ""
+    GRAY = "\033[1;30m" if sys.stdout.isatty() else ""
+    YELLOW = "\033[1;33m" if sys.stdout.isatty() else ""
+    RESET = "\033[0m" if sys.stdout.isatty() else ""
+
+    for name_, value_ in variables.items():
+        print(
+            f"{BLUE}{('{'+name_+'}')!r}{RESET}:",  # Avoid line too long.
+            f"{YELLOW}{get_variable(name_)!r}",
+            f"{GRAY}{value_}{RESET}",
+        )
+
+    print("Test AutoFormatDict:")
+    afd = AutoFormatDict()
+    afd["test"] = "test"
+    afd["test2"] = [{"x": "{{}"}]
+    afd.merge({"test": "merged", "non": "ok"})
+    print(afd)
+    assert afd == {"test": "merged", "test2": [{"x": "{"}], "non": "ok"}

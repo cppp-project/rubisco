@@ -26,9 +26,29 @@ from pathlib import Path
 
 from repoutils.lib.l10n import _
 from repoutils.lib.log import logger
-from repoutils.lib.process import Process
+from repoutils.lib.process import Process, popen
 from repoutils.lib.variable import format_str
 from repoutils.shared.ktrigger import IKernelTrigger, call_ktrigger
+
+
+def is_git_repo(path: Path) -> bool:
+    """Check if a directory is a git repository.
+
+    Args:
+        path (Path): Path to the directory.
+
+    Returns:
+        bool: True if the directory is a git repository.
+    """
+
+    _stdout, _stderr, retcode = popen(
+        ["git", "rev-parse", "--is-inside-work-tree"],
+        cwd=path,
+        stderr=False,
+        stdout=False,
+        strict=False,
+    )
+    return retcode == 0
 
 
 def git_update(path: Path, branch: str = "main"):
@@ -73,7 +93,7 @@ def git_clone(
             False.
     """
 
-    if path.exists():
+    if is_git_repo(path):
         if strict:
             logger.error("Repository already exists.")
             raise FileExistsError(
@@ -101,11 +121,40 @@ def git_clone(
     logger.info("Repository '%s' cloned.", str(path))
 
 
+def git_get_remote(path: Path, remote: str = "origin") -> str:
+    """Get the URL of a remote repository.
+
+    Args:
+        path (Path): Path to the repository.
+        remote (str, optional): Remote name. Defaults to "origin".
+
+    Returns:
+        str: Remote URL.
+    """
+
+    return popen(["git", "remote", "get-url", remote], cwd=path, stderr=False)[
+        0
+    ]  # noqa: E501
+
+
+def git_set_remote(path: Path, remote: str, url: str):
+    """Set the URL of a remote repository.
+
+    Args:
+        path (Path): Path to the repository.
+        remote (str): Remote name.
+        url (str): Remote URL.
+    """
+
+    popen(["git", "remote", "set-url", remote, url], cwd=path)
+
+
 if __name__ == "__main__":
     print(f"{__file__}: {__doc__.strip()}")
 
     import shutil
 
+    from repoutils.lib.fileutil import TemporaryObject
     from repoutils.shared.ktrigger import bind_ktrigger_interface
 
     class _TestKTrigger(IKernelTrigger):
@@ -125,9 +174,18 @@ if __name__ == "__main__":
             path: Path,
             branch: str,
         ) -> None:
-            print(f"=> Cloing Git repository '{url}' into '{path}'({branch}) ...")  # noqa: E501
+            print(
+                f"=> Cloing Git repository '{url}' into '{path}'({branch}) ..."
+            )  # noqa: E501
 
     bind_ktrigger_interface("test", _TestKTrigger())
+
+    # Test: Is a Git repository.
+    git_repo = TemporaryObject.new_directory()
+    non_git_repo = TemporaryObject.new_directory()
+    Process(["git", "init"], cwd=git_repo.path).run()
+    assert is_git_repo(git_repo.path) is True
+    assert is_git_repo(non_git_repo.path) is False
 
     # Test: Clone a repository shallowly.
     git_clone(

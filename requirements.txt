@@ -1,6 +1,7 @@
-requests >= 2.18.4
-gitignore_parser >= 0.0.3
-tqdm >= 4.19.5
+aiohttp >= 3.5.4
 colorama >= 0.3.9
+gitignore_parser >= 0.0.3
 json-five >= 0.5.1
+requests >= 2.18.4
 rich
+tqdm >= 4.19.5

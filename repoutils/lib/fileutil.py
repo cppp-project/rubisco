@@ -226,14 +226,14 @@ class TemporaryObject:
 
         self.remove()
 
-    def __str__(self) -> Path:
+    def __str__(self) -> str:
         """Get the string representation of the temporary object.
 
         Returns:
             str: The string representation of the temporary object.
         """
 
-        return self.path
+        return str(self.path)
 
     def __repr__(self) -> str:
         """Get the string representation of the temporary object.

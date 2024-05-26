@@ -22,35 +22,47 @@
 Test the speed of the given host.
 """
 
-import requests
+import time
 
-from repoutils.lib.log import logger
+import aiohttp.client_exceptions
+
 from repoutils.config import TIMEOUT
+from repoutils.lib.log import logger
 
 __all__ = ["url_speedtest"]
 
 C_INTMAX = 0xFFFFFFFF
 
 
-def url_speedtest(url: str) -> int:
+async def url_speedtest(url: str) -> int:
     """Test the speed of the given url.
 
     Args:
         url (str): URL to test.
 
     Returns:
-        int: Speed of the given URL. (μs)
+        int: Speed of the given URL. (us)
     """
 
-    try:
-        response = requests.get(url, timeout=TIMEOUT)
-        response.raise_for_status()
-        return response.elapsed.microseconds
-    except requests.RequestException as exc:
-        logger.warning("Failed to test speed of '%s': %s", url, exc)
-        return C_INTMAX
-    finally:
-        response.close()
+    logger.debug("Testing speed for '%s' ...", url)
+    start = time.time_ns()
+
+    async with aiohttp.ClientSession(
+        timeout=aiohttp.ClientTimeout(TIMEOUT),
+        raise_for_status=False,
+        read_bufsize=1,  # We don't need to read the response.
+    ) as session:
+        try:
+            async with session.get(url) as response:
+                response.close()
+        except aiohttp.client_exceptions.ClientResponseError:
+            pass  # Response means reachable.
+        except aiohttp.client_exceptions.ClientError:
+            logger.warning("Failed to test speed of '%s'.", url, exc_info=True)
+            return C_INTMAX
+        delta = (time.time_ns() - start) // 1000
+        logger.info("Testing speed for '%s' ... %dus", url, delta)
+        return delta
 
 
 # We don't need this function for now.
@@ -63,7 +75,7 @@ def url_speedtest(url: str) -> int:
 #         password (str | None): Password for the host.
 #
 #     Returns:
-#         int: Speed of the given host. (μs)
+#         int: Speed of the given host. (us)
 #     """
 #
 #     cur_time = time.time()
@@ -76,8 +88,8 @@ def url_speedtest(url: str) -> int:
 #             password=password,
 #             timeout=TIMEOUT,
 #         )
-#         delta = int((time.time() - cur_time) * 1000 * 1000)  # μs
-#         logger.info("SSH speed test for '%s' took %d μs", host, delta)
+#         delta = int((time.time() - cur_time) * 1000 * 1000)  # us
+#         logger.info("SSH speed test for '%s' took %d us", host, delta)
 #         return delta
 #     except paramiko.AuthenticationException as exc:
 #         delta = int((time.time() - cur_time) * 1000 * 1000)
@@ -94,6 +106,8 @@ def url_speedtest(url: str) -> int:
 if __name__ == "__main__":
     print(f"{__file__}: {__doc__.strip()}")
 
+    import asyncio
+
     # Test: Test the speed of the given URL.
-    speed = url_speedtest("https://www.gnu.org")
+    speed = asyncio.run(url_speedtest("https://www.gnu.org"))
     print(f"Speed of 'https://www.gnu.org': {speed} us.")

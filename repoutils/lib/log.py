@@ -39,20 +39,48 @@ logger = logging.getLogger(APP_NAME)
 
 logger.setLevel(LOG_LEVEL)
 
+if not Path(LOG_FILE).parent.exists():
+    os.makedirs(Path(LOG_FILE).parent, exist_ok=True)
+logger_handler = logging.FileHandler(LOG_FILE, encoding=DEFAULT_CHARSET)
+logger_handler.setLevel(LOG_LEVEL)
+
+logger_formatter = logging.Formatter(LOG_FORMAT)
+logger_handler.setFormatter(logger_formatter)
+
+logger.addHandler(logger_handler)
+
 if "--debug" in sys.argv:  # Don't use argparse here.
-    if not Path(LOG_FILE).parent.exists():
-        os.makedirs(Path(LOG_FILE).parent, exist_ok=True)
-    logger_handler = logging.FileHandler(LOG_FILE, encoding=DEFAULT_CHARSET)
+    import colorama
+
+    colorama.init(autoreset=True)
+
+    class _DebugStreamHandler(logging.StreamHandler):
+        def emit(self, record: logging.LogRecord):
+            stream = sys.stdout
+            if stream.isatty():
+                match record.levelno:
+                    case logging.DEBUG:
+                        stream.write(colorama.Fore.CYAN)
+                    case logging.INFO:
+                        stream.write(colorama.Fore.LIGHTWHITE_EX)
+                    case logging.WARNING:
+                        stream.write(colorama.Fore.LIGHTYELLOW_EX)
+                    case logging.ERROR:
+                        stream.write(colorama.Fore.LIGHTRED_EX)
+                    case logging.CRITICAL:
+                        stream.write(colorama.Fore.RED)
+            super().emit(record)
+            if stream.isatty():
+                stream.write(colorama.Fore.RESET)
+            stream.flush()
+
+    logger_handler = _DebugStreamHandler(sys.stderr)
     logger_handler.setLevel(LOG_LEVEL)
 
     logger_formatter = logging.Formatter(LOG_FORMAT)
     logger_handler.setFormatter(logger_formatter)
 
     logger.addHandler(logger_handler)
-else:  # Disable logging.
-    logger.handlers.clear()
-    logger.addHandler(logging.NullHandler())
-
 
 if __name__ == "__main__":
     print(f"{__file__}: {__doc__.strip()}")

@@ -85,6 +85,7 @@ IS_PACKED = getattr(sys, "frozen", False) or hasattr(sys, "_MEIPASS")
 
 if IS_PACKED:
     REPOUTILS_COMMAND = command(str(PROGRAM_PATH))
+    PYTHON_PATH = None
 else:
     REPOUTILS_COMMAND = command([str(PYTHON_PATH), str(PROGRAM_PATH)])
 
