@@ -32,6 +32,7 @@ from urllib3.util import parse_url
 
 from repoutils.config import (DEFAULT_CHARSET, GLOBAL_CONFIG_DIR,
                               USER_CONFIG_DIR, WORKSPACE_CONFIG_DIR)
+from repoutils.lib.exceptions import RUValueException
 from repoutils.lib.l10n import _
 from repoutils.lib.log import logger
 from repoutils.lib.speedtest import C_INTMAX, url_speedtest
@@ -54,10 +55,15 @@ for mirrorlist_file in [
     if mirrorlist_file.exists():
         try:
             with mirrorlist_file.open("r", encoding=DEFAULT_CHARSET) as f:
-                mirrorlist.merge(json.load(f))
-        except (OSError, json.JSON5DecodeError) as exc:
+                file_data: dict = json.load(f)
+                lower_data = {
+                    k.lower() if isinstance(k, str) else k: v
+                    for k, v in file_data.items()
+                }
+                mirrorlist.merge(lower_data)
+        except (OSError, json.JSON5DecodeError) as exc_:
             logger.warning(
-                "Failed to load mirrorlist file: %s: %s", mirrorlist_file, exc
+                "Failed to load mirrorlist file: %s: %s", mirrorlist_file, exc_
             )
 
 
@@ -73,6 +79,43 @@ async def _speedtest(future: asyncio.Future, mirror: str, url: str):
         future.set_result(mirror)
     except asyncio.exceptions.CancelledError:
         call_ktrigger(IKernelTrigger.post_speedtest, host=url, speed=-1)
+
+
+def get_mirrorlist(
+    host: str,
+    protocol: str = "http",
+) -> AutoFormatDict:
+    """Get the mirrorlist of a host.
+
+    Args:
+        host (str): The host you want to find.
+        protocol (str): Connection protocol. Defaults to "http".
+            We only support HTTP(s) for now.
+
+    Returns:
+        dict: The mirrorlist.
+    """
+
+    host = host.lower()
+
+    mlist1 = mirrorlist.get(host, valtype=dict | str)
+    if isinstance(mlist1, str):  # Alias support.
+        mlist1 = mirrorlist.get(mlist1, valtype=dict | str)
+    if isinstance(mlist1, str):
+        try:
+            return get_mirrorlist(mlist1, protocol)
+        except RecursionError as exc:
+            raise RUValueException(
+                format_str(
+                    _("Recursion detected in mirrorlist: '{name}'"),
+                    fmt={"name": mlist1},
+                ),
+                hint=_(
+                    "Please check your mirrorlist.json file in"
+                    "workspace, user or global config directory.",
+                ),
+            ) from exc
+    return mlist1.get(protocol, valtype=dict)
 
 
 async def find_fastest_mirror(
@@ -91,8 +134,7 @@ async def find_fastest_mirror(
     """
 
     try:
-        mlist: AutoFormatDict
-        mlist = mirrorlist.get(host, valtype=dict).get(protocol, valtype=dict)
+        mlist: AutoFormatDict = get_mirrorlist(host, protocol)
         future = asyncio.get_event_loop().create_future()
         tasks: list[asyncio.Task] = []
         for mirror, murl in mlist.items():
@@ -139,10 +181,9 @@ def get_url(
         else:
             mirror = "official"
         try:
-            url_template = (
-                mirrorlist.get(website, valtype=dict)
-                .get(protocol, valtype=dict)
-                .get(mirror, valtype=str)
+            url_template = get_mirrorlist(website, protocol).get(
+                mirror,
+                valtype=str,
             )
             logger.info("Selected mirror: %s ('%s')", mirror, url_template)
             return format_str(url_template, fmt={"user": user, "repo": repo})
@@ -212,5 +253,5 @@ if __name__ == "__main__":
     try:
         url_ = get_url("cppp-project/cppp-repoutils@non-exist")
         assert False
-    except ValueError as exc:
-        print("Exception catched: ", exc)
+    except ValueError as exc_:
+        print("Exception catched: ", exc_)

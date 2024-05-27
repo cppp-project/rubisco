@@ -1,5 +1,5 @@
 {
-    "github" : {
+    "github.com" : {
         "http": {
             "official": "https://github.com/{user}/{repo}.git",
             "kgithub": "https://kkgithub.com/{user}/{repo}.git",
@@ -7,31 +7,35 @@
             "bgithub.xyz": "https://bgithub.xyz/{user}/{repo}.git"
         }
     },
-    "savannah" : {
+    "github": "github.com",
+
+    "git.savannah.gnu.org" : {
         "http": {
-            "official": "https://git.savannah.gnu.org/git/{repo}.git",
-            "nognu": "https://git.savannah.nongnu.org/git/{repo}",
-            "debian": "https://cdimage.debian.org/mirror/gnu.org/gnu/{repo}"
+            "official": "https://git.savannah.gnu.org/git/{repo}.git"
         }
     },
-    "gitlab" : {
+    "savannah.gnu.org": "git.savannah.gnu.org",
+    "savannah": "git.savannah.gnu.org",
+
+    "git.savannah.nongnu.org" : {
+        "http": {
+            "official": "https://git.savannah.nongnu.org/git/{repo}.git"
+        }
+    },
+    "savannah.nongnu.org": "git.savannah.nongnu.org",
+    "savannah-nongnu": "git.savannah.nongnu.org",
+
+    "gitlab.com" : {
         "http": {
             "official": "https://gitlab.com/{user}/{repo}.git"
         }
     },
-    "bitbucket" : {
-        "http": {
-            "official": "https://bitbucket.org/{user}/{repo}.git"
-        }
-    },
-    "gitee" : {
+    "gitlab": "gitlab.com",
+
+    "gitee.com" : {
         "http": {
             "official": "https://gitee.com/{user}/{repo}.git"
         }
     },
-    "gitea" : {
-        "http": {
-            "official": "https://try.gitea.io/{user}/{repo}.git"
-        }
-    }
+    "gitee": "gitee.com"
 }
