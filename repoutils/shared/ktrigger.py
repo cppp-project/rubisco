@@ -288,12 +288,11 @@ def call_ktrigger(name: str | Callable, *args, **kwargs) -> None:
     """Call a KTrigger.
 
     Args:
-        name (str | Callable): KTrigger's name. If it's a Callable, it will
-            be converted to its name. (Using callable can avoid typo.)
+        name (str | Callable): KTrigger's name.
 
     Hint:
         Passing arguments by kwargs is recommended. It can make the code
-        more readable.
+        more readable and avoid bug caused by the wrong order of arguments.
     """
 
     if isinstance(name, Callable):

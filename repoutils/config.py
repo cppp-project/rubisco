@@ -70,7 +70,10 @@ GLOBAL_EXTENSIONS_DIR = GLOBAL_LIB_DIR / "extensions"
 # option.
 LOG_FILE = WORKSPACE_LIB_DIR / "repoutils.log"
 LOG_FORMAT = "[%(asctime)s] [%(name)s] [%(levelname)s] %(message)s"
+LOG_REGEX = r"\[(.*)\] \[(.*)\] \[(.*)\] (.*)"
+LOG_TIME_FORMAT = "%Y-%m-%d %H:%M:%S"
 LOG_LEVEL = "DEBUG"
+LOG_KEEP_DAYS = 7
 
 
 # Constants that are not configurable.

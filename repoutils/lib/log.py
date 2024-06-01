@@ -28,7 +28,7 @@ import sys
 from pathlib import Path
 
 from repoutils.config import (APP_NAME, DEFAULT_CHARSET, LOG_FILE, LOG_FORMAT,
-                              LOG_LEVEL)
+                              LOG_LEVEL, LOG_TIME_FORMAT)
 
 __all__ = ["logger"]
 
@@ -44,41 +44,19 @@ if not Path(LOG_FILE).parent.exists():
 logger_handler = logging.FileHandler(LOG_FILE, encoding=DEFAULT_CHARSET)
 logger_handler.setLevel(LOG_LEVEL)
 
-logger_formatter = logging.Formatter(LOG_FORMAT)
+logger_formatter = logging.Formatter(LOG_FORMAT, datefmt=LOG_TIME_FORMAT)
 logger_handler.setFormatter(logger_formatter)
 
 logger.addHandler(logger_handler)
 
 if "--debug" in sys.argv:  # Don't use argparse here.
-    import colorama
+    import rich.logging
 
-    colorama.init(autoreset=True)
-
-    class _DebugStreamHandler(logging.StreamHandler):
-        def emit(self, record: logging.LogRecord):
-            stream = sys.stdout
-            if stream.isatty():
-                match record.levelno:
-                    case logging.DEBUG:
-                        stream.write(colorama.Fore.CYAN)
-                    case logging.INFO:
-                        stream.write(colorama.Fore.LIGHTWHITE_EX)
-                    case logging.WARNING:
-                        stream.write(colorama.Fore.LIGHTYELLOW_EX)
-                    case logging.ERROR:
-                        stream.write(colorama.Fore.LIGHTRED_EX)
-                    case logging.CRITICAL:
-                        stream.write(colorama.Fore.RED)
-            super().emit(record)
-            if stream.isatty():
-                stream.write(colorama.Fore.RESET)
-            stream.flush()
-
-    logger_handler = _DebugStreamHandler(sys.stderr)
-    logger_handler.setLevel(LOG_LEVEL)
+    logger_handler = rich.logging.RichHandler(
+        level=LOG_LEVEL, console=rich.get_console()
+    )
 
     logger_formatter = logging.Formatter(LOG_FORMAT)
-    logger_handler.setFormatter(logger_formatter)
 
     logger.addHandler(logger_handler)
 
@@ -88,14 +66,14 @@ if __name__ == "__main__":
     print("hint: Run with '--debug' to enable logging.")
 
     # Test.
-    logger.debug("DEBUG")
-    logger.info("INFO")
-    logger.warning("WARNING")
-    logger.error("ERROR")
-    logger.critical("CRITICAL")
+    logger.debug("Debug message.")
+    logger.info("Info message.")
+    logger.warning("Warning message.")
+    logger.error("Error message.")
+    logger.critical("Critical message.")
     try:
         raise RuntimeError("Test exception.")
     except RuntimeError:
-        logger.exception("EXCEPTION")
+        logger.exception("Exception message.")
         logger.warning("Warning with exception.", exc_info=True)
-    logger.info("END")
+    logger.info("Done.")

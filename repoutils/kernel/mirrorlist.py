@@ -188,7 +188,7 @@ def get_url(
             logger.info("Selected mirror: %s ('%s')", mirror, url_template)
             return format_str(url_template, fmt={"user": user, "repo": repo})
         except KeyError:
-            logger.critical("Website not found: %s", mirror[0], exc_info=True)
+            logger.critical("Website not found: %s", mirror, exc_info=True)
             message = format_str(
                 _("Source '{protocol}/{website}/{name}' not found."),
                 fmt={
