@@ -255,7 +255,7 @@ if __name__ == "__main__":
             del self.console_lines[host]
 
         def pre_exec_process(self, proc: Process) -> None:
-            print(f"=> Executing: {proc.cmd} ...")
+            print(f"=> Executing: {proc.origin_cmd} ...")
 
         def on_update_git_repo(
             self,

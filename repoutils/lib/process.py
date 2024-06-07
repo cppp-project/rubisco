@@ -28,6 +28,7 @@ from pathlib import Path
 from subprocess import PIPE, Popen
 
 from repoutils.config import DEFAULT_CHARSET
+from repoutils.lib.fileutil import TemporaryObject
 from repoutils.lib.command import command
 from repoutils.lib.exceptions import RUShellExecutionException
 from repoutils.lib.log import logger
@@ -51,6 +52,18 @@ def _win32_set_console_visiable(visiable: bool) -> None:
         ctypes.cdll.kernel32.SetLastError(0)
 
 
+def get_system_shell() -> str:
+    """Get the system shell.
+
+    Returns:
+        str: The system shell.
+    """
+
+    if os.name == "nt":
+        return os.environ.get("COMSPEC", "cmd.exe")
+    return os.environ.get("SHELL", "/bin/sh")
+
+
 class Process:
     """
     Process controler. Process's stdin/stdout/stderr will be direct to
@@ -58,16 +71,29 @@ class Process:
     non-console application on Windows.
     """
 
+    origin_cmd: str  # For UCI's output.
     cmd: str
     cwd: Path
     process: Popen
+    _tempfile: TemporaryObject | None
 
     def __init__(
         self,
         cmd: list[str] | str,
         cwd: Path = Path.cwd(),
     ) -> None:
-        self.cmd = command(cmd)
+        if isinstance(cmd, str) and "\n" in cmd:
+            self._tempfile = TemporaryObject.new_file()
+            self._tempfile.path.write_text(
+                f"{cmd}\n",
+                encoding=DEFAULT_CHARSET,
+            )
+            self._tempfile.path.chmod(0o755)
+            self.cmd = command([get_system_shell(), str(self._tempfile.path)])
+        else:
+            self.cmd = command(cmd)
+            self._tempfile = None
+        self.origin_cmd = command(cmd)
         self.cwd = cwd
 
     def run(self, fail_on_error: bool = True) -> int:
@@ -112,6 +138,8 @@ class Process:
             str: The string representation.
         """
 
+        if self._tempfile:
+            return f"Process({repr(self.origin_cmd)})"
         return f"Process({repr(self.cmd)})"
 
 
@@ -140,10 +168,20 @@ def popen(
         RUShellExecutionException: If retcode !=0 and we are in strict mode.
     """
 
-    cmd = command(cmd)
-    logger.debug("Popen: %s", cmd)
+    temp: TemporaryObject | None = None
+    if "\n" in cmd:
+        temp = TemporaryObject.new_file()
+        temp.path.write_text(
+            f"{cmd}\n",
+            encoding=DEFAULT_CHARSET,
+        )
+        temp.path.chmod(0o755)
+        real_cmd = command([get_system_shell(), str(temp.path)])
+    else:
+        real_cmd = command(cmd)
+    logger.debug("Popen: %s", repr(cmd))
     with Popen(
-        cmd,
+        real_cmd,
         cwd=str(cwd),
         shell=True,
         stdout=PIPE,
@@ -208,3 +246,13 @@ if __name__ == "__main__":
         assert 0
     except RUShellExecutionException:
         print("Exception catched.")
+
+    # Test: A multiline command.
+    p = Process("echo line1 \n echo line2")
+    assert p.run() == 0
+
+    # Test: A multiline popen.
+    stdout_, stderr_, retcode_ = popen("echo line1 \n echo line2")
+    assert stdout_.strip() == "line1\nline2"
+    assert stderr_ == ""
+    assert retcode_ == 0
