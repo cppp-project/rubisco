@@ -23,6 +23,7 @@ Repoutils variable system.
 """
 
 import os
+import re
 import sys
 from pathlib import Path
 from platform import uname
@@ -157,38 +158,19 @@ def get_variable(name: str) -> Any:
 uname_result = uname()
 
 # Built-in variables.
-push_variables("{", "{")  # Escape the { and }.
-push_variables("}", "}")
 push_variables("home", str(Path.home().absolute()))
 push_variables("cwd", str(Path.cwd().absolute()))
-push_variables("repoutils_version", str(APP_VERSION))
-push_variables("repoutils_command", str(REPOUTILS_COMMAND))
-push_variables("host_os", os.name)
-push_variables("host_system", uname_result.system)
-push_variables("host_node", uname_result.node)
-push_variables("host_release", uname_result.release)
-push_variables("host_version", uname_result.version)
-push_variables("host_machine", uname_result.machine)
-push_variables("host_processor", uname_result.processor)
-push_variables("repoutils_python_version", sys.version)
-push_variables("repoutils_python_implementation", sys.implementation.name)
-# Built-in variables for colorized output. Default to empty string.
-# UCI (User Control Interface) can replace them.
-push_variables("red", "")
-push_variables("yellow", "")
-push_variables("green", "")
-push_variables("cyan", "")
-push_variables("blue", "")
-push_variables("magenta", "")
-push_variables("gray", "")
-push_variables("white", "")
-push_variables("reset", "")
-push_variables("bold", "")
-push_variables("underline", "")
-push_variables("blink", "")
-push_variables("reverse", "")
-push_variables("hidden", "")
-push_variables("italic", "")
+push_variables("repoutils.version", str(APP_VERSION))
+push_variables("repoutils.command", str(REPOUTILS_COMMAND))
+push_variables("repoutils.python_version", sys.version)
+push_variables("repoutils.python_impl", sys.implementation.name)
+push_variables("host.os", os.name)
+push_variables("host.system", uname_result.system)
+push_variables("host.node", uname_result.node)
+push_variables("host.release", uname_result.release)
+push_variables("host.version", uname_result.version)
+push_variables("host.machine", uname_result.machine)
+push_variables("host.processor", uname_result.processor)
 
 
 def format_str(
@@ -207,14 +189,18 @@ def format_str(
     if not isinstance(string, str):
         return string
 
-    if fmt is None:
+    if not fmt:  # ${{ key }} -> key, space is allowed.
         fmt = {}
 
-    for key, val in fmt.items():  # Ignore unused and unformatted keys.
-        string = string.replace(f"{{{key}}}", str(val))
+    fmt = variables | fmt
 
-    for name, values in variables.items():
-        string = string.replace(f"{{{name}}}", values.top())  # {name} -> value
+    matches = re.findall(r"\$\{\{ *[\d|_|a-z|A-Z|.]+ *\}\}", string)
+    for match in matches:
+        key = match[3:-2].strip()
+        res = fmt.get(key, match)
+        if isinstance(res, Stack):
+            res = res.top()
+        string = string.replace(match, res)
 
     return string
 
@@ -289,44 +275,48 @@ class AutoFormatDict(dict):
                 given type.
         """
 
-    def get(self, key: str, *args, **kwargs) -> Any:
+    def get(self, key: str, *args, **kwargs):
         res: Any
-        if key not in self.keys() and len(args) == 0:
-            raise KeyError(key)
-        if key not in self.keys() and len(args) == 1:
-            res = format_str(args[0])
-        else:
-            res = format_str(super().get(key))
-        typecheck = kwargs.get("valtype", object)
+        default: Any = None
+        has_default = False
+        typecheck: type
+
+        if len(args) == 1:
+            default = args[0]
+            has_default = True
         if len(args) == 2:
+            default = args[0]
             typecheck = args[1]
+            has_default = True
+        if "default" in kwargs:
+            default = kwargs["default"]
+            has_default = True
+        typecheck = kwargs.get("valtype", object)
 
-        if isinstance(typecheck, type) and not isinstance(res, typecheck):
-            vtype = type(res)
-            if vtype == AutoFormatDict:
-                vtype = dict  # Make it more readable.
-            # This exception needs hint, but we can't use the RUValueException.
-            # Because it may cause circular import. So we use ValueError
-            # instead.
-            exc = ValueError(
-                format_str(
-                    _(
-                        "The value of key {key} needs to be {type} instead of "
-                        "{value_type}.",
-                    ),
-                    fmt={
-                        "key": repr(key),
-                        "type": repr(typecheck.__name__),
-                        "value_type": repr(vtype.__name__),
-                    },
+        if key not in self.keys():
+            if has_default:
+                return format_str(default)
+            raise KeyError(key)
+
+        res = format_str(super().get(key))
+        if isinstance(res, typecheck):
+            return res
+
+        vtype = type(res) if not isinstance(res, AutoFormatDict) else dict
+
+        raise ValueError(
+            format_str(
+                _(
+                    "The value of key ${{key}} needs to be ${{type}} instead "
+                    "of ${{value_type}}.",
                 ),
-            )
-            exc.hint = _(  # type: ignore
-                "These may be caused by the wrong type of the value in a json."
-            )
-            raise exc
-
-        return res
+                fmt={
+                    "key": repr(key),
+                    "type": repr(typecheck.__name__),
+                    "value_type": repr(vtype.__name__),
+                },
+            ),
+        )
 
     def update(self, mapping: "dict | AutoFormatDict") -> None:
         """Update the dict with the given mapping.
@@ -455,24 +445,46 @@ def merge_object(obj: AutoFormatDict, src: AutoFormatDict) -> None:
 
 
 if __name__ == "__main__":
-    print(f"{__file__}: {__doc__.strip()}")
+    import rich
 
-    BLUE = "\033[1;34m" if sys.stdout.isatty() else ""
-    GRAY = "\033[1;30m" if sys.stdout.isatty() else ""
-    YELLOW = "\033[1;33m" if sys.stdout.isatty() else ""
-    RESET = "\033[0m" if sys.stdout.isatty() else ""
+    rich.print(f"{__file__}: {__doc__.strip()}")
 
-    for name_, value_ in variables.items():
-        print(
-            f"{BLUE}{('{'+name_+'}')!r}{RESET}:",  # Avoid line too long.
-            f"{YELLOW}{get_variable(name_)!r}",
-            f"{GRAY}{value_}{RESET}",
-        )
+    # Test: Variables.
+    rich.print(variables)
 
-    print("Test AutoFormatDict:")
+    # Test: Merge the AutoFormatDict.
     afd = AutoFormatDict()
     afd["test"] = "test"
-    afd["test2"] = [{"x": "{{}"}]
     afd.merge({"test": "merged", "non": "ok"})
-    print(afd)
-    assert afd == {"test": "merged", "test2": [{"x": "{"}], "non": "ok"}
+    rich.print(afd)
+    assert afd == {"test": "merged", "non": "ok"}
+
+    # Test: Getting the value of the key.
+    afd = AutoFormatDict({"test": "testval"})
+    assert afd.get("test") == "testval"
+    assert afd.get("non", "ok") == "ok"
+    assert afd.get("test", str) == "testval"
+    assert afd.get("non", "", int) == ""
+    assert afd.get("non", "ok", str) == "ok"
+    try:
+        afd.get("non")
+        assert False, "Should raise KeyError."
+    except KeyError as e:
+        rich.print("Exception caught:", e)
+
+    # Test: Args and kwargs for get().
+    assert afd.get("test", valtype=str) == "testval"
+    try:
+        afd.get("test", valtype=int)
+        assert False, "Should raise ValueError."
+    except ValueError as e:
+        rich.print("Exception caught:", e)
+    assert afd.get("non", "ok", valtype=str) == "ok"
+    try:
+        afd.get("non", valtype=int)
+        assert False, "Should raise KeyError."
+    except KeyError as e:
+        rich.print("Exception caught:", e)
+    assert afd.get("non", default="ok") == "ok"
+    assert afd.get("non", default="ok", valtype=str) == "ok"
+    assert afd.get("non", "ok", valtype=str) == "ok"

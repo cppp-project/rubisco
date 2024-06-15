@@ -104,10 +104,12 @@ async def url_speedtest(url: str) -> int:
 
 
 if __name__ == "__main__":
-    print(f"{__file__}: {__doc__.strip()}")
-
     import asyncio
+
+    import rich
+
+    rich.print(f"{__file__}: {__doc__.strip()}")
 
     # Test: Test the speed of the given URL.
     speed = asyncio.run(url_speedtest("https://www.gnu.org"))
-    print(f"Speed of 'https://www.gnu.org': {speed} us.")
+    rich.print(f"Speed of https://www.gnu.org : {speed} us.")

@@ -247,6 +247,42 @@ class IKernelTrigger:
 
         _null_trigger("post_speedtest", host=host, speed=speed)
 
+    def pre_run_workflow_step(self, step: Any) -> None:
+        """When a workflow is started.
+
+        Args:
+            step (Step): The step.
+        """
+
+        _null_trigger("pre_run_workflow_step", step=step)
+
+    def post_run_workflow_step(self, step: Any) -> None:
+        """When a workflow is finished.
+
+        Args:
+            step (Step): The step.
+        """
+
+        _null_trigger("post_run_workflow_step", step=step)
+
+    def pre_run_workflow(self, workflow: Any) -> None:
+        """When a workflow is started.
+
+        Args:
+            workflow (Workflow): The workflow.
+        """
+
+        _null_trigger("pre_run_workflow", workflow=workflow)
+
+    def post_run_workflow(self, workflow: Any) -> None:
+        """When a workflow is finished.
+
+        Args:
+            workflow (Workflow): The workflow.
+        """
+
+        _null_trigger("post_run_workflow", workflow=workflow)
+
 
 # KTrigger instances.
 ktriggers: dict[str, IKernelTrigger] = {}
@@ -309,7 +345,9 @@ def call_ktrigger(name: str | Callable, *args, **kwargs) -> None:
 
 
 if __name__ == "__main__":
-    print(f"{__file__}: {__doc__.strip()}")
+    import rich
+
+    rich.print(f"{__file__}: {__doc__.strip()}")
 
     # Test: Bind a KTrigger.
     class _TestKTrigger(IKernelTrigger):
@@ -319,17 +357,17 @@ if __name__ == "__main__":
         def on_test0(self) -> None:
             "Test0: KTrigger without arguments."
 
-            print("on_test0()")
+            rich.print("on_test0()")
 
         def on_test1(self, arg1: str, arg2: str) -> None:
             "Test1: KTrigger with two arguments."
-            print("on_test1():", arg1, arg2)
+            rich.print("on_test1():", arg1, arg2)
             assert arg1 == "Linus"
             assert arg2 == "Torvalds"
 
         def on_test2(self, *args, **kwargs) -> None:
             "Test2: KTrigger with *args and **kwargs."
-            print("on_test2():", args, kwargs)
+            rich.print("on_test2():", args, kwargs)
             assert args == ("Linus", "Torvalds")
             assert kwargs == {"gnu": "Stallman", "nividia": "F**k"}
 

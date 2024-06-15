@@ -262,15 +262,17 @@ def package_install(packages: list[str]):
 
 
 if __name__ == "__main__":
-    print(f"{__file__}: {__doc__.strip()}")
-
     import sys
 
-    print("OS: ", OS)
-    print("DISTRIBUTION: ", DISTRIBUTION)
-    print("PACKAGE_MANAGER: ", PACKAGE_MANAGER)
-    print("PACKAGE_MANAGER_ID: ", PACKAGE_MANAGER_ID)
-    print("is_root(): ", is_root())
+    import rich
+
+    rich.print(f"{__file__}: {__doc__.strip()}")
+
+    rich.print("OS: ", OS)
+    rich.print("DISTRIBUTION: ", DISTRIBUTION)
+    rich.print("PACKAGE_MANAGER: ", PACKAGE_MANAGER)
+    rich.print("PACKAGE_MANAGER_ID: ", PACKAGE_MANAGER_ID)
+    rich.print("is_root(): ", is_root())
 
     if "--debug-test-install" in sys.argv:
         # Test installation onlly if the script is run in debug mode. (For CI)

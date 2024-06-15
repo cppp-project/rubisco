@@ -1,17 +1,17 @@
 {
     "github.com" : {
         "http": {
-            "official": "https://github.com/{user}/{repo}.git",
-            "kgithub": "https://kkgithub.com/{user}/{repo}.git",
-            "githubfast": "https://githubfast.com/{user}/{repo}.git",
-            "bgithub.xyz": "https://bgithub.xyz/{user}/{repo}.git"
+            "official": "https://github.com/${{ user }}/${{ repo }}.git",
+            "kgithub": "https://kkgithub.com/${{ user }}/${{ repo }}.git",
+            "githubfast": "https://githubfast.com/${{ user }}/${{ repo }}.git",
+            "bgithub.xyz": "https://bgithub.xyz/${{ user }}/${{ repo }}.git"
         }
     },
     "github": "github.com",
 
     "git.savannah.gnu.org" : {
         "http": {
-            "official": "https://git.savannah.gnu.org/git/{repo}.git"
+            "official": "https://git.savannah.gnu.org/git/${{ repo }}.git"
         }
     },
     "savannah.gnu.org": "git.savannah.gnu.org",
@@ -19,7 +19,7 @@
 
     "git.savannah.nongnu.org" : {
         "http": {
-            "official": "https://git.savannah.nongnu.org/git/{repo}.git"
+            "official": "https://git.savannah.nongnu.org/git/${{ repo }}.git"
         }
     },
     "savannah.nongnu.org": "git.savannah.nongnu.org",
@@ -27,14 +27,14 @@
 
     "gitlab.com" : {
         "http": {
-            "official": "https://gitlab.com/{user}/{repo}.git"
+            "official": "https://gitlab.com/${{ user }}/${{ repo }}.git"
         }
     },
     "gitlab": "gitlab.com",
 
     "gitee.com" : {
         "http": {
-            "official": "https://gitee.com/{user}/{repo}.git"
+            "official": "https://gitee.com/${{ user }}/${{ repo }}.git"
         }
     },
     "gitee": "gitee.com"

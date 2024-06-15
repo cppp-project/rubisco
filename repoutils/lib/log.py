@@ -63,7 +63,7 @@ if "--debug" in sys.argv:  # Don't use argparse here.
 if __name__ == "__main__":
     print(f"{__file__}: {__doc__.strip()}")
 
-    print("hint: Run with '--debug' to enable logging.")
+    print("hint: Run with '--debug' to output logs.")
 
     # Test.
     logger.debug("Debug message.")

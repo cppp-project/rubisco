@@ -76,7 +76,9 @@ def git_update(path: Path, branch: str = "main"):
         logger.error("Repository '%s' does not exist.", str(path))
         raise FileNotFoundError(
             format_str(
-                _("Repository '{underline}{path}{reset}' does not exist."),
+                _(
+                    "Repository '[underline]${{path}}[/underline]' does not exist."  # noqa: E501
+                ),
                 fmt={"path": str(path)},
             )
         )
@@ -87,7 +89,7 @@ def git_update(path: Path, branch: str = "main"):
     logger.info("Repository '%s' updated.", str(path))
 
 
-def git_clone(
+def git_clone(  # pylint: disable=too-many-arguments
     url: str,
     path: Path,
     branch: str = "main",
@@ -113,7 +115,10 @@ def git_clone(
             logger.error("Repository already exists.")
             raise FileExistsError(
                 format_str(
-                    _("Repository '{underline}{path}{reset}' already exists."),
+                    _(
+                        "Repository '[underline]${{path}}[/underline]' already"
+                        " exists."
+                    ),
                     fmt={"path": str(path)},
                 )
             )
@@ -214,55 +219,31 @@ def git_branch_set_upstream(path: Path, branch: str, remote: str = "origin"):
 
 
 if __name__ == "__main__":
-    print(f"{__file__}: {__doc__.strip()}")
-
     import shutil
 
-    from repoutils.lib.fileutil import TemporaryObject
+    import colorama
+    import rich
+
+    from repoutils.lib.fileutil import (  # pylint: disable=ungrouped-imports
+        TemporaryObject,
+    )
     from repoutils.shared.ktrigger import bind_ktrigger_interface
 
-    class _TestKTrigger(IKernelTrigger):
-        console_lines: dict[str, int]
+    colorama.init()
 
-        def __init__(self):
-            super().__init__()
-            self.console_lines = {}
+    rich.print(f"{__file__}: {__doc__.strip()}")
 
-        def pre_speedtest(self, host: str):
-            self.console_lines[host] = (
-                max(
-                    self.console_lines.values(),
-                    default=0,
-                )
-                + 1
-            )
-            print(f"Testing {host} ...", end="\n")
-
-        def post_speedtest(self, host: str, speed: int):
-            jump = (
-                max(
-                    self.console_lines.values(),
-                    default=0,
-                )
-                - self.console_lines[host]
-            )
-            print(f"\x1b[{jump+1}A", end="")
-            speed_str = (
-                f"{speed} us" if speed != -1 else "\x1b[31mCANCELED\x1b[0m"
-            )  # noqa: E501
-            print(f"Testing {host} {speed_str}", end="\n")  # noqa: E501
-            print(f"\x1b[{jump}B", end="")
-            del self.console_lines[host]
-
-        def pre_exec_process(self, proc: Process) -> None:
-            print(f"=> Executing: {proc.origin_cmd} ...")
+    class _GitTestKTrigger(IKernelTrigger):
 
         def on_update_git_repo(
             self,
             path: Path,
             branch: str,
         ) -> None:
-            print(f"=> Updating Git repository '{path}'({branch}) ...")
+            rich.print(
+                "[blue]=>[/blue] Updating Git repository "
+                f"'[underline]{path}[/underline]'({branch}) ..."
+            )
 
         def on_clone_git_repo(
             self,
@@ -270,11 +251,36 @@ if __name__ == "__main__":
             path: Path,
             branch: str,
         ) -> None:
-            print(
-                f"=> Cloing Git repository '{url}' into '{path}'({branch}) ..."
-            )  # noqa: E501
+            rich.print(
+                f"[blue]=>[/blue] Cloing Git repository "
+                f"{url} into "
+                f"'[underline]{path}[/underline]'({branch}) ..."
+            )
 
-    bind_ktrigger_interface("test", _TestKTrigger())
+        def pre_speedtest(self, host: str):
+            rich.print(
+                f"[blue]=>[/blue] Testing speed for {host} ...",
+                end="\n",
+            )
+
+        def post_speedtest(self, host: str, speed: int):
+            speed_str = f"{speed} us" if speed != -1 else " - CANCELED"
+            rich.print(f"[blue]::[/blue] Speed: {host} {speed_str}", end="\n")
+
+        def pre_exec_process(self, proc: Process) -> None:
+            rich.print(
+                f"[blue]=>[/blue] Executing: [cyan]{proc.origin_cmd}[/cyan] ..."  # noqa: E501
+            )
+            print(colorama.Fore.LIGHTBLACK_EX, end="", flush=True)
+
+        def post_exec_process(
+            self, proc: Process, retcode: int, raise_exc: bool
+        ) -> None:
+            print(colorama.Fore.RESET, end="")
+            if retcode != 0:
+                rich.print(f"[red] Process failed with code {retcode}.[/red]")
+
+    bind_ktrigger_interface("test", _GitTestKTrigger())
 
     # Test: Is a Git repository.
     git_repo = TemporaryObject.new_directory()
@@ -325,4 +331,4 @@ if __name__ == "__main__":
 
     shutil.rmtree("hello")
     shutil.rmtree("cppp-reiconv")
-    print("=> Done.")
+    rich.print("[blue]=>[/blue] Done.")

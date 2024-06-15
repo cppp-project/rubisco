@@ -86,6 +86,8 @@ def clean_log():
 
 
 if __name__ == "__main__":
-    print(f"{__file__}: {__doc__.strip()}")
+    import rich
 
-    print(f"Cleaned {clean_log()} log lines.")
+    rich.print(f"{__file__}: {__doc__.strip()}")
+
+    rich.print(f"[blue]=>[/blue] Cleaned {clean_log()} log lines.")

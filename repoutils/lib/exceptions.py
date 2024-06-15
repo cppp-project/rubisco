@@ -113,7 +113,7 @@ class RUShellExecutionException(RUException):
         """
 
         hint = format_str(
-            _("Subprocess return code is {retcode}."),
+            _("Subprocess return code is ${{retcode}}."),
             fmt={
                 "retcode": str(retcode),
             },
@@ -121,7 +121,7 @@ class RUShellExecutionException(RUException):
         if retcode == self.RETCODE_COMMAND_NOT_FOUND:
             hint = format_str(
                 _(
-                    "Subprocess return code is {retcode}."
+                    "Subprocess return code is ${{retcode}}. "
                     "It may be caused by command not found."
                 ),
                 fmt={"retcode": str(retcode)},

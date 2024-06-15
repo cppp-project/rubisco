@@ -27,7 +27,7 @@ from pathlib import Path
 import requests
 
 from repoutils.config import COPY_BUFSIZE, TIMEOUT
-from repoutils.lib.fileutil import check_file_exists
+from repoutils.lib.fileutil import check_file_exists, rm_recursive
 from repoutils.lib.l10n import _
 from repoutils.lib.log import logger
 from repoutils.lib.variable import format_str
@@ -59,7 +59,7 @@ def wget(url: str, save_to: Path, overwrite: bool = True) -> None:
                 response.raise_for_status()
                 task_name = format_str(
                     _(
-                        "Downloading '{bold}{underline}{url}{reset}' ...",
+                        "Downloading ${{url}} ...",
                     ),
                     fmt={"url": url},
                 )
@@ -86,26 +86,35 @@ def wget(url: str, save_to: Path, overwrite: bool = True) -> None:
 
 
 if __name__ == "__main__":
-    print(f"{__file__}: {__doc__.strip()}")
+    import rich
+    import rich.progress_bar
 
-    print("Make sure you have Internet connection. Otherwise, it will fail.")
+    from repoutils.shared.ktrigger import (  # pylint: disable=ungrouped-imports # noqa: E501
+        bind_ktrigger_interface,
+    )
 
-    from repoutils.lib.fileutil import rm_recursive
-    from repoutils.shared.ktrigger import bind_ktrigger_interface
+    rich.print(f"{__file__}: {__doc__.strip()}")
+
+    rich.print(
+        "[yellow]Make sure you have Internet connection. Otherwise, "
+        "it may fail.[/yellow]"
+    )
 
     URL = "https://musl.libc.org/releases/musl-1.2.5.tar.gz"
     TARGET = Path("musl-1.2.5.tar.gz")
 
     class _TestKTrigger(IKernelTrigger):
-        _prog_total: int | float
-        _prog_current: int | float
+        _progress_bar: rich.progress_bar.ProgressBar
+        _cur = 0
 
         def on_new_task(
             self, task_name: str, task_type: int, total: int | float
         ) -> None:
-            print("on_new_task():", task_name, task_type, total)
-            self._prog_total = total
-            self._prog_current = 0
+            rich.print("on_new_task():", task_name, task_type, total)
+            self._progress_bar = rich.progress_bar.ProgressBar(
+                total=total,
+            )
+            self._cur = 0
 
         def on_progress(
             self,
@@ -114,20 +123,14 @@ if __name__ == "__main__":
             delta: bool = False,
         ):
             if delta:
-                self._prog_current += current
-            else:
-                self._prog_current = current
-            print(
-                "on_progress():",
-                task_name,
-                self._prog_current,
-                "/",
-                self._prog_total,
-                end="\r",
-            )
+                current += self._cur
+                self._cur = current
+            self._progress_bar.update(self._cur)
+            rich.print(self._progress_bar)
+            rich.get_console().file.write("\r")
 
         def on_finish_task(self, task_name: str):
-            print("\non_finish_task():", task_name)
+            rich.print("\non_finish_task():", task_name)
 
     kt = _TestKTrigger()
     bind_ktrigger_interface("test", kt)

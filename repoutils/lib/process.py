@@ -28,9 +28,9 @@ from pathlib import Path
 from subprocess import PIPE, Popen
 
 from repoutils.config import DEFAULT_CHARSET
-from repoutils.lib.fileutil import TemporaryObject
 from repoutils.lib.command import command
 from repoutils.lib.exceptions import RUShellExecutionException
+from repoutils.lib.fileutil import TemporaryObject
 from repoutils.lib.log import logger
 from repoutils.shared.ktrigger import IKernelTrigger, call_ktrigger
 
@@ -106,8 +106,8 @@ class Process:
             int: The return code.
         """
 
-        call_ktrigger(IKernelTrigger.pre_exec_process, proc=self)
         _win32_set_console_visiable(True)
+        call_ktrigger(IKernelTrigger.pre_exec_process, proc=self)
         with Popen(self.cmd, shell=True, cwd=str(self.cwd)) as self.process:
             try:
                 ret = self.process.wait()
@@ -206,7 +206,10 @@ def popen(
 
 
 if __name__ == "__main__":
-    print(f"{__file__}: {__doc__.strip()}")
+
+    import rich
+
+    rich.print(f"{__file__}: {__doc__.strip()}")
 
     # Test: Process.
     p = Process("echo Hello, world!")
@@ -245,7 +248,7 @@ if __name__ == "__main__":
         )
         assert 0
     except RUShellExecutionException:
-        print("Exception catched.")
+        print("Exception caught.")
 
     # Test: A multiline command.
     p = Process("echo line1 \n echo line2")

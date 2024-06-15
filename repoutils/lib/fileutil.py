@@ -75,7 +75,10 @@ def assert_rel_path(path: Path) -> None:
     if path.is_absolute():
         raise AssertionError(
             format_str(
-                _("Absolute path '{underline}{path}{reset}' is not allowed."),
+                _(
+                    "Absolute path '[underline]${{path}}[/underline]'"
+                    " is not allowed."
+                ),
                 fmt={"path": str(path)},
             )
         )
@@ -452,7 +455,7 @@ def find_command(cmd: str, strict: bool = False) -> str:
 
     if strict and res is None:
         raise RUShellExecutionException(
-            format_str(_("Command '{cmd}' not found."), fmt={"cmd": cmd}),
+            format_str(_("Command '${{cmd}}' not found."), fmt={"cmd": cmd}),
             retcode=RUShellExecutionException.RETCODE_COMMAND_NOT_FOUND,
         )
 
@@ -465,55 +468,57 @@ atexit.register(TemporaryObject.cleanup)
 if __name__ == "__main__":
     print(f"{__file__}: {__doc__.strip()}")
 
+    import rich
+
     # Test1: Basic usage.
     temp = TemporaryObject.new_file()
-    print("Created temporary file:", repr(temp))
-    print("tempdirs:", tempdirs)
+    rich.print("Created temporary file:", repr(temp))
+    rich.print("tempdirs:", tempdirs)
     assert temp.is_file()
     assert not temp.is_dir()
     assert temp.temp_type == TemporaryObject.TYPE_FILE
     temp.remove()
-    print("Removed temporary file:", repr(temp))
-    print("tempdirs:", tempdirs)
+    rich.print("Removed temporary file:", repr(temp))
+    rich.print("tempdirs:", tempdirs)
 
     temp = TemporaryObject.new_directory()
-    print("Created temporary directory:", repr(temp))
-    print("tempdirs:", tempdirs)
+    rich.print("Created temporary directory:", repr(temp))
+    rich.print("tempdirs:", tempdirs)
     assert not temp.is_file()
     assert temp.is_dir()
     assert temp.temp_type == TemporaryObject.TYPE_DIRECTORY
     temp.remove()
-    print("Removed temporary directory:", repr(temp))
-    print("tempdirs:", tempdirs)
+    rich.print("Removed temporary directory:", repr(temp))
+    rich.print("tempdirs:", tempdirs)
 
     # Test2: Context manager.
     with TemporaryObject.new_file() as temp:
-        print("Created temporary file:", repr(temp))
-        print("tempdirs:", tempdirs)
+        rich.print("Created temporary file:", repr(temp))
+        rich.print("tempdirs:", tempdirs)
         assert temp.is_file()
         assert not temp.is_dir()
         assert temp.temp_type == TemporaryObject.TYPE_FILE
-    print("Removed temporary file:", repr(temp))
-    print("tempdirs:", tempdirs)
+    rich.print("Removed temporary file:", repr(temp))
+    rich.print("tempdirs:", tempdirs)
 
     with TemporaryObject.new_directory() as temp:
-        print("Created temporary directory:", repr(temp))
-        print("tempdirs:", tempdirs)
+        rich.print("Created temporary directory:", repr(temp))
+        rich.print("tempdirs:", tempdirs)
         assert not temp.is_file()
         assert temp.is_dir()
         assert temp.temp_type == TemporaryObject.TYPE_DIRECTORY
-    print("Removed temporary directory:", repr(temp))
-    print("tempdirs:", tempdirs)
+    rich.print("Removed temporary directory:", repr(temp))
+    rich.print("tempdirs:", tempdirs)
 
     # Test3: Cleanup.
     temp1 = TemporaryObject.new_file()
     temp2 = TemporaryObject.new_directory()
     temp3 = TemporaryObject.new_file("-PREFIX-", "-SUFFIX-")
     temp4 = TemporaryObject.new_directory("-PREFIX-", "-SUFFIX-")
-    print("tempdirs:", tempdirs)
+    rich.print("tempdirs:", tempdirs)
     TemporaryObject.cleanup()
-    print("Cleaned up temporary directories.")
-    print("tempdirs:", tempdirs)
+    rich.print("Cleaned up temporary directories.")
+    rich.print("tempdirs:", tempdirs)
     assert not temp1.path.exists()
     assert not temp2.path.exists()
     assert not temp3.path.exists()

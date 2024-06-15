@@ -50,7 +50,9 @@ def command(args: list[str] | str) -> str:
 
 
 if __name__ == "__main__":
-    print(f"{__file__}: {__doc__.strip()}")
+    import rich
+
+    rich.print(f"{__file__}: {__doc__.strip()}")
 
     assert command(["echo", "Hello, world!"]) == 'echo "Hello, world!"'
     assert command("echo Hello, world!") == "echo Hello, world!"

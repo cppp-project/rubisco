@@ -9,7 +9,7 @@ CHARSET = UTF-8
 
 srcdir = .
 top_srcdir = ..
-srccode_dir = $(top_srcdir)/cppp_repoutils
+srccode_dir = $(top_srcdir)/repoutils
 
 FIND = find
 MSGFMT = msgfmt

@@ -202,7 +202,9 @@ class Version:
 
 
 if __name__ == "__main__":
-    print(f"{__file__}: {__doc__.strip()}")
+    import rich
+
+    rich.print(f"{__file__}: {__doc__.strip()}")
 
     # Test: Version
     ver1 = Version("1.2.3")

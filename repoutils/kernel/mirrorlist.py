@@ -21,7 +21,7 @@
 """
 Git URL parser that supports mirrorlist.
 e.g:
-    "https://github.com/{user}/{repo}.git"
+    "https://github.com/${{ user }}/${{ repo }}.git"
 """
 
 import asyncio
@@ -30,8 +30,12 @@ import re
 import json5 as json
 from urllib3.util import parse_url
 
-from repoutils.config import (DEFAULT_CHARSET, GLOBAL_CONFIG_DIR,
-                              USER_CONFIG_DIR, WORKSPACE_CONFIG_DIR)
+from repoutils.config import (
+    DEFAULT_CHARSET,
+    GLOBAL_CONFIG_DIR,
+    USER_CONFIG_DIR,
+    WORKSPACE_CONFIG_DIR,
+)
 from repoutils.lib.exceptions import RUValueException
 from repoutils.lib.l10n import _
 from repoutils.lib.log import logger
@@ -107,7 +111,7 @@ def get_mirrorlist(
         except RecursionError as exc:
             raise RUValueException(
                 format_str(
-                    _("Recursion detected in mirrorlist: '{name}'"),
+                    _("Recursion detected in mirrorlist: '${{name}}'"),
                     fmt={"name": mlist1},
                 ),
                 hint=_(
@@ -190,7 +194,7 @@ def get_url(
         except KeyError:
             logger.critical("Website not found: %s", mirror, exc_info=True)
             message = format_str(
-                _("Source '{protocol}/{website}/{name}' not found."),
+                _("Source '${{protocol}}/${{website}}/${{name}}' not found."),
                 fmt={
                     "website": website,
                     "protocol": protocol,
@@ -202,56 +206,36 @@ def get_url(
 
 
 if __name__ == "__main__":
-    print(f"{__file__}: {__doc__.strip()}")
+    import rich
 
-    from repoutils.shared.ktrigger import bind_ktrigger_interface
+    from repoutils.shared.ktrigger import (  # pylint: disable=ungrouped-imports # noqa: E501
+        bind_ktrigger_interface,
+    )
+
+    rich.print(f"{__file__}: {__doc__.strip()}")
 
     class _TestKTrigger(IKernelTrigger):
-        console_lines: dict[str, int]
-
-        def __init__(self):
-            super().__init__()
-            self.console_lines = {}
 
         def pre_speedtest(self, host: str):
-            self.console_lines[host] = (
-                max(
-                    self.console_lines.values(),
-                    default=0,
-                )
-                + 1
-            )
-            print(f"Testing {host} ...", end="\n")
+            rich.print(f"[blue]=>[/blue] Testing {host} ...", end="\n")
 
         def post_speedtest(self, host: str, speed: int):
-            jump = (
-                max(
-                    self.console_lines.values(),
-                    default=0,
-                )
-                - self.console_lines[host]
-            )
-            print(f"\x1b[{jump+1}A", end="")
-            speed_str = (
-                f"{speed} us" if speed != -1 else "\x1b[31mCANCELED\x1b[0m"
-            )  # noqa: E501
-            print(f"Testing {host} {speed_str}", end="\n")  # noqa: E501
-            print(f"\x1b[{jump}B", end="")
-            del self.console_lines[host]
+            speed_str = f"{speed} us" if speed != -1 else " - CANCELED"
+            rich.print(f"[blue]::[/blue] Testing {host} {speed_str}", end="\n")
 
     kt = _TestKTrigger()
     bind_ktrigger_interface("Test", kt)
 
     # Test: Find the fastest mirror.
-    print(asyncio.run(find_fastest_mirror("github")))
+    rich.print(asyncio.run(find_fastest_mirror("github")))
 
     # Test: Get the mirror URL.
     url_ = get_url("cppp-project/cppp-repoutils@github")
-    print(url_)
+    rich.print(url_)
 
     # Test: Get a non-exist mirror URL.
     try:
         url_ = get_url("cppp-project/cppp-repoutils@non-exist")
         assert False
     except ValueError as exc_:
-        print("Exception catched: ", exc_)
+        rich.print(f"[green]Exception caught: {exc_}[/green]")

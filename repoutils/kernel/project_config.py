@@ -103,17 +103,20 @@ def _load_config(config_file: Path, loaded_list: list[Path]) -> AutoFormatDict:
         if not isinstance(config, AutoFormatDict):
             raise RUValueException(
                 format_str(
-                    _("Invalid configuration in '{underline}{path}{reset}'."),
+                    _(
+                        "Invalid configuration in file "
+                        "'[underline]${{path}}[/underline]'."
+                    ),
                     fmt={"path": str(config_file)},
                 ),
-                hint=_("Configuration must be a json5 object. (dict)"),
+                hint=_("Configuration must be a JSON5 object. (dict)"),
             )
         for include in config.get("includes", [], valtype=list):
             if not isinstance(include, str):
                 raise RUValueException(
                     format_str(
                         _(
-                            "Invalid path in '{underline}{path}{reset}'."
+                            "Invalid path in '[underline]${{path}}[/underline]'."  # noqa: E501
                         ),
                         fmt={"path": str(config_file)},
                     )
@@ -146,6 +149,8 @@ def load_project_config(project_dir: Path) -> ProjectConfigration:
 
 
 if __name__ == "__main__":
-    print(f"{__file__}: {__doc__.strip()}")
+    import rich
 
-    print(_load_config(Path("project.json"), []))
+    rich.print(f"{__file__}: {__doc__.strip()}")
+
+    rich.print(_load_config(Path("project.json"), []))
