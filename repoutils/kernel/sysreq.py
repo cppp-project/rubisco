@@ -258,7 +258,7 @@ def package_install(packages: list[str]):
 
     Process(sudo([PACKAGE_MANAGER, update_command])).run()
     Process(sudo([PACKAGE_MANAGER, install_command] + packages)).run()
-    logger.info(_("Installed packages: %s"), packages)
+    logger.info("Installed packages: %s", packages)
 
 
 if __name__ == "__main__":

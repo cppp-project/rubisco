@@ -224,9 +224,8 @@ if __name__ == "__main__":
     import colorama
     import rich
 
-    from repoutils.lib.fileutil import (  # pylint: disable=ungrouped-imports
-        TemporaryObject,
-    )
+    from repoutils.lib.fileutil import \
+        TemporaryObject  # pylint: disable=ungrouped-imports
     from repoutils.shared.ktrigger import bind_ktrigger_interface
 
     colorama.init()

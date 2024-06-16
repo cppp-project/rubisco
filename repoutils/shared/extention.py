@@ -28,6 +28,7 @@ from pathlib import Path
 
 from repoutils.config import (GLOBAL_EXTENSIONS_DIR, USER_EXTENSIONS_DIR,
                               WORKSPACE_EXTENSIONS_DIR)
+from repoutils.kernel.workflow import Step, register_step_type
 from repoutils.lib.exceptions import RUValueException
 from repoutils.lib.l10n import _
 from repoutils.lib.log import logger
@@ -35,7 +36,6 @@ from repoutils.lib.variable import format_str
 from repoutils.lib.version import Version
 from repoutils.shared.ktrigger import (IKernelTrigger, bind_ktrigger_interface,
                                        call_ktrigger)
-from repoutils.kernel.workflow import Step, register_step_type
 
 __all__ = ["IRUExtention"]
 
@@ -218,7 +218,7 @@ def load_extention(path: Path | str, strict: bool = False) -> None:
         call_ktrigger(
             IKernelTrigger.on_error,
             message=format_str(
-                _("Failed to load extention '{name}': {exc}."),
+                _("Failed to load extention '${{name}}': ${{exc}}."),
                 fmt={"name": str(path), "exc": str(exc)},
             ),
         )

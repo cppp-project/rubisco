@@ -30,12 +30,8 @@ import re
 import json5 as json
 from urllib3.util import parse_url
 
-from repoutils.config import (
-    DEFAULT_CHARSET,
-    GLOBAL_CONFIG_DIR,
-    USER_CONFIG_DIR,
-    WORKSPACE_CONFIG_DIR,
-)
+from repoutils.config import (DEFAULT_CHARSET, GLOBAL_CONFIG_DIR,
+                              USER_CONFIG_DIR, WORKSPACE_CONFIG_DIR)
 from repoutils.lib.exceptions import RUValueException
 from repoutils.lib.l10n import _
 from repoutils.lib.log import logger
@@ -208,9 +204,8 @@ def get_url(
 if __name__ == "__main__":
     import rich
 
-    from repoutils.shared.ktrigger import (  # pylint: disable=ungrouped-imports # noqa: E501
-        bind_ktrigger_interface,
-    )
+    from repoutils.shared.ktrigger import \
+        bind_ktrigger_interface  # pylint: disable=ungrouped-imports # noqa: E501
 
     rich.print(f"{__file__}: {__doc__.strip()}")
 

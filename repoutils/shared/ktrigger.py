@@ -359,7 +359,7 @@ def bind_ktrigger_interface(sign: str, instance: IKernelTrigger) -> None:
     if not isinstance(instance, IKernelTrigger):
         raise TypeError(
             format_str(
-                _("'{name}' is not a IKernelTrigger instance."),
+                _("'${{name}}' is not a IKernelTrigger instance."),
                 fmt={"name": repr(instance)},
             )
         )
@@ -367,7 +367,7 @@ def bind_ktrigger_interface(sign: str, instance: IKernelTrigger) -> None:
     if sign in ktriggers:
         raise RUValueException(
             format_str(
-                _("Kernel trigger sign '{name}' is already exists."),
+                _("Kernel trigger sign '${{name}}' is already exists."),
                 fmt={"name": str(sign)},
             )
         )

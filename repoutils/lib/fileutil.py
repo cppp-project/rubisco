@@ -522,7 +522,7 @@ def find_command(cmd: str, strict: bool = False) -> str:
     logger.info(
         "Checking for command '%s' ... %s",
         cmd,
-        res if res else _("not found."),
+        res if res else "not found.",
     )
 
     if strict and res is None:

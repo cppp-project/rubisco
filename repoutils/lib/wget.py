@@ -89,9 +89,8 @@ if __name__ == "__main__":
     import rich
     import rich.progress_bar
 
-    from repoutils.shared.ktrigger import (  # pylint: disable=ungrouped-imports # noqa: E501
-        bind_ktrigger_interface,
-    )
+    from repoutils.shared.ktrigger import \
+        bind_ktrigger_interface  # pylint: disable=ungrouped-imports # noqa: E501
 
     rich.print(f"{__file__}: {__doc__.strip()}")
 
