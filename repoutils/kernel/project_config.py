@@ -29,7 +29,7 @@ import json5 as json
 from repoutils.config import USER_REPO_CONFIG
 from repoutils.lib.exceptions import RUValueException
 from repoutils.lib.l10n import _
-from repoutils.lib.path_glob import glob_path, resolve_path
+from repoutils.lib.fileutil import glob_path, resolve_path
 from repoutils.lib.variable import AutoFormatDict, format_str
 from repoutils.lib.version import Version
 

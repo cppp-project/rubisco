@@ -23,6 +23,7 @@ File utilities.
 """
 
 import atexit
+import glob
 import os
 import shutil
 import tempfile
@@ -42,6 +43,8 @@ __all__ = [
     "copy_recursive",
     "human_readable_size",
     "find_command",
+    "resolve_path",
+    "glob_path",
     "TemporaryObject",
 ]
 
@@ -100,6 +103,7 @@ def rm_recursive(path: Path, strict=False):
     if not path.exists():
         return
     try:
+
         def _on_error(func, path, exc_info):  # pylint: disable=unused-argument
             if not strict:
                 call_ktrigger(
@@ -109,6 +113,7 @@ def rm_recursive(path: Path, strict=False):
                         fmt={"path": str(path), "error": str(exc_info[1])},
                     ),
                 )
+
         if path.is_dir():
             shutil.rmtree(path, ignore_errors=not strict, onerror=_on_error)
         else:
@@ -486,6 +491,40 @@ class TemporaryObject:
             rm_recursive(tempdir)
             logger.debug("Unregistered temporary object '%s'.", str(tempdir))
         tempdirs.clear()
+
+
+def resolve_path(path: Path, absolute_only: bool = True) -> Path:
+    """Resolve a path with globbing support.
+
+    Args:
+        path (Path): Path to resolve.
+        absolute_only (bool): Absolute path only instead of resolve.
+            Defaults to True.
+
+    Returns:
+        Path: Resolved path.
+    """
+
+    res = path.expanduser().absolute()
+    if absolute_only:
+        return res
+    return res.resolve()
+
+
+def glob_path(path: Path, absolute_only: bool = True) -> list[Path]:
+    """Resolve a path and globbing it.
+
+    Args:
+        path (Path): Path to resolve.
+        absolute_only (bool, optional): Absolute path only instead of resolve.
+            Defaults to False.
+
+    Returns:
+        list[Path]: List of resolved paths.
+    """
+
+    res = glob.glob(str(resolve_path(path, absolute_only)))
+    return [Path(p).absolute() for p in res]
 
 
 def human_readable_size(size: int | float) -> str:
