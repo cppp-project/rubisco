@@ -110,7 +110,7 @@ class Stack(LifoQueue):
 variables: dict[str, Stack] = {}
 
 
-def push_variables(name, value: str) -> None:
+def push_variables(name, value: Any) -> None:
     """Push a new variable.
 
     Args:
@@ -125,18 +125,21 @@ def push_variables(name, value: str) -> None:
         variables[name].put(value)
 
 
-def pop_variables(name: str) -> None:
+def pop_variables(name: str) -> Any:
     """Pop the top value of the given variable.
 
     Args:
         name (str): The name of the variable.
 
     Returns:
-        str: The top value of the given variable.
+        Any: The top value of the given variable.
     """
 
     if name in variables:
-        return variables[name].get()
+        res = variables[name].get()
+        if variables[name].empty():
+            del variables[name]
+        return res
     return None
 
 
@@ -194,13 +197,13 @@ def format_str(
 
     fmt = variables | fmt
 
-    matches = re.findall(r"\$\{\{ *[\d|_|a-z|A-Z|.]+ *\}\}", string)
+    matches = re.findall(r"\$\{\{ *[\d|_|\-|a-z|A-Z|.]+ *\}\}", string)
     for match in matches:
         key = match[3:-2].strip()
         res = fmt.get(key, match)
         if isinstance(res, Stack):
             res = res.top()
-        string = string.replace(match, res)
+        string = string.replace(match, str(res))
 
     return string
 
@@ -317,6 +320,24 @@ class AutoFormatDict(dict):
                 },
             ),
         )
+
+    def keys(self):
+        """Get the keys of the dict."""
+
+        for key in super().keys():
+            yield format_str(key)
+
+    def values(self):
+        """Get the values of the dict."""
+
+        for value in super().values():
+            yield format_str(value)
+
+    def items(self):
+        """Get the items of the dict."""
+
+        for key, value in super().items():
+            yield format_str(key), format_str(value)
 
     def update(self, mapping: "dict | AutoFormatDict") -> None:
         """Update the dict with the given mapping.

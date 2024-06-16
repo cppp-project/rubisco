@@ -49,7 +49,7 @@ def _null_trigger(name, *args, **kwargs) -> None:
     )
 
 
-class IKernelTrigger:
+class IKernelTrigger:  # pylint: disable=too-many-public-methods
     """
     Kernel trigger interface.
     """
@@ -218,6 +218,15 @@ class IKernelTrigger:
             branch=branch,
         )
 
+    def on_warning(self, message: str) -> None:
+        """When a warning is raised.
+
+        Args:
+            message (str): Warning message.
+        """
+
+        _null_trigger("on_warning", message=message)
+
     def on_error(self, message: str) -> None:
         """When a error is raised.
 
@@ -282,6 +291,53 @@ class IKernelTrigger:
         """
 
         _null_trigger("post_run_workflow", workflow=workflow)
+
+    def on_mkdir(self, path: Path) -> None:
+        """On we are creating directories.
+
+        Args:
+            path (Path): Directory/directories's path.
+        """
+
+        _null_trigger("on_mkdir", path=path)
+
+    def on_output(self, msg: str) -> None:
+        """Output a message.
+
+        Args:
+            msg (str): Message.
+        """
+
+        _null_trigger("on_output", msg=msg)
+
+    def on_move_file(self, src: Path, dst: Path) -> None:
+        """On we are moving files.
+
+        Args:
+            src (Path): Source file path.
+            dst (Path): Destination file path.
+        """
+
+        _null_trigger("on_move_file", src=src, dst=dst)
+
+    def on_copy(self, src: Path, dst: Path) -> None:
+        """On we are copying files.
+
+        Args:
+            src (Path): Source file path.
+            dst (Path): Destination file path.
+        """
+
+        _null_trigger("on_copy", src=src, dst=dst)
+
+    def on_remove(self, path: Path) -> None:
+        """On we are removing files.
+
+        Args:
+            path (Path): File path.
+        """
+
+        _null_trigger("on_remove", path=path)
 
 
 # KTrigger instances.

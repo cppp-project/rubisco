@@ -39,6 +39,7 @@ from repoutils.shared.ktrigger import IKernelTrigger, call_ktrigger
 __all__ = [
     "check_file_exists",
     "rm_recursive",
+    "copy_recursive",
     "human_readable_size",
     "find_command",
     "TemporaryObject",
@@ -99,8 +100,17 @@ def rm_recursive(path: Path, strict=False):
     if not path.exists():
         return
     try:
+        def _on_error(func, path, exc_info):  # pylint: disable=unused-argument
+            if not strict:
+                call_ktrigger(
+                    IKernelTrigger.on_warning,
+                    message=format_str(
+                        _("Error while removing '${{path}}': ${{error}}"),
+                        fmt={"path": str(path), "error": str(exc_info[1])},
+                    ),
+                )
         if path.is_dir():
-            shutil.rmtree(path)
+            shutil.rmtree(path, ignore_errors=not strict, onerror=_on_error)
         else:
             os.remove(path)
         logger.debug("Removed '%s'.", str(path))
@@ -108,6 +118,68 @@ def rm_recursive(path: Path, strict=False):
         if strict:
             raise
         logger.warning("Failed to remove '%s'.", str(path), exc_info=exc)
+
+
+def copy_recursive(  # pylint: disable=too-many-arguments
+    src: Path,
+    dst: Path,
+    strict=False,
+    symlinks: bool = False,
+    exists_ok: bool = False,
+    ignore: list[str] = None,
+):
+    """Copy a file or directory recursively.
+
+    Args:
+        src (Path): The source path to copy.
+        dst (Path): The destination path.
+        strict (bool): Raise an exception if error occurs.
+        symlinks (bool): Copy symlinks as symlinks.
+        exists_ok (bool): Do not raise an exception if the destination exists.
+        ignore (list[str]): The list of files to ignore.
+
+    Raises:
+        OSError: If strict is True and an error occurs.
+    """
+
+    if ignore is None:
+        ignore = []
+
+    src = src.absolute()
+    dst = dst.absolute()
+    try:
+        if src.is_dir():
+            shutil.copytree(
+                src,
+                dst,
+                symlinks=symlinks,
+                dirs_exist_ok=exists_ok,
+                ignore=shutil.ignore_patterns(*ignore),
+            )
+        else:
+            if dst.is_dir():
+                dst = dst / src.name
+            if dst.exists() and not exists_ok:
+                raise FileExistsError(
+                    format_str(
+                        _(
+                            "File '[underline]${{path}}[/underline]' "
+                            "already exists.",
+                        ),
+                        fmt={"path": str(dst)},
+                    )
+                )
+            dst = Path(shutil.copy2(src, dst, follow_symlinks=not symlinks))
+        logger.debug("Copied '%s' to '%s'.", str(src), str(dst))
+    except OSError as exc:
+        if strict:
+            raise
+        logger.warning(
+            "Failed to copy '%s' to '%s'.",
+            str(src),
+            str(dst),
+            exc_info=exc,
+        )
 
 
 tempdirs: set[Path] = set()

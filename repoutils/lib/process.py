@@ -25,7 +25,7 @@ Repoutils process control.
 import ctypes
 import os
 from pathlib import Path
-from subprocess import PIPE, Popen
+from subprocess import PIPE, STDOUT, Popen
 
 from repoutils.config import DEFAULT_CHARSET
 from repoutils.lib.command import command
@@ -147,7 +147,7 @@ def popen(
     cmd: list[str] | str,
     cwd: Path = Path.cwd(),
     stdout: bool = True,
-    stderr: bool = True,
+    stderr: int = 1,
     strict: bool = False,
 ) -> tuple[str, str, int]:
     """Run the command and return the stdout and stderr.
@@ -156,8 +156,10 @@ def popen(
         cmd (list[str] | str): The command.
         cwd (Path): The working directory.
         stdout (bool, optional): Return stdout. Defaults to True.
-        stderr (bool, optional): Return stderr. Defaults to True.
-        strict (bool): Raise an exception if return code is not 0.
+        stderr (int, optional): Return stderr. If 0, stderr will be ignored.
+            If 1, stderr will be returned. If 2, stderr will be redirected to
+            stdout. Defaults to 1.
+        strict (bool, optional): Raise an exception if return code is not 0.
             Defaults to True.
 
     Returns:
@@ -185,7 +187,7 @@ def popen(
         cwd=str(cwd),
         shell=True,
         stdout=PIPE,
-        stderr=PIPE,
+        stderr=None if stderr == 0 else PIPE if stderr == 1 else STDOUT,
     ) as process:
         process.wait()
         if strict and process.returncode:
@@ -198,7 +200,7 @@ def popen(
             ),
             (
                 process.stderr.read().decode(DEFAULT_CHARSET)  # type: ignore
-                if stderr
+                if stderr == 1
                 else ""
             ),
             process.returncode,
@@ -243,7 +245,7 @@ if __name__ == "__main__":
         stdout_, stderr_, retcode_ = popen(
             "false",
             stdout=False,
-            stderr=False,
+            stderr=1,
             strict=True,
         )
         assert 0
@@ -257,5 +259,11 @@ if __name__ == "__main__":
     # Test: A multiline popen.
     stdout_, stderr_, retcode_ = popen("echo line1 \n echo line2")
     assert stdout_.strip() == "line1\nline2"
+    assert stderr_ == ""
+    assert retcode_ == 0
+
+    # Test: Popen with stderr redirection.
+    stdout_, stderr_, retcode_ = popen("echo Hello, world! >&2", stderr=2)
+    assert stdout_ == "Hello, world!\n"
     assert stderr_ == ""
     assert retcode_ == 0
