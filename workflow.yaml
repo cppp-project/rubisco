@@ -1,0 +1,8 @@
+name: Test
+
+id: tw
+
+steps:
+    - name: Move
+      move: c
+      to: d

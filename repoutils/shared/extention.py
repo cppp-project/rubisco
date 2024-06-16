@@ -35,6 +35,7 @@ from repoutils.lib.variable import format_str
 from repoutils.lib.version import Version
 from repoutils.shared.ktrigger import (IKernelTrigger, bind_ktrigger_interface,
                                        call_ktrigger)
+from repoutils.kernel.workflow import Step, register_step_type
 
 __all__ = ["IRUExtention"]
 
@@ -48,6 +49,8 @@ class IRUExtention:
     description: str
     version: Version
     ktrigger: IKernelTrigger
+    workflow_steps: dict[str, Step]
+    steps_contributions: dict[Step, list[str]]
 
     def __init__(self) -> None:
         """
@@ -134,8 +137,8 @@ def load_extention(path: Path | str, strict: bool = False) -> None:
             raise RUValueException(
                 format_str(
                     _(
-                        "The extention path '{underline}{path}{reset}' is not "
-                        "a directory."
+                        "The extention path '[underline]${{path}}[/underline]'"
+                        " is not a directory."
                     ),
                     fmt={"path": str(path)},
                 ),
@@ -147,8 +150,8 @@ def load_extention(path: Path | str, strict: bool = False) -> None:
             raise RUValueException(
                 format_str(
                     _(
-                        "The extention '{underline}{path}{reset}' does not "
-                        "have an instance."
+                        "The extention '[underline]${{path}}[/underline]' does"
+                        " not have an instance."
                     ),
                     fmt={"path": str(path)},
                 ),
@@ -164,7 +167,7 @@ def load_extention(path: Path | str, strict: bool = False) -> None:
         if instance.name in invalid_ext_names:
             raise RUValueException(
                 format_str(
-                    _("Invalid extention name: '{underline}{name}{reset}' ."),
+                    _("Invalid extention name: '${{name}}' ."),
                     fmt={"name": instance.name},
                 ),
                 hint=format_str(
@@ -194,6 +197,13 @@ def load_extention(path: Path | str, strict: bool = False) -> None:
                     instance.name,
                 )
                 return
+
+        # Register the workflow steps.
+        for step_name, step in instance.workflow_steps:
+            contributions = []
+            if step in instance.steps_contributions:
+                contributions = instance.steps_contributions[step]
+            register_step_type(step_name, step, contributions)
 
         instance.on_load()
         bind_ktrigger_interface(

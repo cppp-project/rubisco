@@ -32,6 +32,21 @@ from repoutils.lib.variable import AutoFormatDict, format_str, push_variables
 from repoutils.lib.process import Process, popen
 from repoutils.shared.ktrigger import IKernelTrigger, call_ktrigger
 from repoutils.lib.fileutil import rm_recursive, copy_recursive
+from repoutils.lib.log import logger
+
+
+__all__ = [
+    "Step",
+    "ShellExecStep",
+    "MkdirStep",
+    "PopenStep",
+    "OutputStep",
+    "MoveFileStep",
+    "CopyFileStep",
+    "RemoveStep",
+    "Workflow",
+    "register_step_type",
+]
 
 
 class Step:
@@ -425,6 +440,35 @@ class Workflow:
             IKernelTrigger.post_run_workflow,
             workflow=self,
         )
+
+
+def register_step_type(name: str, cls: type, contributes: list[str]) -> None:
+    """Register a step type.
+
+    Args:
+        name (str): The name of the step type.
+        cls (type): The class of the step type.
+        contributes (list[str]): The contributes of the step type.
+    """
+
+    if name in step_types:
+        call_ktrigger(
+            IKernelTrigger.on_warning,
+            message=format_str(
+                _(
+                    "Step type ${{name}} registered multiple times. It's unsafe.",  # noqa: E501
+                ),
+                fmt={"name": repr(name)},
+            ),
+        )
+    step_types[name] = cls
+    if cls not in step_contribute:
+        step_contribute[cls] = contributes
+    logger.info(
+        "Step type %s registered with contributes %s",
+        name,
+        contributes,
+    )
 
 
 if __name__ == "__main__":
