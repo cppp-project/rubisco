@@ -132,7 +132,7 @@ def rm_recursive(path: Path, strict=False):
 
         if path.is_dir():
             if sys.version_info <= (3, 12):
-                shutil.rmtree(  # pylint: disable=unexpected-keyword-arg
+                shutil.rmtree(  # pylint: disable=deprecated-argument
                     path,
                     ignore_errors=not strict,
                     onerror=_onerror,
