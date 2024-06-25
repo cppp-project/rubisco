@@ -29,7 +29,7 @@ import shutil
 import sys
 import tempfile
 from pathlib import Path
-from types import TracebackType
+from types import FunctionType, TracebackType
 
 from repoutils.config import APP_NAME
 from repoutils.lib.exceptions import RUOSException, RUShellExecutionException
@@ -104,7 +104,11 @@ def rm_recursive(path: Path, strict=False):
 
     path = path.absolute()
 
-    def _on_error(func, path, exc_info):  # pylint: disable=unused-argument
+    def _onexc(  # pylint: disable=unused-argument
+        func: FunctionType,
+        path: str | Path,
+        exc: OSError,
+    ) -> None:
         if not strict:
             call_ktrigger(
                 IKernelTrigger.on_warning,
@@ -113,21 +117,39 @@ def rm_recursive(path: Path, strict=False):
                         "Error while removing '[underline]${{path}}"
                         "[/underline]': ${{error}}"
                     ),
-                    fmt={"path": str(path), "error": str(exc_info[1])},
+                    fmt={"path": str(path), "error": str(exc)},
                 ),
             )
+
+    def _onerror(
+        func: FunctionType,
+        path: str | Path,
+        exc_info: tuple[type, BaseException, TracebackType],
+    ):
+        return _onexc(func, path, exc_info[1])
 
     try:
 
         if path.is_dir():
-            shutil.rmtree(path, ignore_errors=not strict, onerror=_on_error)
+            if sys.version_info <= (3, 12):
+                shutil.rmtree(  # pylint: disable=unexpected-keyword-arg
+                    path,
+                    ignore_errors=not strict,
+                    onerror=_onerror,
+                )
+            else:
+                shutil.rmtree(  # pylint: disable=unexpected-keyword-arg
+                    path,
+                    ignore_errors=not strict,
+                    onexc=_onexc,
+                )
         else:
             os.remove(path)
         logger.debug("Removed '%s'.", str(path))
     except OSError as exc:
         if strict:
             raise RUOSException(exc) from exc
-        _on_error(None, path, sys.exc_info())
+        _onexc(None, path, exc)
         logger.warning("Failed to remove '%s'.", str(path), exc_info=exc)
 
 
