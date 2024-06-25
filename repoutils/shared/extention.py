@@ -28,11 +28,11 @@ from pathlib import Path
 
 from repoutils.config import (GLOBAL_EXTENSIONS_DIR, USER_EXTENSIONS_DIR,
                               WORKSPACE_EXTENSIONS_DIR)
-from repoutils.kernel.workflow import Step, register_step_type
+from repoutils.kernel.workflow import Step, _set_extloader, register_step_type
 from repoutils.lib.exceptions import RUValueException
 from repoutils.lib.l10n import _
 from repoutils.lib.log import logger
-from repoutils.lib.variable import format_str
+from repoutils.lib.variable import format_str, make_pretty
 from repoutils.lib.version import Version
 from repoutils.shared.ktrigger import (IKernelTrigger, bind_ktrigger_interface,
                                        call_ktrigger)
@@ -126,6 +126,7 @@ def load_extention(path: Path | str, strict: bool = False) -> None:
             If the path is a name, the extention will be loaded from the
             default extention directory.
         strict (bool, optional): If True, raise an exception if the extention
+            loading failed.
     """
 
     try:
@@ -140,7 +141,7 @@ def load_extention(path: Path | str, strict: bool = False) -> None:
                         "The extention path '[underline]${{path}}[/underline]'"
                         " is not a directory."
                     ),
-                    fmt={"path": str(path)},
+                    fmt={"path": make_pretty(path.absolute())},
                 ),
             )
 
@@ -153,7 +154,7 @@ def load_extention(path: Path | str, strict: bool = False) -> None:
                         "The extention '[underline]${{path}}[/underline]' does"
                         " not have an instance."
                     ),
-                    fmt={"path": str(path)},
+                    fmt={"path": make_pretty(path.absolute())},
                 ),
                 hint=format_str(
                     _(
@@ -210,16 +211,17 @@ def load_extention(path: Path | str, strict: bool = False) -> None:
             instance.name,
             instance.ktrigger,
         )
+        call_ktrigger(IKernelTrigger.on_extention_loaded, instance=instance)
         logger.info("Loaded extention '%s'.", instance.name)
     except Exception as exc:  # pylint: disable=broad-except
         if strict:
-            raise exc
+            raise exc from None
         logger.exception("Failed to load extention '%s': %s", path, exc)
         call_ktrigger(
             IKernelTrigger.on_error,
             message=format_str(
                 _("Failed to load extention '${{name}}': ${{exc}}."),
-                fmt={"name": str(path), "exc": str(exc)},
+                fmt={"name": make_pretty(path.absolute()), "exc": str(exc)},
             ),
         )
 
@@ -250,3 +252,6 @@ def load_all_extentions() -> None:
                 load_extention(path)
     except OSError as exc:
         logger.warning("Failed to load global extentions: %s", exc)
+
+
+_set_extloader(load_extention)

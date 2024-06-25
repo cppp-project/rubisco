@@ -68,30 +68,6 @@ class RUOSException(RUException, OSError):
     OS Exception.
     """
 
-    def __init__(
-        self,
-        *args,
-        errno: int = 0,
-        is_winerr: bool = False,
-        docurl: str = "",
-        hint: str = "",
-        **kwargs,
-    ):
-        """Initialize a operating system exception.
-
-        Args:
-            errno (int, optional): Errno value (or WinError). Defaults to 0.
-            is_winerr (bool, optional): If errno is a WinError errcode. Set it
-                to True. Defaults to False.
-            docurl (str, optional): Document link url. Defaults to "".
-            hint (str, optional): Exception hint. Defaults to "".
-        """
-
-        super().__init__(*args, docurl=docurl, hint=hint, **kwargs)
-        self.errno = errno
-        if is_winerr:
-            self.winerror = errno
-
 
 class RUShellExecutionException(RUException):
     """

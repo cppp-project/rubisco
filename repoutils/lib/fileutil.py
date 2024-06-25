@@ -31,7 +31,7 @@ from pathlib import Path
 from types import TracebackType
 
 from repoutils.config import APP_NAME
-from repoutils.lib.exceptions import RUShellExecutionException
+from repoutils.lib.exceptions import RUOSException, RUShellExecutionException
 from repoutils.lib.l10n import _
 from repoutils.lib.log import logger
 from repoutils.lib.variable import format_str
@@ -121,7 +121,7 @@ def rm_recursive(path: Path, strict=False):
         logger.debug("Removed '%s'.", str(path))
     except OSError as exc:
         if strict:
-            raise
+            raise RUOSException(exc) from exc
         logger.warning("Failed to remove '%s'.", str(path), exc_info=exc)
 
 
@@ -178,7 +178,7 @@ def copy_recursive(  # pylint: disable=too-many-arguments
         logger.debug("Copied '%s' to '%s'.", str(src), str(dst))
     except OSError as exc:
         if strict:
-            raise
+            raise RUOSException(exc) from exc
         logger.warning(
             "Failed to copy '%s' to '%s'.",
             str(src),

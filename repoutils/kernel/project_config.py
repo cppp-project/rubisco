@@ -26,17 +26,82 @@ from pathlib import Path
 
 import json5 as json
 
-from repoutils.config import USER_REPO_CONFIG
+from repoutils.config import APP_VERSION, USER_REPO_CONFIG
+from repoutils.kernel.workflow import run_inline_workflow, run_workflow
 from repoutils.lib.exceptions import RUValueException
-from repoutils.lib.l10n import _
 from repoutils.lib.fileutil import glob_path, resolve_path
-from repoutils.lib.variable import AutoFormatDict, format_str
+from repoutils.lib.l10n import _
+from repoutils.lib.process import Process
+from repoutils.lib.variable import (AutoFormatDict, format_str, make_pretty,
+                                    pop_variables, push_variables)
 from repoutils.lib.version import Version
 
 __all__ = [
     "ProjectConfigration",
+    "ProjectHook",
     "load_project_config",
 ]
+
+
+class ProjectHook:  # pylint: disable=too-few-public-methods
+    """
+    Project hook.
+    """
+
+    _raw_data: AutoFormatDict
+    name: str
+
+    def __init__(self, data: AutoFormatDict, name: str):
+        self._raw_data = data
+        self.name = name
+
+    def run(self):
+        """
+        Run this hook.
+        """
+        variables: AutoFormatDict = self._raw_data.get(
+            "vars",
+            {},
+            valtype=dict,
+        )
+        try:
+            for name, val in variables.items():  # Push all variables first.
+                push_variables(name, val)
+
+            cmd = self._raw_data.get("exec", None, valtype=str | list | None)
+            workflow = self._raw_data.get("run", None, valtype=str | None)
+            inline_wf = self._raw_data.get(
+                "workflow",
+                None,
+                valtype=dict | AutoFormatDict | None,
+            )
+
+            if not cmd and not workflow and not inline_wf:
+                raise RUValueException(
+                    format_str(
+                        _("Hook '${{name}}' is invalid."),
+                        fmt={"name": make_pretty(self.name)},
+                    ),
+                    hint=_(
+                        "A workflow [yellow]SHOULD[/yellow] contain at "
+                        "least 'exec', 'run' and 'workflow'."
+                    ),
+                )
+
+            # Then, run inline workflow.
+            if inline_wf:
+                run_inline_workflow(inline_wf)
+
+            # Then, run workflow.
+            if workflow:
+                run_workflow(Path(workflow))
+
+            # Finally, execute shell command.
+            if cmd:
+                Process(cmd).run()
+        finally:
+            for name in variables.keys():
+                pop_variables(name)
 
 
 class ProjectConfigration:
@@ -54,10 +119,12 @@ class ProjectConfigration:
     # Project optional configurations.
     description: str
     repoutils_min_version: Version
+    hooks: AutoFormatDict
 
     def __init__(self, config_file: Path):
         self.config_file = config_file
         self.config = AutoFormatDict()
+        self.hooks = AutoFormatDict()
 
         self._load()
 
@@ -77,6 +144,26 @@ class ProjectConfigration:
             self.config.get("repoutils-min-version", "0.0.0", valtype=str)
         )
 
+        if self.repoutils_min_version > APP_VERSION:
+            raise RUValueException(
+                format_str(
+                    _(
+                        "The minimum version of repoutils required by the project "  # noqa: E501
+                        "'[underline]${{name}}[/underline]' is "
+                        "'[underline]${{version}}[/underline]'."
+                    ),
+                    fmt={
+                        "name": make_pretty(self.name, _("<Unnamed>")),
+                        "version": self.repoutils_min_version,
+                    },
+                ),
+                hint=_("Please upgrade repoutils to the required version."),
+            )
+
+        hooks = self.config.get("hooks", default={}, valtype=dict)
+        for name, data in hooks.items():
+            self.hooks[name] = ProjectHook(data, name)
+
     def __repr__(self) -> str:
         """Get the string representation of the project configuration.
 
@@ -95,6 +182,15 @@ class ProjectConfigration:
 
         return repr(self)
 
+    def run_hook(self, name: str):
+        """Run a hook by its name.
+
+        Args:
+            name (str): The hook name.
+        """
+
+        self.hooks[name].run()
+
 
 def _load_config(config_file: Path, loaded_list: list[Path]) -> AutoFormatDict:
     config_file = config_file.resolve()
@@ -107,7 +203,7 @@ def _load_config(config_file: Path, loaded_list: list[Path]) -> AutoFormatDict:
                         "Invalid configuration in file "
                         "'[underline]${{path}}[/underline]'."
                     ),
-                    fmt={"path": str(config_file)},
+                    fmt={"path": make_pretty(config_file.absolute())},
                 ),
                 hint=_("Configuration must be a JSON5 object. (dict)"),
             )
@@ -118,7 +214,7 @@ def _load_config(config_file: Path, loaded_list: list[Path]) -> AutoFormatDict:
                         _(
                             "Invalid path in '[underline]${{path}}[/underline]'."  # noqa: E501
                         ),
-                        fmt={"path": str(config_file)},
+                        fmt={"path": make_pretty(config_file.absolute())},
                     )
                 )
             include_file = config_file.parent / include

@@ -104,7 +104,7 @@ def get_mirrorlist(
     if isinstance(mlist1, str):
         try:
             return get_mirrorlist(mlist1, protocol)
-        except RecursionError as exc:
+        except RecursionError as exc:  # The easiest way to detect recursion :)
             raise RUValueException(
                 format_str(
                     _("Recursion detected in mirrorlist: '${{name}}'"),
@@ -197,7 +197,7 @@ def get_url(
                     "name": mirror,
                 },
             )
-            raise ValueError(message) from None
+            raise RUValueException(message) from None
     return remote
 
 

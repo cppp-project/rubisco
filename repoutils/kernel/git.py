@@ -28,7 +28,7 @@ from repoutils.kernel.mirrorlist import get_url
 from repoutils.lib.l10n import _
 from repoutils.lib.log import logger
 from repoutils.lib.process import Process, popen
-from repoutils.lib.variable import format_str
+from repoutils.lib.variable import format_str, make_pretty
 from repoutils.shared.ktrigger import IKernelTrigger, call_ktrigger
 
 __all__ = [
@@ -79,7 +79,7 @@ def git_update(path: Path, branch: str = "main"):
                 _(
                     "Repository '[underline]${{path}}[/underline]' does not exist."  # noqa: E501
                 ),
-                fmt={"path": str(path)},
+                fmt={"path": make_pretty(path.absolute())},
             )
         )
 

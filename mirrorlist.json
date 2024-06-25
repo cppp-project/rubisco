@@ -1,7 +1,0 @@
-{
-    "github" : {
-        "git": {
-            "origin": "https://github.com/$user/$repo.git"
-        }
-    }
-}

@@ -27,11 +27,17 @@ import os
 import uuid
 from pathlib import Path
 
+import json5 as json
+import yaml
+
+from repoutils.config import DEFAULT_CHARSET
+from repoutils.lib.exceptions import RUValueException
 from repoutils.lib.fileutil import copy_recursive, rm_recursive
 from repoutils.lib.l10n import _
 from repoutils.lib.log import logger
 from repoutils.lib.process import Process, popen
-from repoutils.lib.variable import AutoFormatDict, format_str, push_variables
+from repoutils.lib.variable import (AutoFormatDict, format_str, make_pretty,
+                                    push_variables)
 from repoutils.shared.ktrigger import IKernelTrigger, call_ktrigger
 
 __all__ = [
@@ -45,7 +51,21 @@ __all__ = [
     "RemoveStep",
     "Workflow",
     "register_step_type",
+    "run_inline_workflow",
+    "run_workflow",
+    "_set_extloader",
 ]
+
+try:  # Avoid circular import.
+    from repoutils.shared.extention import load_extention
+except ImportError:
+    load_extention = NotImplemented
+
+
+def _set_extloader(extloader):
+    global load_extention  # pylint: disable=global-statement
+
+    load_extention = extloader
 
 
 class Step:
@@ -259,6 +279,44 @@ class RemoveStep(Step):  # pylint: disable=too-few-public-methods
         rm_recursive(self.path, self.strict)
 
 
+class ExtentionLoadStep(Step):  # pylint: disable=too-few-public-methods
+    """
+    Load a Repoutils Excention manually.
+    """
+
+    path: Path
+    strict: bool
+
+    def __init__(self, data: AutoFormatDict, par_workflow: "Workflow"):
+        self.path = Path(data.get("extention", valtype=str))
+
+        self.strict = data.get("strict", valtype=bool, default=True)
+
+        super().__init__(data, par_workflow)
+
+        load_extention(self.path, self.strict)
+
+
+class WorkflowRunStep(Step):  # pylint: disable=too-few-public-methods
+    """
+    Run another workflow.
+    """
+
+    path: Path
+    fail_fast: bool
+
+    def __init__(self, data: AutoFormatDict, par_workflow: "Workflow"):
+        self.path = Path(data.get("workflow", valtype=str))
+
+        self.fail_fast = data.get("fail-fast", valtype=bool, default=True)
+
+        super().__init__(data, par_workflow)
+
+        exc = run_workflow(self.path, self.fail_fast)
+        if exc:
+            push_variables(f"{self.global_id}.exception", exc)
+
+
 step_types = {
     "shell": ShellExecStep,
     "mkdir": MkdirStep,
@@ -267,6 +325,8 @@ step_types = {
     "move": MoveFileStep,
     "copy": CopyFileStep,
     "remove": RemoveStep,
+    "load-extention": ExtentionLoadStep,
+    "run-workflow": WorkflowRunStep,
 }
 
 # Type is optional. If not provided, it will be inferred from the step data.
@@ -278,6 +338,8 @@ step_contribute = {
     MoveFileStep: ["move", "to"],
     CopyFileStep: ["copy", "to"],
     RemoveStep: ["remove"],
+    ExtentionLoadStep: ["extention"],
+    WorkflowRunStep: ["workflow"],
 }
 
 
@@ -320,6 +382,8 @@ class Workflow:
         step_ids = []
 
         for step_data in steps:
+            if not isinstance(step_data, dict):
+                raise RUValueException(_("A workflow step must be a dict."))
             step_id = step_data.get(
                 "id",
                 valtype=str,
@@ -331,10 +395,10 @@ class Workflow:
 
             step_data["id"] = step_id
             if step_id in step_ids:
-                raise ValueError(
+                raise RUValueException(
                     format_str(
-                        _("Step id ${{step_id}} is duplicated."),
-                        fmt={"step_id": repr(step_id)},
+                        _("Step id '${{step_id}}' is duplicated."),
+                        fmt={"step_id": make_pretty(step_id)},
                     )
                 )
             step_ids.append(step_id)
@@ -351,31 +415,34 @@ class Workflow:
             else:
                 step_cls = step_types.get(step_type, None)
                 if step_cls is None:
-                    raise ValueError(
+                    raise RUValueException(
                         format_str(
                             _(
-                                "Unknown step type: ${{step_type}} of step "
-                                "${{step_name}}. Please check the workflow."
+                                "Unknown step type: '${{step_type}}' of step "
+                                "'${{step_name}}'. Please check the workflow."
                             ),
                             fmt={
-                                "step_type": repr(step_type),
-                                "step_name": repr(step_name),
+                                "step_type": make_pretty(step_type),
+                                "step_name": make_pretty(step_name),
                             },
-                        )
+                        ),
+                        hint=_(
+                            "Please check typo or use 'type' attribute manually.",  # noqa: E501
+                        ),
                     )
 
             if step_cls is None:
-                raise ValueError(
+                raise RUValueException(
                     format_str(
                         _(
-                            "The type of step ${{step}}[black](${{step_id}})"
-                            " [/black] in workflow ${{workflow}}[black]("
+                            "The type of step '${{step}}'[black](${{step_id}})"
+                            "[/black] in workflow '${{workflow}}'[black]("
                             "${{workflow_id}})[/black] is not provided and "
                             "could not be inferred.",
                         ),
                         fmt={
-                            "step": repr(step_name),
-                            "workflow": repr(self.name),
+                            "step": make_pretty(step_name, _("<Unnamed>")),
+                            "workflow": make_pretty(self.name, _("<Unnamed>")),
                             "step_id": step_id,
                             "workflow_id": self.id,
                         },
@@ -455,9 +522,9 @@ def register_step_type(name: str, cls: type, contributes: list[str]) -> None:
             IKernelTrigger.on_warning,
             message=format_str(
                 _(
-                    "Step type ${{name}} registered multiple times. It's unsafe.",  # noqa: E501
+                    "Step type '${{name}}' registered multiple times. It's unsafe.",  # noqa: E501
                 ),
-                fmt={"name": repr(name)},
+                fmt={"name": make_pretty(name)},
             ),
         )
     step_types[name] = cls
@@ -470,20 +537,81 @@ def register_step_type(name: str, cls: type, contributes: list[str]) -> None:
     )
 
 
-if __name__ == "__main__":
-    import sys
+def run_inline_workflow(
+    data: AutoFormatDict, fail_fast: bool = True
+) -> Exception | None:
+    """Run a inline workflow
 
+    Args:
+        data (AutoFormatDict): Workflow data.
+        fail_fast (bool, optional): Raise an exception if run failed.
+            Defaults to True.
+
+    Returns:
+        Exception | None: If running failed without fail-fast, return its
+            exception. Return None if succeed.
+    """
+
+    wf = Workflow(data)
+    try:
+        wf.run()
+    except Exception as exc:  # pylint: disable=broad-exception-caught
+        if fail_fast:
+            raise exc from None
+        call_ktrigger(
+            IKernelTrigger.on_warning,
+            message=format_str(
+                _(
+                    "Workflow running failed: ${{exc}}",
+                ),
+                fmt={"exc": f"{type(exc).__name__}: {str(exc)}"},
+            ),
+        )
+        return exc
+    return None
+
+
+def run_workflow(file: Path, fail_fast: bool = True) -> Exception | None:
+    """Run a workflow file.
+
+    Args:
+        file (Path): Workflow file path. It can be a JSON, or a yaml.
+        fail_fast (bool, optional): Raise an exception if run failed.
+
+    Raises:
+        RUValueException: If workflow's step parse failed.
+
+    Returns:
+        Exception | None: If running failed without fail-fast, return its
+            exception. Return None if succeed.
+    """
+
+    with open(file, encoding=DEFAULT_CHARSET) as f:
+        if file.suffix.lower() in [".json", ".json5"]:
+            workflow = json.load(f)
+        elif file.suffix.lower() in [".yaml", ".yml"]:
+            workflow = yaml.safe_load(f)
+        else:
+            raise RUValueException(
+                format_str(
+                    _(
+                        "The suffix of '[underline]${{path}}[/underline]' "
+                        "is invalid."
+                    ),
+                    fmt={"path": make_pretty(file.absolute())},
+                ),
+                hint=_("We only support '.json', '.json5', '.yaml', '.yml'."),
+            )
+
+        return run_inline_workflow(
+            AutoFormatDict.from_dict(workflow),
+            fail_fast,
+        )
+
+
+if __name__ == "__main__":
     import rich
-    import yaml
 
     rich.print(f"{__file__}: {__doc__.strip()}")
 
-    try:
-        with open("workflow.yaml", encoding="utf-8") as f:
-            workflow = yaml.safe_load(f)
-            wf = Workflow(AutoFormatDict.from_dict(workflow))
-            rich.print(repr(wf))
-            wf.run()
-    except ValueError as exc:
-        rich.print(f"[red]{str(exc)}[/red]")
-        sys.exit(1)
+    run_workflow("workflow.yaml")

@@ -224,7 +224,7 @@ def package_install(packages: list[str]):
         call_ktrigger(
             IKernelTrigger.on_syspkg_installation_skip,
             packages=packages,
-            messages=_("No supported system package manager found."),
+            message=_("No supported system package manager found."),
         )
         return
 

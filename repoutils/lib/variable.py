@@ -41,6 +41,7 @@ __all__ = [
     "get_variable",
     "format_str",
     "AutoFormatDict",
+    "make_pretty",
 ]
 
 
@@ -156,6 +157,27 @@ def get_variable(name: str) -> Any:
     if name in variables:
         return variables[name].top()
     raise KeyError(repr(name))
+
+
+def make_pretty(string: str | Any, empty: str = "") -> str:
+    """Make the string pretty.
+
+    Args:
+        string (str | Any): The string to get representation.
+        empty (str): The string to return if the input is empty.
+
+    Returns:
+        str: Result string.
+    """
+
+    string = str(string)
+
+    if not string:
+        return empty
+    if string.endswith("\\"):
+        string += "\\"
+
+    return string
 
 
 uname_result = uname()

@@ -31,6 +31,7 @@ from repoutils.config import DEFAULT_CHARSET
 from repoutils.lib.command import command
 from repoutils.lib.exceptions import RUShellExecutionException
 from repoutils.lib.fileutil import TemporaryObject
+from repoutils.lib.l10n import _
 from repoutils.lib.log import logger
 from repoutils.shared.ktrigger import IKernelTrigger, call_ktrigger
 
@@ -119,7 +120,9 @@ class Process:
                     raise_exc=raise_exc,
                 )
                 if raise_exc:
-                    raise RUShellExecutionException(retcode=ret)
+                    raise RUShellExecutionException(
+                        _("Shell execution error."), retcode=ret
+                    )
                 return ret
             finally:
                 _win32_set_console_visiable(False)
@@ -191,7 +194,10 @@ def popen(
     ) as process:
         process.wait()
         if strict and process.returncode:
-            raise RUShellExecutionException(retcode=process.returncode)
+            raise RUShellExecutionException(
+                _("Shell execution error."),
+                retcode=process.returncode,
+            )
         return (
             (
                 process.stdout.read().decode(DEFAULT_CHARSET)  # type: ignore

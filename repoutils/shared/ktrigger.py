@@ -31,7 +31,7 @@ from typing import Any, Callable
 from repoutils.lib.exceptions import RUValueException
 from repoutils.lib.l10n import _
 from repoutils.lib.log import logger
-from repoutils.lib.variable import format_str
+from repoutils.lib.variable import format_str, make_pretty
 
 __all__ = [
     "IKernelTrigger",
@@ -106,12 +106,12 @@ class IKernelTrigger:  # pylint: disable=too-many-public-methods
 
         Args:
             task_name (str): Task name.
-            task_type (int): Task type.
+            task_type (int): Task type. Must be TASK_DOWNLOAD or TASK_EXTRACT.
             total (int | float): Total steps.
         """
 
         _null_trigger(
-            "on_progressive_task",
+            "on_new_task",
             task_name=task_name,
             task_type=task_type,
             total=total,
@@ -179,11 +179,7 @@ class IKernelTrigger:  # pylint: disable=too-many-public-methods
             message=message,
         )
 
-    def on_update_git_repo(
-        self,
-        path: Path,
-        branch: str,
-    ) -> None:
+    def on_update_git_repo(self, path: Path, branch: str) -> None:
         """When a git repository is updating.
 
         Args:
@@ -339,20 +335,29 @@ class IKernelTrigger:  # pylint: disable=too-many-public-methods
 
         _null_trigger("on_remove", path=path)
 
+    def on_extention_loaded(self, instance: Any):
+        """On a extention loaded.
+
+        Args:
+            instance (IRUExtention): Extention instance.
+        """
+
+        _null_trigger("on_extention_loaded", instance=instance)
+
 
 # KTrigger instances.
 ktriggers: dict[str, IKernelTrigger] = {}
 
 
-def bind_ktrigger_interface(sign: str, instance: IKernelTrigger) -> None:
-    """Bind a KTrigger instance with a sign.
+def bind_ktrigger_interface(kid: str, instance: IKernelTrigger) -> None:
+    """Bind a KTrigger instance with a id.
 
     Args:
-        sign (str): KTrigger's sign. It MUST be unique.
+        kid (str): KTrigger's id. It MUST be unique.
         instance (IKernelTrigger): KTrigger instance.
 
     Raises:
-        RUValueException: If sign is already exists.
+        RUValueException: If id is already exists.
         TypeError: If instance is not a IKernelTrigger instance.
     """
 
@@ -360,20 +365,20 @@ def bind_ktrigger_interface(sign: str, instance: IKernelTrigger) -> None:
         raise TypeError(
             format_str(
                 _("'${{name}}' is not a IKernelTrigger instance."),
-                fmt={"name": repr(instance)},
+                fmt={"name": make_pretty(instance)},
             )
         )
 
-    if sign in ktriggers:
+    if kid in ktriggers:
         raise RUValueException(
             format_str(
-                _("Kernel trigger sign '${{name}}' is already exists."),
-                fmt={"name": str(sign)},
+                _("Kernel trigger id '${{name}}' is already exists."),
+                fmt={"name": make_pretty(kid)},
             )
         )
 
-    ktriggers[sign] = instance
-    logger.debug("Bind kernel trigger '%s' to '%s'.", sign, repr(instance))
+    ktriggers[kid] = instance
+    logger.debug("Bind kernel trigger '%s' to '%s'.", kid, repr(instance))
 
 
 def call_ktrigger(name: str | Callable, *args, **kwargs) -> None:
