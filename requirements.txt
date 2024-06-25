@@ -4,3 +4,5 @@ gitignore_parser >= 0.0.3
 json-five >= 0.5.1
 requests >= 2.18.4
 rich >= 6.2.0
+rich-argparse >= 1.0.0
+pyyaml >= 5.4.1

@@ -26,11 +26,13 @@ import argparse
 import atexit
 import sys
 from pathlib import Path
+from typing import Iterable
 
 import colorama
 import rich
 import rich.live
 import rich.progress
+from rich_argparse import RichHelpFormatter
 
 from repoutils.cli.input import ask_yesno
 from repoutils.cli.output import (output_error, output_hint, output_step,
@@ -46,18 +48,115 @@ from repoutils.lib.l10n import _
 from repoutils.lib.log import logger
 from repoutils.lib.process import Process
 from repoutils.lib.variable import format_str, make_pretty
-from repoutils.shared.extention import IRUExtention
-from repoutils.shared.ktrigger import IKernelTrigger, bind_ktrigger_interface
+from repoutils.shared.extention import IRUExtention, load_all_extentions
+from repoutils.shared.ktrigger import (IKernelTrigger, bind_ktrigger_interface,
+                                       call_ktrigger)
+
+__all__ = ["main"]
+
+
+def show_version() -> str:
+    """
+    Get version string.
+    """
+
+    rich.print(APP_NAME, end=" ")
+    print(str(APP_VERSION))
+    rich.print(
+        _("Copyright (C) 2024 The C++ Plus Project."),
+    )
+    rich.print(
+        _(
+            "License [bold]GPLv3+[/bold]: GNU GPL version [cyan]3"
+            "[/cyan] or later <https://www.gnu.org/licenses/gpl.html>."
+        ),
+    )
+    rich.print(
+        _(
+            "This is free software: you are free to change and redistribute it."  # noqa: E501
+        ),
+    )
+    rich.print(
+        _(
+            "There is [yellow]NO WARRANTY[/yellow], to the extent permitted by law.",  # noqa: E501
+        ),
+    )
+    rich.print(
+        _("Written by [underline]ChenPi11[/underline]."),
+    )
+
+
+class _VersionAction(argparse.Action):
+    """
+    Version Action for repoutils.
+    """
+
+    def __init__(  # pylint: disable=too-many-arguments
+        self,
+        option_strings,
+        version=None,
+        dest=argparse.SUPPRESS,
+        default=argparse.SUPPRESS,
+        help=None,
+    ):  # pylint: disable=redefined-builtin
+        if help is None:
+            help = _("show program's version number and exit")
+        super().__init__(
+            option_strings=option_strings,
+            dest=dest,
+            default=default,
+            nargs=0,
+            help=help,
+        )
+        self.version = version
+
+    def __call__(self, parser, namespace, values, option_string=None):
+        show_version()
+        parser.exit()
+
+
+hooks: dict[str, list] = {}
+
+
+class RUHelpFormatter(RichHelpFormatter):
+    """Repoutils CLI help formatter."""
+
+    def add_usage(
+        self,
+        usage: str | None,
+        actions: Iterable[argparse.Action],
+        groups: Iterable[argparse._MutuallyExclusiveGroup],
+        prefix: str | None = None,
+    ):
+        for action in actions:
+            if action.help == "show this help message and exit":
+                action.help = _("Show this help message and exit.")
+        super().add_usage(usage, actions, groups, prefix)
+
+    def format_help(self) -> str:
+        help_str = super().format_help()
+        help_str = help_str.replace("Usage:", _("Usage:"))
+        help_str = help_str.replace(
+            "Positional Arguments:",
+            _("Positional Arguments:"),
+        )
+        help_str = help_str.replace("Options:", _("Options:"))
+
+        return help_str
+
 
 arg_parser = argparse.ArgumentParser(
     description=_("Repoutils CLI"),
-    formatter_class=argparse.RawDescriptionHelpFormatter,
+    formatter_class=RUHelpFormatter,
 )
+
+arg_parser.register("action", "version", _VersionAction)
 
 arg_parser.add_argument(
     "-v",
     "--version",
-    action="store_true",
+    action="version",
+    version="",
     help=_("Show version infomation."),
 )
 
@@ -69,39 +168,21 @@ arg_parser.add_argument(
 
 arg_parser.add_argument(
     "command",
-    action="append",
-    type=str,
-    help=_("Run a command defined by project or extention."),
+    action="store",
+    nargs=1,
+    help=_("Command to run."),
 )
 
+hook_commands = arg_parser.add_subparsers(
+    title=_("Available commands"),
+    dest="command",
+    metavar="",
+)
 
-def show_version() -> None:
-    """
-    Show version.
-    """
-
-    print(APP_NAME, end=" ")
-    print(str(APP_VERSION))
-
-    rich.print(_("Copyright (C) 2024 The C++ Plus Project."))
-    rich.print(
-        _(
-            "License [bold]GPLv3+[/bold]: GNU GPL version [cyan]3"
-            "[/cyan] or later <https://www.gnu.org/licenses/gpl.html>."
-        )
-    )
-    rich.print(
-        _(
-            "This is free software: you are free to change and redistribute it."  # noqa: E501
-        )
-    )
-    rich.print(
-        _(
-            "There is [yellow]NO WARRANTY[/yellow], to the extent permitted by law.",  # noqa: E501
-        )
-    )
-    rich.print(_("Written by [underline]ChenPi11[/underline]."))
-
+hook_commands.add_parser(
+    "info",
+    help=_("Show project information."),
+)
 
 project_config: ProjectConfigration | None = None
 
@@ -153,6 +234,8 @@ class RepoutilsKTrigger(  # pylint: disable=too-many-public-methods
             title = _("[yellow]Downloading[/yellow]")
         elif task_type == IKernelTrigger.TASK_EXTRACT:
             title = _("[yellow]Extracting[/yellow]")
+        else:
+            title = _("[yellow]Processing[/yellow]")
 
         if task_name in self.tasks:
             self.cur_progress.update(self.tasks[task_name], completed=0)
@@ -358,6 +441,49 @@ class RepoutilsKTrigger(  # pylint: disable=too-many-public-methods
             )
         )
 
+    def on_show_project_info(self, project: ProjectConfigration):
+        rich.print(
+            format_str(
+                _("Project: ${{name}}"),
+                fmt={"name": make_pretty(project.name)},
+            ),
+        )
+        rich.print(
+            format_str(
+                _("Config file: [underline]${{path}}[/underline]"),
+                fmt={"path": make_pretty(project.config_file)},
+            )
+        )
+        rich.print(
+            format_str(
+                _("Version [white]${{version}}[/white]"),
+                fmt={"version": str(project.version)},
+            )
+        )
+
+        if isinstance(project.maintainer, list):
+            maintainers = "\n  ".join(project.maintainer)
+        else:
+            maintainers = str(project.maintainer)
+        rich.print(
+            format_str(
+                _("Maintainer: ${{maintainer}}"),
+                fmt={"maintainer": maintainers},
+            )
+        )
+        rich.print(
+            format_str(
+                _("License: ${{license}}"),
+                fmt={"license": project.license},
+            )
+        )
+        rich.print(
+            format_str(
+                _("Description: ${{desc}}"),
+                fmt={"desc": project.description},
+            )
+        )
+
 
 def on_exit():
     """
@@ -369,8 +495,6 @@ def on_exit():
 
 atexit.register(on_exit)
 
-hooks: dict[str, list] = {}
-
 
 def bind_hook(name: str):
     """Bind hook to a command.
@@ -379,8 +503,11 @@ def bind_hook(name: str):
         name (str): Hook name.
     """
 
+    logger.debug("Binding hook: %s", name)
     if project_config and name in project_config.hooks.keys():
-        hooks[name] = project_config.hooks[name]
+        if name not in hooks:
+            hooks[name] = []
+        hooks[name].append(project_config.hooks[name])
 
 
 def call_hook(name: str):
@@ -398,7 +525,8 @@ def call_hook(name: str):
             ),
             hint=_("Perhaps a typo?"),
         )
-    hooks[name].run()
+    for hook in hooks[name]:
+        hook.run()
 
 
 def load_project():
@@ -412,6 +540,13 @@ def load_project():
         project_config = load_project_config(Path.cwd())
         for hook_name in project_config.hooks.keys():  # Bind all hooks.
             bind_hook(hook_name)
+            hook_commands.add_parser(
+                hook_name,
+                help=format_str(
+                    _("(${{num}} overrides)"),
+                    fmt={"num": str(len(hooks[hook_name]))},
+                ),
+            )
     except FileNotFoundError as exc:
         raise RUValueException(
             format_str(
@@ -422,7 +557,7 @@ def load_project():
                 fmt={"path": make_pretty(Path.cwd().absolute())},
             ),
             hint=format_str(
-                _("'[underline]${{path}}[/underline] is not found."),
+                _("'[underline]${{path}}[/underline]' is not found."),
                 fmt={"path": make_pretty(USER_REPO_CONFIG.absolute())},
             ),
         ) from exc
@@ -436,20 +571,26 @@ def main() -> None:
 
         colorama.init()
         clean_log()
-
         bind_ktrigger_interface("repoutils", RepoutilsKTrigger())
+        load_all_extentions()
 
-        args = arg_parser.parse_args()
-
-        if args.version:
-            show_version()
-            return
-
-        load_project()
+        try:
+            load_project()
+        finally:
+            args = arg_parser.parse_args()
 
         op_command = args.command[0]
-        call_hook(op_command)
+        match op_command:
+            case "info":
+                call_ktrigger(
+                    IKernelTrigger.on_show_project_info,
+                    project=project_config,
+                )
+            case _:
+                call_hook(op_command)
 
+    except SystemExit as exc:
+        raise exc from None  # Do not show traceback.
     except Exception as exc:  # pylint: disable=broad-exception-caught
         logger.critical("An unexpected error occurred.", exc_info=True)
         show_exception(exc)

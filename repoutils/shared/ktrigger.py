@@ -344,6 +344,15 @@ class IKernelTrigger:  # pylint: disable=too-many-public-methods
 
         _null_trigger("on_extention_loaded", instance=instance)
 
+    def on_show_project_info(self, project: Any) -> None:
+        """On show project information.
+
+        Args:
+            project (ProjectConfigration): Project configuration.
+        """
+
+        _null_trigger("on_show_project_info", project=project)
+
 
 # KTrigger instances.
 ktriggers: dict[str, IKernelTrigger] = {}

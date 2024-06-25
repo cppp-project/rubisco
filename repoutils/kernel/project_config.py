@@ -104,7 +104,7 @@ class ProjectHook:  # pylint: disable=too-few-public-methods
                 pop_variables(name)
 
 
-class ProjectConfigration:
+class ProjectConfigration:  # pylint: disable=too-many-instance-attributes
     """
     Project configuration instance.
     """
@@ -119,6 +119,8 @@ class ProjectConfigration:
     # Project optional configurations.
     description: str
     repoutils_min_version: Version
+    maintainer: list[str] | str
+    license: str
     hooks: AutoFormatDict
 
     def __init__(self, config_file: Path):
@@ -159,6 +161,18 @@ class ProjectConfigration:
                 ),
                 hint=_("Please upgrade repoutils to the required version."),
             )
+
+        self.maintainer = self.config.get(
+            "maintainer",
+            default=_("[yellow]Unknown[/yellow]"),
+            valtype=list | str,
+        )
+
+        self.license = self.config.get(
+            "license",
+            default=_("[yellow]Unknown[/yellow]"),
+            valtype=str,
+        )
 
         hooks = self.config.get("hooks", default={}, valtype=dict)
         for name, data in hooks.items():

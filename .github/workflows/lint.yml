@@ -27,14 +27,13 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
-        pip3 install pylint
-        pip3 install flake8
+        pip3 install pylint flake8
 
     #---------------------------------------------lint----------------------------------------------
     - name: 🛠️ Analysing the code with pylint
       run: |
-        pylint -j $(nproc) $(git ls-files \*.py)
+        python -m pylint -j $(nproc) $(git ls-files \*.py)
 
     - name: 🛠️ Analysing the code with flake8
       run: |
-        flake8 repoutils
+        python -m flake8 repoutils
