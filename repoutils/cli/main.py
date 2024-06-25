@@ -35,21 +35,13 @@ import rich.progress
 from rich_argparse import RichHelpFormatter
 
 from repoutils.cli.input import ask_yesno
-from repoutils.cli.output import (
-    output_error,
-    output_hint,
-    output_step,
-    output_warning,
-    pop_level,
-    push_level,
-    show_exception,
-)
+from repoutils.cli.output import (output_error, output_hint, output_step,
+                                  output_warning, pop_level, push_level,
+                                  show_exception)
 from repoutils.config import APP_NAME, APP_VERSION, USER_REPO_CONFIG
 from repoutils.kernel.log_clean import clean_log
-from repoutils.kernel.project_config import (  # noqa: E501
-    ProjectConfigration,
-    load_project_config,
-)
+from repoutils.kernel.project_config import (ProjectConfigration,  # noqa: E501
+                                             load_project_config)
 from repoutils.kernel.workflow import Step, Workflow
 from repoutils.lib.exceptions import RUValueException
 from repoutils.lib.l10n import _
@@ -57,11 +49,8 @@ from repoutils.lib.log import logger
 from repoutils.lib.process import Process
 from repoutils.lib.variable import format_str, make_pretty
 from repoutils.shared.extention import IRUExtention, load_all_extentions
-from repoutils.shared.ktrigger import (
-    IKernelTrigger,
-    bind_ktrigger_interface,
-    call_ktrigger,
-)
+from repoutils.shared.ktrigger import (IKernelTrigger, bind_ktrigger_interface,
+                                       call_ktrigger)
 
 __all__ = ["main"]
 

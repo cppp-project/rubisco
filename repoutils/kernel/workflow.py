@@ -36,12 +36,8 @@ from repoutils.lib.fileutil import copy_recursive, rm_recursive
 from repoutils.lib.l10n import _
 from repoutils.lib.log import logger
 from repoutils.lib.process import Process, popen
-from repoutils.lib.variable import (
-    AutoFormatDict,
-    format_str,
-    make_pretty,
-    push_variables,
-)
+from repoutils.lib.variable import (AutoFormatDict, format_str, make_pretty,
+                                    push_variables)
 from repoutils.shared.ktrigger import IKernelTrigger, call_ktrigger
 
 __all__ = [
