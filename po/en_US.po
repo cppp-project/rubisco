@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: cppp-repoutils 0.1.0\n"
 "Report-Msgid-Bugs-To: cpppteam@email.cn\n"
-"POT-Creation-Date: 2024-06-25 14:47+0800\n"
+"POT-Creation-Date: 2024-06-25 14:58+0800\n"
 "PO-Revision-Date: 2024-06-25 11:05+0800\n"
 "Last-Translator:  <wushengwuxi-msctinoulk@outlook.com>\n"
 "Language-Team: English\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: ../repoutils/cli/main.py:360
+#: ../repoutils/cli/main.py:349
 msgid "${{speed}} us"
 msgstr "${{speed}} us"
 
@@ -25,20 +25,20 @@ msgstr "${{speed}} us"
 msgid "'${{name}}' is not a IKernelTrigger instance."
 msgstr "'${{name}}' is not a IKernelTrigger instance."
 
-#: ../repoutils/cli/main.py:582
+#: ../repoutils/cli/main.py:571
 msgid "'[underline]${{path}}[/underline]' is not found."
 msgstr "'[underline]${{path}}[/underline]' is not found."
 
-#: ../repoutils/cli/main.py:568
+#: ../repoutils/cli/main.py:557
 msgid "(${{num}} overrides)"
 msgstr "(${{num}} overrides)"
 
-#: ../repoutils/kernel/workflow.py:571
+#: ../repoutils/kernel/workflow.py:567
 msgid "<Inline Workflow>"
 msgstr "<Inline Workflow>"
 
 #: ../repoutils/kernel/project_config.py:158
-#: ../repoutils/kernel/workflow.py:458 ../repoutils/kernel/workflow.py:459
+#: ../repoutils/kernel/workflow.py:454 ../repoutils/kernel/workflow.py:455
 msgid "<Unnamed>"
 msgstr "<Unnamed>"
 
@@ -46,7 +46,7 @@ msgstr "<Unnamed>"
 msgid "A workflow [yellow]SHOULD[/yellow] contain at least 'exec', 'run' and 'workflow'."
 msgstr "A workflow [yellow]SHOULD[/yellow] contain at least 'exec', 'run' and 'workflow'."
 
-#: ../repoutils/kernel/workflow.py:400
+#: ../repoutils/kernel/workflow.py:396
 msgid "A workflow step must be a dict."
 msgstr "A workflow step must be a dict."
 
@@ -54,23 +54,23 @@ msgstr "A workflow step must be a dict."
 msgid "Absolute path '[underline]${{path}}[/underline]' is not allowed."
 msgstr "Absolute path '[underline]${{path}}[/underline]' is not allowed."
 
-#: ../repoutils/cli/main.py:187
+#: ../repoutils/cli/main.py:176
 msgid "Available commands"
 msgstr "Available commands"
 
-#: ../repoutils/cli/main.py:323
+#: ../repoutils/cli/main.py:312
 msgid "Cloning Git repository ${{url}} (${{branch}}) into '[underline]${{path}}[/underline]' ..."
 msgstr "Cloning Git repository ${{url}} (${{branch}}) into '[underline]${{path}}[/underline]' ..."
 
-#: ../repoutils/lib/fileutil.py:575
+#: ../repoutils/lib/fileutil.py:576
 msgid "Command '${{cmd}}' not found."
 msgstr "Command '${{cmd}}' not found."
 
-#: ../repoutils/cli/main.py:183
+#: ../repoutils/cli/main.py:172
 msgid "Command to run."
 msgstr "Command to run."
 
-#: ../repoutils/cli/main.py:475
+#: ../repoutils/cli/main.py:464
 msgid "Config file: [underline]${{path}}[/underline]"
 msgstr "Config file: [underline]${{path}}[/underline]"
 
@@ -78,23 +78,23 @@ msgstr "Config file: [underline]${{path}}[/underline]"
 msgid "Configuration must be a JSON5 object. (dict)"
 msgstr "Configuration must be a JSON5 object. (dict)"
 
-#: ../repoutils/cli/main.py:300
+#: ../repoutils/cli/main.py:289
 msgid "Continue anyway?"
 msgstr "Continue anyway?"
 
-#: ../repoutils/cli/main.py:440
+#: ../repoutils/cli/main.py:429
 msgid "Copying '[underline]${{src}}[/underline]' to '[underline]${{dst}}[/underline]' ..."
 msgstr "Copying '[underline]${{src}}[/underline]' to '[underline]${{dst}}[/underline]' ..."
 
-#: ../repoutils/cli/main.py:77
+#: ../repoutils/cli/main.py:66
 msgid "Copyright (C) 2024 The C++ Plus Project."
 msgstr "Copyright (C) 2024 The C++ Plus Project."
 
-#: ../repoutils/cli/main.py:414
+#: ../repoutils/cli/main.py:403
 msgid "Creating directory: [underline]${{path}}[/underline] ..."
 msgstr "Creating directory: [underline]${{path}}[/underline] ..."
 
-#: ../repoutils/cli/main.py:504
+#: ../repoutils/cli/main.py:493
 msgid "Description: ${{desc}}"
 msgstr "Description: ${{desc}}"
 
@@ -106,11 +106,11 @@ msgstr "Downloading ${{url}} ..."
 msgid "Error while removing '[underline]${{path}}[/underline]': ${{error}}"
 msgstr "Error while removing '[underline]${{path}}[/underline]': ${{error}}"
 
-#: ../repoutils/cli/main.py:213
+#: ../repoutils/cli/main.py:202
 msgid "Executing: [cyan]${{cmd}}[/cyan] ..."
 msgstr "Executing: [cyan]${{cmd}}[/cyan] ..."
 
-#: ../repoutils/cli/main.py:461
+#: ../repoutils/cli/main.py:450
 msgid "Extension '${{name}}' loaded."
 msgstr "Extension '${{name}}' loaded."
 
@@ -122,7 +122,7 @@ msgstr "Failed to load extention '${{name}}': ${{exc}}."
 msgid "File '[underline]${{path}}[/underline]' already exists."
 msgstr "File '[underline]${{path}}[/underline]' already exists."
 
-#: ../repoutils/cli/main.py:231
+#: ../repoutils/cli/main.py:220
 msgid "File '[underline]${{path}}[/underline]' already exists. [yellow]Overwrite[/yellow]?"
 msgstr "File '[underline]${{path}}[/underline]' already exists. [yellow]Overwrite[/yellow]?"
 
@@ -170,15 +170,15 @@ msgstr "JSON5 decode error."
 msgid "Kernel trigger id '${{name}}' is already exists."
 msgstr "Kernel trigger id '${{name}}' is already exists."
 
-#: ../repoutils/cli/main.py:81
+#: ../repoutils/cli/main.py:70
 msgid "License [bold]GPLv3+[/bold]: GNU GPL version [cyan]3[/cyan] or later <https://www.gnu.org/licenses/gpl.html>."
 msgstr "License [bold]GPLv3+[/bold]: GNU GPL version [cyan]3[/cyan] or later <https://www.gnu.org/licenses/gpl.html>."
 
-#: ../repoutils/cli/main.py:498
+#: ../repoutils/cli/main.py:487
 msgid "License: ${{license}}"
 msgstr "License: ${{license}}"
 
-#: ../repoutils/cli/main.py:492
+#: ../repoutils/cli/main.py:481
 msgid "Maintainer: ${{maintainer}}"
 msgstr "Maintainer: ${{maintainer}}"
 
@@ -186,7 +186,7 @@ msgstr "Maintainer: ${{maintainer}}"
 msgid "Missing key: ${{msg}}"
 msgstr "Missing key: ${{msg}}"
 
-#: ../repoutils/cli/main.py:426
+#: ../repoutils/cli/main.py:415
 msgid "Moving file '[underline]${{src}}[/underline]' to '[underline]${{dst}}[/underline]' ..."
 msgstr "Moving file '[underline]${{src}}[/underline]' to '[underline]${{dst}}[/underline]' ..."
 
@@ -198,19 +198,19 @@ msgstr "No supported package manager found."
 msgid "No supported system package manager found."
 msgstr "No supported system package manager found."
 
-#: ../repoutils/cli/main.py:154
+#: ../repoutils/cli/main.py:143
 msgid "Options:"
 msgstr "Options:"
 
-#: ../repoutils/cli/main.py:348
+#: ../repoutils/cli/main.py:337
 msgid "Performing websites speed test ..."
 msgstr "Performing websites speed test ..."
 
-#: ../repoutils/cli/main.py:548
+#: ../repoutils/cli/main.py:537
 msgid "Perhaps a typo?"
 msgstr "Perhaps a typo?"
 
-#: ../repoutils/kernel/workflow.py:444
+#: ../repoutils/kernel/workflow.py:440
 msgid "Please check typo or use 'type' attribute manually."
 msgstr "Please check typo or use 'type' attribute manually."
 
@@ -218,7 +218,7 @@ msgstr "Please check typo or use 'type' attribute manually."
 msgid "Please check your mirrorlist.json file inworkspace, user or global config directory."
 msgstr "Please check your mirrorlist.json file inworkspace, user or global config directory."
 
-#: ../repoutils/cli/main.py:293
+#: ../repoutils/cli/main.py:282
 msgid "Please install the following packages manually: [bold]${{packages}}[/bold]."
 msgstr "Please install the following packages manually: [bold]${{packages}}[/bold]."
 
@@ -234,11 +234,11 @@ msgstr "Please upgrade repoutils to the required version."
 msgid "Please use a different name for the extention."
 msgstr "Please use a different name for the extention."
 
-#: ../repoutils/cli/main.py:152
+#: ../repoutils/cli/main.py:141
 msgid "Positional Arguments:"
 msgstr "Positional Arguments:"
 
-#: ../repoutils/cli/main.py:469
+#: ../repoutils/cli/main.py:458
 msgid "Project: ${{name}}"
 msgstr "Project: ${{name}}"
 
@@ -246,7 +246,7 @@ msgstr "Project: ${{name}}"
 msgid "Recursion detected in mirrorlist: '${{name}}'"
 msgstr "Recursion detected in mirrorlist: '${{name}}'"
 
-#: ../repoutils/cli/main.py:453
+#: ../repoutils/cli/main.py:442
 msgid "Removing '[underline]${{path}}[/underline]' ..."
 msgstr "Removing '[underline]${{path}}[/underline]' ..."
 
@@ -258,15 +258,15 @@ msgstr "Repository '[underline]${{path}}[/underline]' already exists."
 msgid "Repository '[underline]${{path}}[/underline]' does not exist."
 msgstr "Repository '[underline]${{path}}[/underline]' does not exist."
 
-#: ../repoutils/cli/main.py:176
+#: ../repoutils/cli/main.py:165
 msgid "Run repoutils in debug mode."
 msgstr "Run repoutils in debug mode."
 
-#: ../repoutils/cli/main.py:394
+#: ../repoutils/cli/main.py:383
 msgid "Running workflow: [white]${{name}}[/white] [black](${{id}})[/black]"
 msgstr "Running workflow: [white]${{name}}[/white] [black](${{id}})[/black]"
 
-#: ../repoutils/cli/main.py:380
+#: ../repoutils/cli/main.py:369
 msgid "Running: [white]${{name}}[/white] [black](${{id}})[/black]"
 msgstr "Running: [white]${{name}}[/white] [black](${{id}})[/black]"
 
@@ -278,15 +278,15 @@ msgstr "See: ${{url}}"
 msgid "Shell execution error."
 msgstr "Shell execution error."
 
-#: ../repoutils/cli/main.py:114
+#: ../repoutils/cli/main.py:103
 msgid "Show program's version number and exit."
 msgstr "Show program's version number and exit."
 
-#: ../repoutils/cli/main.py:194
+#: ../repoutils/cli/main.py:183
 msgid "Show project information."
 msgstr "Show project information."
 
-#: ../repoutils/cli/main.py:144
+#: ../repoutils/cli/main.py:133
 msgid "Show this help message and exit."
 msgstr "Show this help message and exit."
 
@@ -294,11 +294,11 @@ msgstr "Show this help message and exit."
 msgid "Source '${{protocol}}/${{website}}/${{name}}' not found."
 msgstr "Source '${{protocol}}/${{website}}/${{name}}' not found."
 
-#: ../repoutils/kernel/workflow.py:414
+#: ../repoutils/kernel/workflow.py:410
 msgid "Step id '${{step_id}}' is duplicated."
 msgstr "Step id '${{step_id}}' is duplicated."
 
-#: ../repoutils/kernel/workflow.py:539
+#: ../repoutils/kernel/workflow.py:535
 msgid "Step type '${{name}}' registered multiple times. It's unsafe."
 msgstr "Step type '${{name}}' registered multiple times. It's unsafe."
 
@@ -310,7 +310,7 @@ msgstr "Subprocess return code is ${{retcode}}."
 msgid "Subprocess return code is ${{retcode}}. It may be caused by command not found."
 msgstr "Subprocess return code is ${{retcode}}. It may be caused by command not found."
 
-#: ../repoutils/cli/main.py:340
+#: ../repoutils/cli/main.py:329
 msgid "Testing ${{host}}: ${{status}}\n"
 msgstr "Testing ${{host}}: ${{status}}\n"
 
@@ -326,15 +326,15 @@ msgstr "The extention path '[underline]${{path}}[/underline]' is not a directory
 msgid "The minimum version of repoutils required by the project '[underline]${{name}}[/underline]' is '[underline]${{version}}[/underline]'."
 msgstr "The minimum version of repoutils required by the project '[underline]${{name}}[/underline]' is '[underline]${{version}}[/underline]'."
 
-#: ../repoutils/kernel/workflow.py:283
+#: ../repoutils/kernel/workflow.py:279
 msgid "The remove item must be a string."
 msgstr "The remove item must be a string."
 
-#: ../repoutils/kernel/workflow.py:618
+#: ../repoutils/kernel/workflow.py:614
 msgid "The suffix of '[underline]${{path}}[/underline]' is invalid."
 msgstr "The suffix of '[underline]${{path}}[/underline]' is invalid."
 
-#: ../repoutils/kernel/workflow.py:452
+#: ../repoutils/kernel/workflow.py:448
 msgid "The type of step '${{step}}'[black](${{step_id}})[/black] in workflow '${{workflow}}'[black](${{workflow_id}})[/black] is not provided and could not be inferred."
 msgstr "The type of step '${{step}}'[black](${{step_id}})[/black] in workflow '${{workflow}}'[black](${{workflow_id}})[/black] is not provided and could not be inferred."
 
@@ -342,15 +342,15 @@ msgstr "The type of step '${{step}}'[black](${{step_id}})[/black] in workflow '$
 msgid "The value of key ${{key}} needs to be ${{type}} instead of ${{value_type}}."
 msgstr "The value of key ${{key}} needs to be ${{type}} instead of ${{value_type}}."
 
-#: ../repoutils/cli/main.py:92
+#: ../repoutils/cli/main.py:81
 msgid "There is [yellow]NO WARRANTY[/yellow], to the extent permitted by law."
 msgstr "There is [yellow]NO WARRANTY[/yellow], to the extent permitted by law."
 
-#: ../repoutils/cli/main.py:87
+#: ../repoutils/cli/main.py:76
 msgid "This is free software: you are free to change and redistribute it."
 msgstr "This is free software: you are free to change and redistribute it."
 
-#: ../repoutils/cli/main.py:545
+#: ../repoutils/cli/main.py:534
 msgid "Undefined command or hook ${{name}}"
 msgstr "Undefined command or hook ${{name}}"
 
@@ -358,39 +358,39 @@ msgstr "Undefined command or hook ${{name}}"
 msgid "Unknown error."
 msgstr "Unknown error."
 
-#: ../repoutils/kernel/workflow.py:435
+#: ../repoutils/kernel/workflow.py:431
 msgid "Unknown step type: '${{step_type}}' of step '${{step_name}}'. Please check the workflow."
 msgstr "Unknown step type: '${{step_type}}' of step '${{step_name}}'. Please check the workflow."
 
-#: ../repoutils/cli/main.py:307
+#: ../repoutils/cli/main.py:296
 msgid "Updating Git repository '[underline]${{path}}[/underline]'(${{branch}}) ..."
 msgstr "Updating Git repository '[underline]${{path}}[/underline]'(${{branch}}) ..."
 
-#: ../repoutils/cli/main.py:149
+#: ../repoutils/cli/main.py:138
 msgid "Usage:"
 msgstr "Usage:"
 
-#: ../repoutils/cli/main.py:481
+#: ../repoutils/cli/main.py:470
 msgid "Version [white]${{version}}[/white]"
 msgstr "Version [white]${{version}}[/white]"
 
-#: ../repoutils/kernel/workflow.py:623
+#: ../repoutils/kernel/workflow.py:619
 msgid "We only support '.json', '.json5', '.yaml', '.yml'."
 msgstr "We only support '.json', '.json5', '.yaml', '.yml'."
 
-#: ../repoutils/cli/main.py:406
+#: ../repoutils/cli/main.py:395
 msgid "Workflow '${{name}}' finished."
 msgstr "Workflow '${{name}}' finished."
 
-#: ../repoutils/kernel/workflow.py:585
+#: ../repoutils/kernel/workflow.py:581
 msgid "Workflow running failed: ${{exc}}"
 msgstr "Workflow running failed: ${{exc}}"
 
-#: ../repoutils/cli/main.py:576
+#: ../repoutils/cli/main.py:565
 msgid "Working directory '[underline]${{path}}[/underline]' not a repoutils project."
 msgstr "Working directory '[underline]${{path}}[/underline]' not a repoutils project."
 
-#: ../repoutils/cli/main.py:96
+#: ../repoutils/cli/main.py:85
 msgid "Written by [underline]ChenPi11[/underline]."
 msgstr "Written by [underline]ChenPi11[/underline]."
 
@@ -398,7 +398,7 @@ msgstr "Written by [underline]ChenPi11[/underline]."
 msgid "[italic][magenta]Hint:[/magenta] ${{msg}}[/italic]"
 msgstr "[italic][magenta]Hint:[/magenta] ${{msg}}[/italic]"
 
-#: ../repoutils/cli/main.py:357
+#: ../repoutils/cli/main.py:346
 msgid "[red]Canceled[/red]"
 msgstr "[red]Canceled[/red]"
 
@@ -406,11 +406,11 @@ msgstr "[red]Canceled[/red]"
 msgid "[red]Error: ${{msg}}[/red]"
 msgstr "[red]Error: ${{msg}}[/red]"
 
-#: ../repoutils/cli/main.py:249
+#: ../repoutils/cli/main.py:238
 msgid "[yellow]Downloading[/yellow]"
 msgstr "[yellow]Downloading[/yellow]"
 
-#: ../repoutils/cli/main.py:251
+#: ../repoutils/cli/main.py:240
 msgid "[yellow]Extracting[/yellow]"
 msgstr "[yellow]Extracting[/yellow]"
 
@@ -418,11 +418,11 @@ msgstr "[yellow]Extracting[/yellow]"
 msgid "[yellow]Invalid input. Please enter '[green]Y[/green]' or '[red]N[/red]'."
 msgstr "[yellow]Invalid input. Please enter '[green]Y[/green]' or '[red]N[/red]'."
 
-#: ../repoutils/cli/main.py:253
+#: ../repoutils/cli/main.py:242
 msgid "[yellow]Processing[/yellow]"
 msgstr "[yellow]Processing[/yellow]"
 
-#: ../repoutils/cli/main.py:352 ../repoutils/cli/main.py:368
+#: ../repoutils/cli/main.py:341 ../repoutils/cli/main.py:357
 msgid "[yellow]Testing[/yellow] ..."
 msgstr "[yellow]Testing[/yellow] ..."
 

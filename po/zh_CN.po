@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: cppp-repoutils 0.1.0\n"
 "Report-Msgid-Bugs-To: cpppteam@email.cn\n"
-"POT-Creation-Date: 2024-06-25 14:47+0800\n"
+"POT-Creation-Date: 2024-06-25 14:58+0800\n"
 "PO-Revision-Date: 2024-06-25 11:07+0800\n"
 "Last-Translator:  <wushengwuxi-msctinoulk@outlook.com>\n"
 "Language-Team: Chinese (simplified) <i18n-zh@googlegroups.com>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: ../repoutils/cli/main.py:360
+#: ../repoutils/cli/main.py:349
 msgid "${{speed}} us"
 msgstr "${{speed}} 微秒"
 
@@ -25,20 +25,20 @@ msgstr "${{speed}} 微秒"
 msgid "'${{name}}' is not a IKernelTrigger instance."
 msgstr "'${{name}}' 不是 IKernelTrigger 实例。"
 
-#: ../repoutils/cli/main.py:582
+#: ../repoutils/cli/main.py:571
 msgid "'[underline]${{path}}[/underline]' is not found."
 msgstr "未找到 '[underline]${{path}}[/underline]'。"
 
-#: ../repoutils/cli/main.py:568
+#: ../repoutils/cli/main.py:557
 msgid "(${{num}} overrides)"
 msgstr "（${{num}} 个重载）"
 
-#: ../repoutils/kernel/workflow.py:571
+#: ../repoutils/kernel/workflow.py:567
 msgid "<Inline Workflow>"
 msgstr "<内联工作流>"
 
 #: ../repoutils/kernel/project_config.py:158
-#: ../repoutils/kernel/workflow.py:458 ../repoutils/kernel/workflow.py:459
+#: ../repoutils/kernel/workflow.py:454 ../repoutils/kernel/workflow.py:455
 msgid "<Unnamed>"
 msgstr "<未命名>"
 
@@ -46,7 +46,7 @@ msgstr "<未命名>"
 msgid "A workflow [yellow]SHOULD[/yellow] contain at least 'exec', 'run' and 'workflow'."
 msgstr "工作流 [yellow]应该[/yellow]至少包含 'exec'， 'run' 和 'workflow' 选项。"
 
-#: ../repoutils/kernel/workflow.py:400
+#: ../repoutils/kernel/workflow.py:396
 msgid "A workflow step must be a dict."
 msgstr "工作流步骤必须是一个字典。"
 
@@ -54,23 +54,23 @@ msgstr "工作流步骤必须是一个字典。"
 msgid "Absolute path '[underline]${{path}}[/underline]' is not allowed."
 msgstr "不允许使用绝对路径 '[underline]${{path}}[/underline]'。"
 
-#: ../repoutils/cli/main.py:187
+#: ../repoutils/cli/main.py:176
 msgid "Available commands"
 msgstr "可用命令"
 
-#: ../repoutils/cli/main.py:323
+#: ../repoutils/cli/main.py:312
 msgid "Cloning Git repository ${{url}} (${{branch}}) into '[underline]${{path}}[/underline]' ..."
 msgstr "正在克隆 Git 仓库 ${{url}} (${{branch}}) 到 '[underline]${{path}}[/underline]' ..."
 
-#: ../repoutils/lib/fileutil.py:575
+#: ../repoutils/lib/fileutil.py:576
 msgid "Command '${{cmd}}' not found."
 msgstr "命令 '${{cmd}}' 未找到。"
 
-#: ../repoutils/cli/main.py:183
+#: ../repoutils/cli/main.py:172
 msgid "Command to run."
 msgstr "要运行的命令。"
 
-#: ../repoutils/cli/main.py:475
+#: ../repoutils/cli/main.py:464
 msgid "Config file: [underline]${{path}}[/underline]"
 msgstr "配置文件： [underline]${{path}}[/underline]"
 
@@ -78,23 +78,23 @@ msgstr "配置文件： [underline]${{path}}[/underline]"
 msgid "Configuration must be a JSON5 object. (dict)"
 msgstr "配置必须是 JSON5 对象。 (dict)"
 
-#: ../repoutils/cli/main.py:300
+#: ../repoutils/cli/main.py:289
 msgid "Continue anyway?"
 msgstr "仍然继续吗？"
 
-#: ../repoutils/cli/main.py:440
+#: ../repoutils/cli/main.py:429
 msgid "Copying '[underline]${{src}}[/underline]' to '[underline]${{dst}}[/underline]' ..."
 msgstr "正在复制 '[underline]${{src}}[/underline]' 到 '[underline]${{dst}}[/underline]' ..."
 
-#: ../repoutils/cli/main.py:77
+#: ../repoutils/cli/main.py:66
 msgid "Copyright (C) 2024 The C++ Plus Project."
 msgstr "版权所有 (C) 2024 The C++ Plus Project。"
 
-#: ../repoutils/cli/main.py:414
+#: ../repoutils/cli/main.py:403
 msgid "Creating directory: [underline]${{path}}[/underline] ..."
 msgstr "创建目录： [underline]${{path}}[/underline] ..."
 
-#: ../repoutils/cli/main.py:504
+#: ../repoutils/cli/main.py:493
 msgid "Description: ${{desc}}"
 msgstr "描述： ${{desc}}"
 
@@ -106,11 +106,11 @@ msgstr "正在下载 ${{url}} ..."
 msgid "Error while removing '[underline]${{path}}[/underline]': ${{error}}"
 msgstr "删除 '[underline]${{path}}[/underline]' 时出错： ${{error}}"
 
-#: ../repoutils/cli/main.py:213
+#: ../repoutils/cli/main.py:202
 msgid "Executing: [cyan]${{cmd}}[/cyan] ..."
 msgstr "正在执行： [cyan]${{cmd}}[/cyan] ..."
 
-#: ../repoutils/cli/main.py:461
+#: ../repoutils/cli/main.py:450
 msgid "Extension '${{name}}' loaded."
 msgstr "扩展 '${{name}}' 已加载。"
 
@@ -122,7 +122,7 @@ msgstr "加载扩展 '${{name}}' 失败： ${{exc}}。"
 msgid "File '[underline]${{path}}[/underline]' already exists."
 msgstr "文件 '[underline]${{path}}[/underline]' 已经存在。"
 
-#: ../repoutils/cli/main.py:231
+#: ../repoutils/cli/main.py:220
 msgid "File '[underline]${{path}}[/underline]' already exists. [yellow]Overwrite[/yellow]?"
 msgstr "文件 '[underline]${{path}}[/underline]' 已经存在。 [yellow]是否覆盖[/yellow]？"
 
@@ -170,15 +170,15 @@ msgstr "JSON5 解码错误。"
 msgid "Kernel trigger id '${{name}}' is already exists."
 msgstr "Kernel trigger ID '${{name}}' 已经存在。"
 
-#: ../repoutils/cli/main.py:81
+#: ../repoutils/cli/main.py:70
 msgid "License [bold]GPLv3+[/bold]: GNU GPL version [cyan]3[/cyan] or later <https://www.gnu.org/licenses/gpl.html>."
 msgstr "许可证 [bold]GPLv3+[/bold]: GNU GPL 第[cyan]三[/cyan]版或后续版本 <https://www.gnu.org/licenses/gpl.html>。"
 
-#: ../repoutils/cli/main.py:498
+#: ../repoutils/cli/main.py:487
 msgid "License: ${{license}}"
 msgstr "许可证： ${{license}}"
 
-#: ../repoutils/cli/main.py:492
+#: ../repoutils/cli/main.py:481
 msgid "Maintainer: ${{maintainer}}"
 msgstr "维护者： ${{maintainer}}"
 
@@ -186,7 +186,7 @@ msgstr "维护者： ${{maintainer}}"
 msgid "Missing key: ${{msg}}"
 msgstr "找不到字典的键： ${{msg}}"
 
-#: ../repoutils/cli/main.py:426
+#: ../repoutils/cli/main.py:415
 msgid "Moving file '[underline]${{src}}[/underline]' to '[underline]${{dst}}[/underline]' ..."
 msgstr "正在移动文件 '[underline]${{src}}[/underline]' 到 '[underline]${{dst}}[/underline]' ..."
 
@@ -198,19 +198,19 @@ msgstr "未找到支持的包管理器。"
 msgid "No supported system package manager found."
 msgstr "未找到支持的系统包管理器。"
 
-#: ../repoutils/cli/main.py:154
+#: ../repoutils/cli/main.py:143
 msgid "Options:"
 msgstr "选项："
 
-#: ../repoutils/cli/main.py:348
+#: ../repoutils/cli/main.py:337
 msgid "Performing websites speed test ..."
 msgstr "正在进行网站速度测试 ..."
 
-#: ../repoutils/cli/main.py:548
+#: ../repoutils/cli/main.py:537
 msgid "Perhaps a typo?"
 msgstr "可能是拼写错误？"
 
-#: ../repoutils/kernel/workflow.py:444
+#: ../repoutils/kernel/workflow.py:440
 msgid "Please check typo or use 'type' attribute manually."
 msgstr "请检查拼写错误或手动使用 'type' 属性。"
 
@@ -218,7 +218,7 @@ msgstr "请检查拼写错误或手动使用 'type' 属性。"
 msgid "Please check your mirrorlist.json file inworkspace, user or global config directory."
 msgstr "请检查您的工作区、用户或全局配置目录中的 mirrorlist.json 文件。"
 
-#: ../repoutils/cli/main.py:293
+#: ../repoutils/cli/main.py:282
 msgid "Please install the following packages manually: [bold]${{packages}}[/bold]."
 msgstr "请手动安装以下软件包： [bold]${{packages}}[/bold]。"
 
@@ -234,11 +234,11 @@ msgstr "请升级 repoutils 到所需版本。"
 msgid "Please use a different name for the extention."
 msgstr "请为扩展使用不同的名称。"
 
-#: ../repoutils/cli/main.py:152
+#: ../repoutils/cli/main.py:141
 msgid "Positional Arguments:"
 msgstr "位置参数："
 
-#: ../repoutils/cli/main.py:469
+#: ../repoutils/cli/main.py:458
 msgid "Project: ${{name}}"
 msgstr "项目： ${{name}}"
 
@@ -246,7 +246,7 @@ msgstr "项目： ${{name}}"
 msgid "Recursion detected in mirrorlist: '${{name}}'"
 msgstr "检测到镜像列表中的递归: '${{name}}'"
 
-#: ../repoutils/cli/main.py:453
+#: ../repoutils/cli/main.py:442
 msgid "Removing '[underline]${{path}}[/underline]' ..."
 msgstr "正在删除 '[underline]${{path}}[/underline]' ..."
 
@@ -258,15 +258,15 @@ msgstr "仓库 '[underline]${{path}}[/underline]' 已经存在。"
 msgid "Repository '[underline]${{path}}[/underline]' does not exist."
 msgstr "仓库 '[underline]${{path}}[/underline]' 不存在。"
 
-#: ../repoutils/cli/main.py:176
+#: ../repoutils/cli/main.py:165
 msgid "Run repoutils in debug mode."
 msgstr "以调试模式运行 repoutils。"
 
-#: ../repoutils/cli/main.py:394
+#: ../repoutils/cli/main.py:383
 msgid "Running workflow: [white]${{name}}[/white] [black](${{id}})[/black]"
 msgstr "正在运行工作流： [white]${{name}}[/white] [black](${{id}})[/black]"
 
-#: ../repoutils/cli/main.py:380
+#: ../repoutils/cli/main.py:369
 msgid "Running: [white]${{name}}[/white] [black](${{id}})[/black]"
 msgstr "正在运行： [white]${{name}}[/white] [black](${{id}})[/black]"
 
@@ -278,15 +278,15 @@ msgstr "参见： ${{url}}"
 msgid "Shell execution error."
 msgstr "Shell 执行错误。"
 
-#: ../repoutils/cli/main.py:114
+#: ../repoutils/cli/main.py:103
 msgid "Show program's version number and exit."
 msgstr "显示程序的版本号并退出。"
 
-#: ../repoutils/cli/main.py:194
+#: ../repoutils/cli/main.py:183
 msgid "Show project information."
 msgstr "显示项目信息。"
 
-#: ../repoutils/cli/main.py:144
+#: ../repoutils/cli/main.py:133
 msgid "Show this help message and exit."
 msgstr "显示此帮助消息并退出。"
 
@@ -294,11 +294,11 @@ msgstr "显示此帮助消息并退出。"
 msgid "Source '${{protocol}}/${{website}}/${{name}}' not found."
 msgstr "源 '${{protocol}}/${{website}}/${{name}}' 未找到。"
 
-#: ../repoutils/kernel/workflow.py:414
+#: ../repoutils/kernel/workflow.py:410
 msgid "Step id '${{step_id}}' is duplicated."
 msgstr "步骤 '${{step_id}}' 的 ID 重复。"
 
-#: ../repoutils/kernel/workflow.py:539
+#: ../repoutils/kernel/workflow.py:535
 msgid "Step type '${{name}}' registered multiple times. It's unsafe."
 msgstr "步骤类型 '${{name}}' 注册了多次。这是不安全的。"
 
@@ -310,7 +310,7 @@ msgstr "子进程返回代码为 ${{retcode}}。"
 msgid "Subprocess return code is ${{retcode}}. It may be caused by command not found."
 msgstr "子进程返回代码为 ${{retcode}}。可能是由于未找到命令。"
 
-#: ../repoutils/cli/main.py:340
+#: ../repoutils/cli/main.py:329
 msgid "Testing ${{host}}: ${{status}}\n"
 msgstr "正在测试 ${{host}}: ${{status}}\n"
 
@@ -326,15 +326,15 @@ msgstr "扩展的路径 '[underline]${{path}}[/underline]' 不是一个目录。
 msgid "The minimum version of repoutils required by the project '[underline]${{name}}[/underline]' is '[underline]${{version}}[/underline]'."
 msgstr "项目 '[underline]${{name}}[/underline]' 所需的 repoutils 最低版本为 '[underline]${{version}}[/underline]'。"
 
-#: ../repoutils/kernel/workflow.py:283
+#: ../repoutils/kernel/workflow.py:279
 msgid "The remove item must be a string."
 msgstr "删除项必须是一个字符串。"
 
-#: ../repoutils/kernel/workflow.py:618
+#: ../repoutils/kernel/workflow.py:614
 msgid "The suffix of '[underline]${{path}}[/underline]' is invalid."
 msgstr "文件 '[underline]${{path}}[/underline]' 的后缀无效。"
 
-#: ../repoutils/kernel/workflow.py:452
+#: ../repoutils/kernel/workflow.py:448
 msgid "The type of step '${{step}}'[black](${{step_id}})[/black] in workflow '${{workflow}}'[black](${{workflow_id}})[/black] is not provided and could not be inferred."
 msgstr "工作流 '${{workflow}}'[black](${{workflow_id}})[/black] 中的步骤 '${{step}}'[black](${{step_id}})[/black] 的类型未被提供，且无法推断。"
 
@@ -342,15 +342,15 @@ msgstr "工作流 '${{workflow}}'[black](${{workflow_id}})[/black] 中的步骤 
 msgid "The value of key ${{key}} needs to be ${{type}} instead of ${{value_type}}."
 msgstr "键 ${{key}} 的值需要是 ${{type}} 类型而不是 ${{value_type}} 。"
 
-#: ../repoutils/cli/main.py:92
+#: ../repoutils/cli/main.py:81
 msgid "There is [yellow]NO WARRANTY[/yellow], to the extent permitted by law."
 msgstr "在法律所允许的范围内[yellow]不做任何担保。[/yellow]"
 
-#: ../repoutils/cli/main.py:87
+#: ../repoutils/cli/main.py:76
 msgid "This is free software: you are free to change and redistribute it."
 msgstr "此软件为自由软件：您可对其自由修改并重新发布。"
 
-#: ../repoutils/cli/main.py:545
+#: ../repoutils/cli/main.py:534
 msgid "Undefined command or hook ${{name}}"
 msgstr "未定义的命令或钩子 ${{name}}"
 
@@ -358,39 +358,39 @@ msgstr "未定义的命令或钩子 ${{name}}"
 msgid "Unknown error."
 msgstr "未知错误。"
 
-#: ../repoutils/kernel/workflow.py:435
+#: ../repoutils/kernel/workflow.py:431
 msgid "Unknown step type: '${{step_type}}' of step '${{step_name}}'. Please check the workflow."
 msgstr "未知的步骤类型: '${{step_type}}' 的步骤 '${{step_name}}'。请检查工作流。"
 
-#: ../repoutils/cli/main.py:307
+#: ../repoutils/cli/main.py:296
 msgid "Updating Git repository '[underline]${{path}}[/underline]'(${{branch}}) ..."
 msgstr "正在更新 Git 仓库 '[underline]${{path}}[/underline]'(${{branch}}) ..."
 
-#: ../repoutils/cli/main.py:149
+#: ../repoutils/cli/main.py:138
 msgid "Usage:"
 msgstr "用法："
 
-#: ../repoutils/cli/main.py:481
+#: ../repoutils/cli/main.py:470
 msgid "Version [white]${{version}}[/white]"
 msgstr "版本 [white]${{version}}[/white]"
 
-#: ../repoutils/kernel/workflow.py:623
+#: ../repoutils/kernel/workflow.py:619
 msgid "We only support '.json', '.json5', '.yaml', '.yml'."
 msgstr "我们只支持 '.json', '.json5', '.yaml', '.yml'。"
 
-#: ../repoutils/cli/main.py:406
+#: ../repoutils/cli/main.py:395
 msgid "Workflow '${{name}}' finished."
 msgstr "工作流 '${{name}}' 完成。"
 
-#: ../repoutils/kernel/workflow.py:585
+#: ../repoutils/kernel/workflow.py:581
 msgid "Workflow running failed: ${{exc}}"
 msgstr "工作流运行失败: ${{exc}}"
 
-#: ../repoutils/cli/main.py:576
+#: ../repoutils/cli/main.py:565
 msgid "Working directory '[underline]${{path}}[/underline]' not a repoutils project."
 msgstr "工作目录 '[underline]${{path}}[/underline]' 不是一个 repoutils 项目。"
 
-#: ../repoutils/cli/main.py:96
+#: ../repoutils/cli/main.py:85
 msgid "Written by [underline]ChenPi11[/underline]."
 msgstr "由 [underline]ChenPi11[/underline] 编写。"
 
@@ -398,7 +398,7 @@ msgstr "由 [underline]ChenPi11[/underline] 编写。"
 msgid "[italic][magenta]Hint:[/magenta] ${{msg}}[/italic]"
 msgstr "[italic][magenta]提示：[/magenta] ${{msg}}[/italic]"
 
-#: ../repoutils/cli/main.py:357
+#: ../repoutils/cli/main.py:346
 msgid "[red]Canceled[/red]"
 msgstr "[red]已取消[/red]"
 
@@ -406,11 +406,11 @@ msgstr "[red]已取消[/red]"
 msgid "[red]Error: ${{msg}}[/red]"
 msgstr "[red]错误： ${{msg}}[/red]"
 
-#: ../repoutils/cli/main.py:249
+#: ../repoutils/cli/main.py:238
 msgid "[yellow]Downloading[/yellow]"
 msgstr "[yellow]下载中[/yellow]"
 
-#: ../repoutils/cli/main.py:251
+#: ../repoutils/cli/main.py:240
 msgid "[yellow]Extracting[/yellow]"
 msgstr "[yellow]解压中[/yellow]"
 
@@ -418,11 +418,11 @@ msgstr "[yellow]解压中[/yellow]"
 msgid "[yellow]Invalid input. Please enter '[green]Y[/green]' or '[red]N[/red]'."
 msgstr "无效的输入。请输入 '[green]Y[/green]' 或 '[red]N[/red]'。"
 
-#: ../repoutils/cli/main.py:253
+#: ../repoutils/cli/main.py:242
 msgid "[yellow]Processing[/yellow]"
 msgstr "[yellow]处理中[/yellow]"
 
-#: ../repoutils/cli/main.py:352 ../repoutils/cli/main.py:368
+#: ../repoutils/cli/main.py:341 ../repoutils/cli/main.py:357
 msgid "[yellow]Testing[/yellow] ..."
 msgstr "[yellow]测试中[/yellow] ..."
 
