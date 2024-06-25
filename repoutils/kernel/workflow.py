@@ -36,8 +36,12 @@ from repoutils.lib.fileutil import copy_recursive, rm_recursive
 from repoutils.lib.l10n import _
 from repoutils.lib.log import logger
 from repoutils.lib.process import Process, popen
-from repoutils.lib.variable import (AutoFormatDict, format_str, make_pretty,
-                                    push_variables)
+from repoutils.lib.variable import (
+    AutoFormatDict,
+    format_str,
+    make_pretty,
+    push_variables,
+)
 from repoutils.shared.ktrigger import IKernelTrigger, call_ktrigger
 
 __all__ = [
@@ -265,18 +269,28 @@ class RemoveStep(Step):  # pylint: disable=too-few-public-methods
     This step is dangerous. Use it with caution!
     """
 
-    path: Path
+    paths: list[Path]
     strict: bool
 
     def __init__(self, data: AutoFormatDict, par_workflow: "Workflow"):
-        self.path = Path(data.get("remove", valtype=str))
+        remove = data.get("remove", valtype=str | list)
+        if isinstance(remove, str):
+            self.paths = [Path(remove)]
+        else:
+            for item in remove:
+                if not isinstance(item, str):
+                    raise RUValueException(
+                        _("The remove item must be a string."),
+                    )
+            self.paths = [Path(item) for item in remove]
 
         self.strict = data.get("strict", valtype=bool, default=True)
 
         super().__init__(data, par_workflow)
 
-        call_ktrigger(IKernelTrigger.on_remove, path=self.path)
-        rm_recursive(self.path, self.strict)
+        for path in self.paths:
+            call_ktrigger(IKernelTrigger.on_remove, path=path)
+            rm_recursive(path, self.strict)
 
 
 class ExtentionLoadStep(Step):  # pylint: disable=too-few-public-methods
@@ -538,12 +552,12 @@ def register_step_type(name: str, cls: type, contributes: list[str]) -> None:
 
 
 def run_inline_workflow(
-    data: AutoFormatDict, fail_fast: bool = True
+    data: AutoFormatDict | list[AutoFormatDict], fail_fast: bool = True
 ) -> Exception | None:
     """Run a inline workflow
 
     Args:
-        data (AutoFormatDict): Workflow data.
+        data (AutoFormatDict | list[AutoFormatDict]): Workflow data.
         fail_fast (bool, optional): Raise an exception if run failed.
             Defaults to True.
 
@@ -551,6 +565,12 @@ def run_inline_workflow(
         Exception | None: If running failed without fail-fast, return its
             exception. Return None if succeed.
     """
+
+    if isinstance(data, list):
+        data = AutoFormatDict.from_dict({
+            "name": _("<Inline Workflow>"),
+            "steps": data,
+        })
 
     wf = Workflow(data)
     try:

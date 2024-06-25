@@ -35,13 +35,21 @@ import rich.progress
 from rich_argparse import RichHelpFormatter
 
 from repoutils.cli.input import ask_yesno
-from repoutils.cli.output import (output_error, output_hint, output_step,
-                                  output_warning, pop_level, push_level,
-                                  show_exception)
+from repoutils.cli.output import (
+    output_error,
+    output_hint,
+    output_step,
+    output_warning,
+    pop_level,
+    push_level,
+    show_exception,
+)
 from repoutils.config import APP_NAME, APP_VERSION, USER_REPO_CONFIG
 from repoutils.kernel.log_clean import clean_log
-from repoutils.kernel.project_config import (ProjectConfigration,
-                                             load_project_config)
+from repoutils.kernel.project_config import (  # noqa: E501
+    ProjectConfigration,
+    load_project_config,
+)
 from repoutils.kernel.workflow import Step, Workflow
 from repoutils.lib.exceptions import RUValueException
 from repoutils.lib.l10n import _
@@ -49,8 +57,11 @@ from repoutils.lib.log import logger
 from repoutils.lib.process import Process
 from repoutils.lib.variable import format_str, make_pretty
 from repoutils.shared.extention import IRUExtention, load_all_extentions
-from repoutils.shared.ktrigger import (IKernelTrigger, bind_ktrigger_interface,
-                                       call_ktrigger)
+from repoutils.shared.ktrigger import (
+    IKernelTrigger,
+    bind_ktrigger_interface,
+    call_ktrigger,
+)
 
 __all__ = ["main"]
 
@@ -100,7 +111,7 @@ class _VersionAction(argparse.Action):
         help=None,
     ):  # pylint: disable=redefined-builtin
         if help is None:
-            help = _("show program's version number and exit")
+            help = _("Show program's version number and exit.")
         super().__init__(
             option_strings=option_strings,
             dest=dest,
@@ -146,7 +157,7 @@ class RUHelpFormatter(RichHelpFormatter):
 
 
 arg_parser = argparse.ArgumentParser(
-    description=_("Repoutils CLI"),
+    description="Repoutils CLI",
     formatter_class=RUHelpFormatter,
 )
 
@@ -157,7 +168,6 @@ arg_parser.add_argument(
     "--version",
     action="version",
     version="",
-    help=_("Show version infomation."),
 )
 
 arg_parser.add_argument(
@@ -198,7 +208,12 @@ class RepoutilsKTrigger(  # pylint: disable=too-many-public-methods
     _speedtest_hosts: dict[str, str] = {}
 
     def pre_exec_process(self, proc: Process):
-        output_step(f"Executing: [cyan]{proc.origin_cmd}[/cyan] ...")
+        output_step(
+            format_str(
+                _("Executing: [cyan]${{cmd}}[/cyan] ..."),
+                fmt={"cmd": proc.origin_cmd.strip()},
+            )
+        )
         print(colorama.Fore.LIGHTBLACK_EX, end="", flush=True)
 
     def post_exec_process(
@@ -362,7 +377,7 @@ class RepoutilsKTrigger(  # pylint: disable=too-many-public-methods
             output_step(
                 format_str(
                     _(
-                        "Running: ${{name}} [black](${{id}})[/black]",
+                        "Running: [white]${{name}}[/white] [black](${{id}})[/black]",  # noqa: E501
                     ),
                     fmt={"name": step.name, "id": step.id},
                 )
@@ -376,7 +391,8 @@ class RepoutilsKTrigger(  # pylint: disable=too-many-public-methods
         output_step(
             format_str(
                 _(
-                    "Running workflow: ${{name}} [black](${{id}})[/black]",
+                    "Running workflow: [white]${{name}}[/white] "
+                    "[black](${{id}})[/black]",
                 ),
                 fmt={"name": workflow.name, "id": workflow.id},
             )
@@ -385,6 +401,12 @@ class RepoutilsKTrigger(  # pylint: disable=too-many-public-methods
 
     def post_run_workflow(self, workflow: Workflow) -> None:
         pop_level()
+        output_step(
+            format_str(
+                _("Workflow '${{name}}' finished."),
+                fmt={"name": workflow.name},
+            )
+        )
 
     def on_mkdir(self, path: Path) -> None:
         output_step(
@@ -436,7 +458,7 @@ class RepoutilsKTrigger(  # pylint: disable=too-many-public-methods
     def on_extention_loaded(self, instance: IRUExtention):
         output_step(
             format_str(
-                _("Loaded extension: ${{name}} ..."),
+                _("Extension '${{name}}' loaded."),
                 fmt={"name": instance.name},
             )
         )
@@ -591,6 +613,9 @@ def main() -> None:
 
     except SystemExit as exc:
         raise exc from None  # Do not show traceback.
+    except KeyboardInterrupt as exc:
+        show_exception(exc)
+        sys.exit(1)
     except Exception as exc:  # pylint: disable=broad-exception-caught
         logger.critical("An unexpected error occurred.", exc_info=True)
         show_exception(exc)

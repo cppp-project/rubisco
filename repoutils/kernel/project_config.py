@@ -73,7 +73,7 @@ class ProjectHook:  # pylint: disable=too-few-public-methods
             inline_wf = self._raw_data.get(
                 "workflow",
                 None,
-                valtype=dict | AutoFormatDict | None,
+                valtype=dict | AutoFormatDict | list | None,
             )
 
             if not cmd and not workflow and not inline_wf:

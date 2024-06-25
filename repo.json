@@ -1,0 +1,30 @@
+{
+    "name": "repoutils",
+    "version": "0.1.0",
+    "description": "C+++ Repository Utilities.",
+    "maintainer": "ChenPi11 <wushengwuxi-msctinoulk@outlook.com>",
+    "license": "GPL-3.0",
+    "hooks": {
+        "lint": {
+            "run": ".repoutils/lint.yaml"
+        },
+        "update-po": {
+            "exec": "cd po && make update-po -B"
+        },
+        "build": {
+            "run": ".repoutils/build.yaml"
+        },
+        "format": {
+            "exec": "python -m isort repoutils"
+        },
+        "clean": {
+            "workflow": [
+                    {
+                        "name": "Clean workflow",
+                        "remove": ["build", "dist"],
+                        "strict": false
+                    }
+                ]
+        }
+    }
+}

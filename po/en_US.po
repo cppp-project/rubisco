@@ -1,0 +1,440 @@
+# English translations for cppp-repoutils package.
+# Copyright (C) 2024 THE cppp-repoutils'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the cppp-repoutils package.
+#  <wushengwuxi-msctinoulk@outlook.com>, 2024.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: cppp-repoutils 0.1.0\n"
+"Report-Msgid-Bugs-To: cpppteam@email.cn\n"
+"POT-Creation-Date: 2024-06-25 14:47+0800\n"
+"PO-Revision-Date: 2024-06-25 11:05+0800\n"
+"Last-Translator:  <wushengwuxi-msctinoulk@outlook.com>\n"
+"Language-Team: English\n"
+"Language: en_US\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: ../repoutils/cli/main.py:360
+msgid "${{speed}} us"
+msgstr "${{speed}} us"
+
+#: ../repoutils/shared/ktrigger.py:376
+msgid "'${{name}}' is not a IKernelTrigger instance."
+msgstr "'${{name}}' is not a IKernelTrigger instance."
+
+#: ../repoutils/cli/main.py:582
+msgid "'[underline]${{path}}[/underline]' is not found."
+msgstr "'[underline]${{path}}[/underline]' is not found."
+
+#: ../repoutils/cli/main.py:568
+msgid "(${{num}} overrides)"
+msgstr "(${{num}} overrides)"
+
+#: ../repoutils/kernel/workflow.py:571
+msgid "<Inline Workflow>"
+msgstr "<Inline Workflow>"
+
+#: ../repoutils/kernel/project_config.py:158
+#: ../repoutils/kernel/workflow.py:458 ../repoutils/kernel/workflow.py:459
+msgid "<Unnamed>"
+msgstr "<Unnamed>"
+
+#: ../repoutils/kernel/project_config.py:86
+msgid "A workflow [yellow]SHOULD[/yellow] contain at least 'exec', 'run' and 'workflow'."
+msgstr "A workflow [yellow]SHOULD[/yellow] contain at least 'exec', 'run' and 'workflow'."
+
+#: ../repoutils/kernel/workflow.py:400
+msgid "A workflow step must be a dict."
+msgstr "A workflow step must be a dict."
+
+#: ../repoutils/lib/fileutil.py:84
+msgid "Absolute path '[underline]${{path}}[/underline]' is not allowed."
+msgstr "Absolute path '[underline]${{path}}[/underline]' is not allowed."
+
+#: ../repoutils/cli/main.py:187
+msgid "Available commands"
+msgstr "Available commands"
+
+#: ../repoutils/cli/main.py:323
+msgid "Cloning Git repository ${{url}} (${{branch}}) into '[underline]${{path}}[/underline]' ..."
+msgstr "Cloning Git repository ${{url}} (${{branch}}) into '[underline]${{path}}[/underline]' ..."
+
+#: ../repoutils/lib/fileutil.py:575
+msgid "Command '${{cmd}}' not found."
+msgstr "Command '${{cmd}}' not found."
+
+#: ../repoutils/cli/main.py:183
+msgid "Command to run."
+msgstr "Command to run."
+
+#: ../repoutils/cli/main.py:475
+msgid "Config file: [underline]${{path}}[/underline]"
+msgstr "Config file: [underline]${{path}}[/underline]"
+
+#: ../repoutils/kernel/project_config.py:222
+msgid "Configuration must be a JSON5 object. (dict)"
+msgstr "Configuration must be a JSON5 object. (dict)"
+
+#: ../repoutils/cli/main.py:300
+msgid "Continue anyway?"
+msgstr "Continue anyway?"
+
+#: ../repoutils/cli/main.py:440
+msgid "Copying '[underline]${{src}}[/underline]' to '[underline]${{dst}}[/underline]' ..."
+msgstr "Copying '[underline]${{src}}[/underline]' to '[underline]${{dst}}[/underline]' ..."
+
+#: ../repoutils/cli/main.py:77
+msgid "Copyright (C) 2024 The C++ Plus Project."
+msgstr "Copyright (C) 2024 The C++ Plus Project."
+
+#: ../repoutils/cli/main.py:414
+msgid "Creating directory: [underline]${{path}}[/underline] ..."
+msgstr "Creating directory: [underline]${{path}}[/underline] ..."
+
+#: ../repoutils/cli/main.py:504
+msgid "Description: ${{desc}}"
+msgstr "Description: ${{desc}}"
+
+#: ../repoutils/lib/wget.py:62
+msgid "Downloading ${{url}} ..."
+msgstr "Downloading ${{url}} ..."
+
+#: ../repoutils/lib/fileutil.py:113
+msgid "Error while removing '[underline]${{path}}[/underline]': ${{error}}"
+msgstr "Error while removing '[underline]${{path}}[/underline]': ${{error}}"
+
+#: ../repoutils/cli/main.py:213
+msgid "Executing: [cyan]${{cmd}}[/cyan] ..."
+msgstr "Executing: [cyan]${{cmd}}[/cyan] ..."
+
+#: ../repoutils/cli/main.py:461
+msgid "Extension '${{name}}' loaded."
+msgstr "Extension '${{name}}' loaded."
+
+#: ../repoutils/shared/extention.py:223
+msgid "Failed to load extention '${{name}}': ${{exc}}."
+msgstr "Failed to load extention '${{name}}': ${{exc}}."
+
+#: ../repoutils/lib/fileutil.py:177
+msgid "File '[underline]${{path}}[/underline]' already exists."
+msgstr "File '[underline]${{path}}[/underline]' already exists."
+
+#: ../repoutils/cli/main.py:231
+msgid "File '[underline]${{path}}[/underline]' already exists. [yellow]Overwrite[/yellow]?"
+msgstr "File '[underline]${{path}}[/underline]' already exists. [yellow]Overwrite[/yellow]?"
+
+#: ../repoutils/kernel/project_config.py:82
+msgid "Hook '${{name}}' is invalid."
+msgstr "Hook '${{name}}' is invalid."
+
+#: ../repoutils/cli/output.py:178
+msgid "Internal error: ${{type}}: ${{msg}}"
+msgstr "Internal error: ${{type}}: ${{msg}}"
+
+#: ../repoutils/cli/output.py:160
+msgid "Interrupted by user."
+msgstr "Interrupted by user."
+
+#: ../repoutils/kernel/project_config.py:217
+msgid "Invalid configuration in file '[underline]${{path}}[/underline]'."
+msgstr "Invalid configuration in file '[underline]${{path}}[/underline]'."
+
+#: ../repoutils/shared/extention.py:171
+msgid "Invalid extention name: '${{name}}' ."
+msgstr "Invalid extention name: '${{name}}' ."
+
+#: ../repoutils/cli/input.py:79
+msgid "Invalid input."
+msgstr "Invalid input."
+
+#: ../repoutils/kernel/project_config.py:229
+msgid "Invalid path in '[underline]${{path}}[/underline]'."
+msgstr "Invalid path in '[underline]${{path}}[/underline]'."
+
+#: ../repoutils/cli/output.py:166
+msgid "Is may caused by a invalid JSON5 configuration file."
+msgstr "Is may caused by a invalid JSON5 configuration file."
+
+#: ../repoutils/cli/output.py:172
+msgid "Is may caused by a invalid configuration file."
+msgstr "Is may caused by a invalid configuration file."
+
+#: ../repoutils/cli/output.py:164
+msgid "JSON5 decode error."
+msgstr "JSON5 decode error."
+
+#: ../repoutils/shared/ktrigger.py:384
+msgid "Kernel trigger id '${{name}}' is already exists."
+msgstr "Kernel trigger id '${{name}}' is already exists."
+
+#: ../repoutils/cli/main.py:81
+msgid "License [bold]GPLv3+[/bold]: GNU GPL version [cyan]3[/cyan] or later <https://www.gnu.org/licenses/gpl.html>."
+msgstr "License [bold]GPLv3+[/bold]: GNU GPL version [cyan]3[/cyan] or later <https://www.gnu.org/licenses/gpl.html>."
+
+#: ../repoutils/cli/main.py:498
+msgid "License: ${{license}}"
+msgstr "License: ${{license}}"
+
+#: ../repoutils/cli/main.py:492
+msgid "Maintainer: ${{maintainer}}"
+msgstr "Maintainer: ${{maintainer}}"
+
+#: ../repoutils/cli/output.py:169
+msgid "Missing key: ${{msg}}"
+msgstr "Missing key: ${{msg}}"
+
+#: ../repoutils/cli/main.py:426
+msgid "Moving file '[underline]${{src}}[/underline]' to '[underline]${{dst}}[/underline]' ..."
+msgstr "Moving file '[underline]${{src}}[/underline]' to '[underline]${{dst}}[/underline]' ..."
+
+#: ../repoutils/kernel/sysreq.py:167
+msgid "No supported package manager found."
+msgstr "No supported package manager found."
+
+#: ../repoutils/kernel/sysreq.py:223 ../repoutils/kernel/sysreq.py:227
+msgid "No supported system package manager found."
+msgstr "No supported system package manager found."
+
+#: ../repoutils/cli/main.py:154
+msgid "Options:"
+msgstr "Options:"
+
+#: ../repoutils/cli/main.py:348
+msgid "Performing websites speed test ..."
+msgstr "Performing websites speed test ..."
+
+#: ../repoutils/cli/main.py:548
+msgid "Perhaps a typo?"
+msgstr "Perhaps a typo?"
+
+#: ../repoutils/kernel/workflow.py:444
+msgid "Please check typo or use 'type' attribute manually."
+msgstr "Please check typo or use 'type' attribute manually."
+
+#: ../repoutils/kernel/mirrorlist.py:114
+msgid "Please check your mirrorlist.json file inworkspace, user or global config directory."
+msgstr "Please check your mirrorlist.json file inworkspace, user or global config directory."
+
+#: ../repoutils/cli/main.py:293
+msgid "Please install the following packages manually: [bold]${{packages}}[/bold]."
+msgstr "Please install the following packages manually: [bold]${{packages}}[/bold]."
+
+#: ../repoutils/shared/extention.py:161
+msgid "Please make sure this extention is valid."
+msgstr "Please make sure this extention is valid."
+
+#: ../repoutils/kernel/project_config.py:162
+msgid "Please upgrade repoutils to the required version."
+msgstr "Please upgrade repoutils to the required version."
+
+#: ../repoutils/shared/extention.py:176
+msgid "Please use a different name for the extention."
+msgstr "Please use a different name for the extention."
+
+#: ../repoutils/cli/main.py:152
+msgid "Positional Arguments:"
+msgstr "Positional Arguments:"
+
+#: ../repoutils/cli/main.py:469
+msgid "Project: ${{name}}"
+msgstr "Project: ${{name}}"
+
+#: ../repoutils/kernel/mirrorlist.py:110
+msgid "Recursion detected in mirrorlist: '${{name}}'"
+msgstr "Recursion detected in mirrorlist: '${{name}}'"
+
+#: ../repoutils/cli/main.py:453
+msgid "Removing '[underline]${{path}}[/underline]' ..."
+msgstr "Removing '[underline]${{path}}[/underline]' ..."
+
+#: ../repoutils/kernel/git.py:119
+msgid "Repository '[underline]${{path}}[/underline]' already exists."
+msgstr "Repository '[underline]${{path}}[/underline]' already exists."
+
+#: ../repoutils/kernel/git.py:80
+msgid "Repository '[underline]${{path}}[/underline]' does not exist."
+msgstr "Repository '[underline]${{path}}[/underline]' does not exist."
+
+#: ../repoutils/cli/main.py:176
+msgid "Run repoutils in debug mode."
+msgstr "Run repoutils in debug mode."
+
+#: ../repoutils/cli/main.py:394
+msgid "Running workflow: [white]${{name}}[/white] [black](${{id}})[/black]"
+msgstr "Running workflow: [white]${{name}}[/white] [black](${{id}})[/black]"
+
+#: ../repoutils/cli/main.py:380
+msgid "Running: [white]${{name}}[/white] [black](${{id}})[/black]"
+msgstr "Running: [white]${{name}}[/white] [black](${{id}})[/black]"
+
+#: ../repoutils/cli/output.py:185
+msgid "See: ${{url}}"
+msgstr "See: ${{url}}"
+
+#: ../repoutils/lib/process.py:124 ../repoutils/lib/process.py:198
+msgid "Shell execution error."
+msgstr "Shell execution error."
+
+#: ../repoutils/cli/main.py:114
+msgid "Show program's version number and exit."
+msgstr "Show program's version number and exit."
+
+#: ../repoutils/cli/main.py:194
+msgid "Show project information."
+msgstr "Show project information."
+
+#: ../repoutils/cli/main.py:144
+msgid "Show this help message and exit."
+msgstr "Show this help message and exit."
+
+#: ../repoutils/kernel/mirrorlist.py:193
+msgid "Source '${{protocol}}/${{website}}/${{name}}' not found."
+msgstr "Source '${{protocol}}/${{website}}/${{name}}' not found."
+
+#: ../repoutils/kernel/workflow.py:414
+msgid "Step id '${{step_id}}' is duplicated."
+msgstr "Step id '${{step_id}}' is duplicated."
+
+#: ../repoutils/kernel/workflow.py:539
+msgid "Step type '${{name}}' registered multiple times. It's unsafe."
+msgstr "Step type '${{name}}' registered multiple times. It's unsafe."
+
+#: ../repoutils/lib/exceptions.py:92
+msgid "Subprocess return code is ${{retcode}}."
+msgstr "Subprocess return code is ${{retcode}}."
+
+#: ../repoutils/lib/exceptions.py:100
+msgid "Subprocess return code is ${{retcode}}. It may be caused by command not found."
+msgstr "Subprocess return code is ${{retcode}}. It may be caused by command not found."
+
+#: ../repoutils/cli/main.py:340
+msgid "Testing ${{host}}: ${{status}}\n"
+msgstr "Testing ${{host}}: ${{status}}\n"
+
+#: ../repoutils/shared/extention.py:154
+msgid "The extention '[underline]${{path}}[/underline]' does not have an instance."
+msgstr "The extention '[underline]${{path}}[/underline]' does not have an instance."
+
+#: ../repoutils/shared/extention.py:141
+msgid "The extention path '[underline]${{path}}[/underline]' is not a directory."
+msgstr "The extention path '[underline]${{path}}[/underline]' is not a directory."
+
+#: ../repoutils/kernel/project_config.py:153
+msgid "The minimum version of repoutils required by the project '[underline]${{name}}[/underline]' is '[underline]${{version}}[/underline]'."
+msgstr "The minimum version of repoutils required by the project '[underline]${{name}}[/underline]' is '[underline]${{version}}[/underline]'."
+
+#: ../repoutils/kernel/workflow.py:283
+msgid "The remove item must be a string."
+msgstr "The remove item must be a string."
+
+#: ../repoutils/kernel/workflow.py:618
+msgid "The suffix of '[underline]${{path}}[/underline]' is invalid."
+msgstr "The suffix of '[underline]${{path}}[/underline]' is invalid."
+
+#: ../repoutils/kernel/workflow.py:452
+msgid "The type of step '${{step}}'[black](${{step_id}})[/black] in workflow '${{workflow}}'[black](${{workflow_id}})[/black] is not provided and could not be inferred."
+msgstr "The type of step '${{step}}'[black](${{step_id}})[/black] in workflow '${{workflow}}'[black](${{workflow_id}})[/black] is not provided and could not be inferred."
+
+#: ../repoutils/lib/variable.py:335
+msgid "The value of key ${{key}} needs to be ${{type}} instead of ${{value_type}}."
+msgstr "The value of key ${{key}} needs to be ${{type}} instead of ${{value_type}}."
+
+#: ../repoutils/cli/main.py:92
+msgid "There is [yellow]NO WARRANTY[/yellow], to the extent permitted by law."
+msgstr "There is [yellow]NO WARRANTY[/yellow], to the extent permitted by law."
+
+#: ../repoutils/cli/main.py:87
+msgid "This is free software: you are free to change and redistribute it."
+msgstr "This is free software: you are free to change and redistribute it."
+
+#: ../repoutils/cli/main.py:545
+msgid "Undefined command or hook ${{name}}"
+msgstr "Undefined command or hook ${{name}}"
+
+#: ../repoutils/cli/output.py:157
+msgid "Unknown error."
+msgstr "Unknown error."
+
+#: ../repoutils/kernel/workflow.py:435
+msgid "Unknown step type: '${{step_type}}' of step '${{step_name}}'. Please check the workflow."
+msgstr "Unknown step type: '${{step_type}}' of step '${{step_name}}'. Please check the workflow."
+
+#: ../repoutils/cli/main.py:307
+msgid "Updating Git repository '[underline]${{path}}[/underline]'(${{branch}}) ..."
+msgstr "Updating Git repository '[underline]${{path}}[/underline]'(${{branch}}) ..."
+
+#: ../repoutils/cli/main.py:149
+msgid "Usage:"
+msgstr "Usage:"
+
+#: ../repoutils/cli/main.py:481
+msgid "Version [white]${{version}}[/white]"
+msgstr "Version [white]${{version}}[/white]"
+
+#: ../repoutils/kernel/workflow.py:623
+msgid "We only support '.json', '.json5', '.yaml', '.yml'."
+msgstr "We only support '.json', '.json5', '.yaml', '.yml'."
+
+#: ../repoutils/cli/main.py:406
+msgid "Workflow '${{name}}' finished."
+msgstr "Workflow '${{name}}' finished."
+
+#: ../repoutils/kernel/workflow.py:585
+msgid "Workflow running failed: ${{exc}}"
+msgstr "Workflow running failed: ${{exc}}"
+
+#: ../repoutils/cli/main.py:576
+msgid "Working directory '[underline]${{path}}[/underline]' not a repoutils project."
+msgstr "Working directory '[underline]${{path}}[/underline]' not a repoutils project."
+
+#: ../repoutils/cli/main.py:96
+msgid "Written by [underline]ChenPi11[/underline]."
+msgstr "Written by [underline]ChenPi11[/underline]."
+
+#: ../repoutils/cli/output.py:130
+msgid "[italic][magenta]Hint:[/magenta] ${{msg}}[/italic]"
+msgstr "[italic][magenta]Hint:[/magenta] ${{msg}}[/italic]"
+
+#: ../repoutils/cli/main.py:357
+msgid "[red]Canceled[/red]"
+msgstr "[red]Canceled[/red]"
+
+#: ../repoutils/cli/output.py:102
+msgid "[red]Error: ${{msg}}[/red]"
+msgstr "[red]Error: ${{msg}}[/red]"
+
+#: ../repoutils/cli/main.py:249
+msgid "[yellow]Downloading[/yellow]"
+msgstr "[yellow]Downloading[/yellow]"
+
+#: ../repoutils/cli/main.py:251
+msgid "[yellow]Extracting[/yellow]"
+msgstr "[yellow]Extracting[/yellow]"
+
+#: ../repoutils/cli/input.py:72
+msgid "[yellow]Invalid input. Please enter '[green]Y[/green]' or '[red]N[/red]'."
+msgstr "[yellow]Invalid input. Please enter '[green]Y[/green]' or '[red]N[/red]'."
+
+#: ../repoutils/cli/main.py:253
+msgid "[yellow]Processing[/yellow]"
+msgstr "[yellow]Processing[/yellow]"
+
+#: ../repoutils/cli/main.py:352 ../repoutils/cli/main.py:368
+msgid "[yellow]Testing[/yellow] ..."
+msgstr "[yellow]Testing[/yellow] ..."
+
+#: ../repoutils/kernel/project_config.py:167
+#: ../repoutils/kernel/project_config.py:173
+msgid "[yellow]Unknown[/yellow]"
+msgstr "[yellow]Unknown[/yellow]"
+
+#: ../repoutils/cli/output.py:115
+msgid "[yellow]Warning: ${{msg}}[/yellow]"
+msgstr "[yellow]Warning: ${{msg}}[/yellow]"
+
+#: ../repoutils/kernel/sysreq.py:205
+msgid "gsudo is required to run commands."
+msgstr "gsudo is required to run commands."

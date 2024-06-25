@@ -1,0 +1,8 @@
+name: ✔️ Lint
+
+steps:
+  - name: 🛠️ Analysing the code with pylint
+    run: python -m pylint -j $(nproc) $(git ls-files \*.py)
+
+  - name: 🛠️ Analysing the code with flake8
+    run: python -m flake8 repoutils

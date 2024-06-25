@@ -1,4 +1,4 @@
-name: ✔️ Linting
+name: ✔️ Lint
 
 on: [push, pull_request]
 
@@ -27,13 +27,9 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
-        pip3 install pylint flake8
+        pip install -r requirements-dev.txt
 
     #---------------------------------------------lint----------------------------------------------
-    - name: 🛠️ Analysing the code with pylint
+    - name: 🛠️ Run lint
       run: |
-        python -m pylint -j $(nproc) $(git ls-files \*.py)
-
-    - name: 🛠️ Analysing the code with flake8
-      run: |
-        python -m flake8 repoutils
+        python -m repoutils lint

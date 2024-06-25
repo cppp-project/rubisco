@@ -152,7 +152,7 @@ def show_exception(exc: Exception, as_warn: bool = False) -> None:
     else:
         perror = output_error
 
-    if isinstance(exc, RUException | ValueError):
+    if isinstance(exc, RUException | ValueError | AssertionError):
         if not message:
             message = _("Unknown error.")
         perror(message)

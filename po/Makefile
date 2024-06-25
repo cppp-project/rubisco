@@ -1,7 +1,7 @@
 # Makefile for generating and updating .pot and .po files.
 #
 
-PACKAGE = cppp-repoutils
+PACKAGE = repoutils
 VERSION = 0.1.0
 PACKAGE_BUGREPORT = cpppteam@email.cn
 LANGUAGE = python
@@ -39,9 +39,9 @@ $(PACKAGE)$(POT_EXT):
 			--from-code=$(CHARSET) \
 			$$files;
 
-update-po: $(srcdir)/*$(PO_EXT)
-	for file in $^; do \
-		$(MSGMERGE_UPDATE) --backup=none --no-fuzzy-matching --no-location --no-wrap \
+update-po: all $(srcdir)/*$(PO_EXT)
+	for file in $(srcdir)/*$(PO_EXT); do \
+		$(MSGMERGE_UPDATE) --backup=none --no-fuzzy-matching --no-wrap \
 		--width=79 --sort-output \
 	    $$file $(PACKAGE)$(POT_EXT); \
 	done
@@ -58,3 +58,8 @@ new: all
 		$(MSGINIT) --input=$(PACKAGE)$(POT_EXT) --output=$(NEWFILE_NAME) --locale=$(LOCALE).UTF-8 \
 			--no-wrap --width=79;\
 	fi
+
+compile: all $(srcdir)/*$(PO_EXT)
+	for file in $(srcdir)/*$(PO_EXT); do \
+		$(MSGFMT) --check --statistics -o `basename $$file .po`$(MO_EXT) $$file; \
+	done
