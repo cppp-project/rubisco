@@ -353,6 +353,17 @@ class IKernelTrigger:  # pylint: disable=too-many-public-methods
 
         _null_trigger("on_show_project_info", project=project)
 
+    def on_mklink(self, src: Path, dst: Path, symlink: bool) -> None:
+        """On we are creating a symlink.
+
+        Args:
+            src (Path): Source file path.
+            dst (Path): Destination file path.
+            symlink (bool): If it is a symlink.
+        """
+
+        _null_trigger("on_mklink", src=src, dst=dst, symlink=symlink)
+
 
 # KTrigger instances.
 ktriggers: dict[str, IKernelTrigger] = {}

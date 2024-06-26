@@ -26,8 +26,8 @@ from __future__ import absolute_import
 
 from pathlib import Path
 
-from repoutils.config import (GLOBAL_EXTENSIONS_DIR, USER_EXTENSIONS_DIR,
-                              WORKSPACE_EXTENSIONS_DIR)
+from repoutils.config import (GLOBAL_EXTENTIONS_DIR, USER_EXTENTIONS_DIR,
+                              WORKSPACE_EXTENTIONS_DIR)
 from repoutils.kernel.workflow import Step, _set_extloader, register_step_type
 from repoutils.lib.exceptions import RUValueException
 from repoutils.lib.l10n import _
@@ -218,7 +218,7 @@ def load_extention(path: Path | str, strict: bool = False) -> None:
             raise exc from None
         logger.exception("Failed to load extention '%s': %s", path, exc)
         call_ktrigger(
-            IKernelTrigger.on_error,
+            IKernelTrigger.on_warning,
             message=format_str(
                 _("Failed to load extention '${{name}}': ${{exc}}."),
                 fmt={"name": make_pretty(path.absolute()), "exc": str(exc)},
@@ -231,7 +231,7 @@ def load_all_extentions() -> None:
 
     # Load the workspace extentions.
     try:
-        for path in WORKSPACE_EXTENSIONS_DIR.iterdir():
+        for path in WORKSPACE_EXTENTIONS_DIR.iterdir():
             if path.is_dir():
                 load_extention(path)
     except OSError as exc:
@@ -239,7 +239,7 @@ def load_all_extentions() -> None:
 
     # Load the user extentions.
     try:
-        for path in USER_EXTENSIONS_DIR.iterdir():
+        for path in USER_EXTENTIONS_DIR.iterdir():
             if path.is_dir():
                 load_extention(path)
     except OSError as exc:
@@ -247,7 +247,7 @@ def load_all_extentions() -> None:
 
     # Load the global extentions.
     try:
-        for path in GLOBAL_EXTENSIONS_DIR.iterdir():
+        for path in GLOBAL_EXTENTIONS_DIR.iterdir():
             if path.is_dir():
                 load_extention(path)
     except OSError as exc:

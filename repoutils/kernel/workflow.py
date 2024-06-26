@@ -36,8 +36,12 @@ from repoutils.lib.fileutil import copy_recursive, rm_recursive
 from repoutils.lib.l10n import _
 from repoutils.lib.log import logger
 from repoutils.lib.process import Process, popen
-from repoutils.lib.variable import (AutoFormatDict, format_str, make_pretty,
-                                    push_variables)
+from repoutils.lib.variable import (
+    AutoFormatDict,
+    format_str,
+    make_pretty,
+    push_variables,
+)
 from repoutils.shared.ktrigger import IKernelTrigger, call_ktrigger
 
 __all__ = [
@@ -327,6 +331,38 @@ class WorkflowRunStep(Step):  # pylint: disable=too-few-public-methods
             push_variables(f"{self.global_id}.exception", exc)
 
 
+class MklinkStep(Step):  # pylint: disable=too-few-public-methods
+    """
+    Make a symbolic link.
+    """
+
+    src: Path
+    dst: Path
+    strict: bool
+    symlink: bool
+
+    def __init__(self, data: AutoFormatDict, par_workflow: "Workflow"):
+        self.src = Path(data.get("mklink", valtype=str))
+        self.dst = Path(data.get("to", valtype=str))
+
+        self.strict = data.get("strict", valtype=bool, default=True)
+        self.symlink = data.get("symlink", valtype=bool, default=True)
+
+        super().__init__(data, par_workflow)
+
+        call_ktrigger(
+            IKernelTrigger.on_mklink,
+            src=self.src,
+            dst=self.dst,
+            symlink=self.symlink,
+        )
+
+        if self.symlink:
+            os.symlink(self.src, self.dst)
+        else:
+            os.link(self.src, self.dst)
+
+
 step_types = {
     "shell": ShellExecStep,
     "mkdir": MkdirStep,
@@ -337,6 +373,7 @@ step_types = {
     "remove": RemoveStep,
     "load-extention": ExtentionLoadStep,
     "run-workflow": WorkflowRunStep,
+    "mklink": MklinkStep,
 }
 
 # Type is optional. If not provided, it will be inferred from the step data.
@@ -350,6 +387,7 @@ step_contribute = {
     RemoveStep: ["remove"],
     ExtentionLoadStep: ["extention"],
     WorkflowRunStep: ["workflow"],
+    MklinkStep: ["mklink", "to"],
 }
 
 
@@ -563,10 +601,12 @@ def run_inline_workflow(
     """
 
     if isinstance(data, list):
-        data = AutoFormatDict.from_dict({
-            "name": _("<Inline Workflow>"),
-            "steps": data,
-        })
+        data = AutoFormatDict.from_dict(
+            {
+                "name": _("<Inline Workflow>"),
+                "steps": data,
+            }
+        )
 
     wf = Workflow(data)
     try:

@@ -46,7 +46,7 @@ COPY_BUFSIZE = 1024 * 1024 if os.name == "nt" else 64 * 1024
 WORKSPACE_LIB_DIR = Path(".repoutils")
 WORKSPACE_CONFIG_DIR = WORKSPACE_LIB_DIR
 WORKSPACE_CONFIG_FILE = WORKSPACE_LIB_DIR / "config.json"
-WORKSPACE_EXTENSIONS_DIR = WORKSPACE_LIB_DIR / "extensions"
+WORKSPACE_EXTENTIONS_DIR = WORKSPACE_LIB_DIR / "extentions"
 USER_REPO_CONFIG = Path("repo.json")
 if os.name == "nt":
     local_appdata = Path(os.getenv("LOCALAPPDATA"))
@@ -58,12 +58,12 @@ else:
     USER_LIB_DIR = Path("~/.local/repoutils").expanduser()
     USER_CONFIG_DIR = Path("~/.config/repoutils").expanduser()
 USER_CONFIG_FILE = USER_CONFIG_DIR / "config.json"
-USER_EXTENSIONS_DIR = USER_LIB_DIR / "extensions"
+USER_EXTENTIONS_DIR = USER_LIB_DIR / "extentions"
 # Will override in Windows later.
 GLOBAL_LIB_DIR = Path("/usr/local/lib/repoutils")
 GLOBAL_CONFIG_DIR = Path("/etc/repoutils")
 GLOBAL_CONFIG_FILE = GLOBAL_CONFIG_DIR / "config.json"
-GLOBAL_EXTENSIONS_DIR = GLOBAL_LIB_DIR / "extensions"
+GLOBAL_EXTENTIONS_DIR = GLOBAL_LIB_DIR / "extentions"
 
 # Logging configurations.
 # We don't need to absolute the path because repoutils supports '--root'
@@ -98,4 +98,4 @@ if os.name == "nt":  # On Windows.
     GLOBAL_LIB_DIR = PROGRAM_DIR
     GLOBAL_CONFIG_DIR = PROGRAM_DIR / "config"
     GLOBAL_CONFIG_FILE = GLOBAL_CONFIG_DIR / "config.json"
-    GLOBAL_EXTENSIONS_DIR = GLOBAL_LIB_DIR / "extensions"
+    GLOBAL_EXTENTIONS_DIR = GLOBAL_LIB_DIR / "extentions"
