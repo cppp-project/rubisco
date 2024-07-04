@@ -31,17 +31,14 @@ import json5 as json
 import yaml
 
 from repoutils.config import DEFAULT_CHARSET
+from repoutils.lib.archive import compress, extract
 from repoutils.lib.exceptions import RUValueException
 from repoutils.lib.fileutil import copy_recursive, rm_recursive
 from repoutils.lib.l10n import _
 from repoutils.lib.log import logger
 from repoutils.lib.process import Process, popen
-from repoutils.lib.variable import (
-    AutoFormatDict,
-    format_str,
-    make_pretty,
-    push_variables,
-)
+from repoutils.lib.variable import (AutoFormatDict, format_str, make_pretty,
+                                    push_variables)
 from repoutils.shared.ktrigger import IKernelTrigger, call_ktrigger
 
 __all__ = [
@@ -53,6 +50,11 @@ __all__ = [
     "MoveFileStep",
     "CopyFileStep",
     "RemoveStep",
+    "ExtentionLoadStep",
+    "WorkflowRunStep",
+    "MklinkStep",
+    "CompressStep",
+    "ExtractStep",
     "Workflow",
     "register_step_type",
     "run_inline_workflow",
@@ -66,7 +68,7 @@ except ImportError:
     load_extention = NotImplemented
 
 
-def _set_extloader(extloader):
+def _set_extloader(extloader):  # Avoid circular import.
     global load_extention  # pylint: disable=global-statement
 
     load_extention = extloader
@@ -308,7 +310,7 @@ class ExtentionLoadStep(Step):  # pylint: disable=too-few-public-methods
 
         super().__init__(data, par_workflow)
 
-        load_extention(self.path, self.strict)
+        load_extention(self.path, self.strict, is_auto=False)
 
 
 class WorkflowRunStep(Step):  # pylint: disable=too-few-public-methods
@@ -363,6 +365,75 @@ class MklinkStep(Step):  # pylint: disable=too-few-public-methods
             os.link(self.src, self.dst)
 
 
+class CompressStep(Step):  # pylint: disable=too-few-public-methods
+    """
+    Make a compressed archive.
+    """
+
+    src: Path
+    dst: Path
+    start: Path | None
+    excludes: list[str] | None
+    compress_type: str | None
+    compress_level: int | None
+    overwrite: bool
+
+    def __init__(self, data: AutoFormatDict, par_workflow: "Workflow"):
+        self.src = Path(data.get("compress", valtype=str))
+        self.dst = Path(data.get("to", valtype=str))
+        _start = data.get("start", valtype=str, default=None)
+        self.start = Path(_start) if _start else None
+        self.excludes = data.get("excludes", valtype=list | None, default=None)
+        self.compress_type = data.get("type", valtype=str | None, default=None)
+        self.compress_level = data.get(
+            "level",
+            valtype=int | None,
+            default=None,
+        )
+        self.overwrite = data.get("overwrite", valtype=bool, default=True)
+
+        super().__init__(data, par_workflow)
+
+        compress(
+            self.src,
+            self.dst,
+            self.start,
+            self.excludes,
+            self.compress_type,
+            self.compress_level,
+            self.overwrite,
+        )
+
+
+class ExtractStep(Step):  # pylint: disable=too-few-public-methods
+    """
+    Extract a compressed archive.
+    """
+
+    src: Path
+    dst: Path
+    compress_type: str | None
+    overwrite: bool
+    password: str | None
+
+    def __init__(self, data: AutoFormatDict, par_workflow: "Workflow"):
+        self.src = Path(data.get("extract", valtype=str))
+        self.dst = Path(data.get("to", valtype=str))
+        self.compress_type = data.get("type", valtype=str | None, default=None)
+        self.overwrite = data.get("overwrite", valtype=bool, default=True)
+        self.password = data.get("password", valtype=str | None, default=None)
+
+        super().__init__(data, par_workflow)
+
+        extract(
+            self.src,
+            self.dst,
+            self.compress_type,
+            self.overwrite,
+            self.password,
+        )
+
+
 step_types = {
     "shell": ShellExecStep,
     "mkdir": MkdirStep,
@@ -374,6 +445,8 @@ step_types = {
     "load-extention": ExtentionLoadStep,
     "run-workflow": WorkflowRunStep,
     "mklink": MklinkStep,
+    "compress": CompressStep,
+    "extract": ExtractStep,
 }
 
 # Type is optional. If not provided, it will be inferred from the step data.
@@ -388,6 +461,8 @@ step_contribute = {
     ExtentionLoadStep: ["extention"],
     WorkflowRunStep: ["workflow"],
     MklinkStep: ["mklink", "to"],
+    CompressStep: ["compress", "to"],
+    ExtractStep: ["extract", "to"],
 }
 
 

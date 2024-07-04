@@ -1,0 +1,61 @@
+# -*- coding: utf-8 -*-
+# -*- mode: python -*-
+# vi: set ft=python :
+
+# Copyright (C) 2024 The C++ Plus Project.
+# This file is part of the repoutils.
+#
+# repoutils is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published
+# by the Free Software Foundation, either version 3 of the License,
+# or (at your option) any later version.
+#
+# repoutils is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+"""
+Repoutils config file loader.
+"""
+
+import json5 as json
+
+from repoutils.config import (DEFAULT_CHARSET, GLOBAL_CONFIG_FILE,
+                              USER_CONFIG_FILE, WORKSPACE_CONFIG_FILE)
+from repoutils.lib.log import logger
+from repoutils.lib.variable import AutoFormatDict
+
+__all__ = ["config"]
+
+config = AutoFormatDict()
+
+try:
+    logger.info("Loading global configuration %s ...", GLOBAL_CONFIG_FILE)
+    if GLOBAL_CONFIG_FILE.exists():
+        with GLOBAL_CONFIG_FILE.open("r", encoding=DEFAULT_CHARSET) as f:
+            config.merge(AutoFormatDict.from_dict(json.load(f)))
+except:  # pylint: disable=bare-except  # noqa: E722
+    logger.exception("Failed to load global configuration: %s")
+
+try:
+    logger.info("Loading user configuration %s ...", USER_CONFIG_FILE)
+    if USER_CONFIG_FILE.exists():
+        with USER_CONFIG_FILE.open("r", encoding=DEFAULT_CHARSET) as f:
+            config.merge(AutoFormatDict.from_dict(json.load(f)))
+except:  # pylint: disable=bare-except  # noqa: E722
+    logger.exception("Failed to load user configuration: %s")
+
+try:
+    logger.info(
+        "Loading workspace configuration %s ...",
+        WORKSPACE_CONFIG_FILE,
+    )
+    if WORKSPACE_CONFIG_FILE.exists():
+        with WORKSPACE_CONFIG_FILE.open("r", encoding=DEFAULT_CHARSET) as f:
+            config.merge(AutoFormatDict.from_dict(json.load(f)))
+except:  # pylint: disable=bare-except  # noqa: E722
+    logger.exception("Failed to load workspace configuration: %s")

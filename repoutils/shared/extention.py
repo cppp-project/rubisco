@@ -22,8 +22,6 @@
 Repoutils extentions interface.
 """
 
-from __future__ import absolute_import
-
 from pathlib import Path
 
 from repoutils.config import (GLOBAL_EXTENTIONS_DIR, USER_EXTENTIONS_DIR,
@@ -31,6 +29,7 @@ from repoutils.config import (GLOBAL_EXTENTIONS_DIR, USER_EXTENTIONS_DIR,
 from repoutils.kernel.workflow import Step, _set_extloader, register_step_type
 from repoutils.lib.exceptions import RUValueException
 from repoutils.lib.l10n import _
+from repoutils.lib.load_module import import_module_from_path
 from repoutils.lib.log import logger
 from repoutils.lib.variable import format_str, make_pretty
 from repoutils.lib.version import Version
@@ -57,12 +56,17 @@ class IRUExtention:
         Constructor. Please DO NOT initialize the extention here.
         """
 
-    def extention_can_load_now(self) -> bool:
+    def extention_can_load_now(self, is_auto: bool) -> bool:
         """
         Check if the extention can load now. Some extentions may initialize
         optionally like 'CMake' or 'Rust'.
 
         This method MUST be implemented by the subclass.
+
+        Args:
+            is_auto (bool): True if the extention is loaded automatically,
+                (load by `load_all_extentions`), otherwise False. (load by
+                project)
 
         Raises:
             NotImplementedError: Raise if the method is not implemented.
@@ -118,7 +122,11 @@ invalid_ext_names = ["repoutils"]  # Avoid logger's name conflict.
 #   - extention/        directory    ---- The extention directory.
 #       - __init__.py   file         ---- The extention module.
 #           - instance  IRUExtention ---- The extention instance
-def load_extention(path: Path | str, strict: bool = False) -> None:
+def load_extention(  # pylint: disable=too-many-branches
+    path: Path | str,
+    strict: bool = False,
+    is_auto: bool = False,
+) -> None:
     """Load the extention.
 
     Args:
@@ -131,8 +139,25 @@ def load_extention(path: Path | str, strict: bool = False) -> None:
 
     try:
         if isinstance(path, str):
-            path = Path(path)
-        path = path.absolute()
+            if (WORKSPACE_EXTENTIONS_DIR / path).is_dir():
+                path = GLOBAL_EXTENTIONS_DIR / path
+            elif (USER_EXTENTIONS_DIR / path).is_dir():
+                path = USER_EXTENTIONS_DIR / path
+            elif (GLOBAL_EXTENTIONS_DIR / path).is_dir():
+                path = WORKSPACE_EXTENTIONS_DIR / path
+            else:
+                raise RUValueException(
+                    format_str(
+                        _(
+                            "The extention '${{name}}' does not exist in"
+                            " workspace, user, or global extention directory."
+                        ),
+                        fmt={"name": path},
+                    ),
+                    hint=format_str(
+                        _("Try to load the extention as a path."),
+                    ),
+                )
 
         if not path.is_dir():
             raise RUValueException(
@@ -146,7 +171,35 @@ def load_extention(path: Path | str, strict: bool = False) -> None:
             )
 
         # Load the extention.
-        module = __import__(path.name, fromlist=[str(path.parent)])
+
+        try:
+            module = import_module_from_path(path)
+        except FileNotFoundError as exc:
+            raise RUValueException(
+                format_str(
+                    _(
+                        "The extention path '[underline]${{path}}[/underline]'"
+                        " does not exist."
+                    ),
+                    fmt={"path": make_pretty(path.absolute())},
+                ),
+            ) from exc
+        except ImportError as exc:
+            raise RUValueException(
+                format_str(
+                    _(
+                        "Failed to load extention '[underline]${{path}}"
+                        "[/underline]'."
+                    ),
+                    fmt={"path": make_pretty(path.absolute())},
+                ),
+                hint=format_str(
+                    _(
+                        "Please make sure this extention is valid.",
+                    ),
+                ),
+            ) from exc
+
         if not hasattr(module, "instance"):
             raise RUValueException(
                 format_str(
@@ -181,7 +234,7 @@ def load_extention(path: Path | str, strict: bool = False) -> None:
         logger.info("Loading extention '%s'...", instance.name)
 
         # Check if the extention can load now.
-        if not instance.extention_can_load_now():
+        if not instance.extention_can_load_now(is_auto):
             logger.info("Skipping extention '%s'...", instance.name)
             return
 
@@ -233,7 +286,7 @@ def load_all_extentions() -> None:
     try:
         for path in WORKSPACE_EXTENTIONS_DIR.iterdir():
             if path.is_dir():
-                load_extention(path)
+                load_extention(path, is_auto=True)
     except OSError as exc:
         logger.warning("Failed to load workspace extentions: %s", exc)
 
@@ -241,7 +294,7 @@ def load_all_extentions() -> None:
     try:
         for path in USER_EXTENTIONS_DIR.iterdir():
             if path.is_dir():
-                load_extention(path)
+                load_extention(path, is_auto=True)
     except OSError as exc:
         logger.warning("Failed to load user extentions: %s", exc)
 
@@ -249,9 +302,9 @@ def load_all_extentions() -> None:
     try:
         for path in GLOBAL_EXTENTIONS_DIR.iterdir():
             if path.is_dir():
-                load_extention(path)
+                load_extention(path, is_auto=True)
     except OSError as exc:
         logger.warning("Failed to load global extentions: %s", exc)
 
 
-_set_extloader(load_extention)
+_set_extloader(load_extention)  # Avoid circular import.

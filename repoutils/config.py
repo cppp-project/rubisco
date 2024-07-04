@@ -65,6 +65,7 @@ GLOBAL_CONFIG_DIR = Path("/etc/repoutils")
 GLOBAL_CONFIG_FILE = GLOBAL_CONFIG_DIR / "config.json"
 GLOBAL_EXTENTIONS_DIR = GLOBAL_LIB_DIR / "extentions"
 
+
 # Logging configurations.
 # We don't need to absolute the path because repoutils supports '--root'
 # option.
@@ -73,7 +74,7 @@ LOG_FORMAT = "[%(asctime)s] [%(name)s] [%(levelname)s] %(message)s"
 LOG_REGEX = r"\[(.*)\] \[(.*)\] \[(.*)\] (.*)"
 LOG_TIME_FORMAT = "%Y-%m-%d %H:%M:%S"
 LOG_LEVEL = "DEBUG"
-LOG_KEEP_DAYS = 7
+DEFAULT_LOG_KEEP_LINES = 5000
 
 
 # Constants that are not configurable.

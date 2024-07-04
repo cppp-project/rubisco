@@ -26,7 +26,7 @@ import argparse
 import atexit
 import sys
 from pathlib import Path
-from typing import Iterable
+from typing import Any, Iterable
 
 import colorama
 import rich
@@ -38,10 +38,11 @@ from repoutils.cli.input import ask_yesno
 from repoutils.cli.output import (output_error, output_hint, output_step,
                                   output_warning, pop_level, push_level,
                                   show_exception)
-from repoutils.config import APP_NAME, APP_VERSION, USER_REPO_CONFIG
-from repoutils.kernel.log_clean import clean_log
-from repoutils.kernel.project_config import (ProjectConfigration,  # noqa: E501
-                                             load_project_config)
+from repoutils.config import (APP_NAME, APP_VERSION, DEFAULT_CHARSET,
+                              DEFAULT_LOG_KEEP_LINES, LOG_FILE,
+                              USER_REPO_CONFIG)
+from repoutils.kernel.project_config import ProjectConfigration  # noqa: E501
+from repoutils.kernel.project_config import load_project_config
 from repoutils.kernel.workflow import Step, Workflow
 from repoutils.lib.exceptions import RUValueException
 from repoutils.lib.l10n import _
@@ -131,6 +132,7 @@ class RUHelpFormatter(RichHelpFormatter):
         for action in actions:
             if action.help == "show this help message and exit":
                 action.help = _("Show this help message and exit.")
+
         super().add_usage(usage, actions, groups, prefix)
 
     def format_help(self) -> str:
@@ -140,6 +142,7 @@ class RUHelpFormatter(RichHelpFormatter):
             "Positional Arguments:",
             _("Positional Arguments:"),
         )
+
         help_str = help_str.replace("Options:", _("Options:"))
 
         return help_str
@@ -193,6 +196,8 @@ class RepoutilsKTrigger(  # pylint: disable=too-many-public-methods
 
     cur_progress: rich.progress.Progress | None = None
     tasks: dict[str, rich.progress.TaskID] = {}
+    task_types: dict[str, int] = {}
+    task_totals: dict[str, int] = {}
     live: rich.live.Live | None = None
     _speedtest_hosts: dict[str, str] = {}
 
@@ -238,6 +243,8 @@ class RepoutilsKTrigger(  # pylint: disable=too-many-public-methods
             title = _("[yellow]Downloading[/yellow]")
         elif task_type == IKernelTrigger.TASK_EXTRACT:
             title = _("[yellow]Extracting[/yellow]")
+        elif task_type == IKernelTrigger.TASK_COMPRESS:
+            title = _("[yellow]Compressing[/yellow]")
         else:
             title = _("[yellow]Processing[/yellow]")
 
@@ -248,13 +255,22 @@ class RepoutilsKTrigger(  # pylint: disable=too-many-public-methods
             self.cur_progress.start()
         task_id = self.cur_progress.add_task(title, total=total)
         self.tasks[task_name] = task_id
+        self.task_types[task_name] = task_type
+        self.task_totals[task_name] = total
 
     def on_progress(
         self,
         task_name: str,
         current: int | float,
         delta: bool = False,
+        more_data: dict[str, Any] | None = None,
     ):
+        if (
+            self.task_types[task_name] == IKernelTrigger.TASK_EXTRACT
+            and self.task_totals[task_name] < 2500
+        ):
+            path = str((more_data["dest"] / more_data["path"]).absolute())
+            rich.print(f'[underline]{path}[/underline]')
         if delta:
             self.cur_progress.update(self.tasks[task_name], advance=current)
         else:
@@ -266,6 +282,8 @@ class RepoutilsKTrigger(  # pylint: disable=too-many-public-methods
     def on_finish_task(self, task_name: str):
         self.cur_progress.remove_task(self.tasks[task_name])
         del self.tasks[task_name]
+        del self.task_types[task_name]
+        del self.task_totals[task_name]
         if not self.tasks:
             self.cur_progress.stop()
             self.cur_progress = None
@@ -574,14 +592,31 @@ def load_project():
         ) from exc
 
 
+def clean_log():
+    """
+    Clean the log file.
+    """
+
+    try:
+        line_count = 0
+        with open(LOG_FILE, "r+", encoding=DEFAULT_CHARSET) as f:
+            for _line in f:
+                line_count += 1
+                if line_count > DEFAULT_LOG_KEEP_LINES:
+                    f.seek(0)
+                    f.truncate()
+                    return
+    except:  # pylint: disable=bare-except  # noqa: E722
+        logger.warning("Failed to clean log file.", exc_info=True)
+
+
 def main() -> None:
     """Main entry point."""
 
     try:
-        logger.info("Repoutils CLI version %s started.", str(APP_VERSION))
-
-        colorama.init()
         clean_log()
+        logger.info("Repoutils CLI version %s started.", str(APP_VERSION))
+        colorama.init()
         bind_ktrigger_interface("repoutils", RepoutilsKTrigger())
         load_all_extentions()
 
@@ -591,14 +626,13 @@ def main() -> None:
             args = arg_parser.parse_args()
 
         op_command = args.command[0]
-        match op_command:
-            case "info":
-                call_ktrigger(
-                    IKernelTrigger.on_show_project_info,
-                    project=project_config,
-                )
-            case _:
-                call_hook(op_command)
+        if op_command == "info":
+            call_ktrigger(
+                IKernelTrigger.on_show_project_info,
+                project=project_config,
+            )
+        else:
+            call_hook(op_command)
 
     except SystemExit as exc:
         raise exc from None  # Do not show traceback.

@@ -23,6 +23,7 @@ Download a file from the Internet.
 """
 
 from pathlib import Path
+from typing import Any
 
 import requests
 
@@ -77,6 +78,7 @@ def wget(url: str, save_to: Path, overwrite: bool = True) -> None:
                         task_name=task_name,
                         current=len(chunk),
                         delta=True,
+                        more_data={"url": url},
                     )
                 call_ktrigger(
                     IKernelTrigger.on_finish_task,
@@ -120,6 +122,7 @@ if __name__ == "__main__":
             task_name: str,
             current: int | float,
             delta: bool = False,
+            more_data: dict[str, Any] | None = None,
         ):
             if delta:
                 current += self._cur

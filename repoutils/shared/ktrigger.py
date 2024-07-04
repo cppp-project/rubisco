@@ -56,6 +56,7 @@ class IKernelTrigger:  # pylint: disable=too-many-public-methods
 
     TASK_DOWNLOAD = "download"
     TASK_EXTRACT = "extract"
+    TASK_COMPRESS = "compress"
 
     def pre_exec_process(self, proc: Any) -> None:
         """Pre-exec process.
@@ -122,6 +123,7 @@ class IKernelTrigger:  # pylint: disable=too-many-public-methods
         task_name: str,
         current: int | float,
         delta: bool = False,
+        more_data: dict[str, Any] | None = None,
     ):
         """When the progressive task progress is updated.
 
@@ -129,6 +131,7 @@ class IKernelTrigger:  # pylint: disable=too-many-public-methods
             task_name (str): Task name.
             current (int | float): Current step.
             delta (bool): If the current is delta.
+            more_data (dict[str, Any] | None): More data of the progress.
         """
 
         _null_trigger(
@@ -136,6 +139,7 @@ class IKernelTrigger:  # pylint: disable=too-many-public-methods
             task_name=task_name,
             current=current,
             delta=delta,
+            more_data=more_data,
         )
 
     def set_progress_total(self, task_name: str, total: int | float):
@@ -482,3 +486,9 @@ if __name__ == "__main__":
 
     # Test: Call a non-exists KTrigger.
     call_ktrigger("non_exists")
+
+
+# So, death is best?
+# Yes, death is a form of liberation.
+# A best form.
+# I want to follow you, but I'm feared. I CAN'T DO THIS.
