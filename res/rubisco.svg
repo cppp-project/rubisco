@@ -1,14 +1,1 @@
-<svg id="root"
-    xmlns="http://www.w3.org/2000/svg" viewBox="0 0 105.41 106.82">
-    <defs>
-        <style>.cls-1{fill:#00a0e9;}.cls-1,.cls-2,.cls-3,.cls-4{stroke:#231815;stroke-miterlimit:10;}.cls-2{fill:#f8b62d;}.cls-3{fill:#22ac38;}.cls-4{fill:#172a88;}</style>
-    </defs>
-    <rect class="cls-1" x="22.7" y="6.6" width="25" height="50" rx="2"/>
-    <rect class="cls-2" x="107.5" y="90" width="25" height="50" rx="2" transform="translate(-41.8 153.6) rotate(-90)"/>
-    <rect class="cls-3" x="57.7" y="46.6" width="25" height="50" rx="2"/>
-    <rect class="cls-4" x="66.5" y="126" width="25" height="50" rx="2" transform="translate(-118.8 148.6) rotate(-90)"/>
-    <rect class="cls-1" x="60.49" y="108.04" width="25" height="50" rx="2" transform="translate(-119.5 9.18) rotate(-45)"/>
-    <rect class="cls-2" x="88.77" y="82.59" width="25" height="50" rx="2" transform="translate(50 173.87) rotate(-135)"/>
-    <rect class="cls-3" x="113.52" y="111.58" width="25" height="50" rx="2" transform="translate(-106.46 47.71) rotate(-45)"/>
-    <rect class="cls-4" x="85.23" y="137.03" width="25" height="50" rx="2" transform="translate(5.47 264.32) rotate(-135)"/>
-</svg>
+<svg id="root" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 105.41 106.82"><defs><style>.cls-1{fill:#00a0e9;}.cls-1,.cls-2,.cls-3,.cls-4{stroke:#231815;stroke-miterlimit:10;}.cls-2{fill:#f8b62d;}.cls-3{fill:#22ac38;}.cls-4{fill:#172a88;}</style></defs><rect class="cls-1" x="22.7" y="6.6" width="25" height="50" rx="2"/><rect class="cls-2" x="107.5" y="90" width="25" height="50" rx="2" transform="translate(-41.8 153.6) rotate(-90)"/><rect class="cls-3" x="57.7" y="46.6" width="25" height="50" rx="2"/><rect class="cls-4" x="66.5" y="126" width="25" height="50" rx="2" transform="translate(-118.8 148.6) rotate(-90)"/><rect class="cls-1" x="60.49" y="108.04" width="25" height="50" rx="2" transform="translate(-119.5 9.18) rotate(-45)"/><rect class="cls-2" x="88.77" y="82.59" width="25" height="50" rx="2" transform="translate(50 173.87) rotate(-135)"/><rect class="cls-3" x="113.52" y="111.58" width="25" height="50" rx="2" transform="translate(-106.46 47.71) rotate(-45)"/><rect class="cls-4" x="85.23" y="137.03" width="25" height="50" rx="2" transform="translate(5.47 264.32) rotate(-135)"/></svg>
