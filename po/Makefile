@@ -1,7 +1,8 @@
 # Makefile for generating and updating .pot and .po files.
 #
 
-PACKAGE = repoutils
+PACKAGE = rubisco
+PKG_NAME = Rubisco
 VERSION = 0.1.0
 PACKAGE_BUGREPORT = cpppteam@email.cn
 LANGUAGE = python
@@ -9,7 +10,7 @@ CHARSET = UTF-8
 
 srcdir = .
 top_srcdir = ..
-srccode_dir = $(top_srcdir)/repoutils
+srccode_dir = $(top_srcdir)/rubisco
 
 FIND = find
 MSGFMT = msgfmt
@@ -31,7 +32,7 @@ $(PACKAGE)$(POT_EXT):
 		export files="$$files $$file"; \
 	done && \
 	$(XGETTEXT_) --language=$(LANGUAGE) \
-			--default-domain=$(PACKAGE) --package-name=$(PACKAGE) --package-version=$(VERSION) \
+			--default-domain=$(PACKAGE) --package-name=$(PKG_NAME) --package-version=$(VERSION) \
 			--msgid-bugs-address=$(PACKAGE_BUGREPORT) \
 			--directory=$(srccode_dir) \
 			--output=$(PACKAGE)$(POT_EXT) \

@@ -1,0 +1,6 @@
+name: 🛠️ Build
+
+steps:
+  - name: 🛠️ Build with PyInstaller
+    run: |
+      python -m PyInstaller --distpath dist rubisco.spec

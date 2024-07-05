@@ -1,21 +1,21 @@
 {
-    "name": "repoutils",
+    "name": "rubisco",
     "version": "0.1.0",
     "description": "C+++ Repository Utilities.",
     "maintainer": "ChenPi11 <wushengwuxi-msctinoulk@outlook.com>",
     "license": "GPL-3.0",
     "hooks": {
         "lint": {
-            "run": ".repoutils/lint.yaml"
+            "run": ".rubisco/lint.yaml"
         },
         "update-po": {
             "exec": "cd po && make update-po -B"
         },
         "build": {
-            "run": ".repoutils/build.yaml"
+            "run": ".rubisco/build.yaml"
         },
         "format": {
-            "exec": "python -m isort repoutils"
+            "exec": "python -m isort rubisco"
         },
         "clean": {
             "workflow": [

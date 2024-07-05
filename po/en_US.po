@@ -1,13 +1,25 @@
-# English translations for cppp-repoutils package.
-# Copyright (C) 2024 THE cppp-repoutils'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the cppp-repoutils package.
-#  <wushengwuxi-msctinoulk@outlook.com>, 2024.
+# English translations for Rubisco package.
+# Copyright (C) 2024 The C++ Plus Project.
+# This file is part of the Rubisco.
+#
+# Rubisco is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published
+# by the Free Software Foundation, either version 3 of the License,
+# or (at your option) any later version.
+#
+# Rubisco is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: cppp-repoutils 0.1.0\n"
+"Project-Id-Version: Rubisco 0.1.0\n"
 "Report-Msgid-Bugs-To: cpppteam@email.cn\n"
-"POT-Creation-Date: 2024-06-25 14:58+0800\n"
+"POT-Creation-Date: 2024-07-05 20:04+0800\n"
 "PO-Revision-Date: 2024-06-25 11:05+0800\n"
 "Last-Translator:  <wushengwuxi-msctinoulk@outlook.com>\n"
 "Language-Team: English\n"
@@ -17,424 +29,483 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: ../repoutils/cli/main.py:349
+#: ../rubisco/cli/main.py:366
 msgid "${{speed}} us"
 msgstr "${{speed}} us"
 
-#: ../repoutils/shared/ktrigger.py:376
+#: ../rubisco/shared/ktrigger.py:391
 msgid "'${{name}}' is not a IKernelTrigger instance."
 msgstr "'${{name}}' is not a IKernelTrigger instance."
 
-#: ../repoutils/cli/main.py:571
+#: ../rubisco/cli/main.py:588
 msgid "'[underline]${{path}}[/underline]' is not found."
 msgstr "'[underline]${{path}}[/underline]' is not found."
 
-#: ../repoutils/cli/main.py:557
+#: ../rubisco/lib/archive.py:586 ../rubisco/lib/archive.py:664
+#: ../rubisco/lib/archive.py:741
+msgid "'[underline]${{path}}[/underline]' is not in the subpath of '[underline]${{start}}[/underline]'"
+msgstr "'[underline]${{path}}[/underline]' is not in the subpath of '[underline]${{start}}[/underline]'"
+
+#: ../rubisco/cli/main.py:574
 msgid "(${{num}} overrides)"
 msgstr "(${{num}} overrides)"
 
-#: ../repoutils/kernel/workflow.py:567
+#: ../rubisco/kernel/workflow.py:681
 msgid "<Inline Workflow>"
 msgstr "<Inline Workflow>"
 
-#: ../repoutils/kernel/project_config.py:158
-#: ../repoutils/kernel/workflow.py:454 ../repoutils/kernel/workflow.py:455
+#: ../rubisco/kernel/project_config.py:158 ../rubisco/kernel/workflow.py:567
+#: ../rubisco/kernel/workflow.py:568
 msgid "<Unnamed>"
 msgstr "<Unnamed>"
 
-#: ../repoutils/kernel/project_config.py:86
+#: ../rubisco/kernel/project_config.py:86
 msgid "A workflow [yellow]SHOULD[/yellow] contain at least 'exec', 'run' and 'workflow'."
 msgstr "A workflow [yellow]SHOULD[/yellow] contain at least 'exec', 'run' and 'workflow'."
 
-#: ../repoutils/kernel/workflow.py:396
+#: ../rubisco/kernel/workflow.py:509
 msgid "A workflow step must be a dict."
 msgstr "A workflow step must be a dict."
 
-#: ../repoutils/lib/fileutil.py:84
+#: ../rubisco/lib/fileutil.py:84
 msgid "Absolute path '[underline]${{path}}[/underline]' is not allowed."
 msgstr "Absolute path '[underline]${{path}}[/underline]' is not allowed."
 
-#: ../repoutils/cli/main.py:176
+#: ../rubisco/cli/main.py:178
 msgid "Available commands"
 msgstr "Available commands"
 
-#: ../repoutils/cli/main.py:312
+#: ../rubisco/cli/main.py:329
 msgid "Cloning Git repository ${{url}} (${{branch}}) into '[underline]${{path}}[/underline]' ..."
 msgstr "Cloning Git repository ${{url}} (${{branch}}) into '[underline]${{path}}[/underline]' ..."
 
-#: ../repoutils/lib/fileutil.py:576
+#: ../rubisco/lib/fileutil.py:598
 msgid "Command '${{cmd}}' not found."
 msgstr "Command '${{cmd}}' not found."
 
-#: ../repoutils/cli/main.py:172
+#: ../rubisco/cli/main.py:174
 msgid "Command to run."
 msgstr "Command to run."
 
-#: ../repoutils/cli/main.py:464
+#: ../rubisco/lib/archive.py:537 ../rubisco/lib/archive.py:632
+#: ../rubisco/lib/archive.py:706 ../rubisco/lib/archive.py:808
+msgid "Compressing '[underline]${{path}}[/underline]' to '[underline]${{file}}[/underline]' as '${{type}}' ..."
+msgstr "Compressing '[underline]${{path}}[/underline]' to '[underline]${{file}}[/underline]' as '${{type}}' ..."
+
+#: ../rubisco/cli/main.py:481
 msgid "Config file: [underline]${{path}}[/underline]"
 msgstr "Config file: [underline]${{path}}[/underline]"
 
-#: ../repoutils/kernel/project_config.py:222
+#: ../rubisco/kernel/project_config.py:222
 msgid "Configuration must be a JSON5 object. (dict)"
 msgstr "Configuration must be a JSON5 object. (dict)"
 
-#: ../repoutils/cli/main.py:289
+#: ../rubisco/cli/main.py:306
 msgid "Continue anyway?"
 msgstr "Continue anyway?"
 
-#: ../repoutils/cli/main.py:429
+#: ../rubisco/cli/main.py:446
 msgid "Copying '[underline]${{src}}[/underline]' to '[underline]${{dst}}[/underline]' ..."
 msgstr "Copying '[underline]${{src}}[/underline]' to '[underline]${{dst}}[/underline]' ..."
 
-#: ../repoutils/cli/main.py:66
+#: ../rubisco/cli/main.py:66
 msgid "Copyright (C) 2024 The C++ Plus Project."
 msgstr "Copyright (C) 2024 The C++ Plus Project."
 
-#: ../repoutils/cli/main.py:403
+#: ../rubisco/cli/main.py:420
 msgid "Creating directory: [underline]${{path}}[/underline] ..."
 msgstr "Creating directory: [underline]${{path}}[/underline] ..."
 
-#: ../repoutils/cli/main.py:493
+#: ../rubisco/cli/main.py:510
 msgid "Description: ${{desc}}"
 msgstr "Description: ${{desc}}"
 
-#: ../repoutils/lib/wget.py:62
+#: ../rubisco/lib/wget.py:63
 msgid "Downloading ${{url}} ..."
 msgstr "Downloading ${{url}} ..."
 
-#: ../repoutils/lib/fileutil.py:113
+#: ../rubisco/lib/fileutil.py:117
 msgid "Error while removing '[underline]${{path}}[/underline]': ${{error}}"
 msgstr "Error while removing '[underline]${{path}}[/underline]': ${{error}}"
 
-#: ../repoutils/cli/main.py:202
+#: ../rubisco/cli/main.py:206
 msgid "Executing: [cyan]${{cmd}}[/cyan] ..."
 msgstr "Executing: [cyan]${{cmd}}[/cyan] ..."
 
-#: ../repoutils/cli/main.py:450
+#: ../rubisco/cli/main.py:467
 msgid "Extension '${{name}}' loaded."
 msgstr "Extension '${{name}}' loaded."
 
-#: ../repoutils/shared/extention.py:223
+#: ../rubisco/lib/archive.py:87 ../rubisco/lib/archive.py:139
+#: ../rubisco/lib/archive.py:191 ../rubisco/lib/archive.py:348
+msgid "Extracting '[underline]${{file}}[/underline]' to '[underline]${{path}}[/underline]' as '${{type}}' ..."
+msgstr "Extracting '[underline]${{file}}[/underline]' to '[underline]${{path}}[/underline]' as '${{type}}' ..."
+
+#: ../rubisco/lib/archive.py:981
+msgid "Failed to compress '${{src}}' to '${{dest}}': '${{exc}}'"
+msgstr "Failed to compress '${{src}}' to '${{dest}}': '${{exc}}'"
+
+#: ../rubisco/lib/archive.py:482
+msgid "Failed to extract '${{file}}' to '${{dest}}': '${{exc}}'"
+msgstr "Failed to extract '${{file}}' to '${{dest}}': '${{exc}}'"
+
+#: ../rubisco/shared/extention.py:276
 msgid "Failed to load extention '${{name}}': ${{exc}}."
 msgstr "Failed to load extention '${{name}}': ${{exc}}."
 
-#: ../repoutils/lib/fileutil.py:177
+#: ../rubisco/shared/extention.py:191
+msgid "Failed to load extention '[underline]${{path}}[/underline]'."
+msgstr "Failed to load extention '[underline]${{path}}[/underline]'."
+
+#: ../rubisco/lib/fileutil.py:199
 msgid "File '[underline]${{path}}[/underline]' already exists."
 msgstr "File '[underline]${{path}}[/underline]' already exists."
 
-#: ../repoutils/cli/main.py:220
+#: ../rubisco/cli/main.py:224
 msgid "File '[underline]${{path}}[/underline]' already exists. [yellow]Overwrite[/yellow]?"
 msgstr "File '[underline]${{path}}[/underline]' already exists. [yellow]Overwrite[/yellow]?"
 
-#: ../repoutils/kernel/project_config.py:82
+#: ../rubisco/kernel/project_config.py:82
 msgid "Hook '${{name}}' is invalid."
 msgstr "Hook '${{name}}' is invalid."
 
-#: ../repoutils/cli/output.py:178
+#: ../rubisco/cli/output.py:180
 msgid "Internal error: ${{type}}: ${{msg}}"
 msgstr "Internal error: ${{type}}: ${{msg}}"
 
-#: ../repoutils/cli/output.py:160
+#: ../rubisco/cli/output.py:160
 msgid "Interrupted by user."
 msgstr "Interrupted by user."
 
-#: ../repoutils/kernel/project_config.py:217
+#: ../rubisco/kernel/project_config.py:217
 msgid "Invalid configuration in file '[underline]${{path}}[/underline]'."
 msgstr "Invalid configuration in file '[underline]${{path}}[/underline]'."
 
-#: ../repoutils/shared/extention.py:171
+#: ../rubisco/shared/extention.py:224
 msgid "Invalid extention name: '${{name}}' ."
 msgstr "Invalid extention name: '${{name}}' ."
 
-#: ../repoutils/cli/input.py:79
+#: ../rubisco/cli/input.py:79
 msgid "Invalid input."
 msgstr "Invalid input."
 
-#: ../repoutils/kernel/project_config.py:229
+#: ../rubisco/kernel/project_config.py:229
 msgid "Invalid path in '[underline]${{path}}[/underline]'."
 msgstr "Invalid path in '[underline]${{path}}[/underline]'."
 
-#: ../repoutils/cli/output.py:166
+#: ../rubisco/cli/output.py:166
 msgid "Is may caused by a invalid JSON5 configuration file."
 msgstr "Is may caused by a invalid JSON5 configuration file."
 
-#: ../repoutils/cli/output.py:172
+#: ../rubisco/cli/output.py:174
 msgid "Is may caused by a invalid configuration file."
 msgstr "Is may caused by a invalid configuration file."
 
-#: ../repoutils/cli/output.py:164
+#: ../rubisco/cli/output.py:164
 msgid "JSON5 decode error."
 msgstr "JSON5 decode error."
 
-#: ../repoutils/shared/ktrigger.py:384
+#: ../rubisco/shared/ktrigger.py:399
 msgid "Kernel trigger id '${{name}}' is already exists."
 msgstr "Kernel trigger id '${{name}}' is already exists."
 
-#: ../repoutils/cli/main.py:70
+#: ../rubisco/cli/main.py:70
 msgid "License [bold]GPLv3+[/bold]: GNU GPL version [cyan]3[/cyan] or later <https://www.gnu.org/licenses/gpl.html>."
 msgstr "License [bold]GPLv3+[/bold]: GNU GPL version [cyan]3[/cyan] or later <https://www.gnu.org/licenses/gpl.html>."
 
-#: ../repoutils/cli/main.py:487
+#: ../rubisco/cli/main.py:504
 msgid "License: ${{license}}"
 msgstr "License: ${{license}}"
 
-#: ../repoutils/cli/main.py:481
+#: ../rubisco/cli/main.py:498
 msgid "Maintainer: ${{maintainer}}"
 msgstr "Maintainer: ${{maintainer}}"
 
-#: ../repoutils/cli/output.py:169
+#: ../rubisco/cli/output.py:170
 msgid "Missing key: ${{msg}}"
 msgstr "Missing key: ${{msg}}"
 
-#: ../repoutils/cli/main.py:415
+#: ../rubisco/cli/main.py:432
 msgid "Moving file '[underline]${{src}}[/underline]' to '[underline]${{dst}}[/underline]' ..."
 msgstr "Moving file '[underline]${{src}}[/underline]' to '[underline]${{dst}}[/underline]' ..."
 
-#: ../repoutils/kernel/sysreq.py:167
+#: ../rubisco/kernel/sysreq.py:167
 msgid "No supported package manager found."
 msgstr "No supported package manager found."
 
-#: ../repoutils/kernel/sysreq.py:223 ../repoutils/kernel/sysreq.py:227
+#: ../rubisco/kernel/sysreq.py:221 ../rubisco/kernel/sysreq.py:225
 msgid "No supported system package manager found."
 msgstr "No supported system package manager found."
 
-#: ../repoutils/cli/main.py:143
+#: ../rubisco/cli/main.py:145
 msgid "Options:"
 msgstr "Options:"
 
-#: ../repoutils/cli/main.py:337
+#: ../rubisco/cli/main.py:354
 msgid "Performing websites speed test ..."
 msgstr "Performing websites speed test ..."
 
-#: ../repoutils/cli/main.py:537
+#: ../rubisco/cli/main.py:554
 msgid "Perhaps a typo?"
 msgstr "Perhaps a typo?"
 
-#: ../repoutils/kernel/workflow.py:440
+#: ../rubisco/kernel/workflow.py:553
 msgid "Please check typo or use 'type' attribute manually."
 msgstr "Please check typo or use 'type' attribute manually."
 
-#: ../repoutils/kernel/mirrorlist.py:114
+#: ../rubisco/kernel/mirrorlist.py:114
 msgid "Please check your mirrorlist.json file inworkspace, user or global config directory."
 msgstr "Please check your mirrorlist.json file inworkspace, user or global config directory."
 
-#: ../repoutils/cli/main.py:282
+#: ../rubisco/cli/main.py:299
 msgid "Please install the following packages manually: [bold]${{packages}}[/bold]."
 msgstr "Please install the following packages manually: [bold]${{packages}}[/bold]."
 
-#: ../repoutils/shared/extention.py:161
+#: ../rubisco/shared/extention.py:198 ../rubisco/shared/extention.py:214
 msgid "Please make sure this extention is valid."
 msgstr "Please make sure this extention is valid."
 
-#: ../repoutils/kernel/project_config.py:162
-msgid "Please upgrade repoutils to the required version."
-msgstr "Please upgrade repoutils to the required version."
+#: ../rubisco/lib/archive.py:420 ../rubisco/lib/archive.py:887
+msgid "Please specify the compression type explicitly."
+msgstr "Please specify the compression type explicitly."
 
-#: ../repoutils/shared/extention.py:176
+#: ../rubisco/kernel/project_config.py:162
+msgid "Please upgrade rubisco to the required version."
+msgstr "Please upgrade rubisco to the required version."
+
+#: ../rubisco/shared/extention.py:229
 msgid "Please use a different name for the extention."
 msgstr "Please use a different name for the extention."
 
-#: ../repoutils/cli/main.py:141
+#: ../rubisco/cli/main.py:142
 msgid "Positional Arguments:"
 msgstr "Positional Arguments:"
 
-#: ../repoutils/cli/main.py:458
+#: ../rubisco/cli/main.py:475
 msgid "Project: ${{name}}"
 msgstr "Project: ${{name}}"
 
-#: ../repoutils/kernel/mirrorlist.py:110
+#: ../rubisco/kernel/mirrorlist.py:110
 msgid "Recursion detected in mirrorlist: '${{name}}'"
 msgstr "Recursion detected in mirrorlist: '${{name}}'"
 
-#: ../repoutils/cli/main.py:442
+#: ../rubisco/cli/main.py:459
 msgid "Removing '[underline]${{path}}[/underline]' ..."
 msgstr "Removing '[underline]${{path}}[/underline]' ..."
 
-#: ../repoutils/kernel/git.py:119
+#: ../rubisco/kernel/git.py:119
 msgid "Repository '[underline]${{path}}[/underline]' already exists."
 msgstr "Repository '[underline]${{path}}[/underline]' already exists."
 
-#: ../repoutils/kernel/git.py:80
+#: ../rubisco/kernel/git.py:80
 msgid "Repository '[underline]${{path}}[/underline]' does not exist."
 msgstr "Repository '[underline]${{path}}[/underline]' does not exist."
 
-#: ../repoutils/cli/main.py:165
-msgid "Run repoutils in debug mode."
-msgstr "Run repoutils in debug mode."
+#: ../rubisco/cli/main.py:167
+msgid "Run rubisco in debug mode."
+msgstr "Run rubisco in debug mode."
 
-#: ../repoutils/cli/main.py:383
+#: ../rubisco/cli/main.py:400
 msgid "Running workflow: [white]${{name}}[/white] [black](${{id}})[/black]"
 msgstr "Running workflow: [white]${{name}}[/white] [black](${{id}})[/black]"
 
-#: ../repoutils/cli/main.py:369
+#: ../rubisco/cli/main.py:386
 msgid "Running: [white]${{name}}[/white] [black](${{id}})[/black]"
 msgstr "Running: [white]${{name}}[/white] [black](${{id}})[/black]"
 
-#: ../repoutils/cli/output.py:185
+#: ../rubisco/cli/output.py:187
 msgid "See: ${{url}}"
 msgstr "See: ${{url}}"
 
-#: ../repoutils/lib/process.py:124 ../repoutils/lib/process.py:198
+#: ../rubisco/lib/process.py:124 ../rubisco/lib/process.py:198
 msgid "Shell execution error."
 msgstr "Shell execution error."
 
-#: ../repoutils/cli/main.py:103
+#: ../rubisco/cli/main.py:103
 msgid "Show program's version number and exit."
 msgstr "Show program's version number and exit."
 
-#: ../repoutils/cli/main.py:183
+#: ../rubisco/cli/main.py:185
 msgid "Show project information."
 msgstr "Show project information."
 
-#: ../repoutils/cli/main.py:133
+#: ../rubisco/cli/main.py:133
 msgid "Show this help message and exit."
 msgstr "Show this help message and exit."
 
-#: ../repoutils/kernel/mirrorlist.py:193
+#: ../rubisco/kernel/mirrorlist.py:193
 msgid "Source '${{protocol}}/${{website}}/${{name}}' not found."
 msgstr "Source '${{protocol}}/${{website}}/${{name}}' not found."
 
-#: ../repoutils/kernel/workflow.py:410
+#: ../rubisco/kernel/workflow.py:523
 msgid "Step id '${{step_id}}' is duplicated."
 msgstr "Step id '${{step_id}}' is duplicated."
 
-#: ../repoutils/kernel/workflow.py:535
+#: ../rubisco/kernel/workflow.py:648
 msgid "Step type '${{name}}' registered multiple times. It's unsafe."
 msgstr "Step type '${{name}}' registered multiple times. It's unsafe."
 
-#: ../repoutils/lib/exceptions.py:92
+#: ../rubisco/lib/exceptions.py:92
 msgid "Subprocess return code is ${{retcode}}."
 msgstr "Subprocess return code is ${{retcode}}."
 
-#: ../repoutils/lib/exceptions.py:100
+#: ../rubisco/lib/exceptions.py:100
 msgid "Subprocess return code is ${{retcode}}. It may be caused by command not found."
 msgstr "Subprocess return code is ${{retcode}}. It may be caused by command not found."
 
-#: ../repoutils/cli/main.py:329
+#: ../rubisco/lib/archive.py:462 ../rubisco/lib/archive.py:961
+msgid "Supported types are 'gz', 'bz2', 'xz', 'zip', '7z', 'tar', 'tar.gz', 'tar.bz2', 'tar.xz'. You can also use the 'tgz', 'txz' and 'tbz2'."
+msgstr "Supported types are 'gz', 'bz2', 'xz', 'zip', '7z', 'tar', 'tar.gz', 'tar.bz2', 'tar.xz'. You can also use the 'tgz', 'txz' and 'tbz2'."
+
+#: ../rubisco/cli/main.py:346
 msgid "Testing ${{host}}: ${{status}}\n"
 msgstr "Testing ${{host}}: ${{status}}\n"
 
-#: ../repoutils/shared/extention.py:154
+#: ../rubisco/shared/extention.py:152
+msgid "The extention '${{name}}' does not exist in workspace, user, or global extention directory."
+msgstr "The extention '${{name}}' does not exist in workspace, user, or global extention directory."
+
+#: ../rubisco/shared/extention.py:207
 msgid "The extention '[underline]${{path}}[/underline]' does not have an instance."
 msgstr "The extention '[underline]${{path}}[/underline]' does not have an instance."
 
-#: ../repoutils/shared/extention.py:141
+#: ../rubisco/shared/extention.py:181
+msgid "The extention path '[underline]${{path}}[/underline]' does not exist."
+msgstr "The extention path '[underline]${{path}}[/underline]' does not exist."
+
+#: ../rubisco/shared/extention.py:166
 msgid "The extention path '[underline]${{path}}[/underline]' is not a directory."
 msgstr "The extention path '[underline]${{path}}[/underline]' is not a directory."
 
-#: ../repoutils/kernel/project_config.py:153
-msgid "The minimum version of repoutils required by the project '[underline]${{name}}[/underline]' is '[underline]${{version}}[/underline]'."
-msgstr "The minimum version of repoutils required by the project '[underline]${{name}}[/underline]' is '[underline]${{version}}[/underline]'."
+#: ../rubisco/kernel/project_config.py:153
+msgid "The minimum version of rubisco required by the project '[underline]${{name}}[/underline]' is '[underline]${{version}}[/underline]'."
+msgstr "The minimum version of rubisco required by the project '[underline]${{name}}[/underline]' is '[underline]${{version}}[/underline]'."
 
-#: ../repoutils/kernel/workflow.py:279
+#: ../rubisco/kernel/workflow.py:285
 msgid "The remove item must be a string."
 msgstr "The remove item must be a string."
 
-#: ../repoutils/kernel/workflow.py:614
+#: ../rubisco/kernel/workflow.py:729
 msgid "The suffix of '[underline]${{path}}[/underline]' is invalid."
 msgstr "The suffix of '[underline]${{path}}[/underline]' is invalid."
 
-#: ../repoutils/kernel/workflow.py:448
+#: ../rubisco/kernel/workflow.py:561
 msgid "The type of step '${{step}}'[black](${{step_id}})[/black] in workflow '${{workflow}}'[black](${{workflow_id}})[/black] is not provided and could not be inferred."
 msgstr "The type of step '${{step}}'[black](${{step_id}})[/black] in workflow '${{workflow}}'[black](${{workflow_id}})[/black] is not provided and could not be inferred."
 
-#: ../repoutils/lib/variable.py:335
+#: ../rubisco/lib/variable.py:335
 msgid "The value of key ${{key}} needs to be ${{type}} instead of ${{value_type}}."
 msgstr "The value of key ${{key}} needs to be ${{type}} instead of ${{value_type}}."
 
-#: ../repoutils/cli/main.py:81
+#: ../rubisco/cli/main.py:81
 msgid "There is [yellow]NO WARRANTY[/yellow], to the extent permitted by law."
 msgstr "There is [yellow]NO WARRANTY[/yellow], to the extent permitted by law."
 
-#: ../repoutils/cli/main.py:76
+#: ../rubisco/cli/main.py:76
 msgid "This is free software: you are free to change and redistribute it."
 msgstr "This is free software: you are free to change and redistribute it."
 
-#: ../repoutils/cli/main.py:534
+#: ../rubisco/shared/extention.py:158
+msgid "Try to load the extention as a path."
+msgstr "Try to load the extention as a path."
+
+#: ../rubisco/lib/archive.py:415 ../rubisco/lib/archive.py:882
+msgid "Unable to determine compression type of '[underline]${{path}}[/underline]'"
+msgstr "Unable to determine compression type of '[underline]${{path}}[/underline]'"
+
+#: ../rubisco/cli/main.py:551
 msgid "Undefined command or hook ${{name}}"
 msgstr "Undefined command or hook ${{name}}"
 
-#: ../repoutils/cli/output.py:157
+#: ../rubisco/cli/output.py:157
 msgid "Unknown error."
 msgstr "Unknown error."
 
-#: ../repoutils/kernel/workflow.py:431
+#: ../rubisco/kernel/workflow.py:544
 msgid "Unknown step type: '${{step_type}}' of step '${{step_name}}'. Please check the workflow."
 msgstr "Unknown step type: '${{step_type}}' of step '${{step_name}}'. Please check the workflow."
 
-#: ../repoutils/cli/main.py:296
+#: ../rubisco/lib/archive.py:458 ../rubisco/lib/archive.py:957
+msgid "Unsupported compression type: '${{type}}'"
+msgstr "Unsupported compression type: '${{type}}'"
+
+#: ../rubisco/cli/main.py:313
 msgid "Updating Git repository '[underline]${{path}}[/underline]'(${{branch}}) ..."
 msgstr "Updating Git repository '[underline]${{path}}[/underline]'(${{branch}}) ..."
 
-#: ../repoutils/cli/main.py:138
+#: ../rubisco/cli/main.py:139
 msgid "Usage:"
 msgstr "Usage:"
 
-#: ../repoutils/cli/main.py:470
+#: ../rubisco/cli/main.py:487
 msgid "Version [white]${{version}}[/white]"
 msgstr "Version [white]${{version}}[/white]"
 
-#: ../repoutils/kernel/workflow.py:619
+#: ../rubisco/kernel/workflow.py:734
 msgid "We only support '.json', '.json5', '.yaml', '.yml'."
 msgstr "We only support '.json', '.json5', '.yaml', '.yml'."
 
-#: ../repoutils/cli/main.py:395
+#: ../rubisco/cli/main.py:412
 msgid "Workflow '${{name}}' finished."
 msgstr "Workflow '${{name}}' finished."
 
-#: ../repoutils/kernel/workflow.py:581
+#: ../rubisco/kernel/workflow.py:696
 msgid "Workflow running failed: ${{exc}}"
 msgstr "Workflow running failed: ${{exc}}"
 
-#: ../repoutils/cli/main.py:565
-msgid "Working directory '[underline]${{path}}[/underline]' not a repoutils project."
-msgstr "Working directory '[underline]${{path}}[/underline]' not a repoutils project."
+#: ../rubisco/cli/main.py:582
+msgid "Working directory '[underline]${{path}}[/underline]' not a rubisco project."
+msgstr "Working directory '[underline]${{path}}[/underline]' not a rubisco project."
 
-#: ../repoutils/cli/main.py:85
+#: ../rubisco/cli/main.py:85
 msgid "Written by [underline]ChenPi11[/underline]."
 msgstr "Written by [underline]ChenPi11[/underline]."
 
-#: ../repoutils/cli/output.py:130
+#: ../rubisco/cli/output.py:130
 msgid "[italic][magenta]Hint:[/magenta] ${{msg}}[/italic]"
 msgstr "[italic][magenta]Hint:[/magenta] ${{msg}}[/italic]"
 
-#: ../repoutils/cli/main.py:346
+#: ../rubisco/cli/main.py:363
 msgid "[red]Canceled[/red]"
 msgstr "[red]Canceled[/red]"
 
-#: ../repoutils/cli/output.py:102
+#: ../rubisco/cli/output.py:102
 msgid "[red]Error: ${{msg}}[/red]"
 msgstr "[red]Error: ${{msg}}[/red]"
 
-#: ../repoutils/cli/main.py:238
+#: ../rubisco/cli/main.py:246
+msgid "[yellow]Compressing[/yellow]"
+msgstr "[yellow]Compressing[/yellow]"
+
+#: ../rubisco/cli/main.py:242
 msgid "[yellow]Downloading[/yellow]"
 msgstr "[yellow]Downloading[/yellow]"
 
-#: ../repoutils/cli/main.py:240
+#: ../rubisco/cli/main.py:244
 msgid "[yellow]Extracting[/yellow]"
 msgstr "[yellow]Extracting[/yellow]"
 
-#: ../repoutils/cli/input.py:72
+#: ../rubisco/cli/input.py:72
 msgid "[yellow]Invalid input. Please enter '[green]Y[/green]' or '[red]N[/red]'."
 msgstr "[yellow]Invalid input. Please enter '[green]Y[/green]' or '[red]N[/red]'."
 
-#: ../repoutils/cli/main.py:242
+#: ../rubisco/cli/main.py:248
 msgid "[yellow]Processing[/yellow]"
 msgstr "[yellow]Processing[/yellow]"
 
-#: ../repoutils/cli/main.py:341 ../repoutils/cli/main.py:357
+#: ../rubisco/cli/main.py:358 ../rubisco/cli/main.py:374
 msgid "[yellow]Testing[/yellow] ..."
 msgstr "[yellow]Testing[/yellow] ..."
 
-#: ../repoutils/kernel/project_config.py:167
-#: ../repoutils/kernel/project_config.py:173
+#: ../rubisco/kernel/project_config.py:167
+#: ../rubisco/kernel/project_config.py:173
 msgid "[yellow]Unknown[/yellow]"
 msgstr "[yellow]Unknown[/yellow]"
 
-#: ../repoutils/cli/output.py:115
+#: ../rubisco/cli/output.py:115
 msgid "[yellow]Warning: ${{msg}}[/yellow]"
 msgstr "[yellow]Warning: ${{msg}}[/yellow]"
 
-#: ../repoutils/kernel/sysreq.py:205
+#: ../rubisco/kernel/sysreq.py:204
 msgid "gsudo is required to run commands."
 msgstr "gsudo is required to run commands."

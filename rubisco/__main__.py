@@ -19,33 +19,10 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 """
-Extention for make.
+Rubisco CLI main entry point.
 """
 
-from rubisco.shared.extention import IRUExtention
-from rubisco.lib.variable import push_variables
-from rubisco.lib.fileutil import find_command
+from rubisco.cli.main import main
 
-
-class MakeExtention(IRUExtention):
-    """
-    Extention for make.
-    """
-
-    name = "make"
-
-    def extention_can_load_now(self, is_auto: bool) -> bool:
-        return not is_auto  # Only load when manually requested.
-
-    def on_load(self) -> None:
-        make = find_command("make")
-        push_variables("MAKE", make)
-
-    def reqs_is_sloved(self) -> bool:
-        return True
-
-    def reqs_solve(self) -> None:
-        pass
-
-
-instance = MakeExtention()
+if __name__ == "__main__":
+    main()

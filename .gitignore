@@ -124,9 +124,9 @@ dmypy.json
 .vscode
 .cache
 .idea
-repoutils-setup.cache
+rubisco-setup.cache
 
 # Dist directory
-cppp-repoutils-v*
+rubisco-v*
 dist
 distpkg

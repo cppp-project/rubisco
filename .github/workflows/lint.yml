@@ -32,4 +32,4 @@ jobs:
     #---------------------------------------------lint----------------------------------------------
     - name: 🛠️ Run lint
       run: |
-        python -m repoutils lint
+        python -m rubisco lint

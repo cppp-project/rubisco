@@ -1,6 +1,6 @@
-name: 📁 Setup C++ Plus repository utilities.
+name: 📁 Setup C++ Plus Repository Utilities (Rubisco).
 
-description: Set up cppp-repoutil and add the command-line tools to the PATH.
+description: Setup Rubisco and add the command-line tools to the PATH.
 author: The C++ Plus Project
 
 inputs:
@@ -123,8 +123,8 @@ runs:
         Write-Output "srcdir=$PWD" >> $env:GITHUB_OUTPUT
       shell: pwsh
 
-    # Setup cppp-repoutils.
-    - name: 📁 Setup cppp-repoutils.
+    # Setup Rubisco.
+    - name: 📁 Setup Rubisco.
       run: |
         Set-Location "$env:GITHUB_ACTION_PATH"
         pwsh -File "$env:GITHUB_ACTION_PATH/dist-tools/build.ps1"
