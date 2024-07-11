@@ -56,7 +56,7 @@ def locale_language_name() -> str:
         str: Locale language name.
     """
 
-    return LOCALE_NAMES.get(locale_language(), "Unknown")
+    return LOCALE_NAMES.get(locale_language(), _("Unknown"))
 
 
 def has_domain(domain: str, locale_dir: Path) -> bool:
@@ -130,7 +130,12 @@ PROGRAM_PATH = Path(sys.argv[0]).resolve()
 RES_PATH = Path(getattr(sys, "_MEIPASS", PROGRAM_PATH)).resolve()
 
 # Update locale information.
-locale.setlocale(locale.LC_ALL, "")  # Let's Python use the system's locale.
+try:
+    # Let's Python use the system's locale.
+    locale.setlocale(locale.LC_ALL, "")
+except locale.Error:
+    # Fallback to C locale if system locale is not available.
+    locale.setlocale(locale.LC_ALL, "C")
 
 # Initialize rubisco locales.
 load_locale_domain(PROGRAM_PATH, TEXT_DOMAIN)

@@ -127,6 +127,5 @@ dmypy.json
 rubisco-setup.cache
 
 # Dist directory
-rubisco-v*
+rubisco-*
 dist
-distpkg

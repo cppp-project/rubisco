@@ -40,9 +40,9 @@ def command(args: list[str] | str) -> str:
 
     res_command = ""
     for arg in args:
-        if '"' in arg:
-            arg = arg.replace('"', '\\"')
         if " " in arg:
+            if '"' in arg:
+                arg = arg.replace('"', '\\"')
             res_command += f'"{arg}" '
         else:
             res_command += f"{arg} "

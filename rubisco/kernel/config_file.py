@@ -37,7 +37,7 @@ try:
     logger.info("Loading global configuration %s ...", GLOBAL_CONFIG_FILE)
     if GLOBAL_CONFIG_FILE.exists():
         with GLOBAL_CONFIG_FILE.open("r", encoding=DEFAULT_CHARSET) as f:
-            config.merge(AutoFormatDict.from_dict(json.load(f)))
+            config.merge(AutoFormatDict(json.load(f)))
 except:  # pylint: disable=bare-except  # noqa: E722
     logger.exception("Failed to load global configuration: %s")
 
@@ -45,7 +45,7 @@ try:
     logger.info("Loading user configuration %s ...", USER_CONFIG_FILE)
     if USER_CONFIG_FILE.exists():
         with USER_CONFIG_FILE.open("r", encoding=DEFAULT_CHARSET) as f:
-            config.merge(AutoFormatDict.from_dict(json.load(f)))
+            config.merge(AutoFormatDict(json.load(f)))
 except:  # pylint: disable=bare-except  # noqa: E722
     logger.exception("Failed to load user configuration: %s")
 
@@ -56,6 +56,6 @@ try:
     )
     if WORKSPACE_CONFIG_FILE.exists():
         with WORKSPACE_CONFIG_FILE.open("r", encoding=DEFAULT_CHARSET) as f:
-            config.merge(AutoFormatDict.from_dict(json.load(f)))
+            config.merge(AutoFormatDict(json.load(f)))
 except:  # pylint: disable=bare-except  # noqa: E722
     logger.exception("Failed to load workspace configuration: %s")

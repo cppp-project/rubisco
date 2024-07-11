@@ -44,7 +44,7 @@ from rubisco.kernel.project_config import ProjectConfigration  # noqa: E501
 from rubisco.kernel.project_config import load_project_config
 from rubisco.kernel.workflow import Step, Workflow
 from rubisco.lib.exceptions import RUValueException
-from rubisco.lib.l10n import _
+from rubisco.lib.l10n import _, locale_language, locale_language_name
 from rubisco.lib.log import logger
 from rubisco.lib.process import Process
 from rubisco.lib.variable import format_str, make_pretty
@@ -470,6 +470,18 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
         )
 
     def on_show_project_info(self, project: ProjectConfigration):
+        rich.print(
+            format_str(
+                _(
+                    "Rubisco CLI language: '${{locale}}' '${{charset}}' '${{lang}}'",  # noqa: E501
+                ),
+                fmt={
+                    "locale": locale_language(),
+                    "charset": DEFAULT_CHARSET,
+                    "lang": locale_language_name(),
+                },
+            )
+        )
         rich.print(
             format_str(
                 _("Project: ${{name}}"),

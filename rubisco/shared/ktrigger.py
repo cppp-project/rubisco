@@ -88,11 +88,11 @@ class IKernelTrigger:  # pylint: disable=too-many-public-methods
             raise_exc=raise_exc,
         )
 
-    def file_exists(self, path: str) -> None:
+    def file_exists(self, path: Path) -> None:
         """Ask user to overwrite a file.
 
         Args:
-            path (str): File path.
+            path (Path): File path.
         """
 
         _null_trigger("file_exists", path=path)

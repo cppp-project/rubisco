@@ -1,6 +1,46 @@
 name: 🛠️ Build
 
+vars:
+  - icon_file: res/rubisco.ico
+  - group: The C++ Plus Project
+  - copyright: Copyright (C) 2024 The C++ Plus Project
+
 steps:
-  - name: 🛠️ Build with PyInstaller
-    run: |
-      python -m PyInstaller --distpath dist rubisco.spec
+  - name: 🛠️ Build standalone binary distribution
+    run:
+      [
+        "python",
+        "-m",
+        "nuitka",
+        "--standalone",
+        "--warn-unusual-code",
+        "--jobs=${{ nproc }}",
+        "--output-filename=${{ project.name }}",
+        "--output-dir=build",
+        "--show-progress",
+        "--show-memory",
+        "--show-modules",
+        "--windows-icon-from-ico=${{ icon_file }}",
+        "--macos-app-icon=${{ icon_file }}",
+        "--linux-icon=${{ icon_file }}",
+        "--company-name=${{ group }}",
+        "--product-name=${{ project.name }}",
+        "--file-version=${{ project.version }}.0",
+        "--product-version=${{ project.version }}",
+        "--file-description=${{ project.description }} main executable",
+        "--copyright=${{ copyright }}",
+        "${{ project.name }}",
+      ]
+
+  - name: 📦 Rename the distribution directory
+    move: build/${{ project.name }}.dist
+    to: ${{ project.name }}-${{ host.machine }}-v${{ project.version }}
+
+  - name: 📦 Copy files to distribution directory
+    copy: LICENSE
+    to: ${{ project.name }}-${{ host.machine }}-v${{ project.version }}/LICENSE
+
+  - name: 📦 Packing the standalone distribution
+    compress: ${{ project.name }}-${{ host.machine }}-v${{ project.version }}
+    to: ${{ project.name }}-${{ host.machine }}-v${{ project.version }}
+    format: [zip, tar.xz]

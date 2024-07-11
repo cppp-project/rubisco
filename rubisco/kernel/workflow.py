@@ -23,7 +23,9 @@ Workflow support.
 Workflow is a ordered list of steps. Each step only contains one action.
 """
 
+import glob
 import os
+import shutil
 import uuid
 from pathlib import Path
 
@@ -33,11 +35,13 @@ import yaml
 from rubisco.config import DEFAULT_CHARSET
 from rubisco.lib.archive import compress, extract
 from rubisco.lib.exceptions import RUValueException
-from rubisco.lib.fileutil import copy_recursive, rm_recursive
+from rubisco.lib.fileutil import (check_file_exists, copy_recursive,
+                                  rm_recursive)
 from rubisco.lib.l10n import _
 from rubisco.lib.log import logger
 from rubisco.lib.process import Process, popen
-from rubisco.lib.variable import (AutoFormatDict, format_str, make_pretty,
+from rubisco.lib.variable import (AutoFormatDict, assert_iter_types,
+                                  format_str, make_pretty, pop_variables,
                                   push_variables)
 from rubisco.shared.ktrigger import IKernelTrigger, call_ktrigger
 
@@ -47,6 +51,7 @@ __all__ = [
     "MkdirStep",
     "PopenStep",
     "OutputStep",
+    "EchoStep",
     "MoveFileStep",
     "CopyFileStep",
     "RemoveStep",
@@ -95,8 +100,8 @@ class Step:
 
         self.par_workflow = par_workflow
         self.raw_data = data
-        self.name = data.get("name", valtype=str, default="")
-        self.desc = data.get("desc", valtype=str, default="")
+        self.name = data.get("name", "", valtype=str)
+        self.desc = data.get("desc", "", valtype=str)
         self.next = None
         self.id = data.get("id", valtype=str)  # Always exists.
         self.global_id = f"{self.par_workflow.id}.{self.id}"
@@ -134,13 +139,21 @@ class ShellExecStep(Step):  # pylint: disable=too-few-public-methods
     fail_on_error: bool
 
     def __init__(self, data: AutoFormatDict, par_workflow: "Workflow"):
-        self.cmd = data.get("run", valtype=str)
+        self.cmd = data.get("run", valtype=str | list)
+        if isinstance(self.cmd, list):
+            assert_iter_types(
+                self.cmd,
+                str,
+                RUValueException(
+                    _("The shell command list must be a list of strings.")
+                ),
+            )
 
-        self.cwd = Path(data.get("cwd", valtype=str, default=""))
+        self.cwd = Path(data.get("cwd", "", valtype=str))
         self.fail_on_error = data.get(
             "fail-on-error",
+            True,
             valtype=bool,
-            default=True,
         )
         super().__init__(data, par_workflow)
 
@@ -151,14 +164,22 @@ class ShellExecStep(Step):  # pylint: disable=too-few-public-methods
 class MkdirStep(Step):  # pylint: disable=too-few-public-methods
     """Make directories."""
 
-    path: Path
+    paths: list[Path]
 
     def __init__(self, data: AutoFormatDict, par_workflow: "Workflow"):
-        self.path = Path(data.get("mkdir", valtype=str))
+        paths = data.get("mkdir", valtype=str | list)
+        if isinstance(paths, list):
+            assert_iter_types(paths, str, RUValueException(
+                _("The paths must be a list of strings.")
+            ))
+            self.paths = [Path(path) for path in paths]
+        else:
+            self.paths = [Path(paths)]
         super().__init__(data, par_workflow)
 
-        call_ktrigger(IKernelTrigger.on_mkdir, path=self.path)
-        os.makedirs(self.path, exist_ok=True)
+        for path in self.paths:
+            call_ktrigger(IKernelTrigger.on_mkdir, path=path)
+            os.makedirs(path, exist_ok=True)
 
 
 class PopenStep(Step):  # pylint: disable=too-few-public-methods
@@ -173,14 +194,14 @@ class PopenStep(Step):  # pylint: disable=too-few-public-methods
     def __init__(self, data: AutoFormatDict, par_workflow: "Workflow"):
         self.cmd = data.get("popen", valtype=str)
 
-        self.cwd = Path(data.get("cwd", valtype=str, default=""))
+        self.cwd = Path(data.get("cwd", "", valtype=str))
         self.fail_on_error = data.get(
             "fail-on-error",
+            True,
             valtype=bool,
-            default=True,
         )
-        self.stdout = data.get("stdout", valtype=bool, default=True)
-        stderr_mode = data.get("stderr", valtype=bool | str, default=True)
+        self.stdout = data.get("stdout", True, valtype=bool)
+        stderr_mode = data.get("stderr", True, valtype=bool | str)
         if stderr_mode is True:
             self.stderr = 1
         elif stderr_mode is False:
@@ -204,11 +225,18 @@ class OutputStep(Step):  # pylint: disable=too-few-public-methods
     msg: str
 
     def __init__(self, data: AutoFormatDict, par_workflow: "Workflow"):
-        self.msg = str(data.get("output"))
+        msg = data.get("output", None)
+        if msg is None:
+            msg = data.get("echo", None)
+
+        self.msg = str(msg)
 
         super().__init__(data, par_workflow)
 
         call_ktrigger(IKernelTrigger.on_output, msg=self.msg)
+
+
+EchoStep = OutputStep
 
 
 class MoveFileStep(Step):  # pylint: disable=too-few-public-methods
@@ -224,7 +252,8 @@ class MoveFileStep(Step):  # pylint: disable=too-few-public-methods
         super().__init__(data, par_workflow)
 
         call_ktrigger(IKernelTrigger.on_move_file, src=self.src, dst=self.dst)
-        os.rename(self.src, self.dst)
+        check_file_exists(self.dst)
+        shutil.move(self.src, self.dst)
 
 
 class CopyFileStep(Step):  # pylint: disable=too-few-public-methods
@@ -240,16 +269,16 @@ class CopyFileStep(Step):  # pylint: disable=too-few-public-methods
         self.src = Path(data.get("copy", valtype=str))
         self.dst = Path(data.get("to", valtype=str))
 
-        self.strict = data.get("strict", valtype=bool, default=True)
+        self.strict = data.get("strict", True, valtype=bool)
         self.keep_symlinks = data.get(
             "keep-symlinks",
+            False,
             valtype=bool,
-            default=False,
         )
         self.excludes = data.get(
             "excludes",
+            None,
             valtype=list | None,
-            default=None,
         )
 
         super().__init__(data, par_workflow)
@@ -271,28 +300,43 @@ class RemoveStep(Step):  # pylint: disable=too-few-public-methods
     This step is dangerous. Use it with caution!
     """
 
-    paths: list[Path]
+    globs: list[str]
+    excludes: list[str]
     strict: bool
+    include_hidden: bool
 
     def __init__(self, data: AutoFormatDict, par_workflow: "Workflow"):
         remove = data.get("remove", valtype=str | list)
         if isinstance(remove, str):
-            self.paths = [Path(remove)]
+            self.globs = [remove]
         else:
-            for item in remove:
-                if not isinstance(item, str):
-                    raise RUValueException(
-                        _("The remove item must be a string."),
-                    )
-            self.paths = [Path(item) for item in remove]
+            assert_iter_types(
+                remove,
+                str,
+                RUValueException(_("The remove item must be a string.")),
+            )
+            self.globs = remove
 
-        self.strict = data.get("strict", valtype=bool, default=True)
+        self.strict = data.get("strict", True, valtype=bool)
+        self.include_hidden = data.get(
+            "include-hidden",
+            False,
+            valtype=bool,
+        )
+        self.excludes = data.get("excludes", [], valtype=list)
 
         super().__init__(data, par_workflow)
 
-        for path in self.paths:
-            call_ktrigger(IKernelTrigger.on_remove, path=path)
-            rm_recursive(path, self.strict)
+        for glob_partten in self.globs:
+            paths = glob.glob(
+                glob_partten,
+                recursive=True,
+                include_hidden=self.include_hidden,
+            )
+            for path in paths:
+                path = Path(path)
+                call_ktrigger(IKernelTrigger.on_remove, path=path)
+                rm_recursive(path, self.strict)
 
 
 class ExtentionLoadStep(Step):  # pylint: disable=too-few-public-methods
@@ -306,7 +350,7 @@ class ExtentionLoadStep(Step):  # pylint: disable=too-few-public-methods
     def __init__(self, data: AutoFormatDict, par_workflow: "Workflow"):
         self.path = Path(data.get("extention", valtype=str))
 
-        self.strict = data.get("strict", valtype=bool, default=True)
+        self.strict = data.get("strict", True, valtype=bool)
 
         super().__init__(data, par_workflow)
 
@@ -324,7 +368,7 @@ class WorkflowRunStep(Step):  # pylint: disable=too-few-public-methods
     def __init__(self, data: AutoFormatDict, par_workflow: "Workflow"):
         self.path = Path(data.get("workflow", valtype=str))
 
-        self.fail_fast = data.get("fail-fast", valtype=bool, default=True)
+        self.fail_fast = data.get("fail-fast", True, valtype=bool)
 
         super().__init__(data, par_workflow)
 
@@ -347,8 +391,8 @@ class MklinkStep(Step):  # pylint: disable=too-few-public-methods
         self.src = Path(data.get("mklink", valtype=str))
         self.dst = Path(data.get("to", valtype=str))
 
-        self.strict = data.get("strict", valtype=bool, default=True)
-        self.symlink = data.get("symlink", valtype=bool, default=True)
+        self.strict = data.get("strict", True, valtype=bool)
+        self.symlink = data.get("symlink", True, valtype=bool)
 
         super().__init__(data, par_workflow)
 
@@ -374,35 +418,74 @@ class CompressStep(Step):  # pylint: disable=too-few-public-methods
     dst: Path
     start: Path | None
     excludes: list[str] | None
-    compress_type: str | None
+    compress_format: str | None
     compress_level: int | None
     overwrite: bool
 
     def __init__(self, data: AutoFormatDict, par_workflow: "Workflow"):
         self.src = Path(data.get("compress", valtype=str))
         self.dst = Path(data.get("to", valtype=str))
-        _start = data.get("start", valtype=str, default=None)
+        _start = data.get("start", None, valtype=str | None)
         self.start = Path(_start) if _start else None
-        self.excludes = data.get("excludes", valtype=list | None, default=None)
-        self.compress_type = data.get("type", valtype=str | None, default=None)
+        self.excludes = data.get("excludes", None, valtype=list | None)
+        self.compress_format = data.get(
+            "format",
+            None,
+            valtype=str | list | None,
+        )
         self.compress_level = data.get(
             "level",
+            None,
             valtype=int | None,
-            default=None,
         )
-        self.overwrite = data.get("overwrite", valtype=bool, default=True)
+        self.overwrite = data.get("overwrite", True, valtype=bool)
 
         super().__init__(data, par_workflow)
 
-        compress(
-            self.src,
-            self.dst,
-            self.start,
-            self.excludes,
-            self.compress_type,
-            self.compress_level,
-            self.overwrite,
-        )
+        if isinstance(self.compress_format, list):
+            assert_iter_types(
+                self.compress_format,
+                str,
+                RUValueException(
+                    _("Compress format must be a list of string or a string")
+                ),
+            )
+            for fmt in self.compress_format:
+                if fmt == "gzip":
+                    ext = ".gz"
+                elif fmt == "bzip2":
+                    ext = ".bz2"
+                elif fmt == "lzma":
+                    ext = ".xz"
+                elif fmt == "tgz":
+                    ext = ".tar.gz"
+                elif fmt == "tbz2":
+                    ext = ".tar.bz2"
+                elif fmt == "txz":
+                    ext = ".tar.xz"
+                else:
+                    ext = f".{fmt}"
+
+                dst = Path(str(self.dst) + ext)
+                compress(
+                    self.src,
+                    dst,
+                    self.start,
+                    self.excludes,
+                    fmt,
+                    self.compress_level,
+                    self.overwrite,
+                )
+        else:
+            compress(
+                self.src,
+                self.dst,
+                self.start,
+                self.excludes,
+                self.compress_format,
+                self.compress_level,
+                self.overwrite,
+            )
 
 
 class ExtractStep(Step):  # pylint: disable=too-few-public-methods
@@ -412,23 +495,27 @@ class ExtractStep(Step):  # pylint: disable=too-few-public-methods
 
     src: Path
     dst: Path
-    compress_type: str | None
+    compress_format: str | None
     overwrite: bool
     password: str | None
 
     def __init__(self, data: AutoFormatDict, par_workflow: "Workflow"):
         self.src = Path(data.get("extract", valtype=str))
         self.dst = Path(data.get("to", valtype=str))
-        self.compress_type = data.get("type", valtype=str | None, default=None)
-        self.overwrite = data.get("overwrite", valtype=bool, default=True)
-        self.password = data.get("password", valtype=str | None, default=None)
+        self.compress_format = data.get(
+            "type",
+            None,
+            valtype=str | None,
+        )
+        self.overwrite = data.get("overwrite", True, valtype=bool)
+        self.password = data.get("password", None, valtype=str | None)
 
         super().__init__(data, par_workflow)
 
         extract(
             self.src,
             self.dst,
-            self.compress_type,
+            self.compress_format,
             self.overwrite,
             self.password,
         )
@@ -438,6 +525,7 @@ step_types = {
     "shell": ShellExecStep,
     "mkdir": MkdirStep,
     "output": OutputStep,
+    "echo": EchoStep,
     "popen": PopenStep,
     "move": MoveFileStep,
     "copy": CopyFileStep,
@@ -455,6 +543,7 @@ step_contribute = {
     MkdirStep: ["mkdir"],
     PopenStep: ["popen"],
     OutputStep: ["output"],
+    EchoStep: ["echo"],
     MoveFileStep: ["move", "to"],
     CopyFileStep: ["copy", "to"],
     RemoveStep: ["remove"],
@@ -474,6 +563,8 @@ class Workflow:
     first_step: Step
     raw_data: AutoFormatDict
 
+    pushed_variables: list[str]
+
     def __init__(self, data: AutoFormatDict) -> None:
         """Create a new workflow.
 
@@ -481,10 +572,24 @@ class Workflow:
             data (AutoFormatDict): The workflow json data.
         """
 
+        self.pushed_variables = []
+        pairs = data.get("vars", [], valtype=list)
+        for pair in pairs:
+            assert_iter_types(
+                pairs,
+                dict,
+                RUValueException(
+                    _("Workflow variables must be a list of name and value.")
+                ),
+            )
+            for key, val in pair.items():
+                self.pushed_variables.append(str(key))
+                push_variables(str(key), val)
+
         self.id = data.get(
             "id",
+            str(uuid.uuid4()),
             valtype=str,
-            default=str(uuid.uuid4()),
         )
         self.name = data.get("name", valtype=str)
         self.raw_data = data
@@ -509,11 +614,11 @@ class Workflow:
                 raise RUValueException(_("A workflow step must be a dict."))
             step_id = step_data.get(
                 "id",
+                str(uuid.uuid4()),
                 valtype=str,
-                default=str(uuid.uuid4()),
             )
-            step_name = step_data.get("name", valtype=str, default="")
-            step_type = step_data.get("type", valtype=str, default="")
+            step_name = step_data.get("name", "", valtype=str)
+            step_type = step_data.get("type", "", valtype=str)
             step_cls: type = None
 
             step_data["id"] = step_id
@@ -630,6 +735,14 @@ class Workflow:
             workflow=self,
         )
 
+    def __del__(self):
+        """
+        Pop variables.
+        """
+
+        for name in self.pushed_variables:
+            pop_variables(name)
+
 
 def register_step_type(name: str, cls: type, contributes: list[str]) -> None:
     """Register a step type.
@@ -676,12 +789,7 @@ def run_inline_workflow(
     """
 
     if isinstance(data, list):
-        data = AutoFormatDict.from_dict(
-            {
-                "name": _("<Inline Workflow>"),
-                "steps": data,
-            }
-        )
+        data = AutoFormatDict({"name": _("<Inline Workflow>"), "steps": data})
 
     wf = Workflow(data)
     try:
@@ -734,10 +842,7 @@ def run_workflow(file: Path, fail_fast: bool = True) -> Exception | None:
                 hint=_("We only support '.json', '.json5', '.yaml', '.yml'."),
             )
 
-        return run_inline_workflow(
-            AutoFormatDict.from_dict(workflow),
-            fail_fast,
-        )
+        return run_inline_workflow(AutoFormatDict(workflow), fail_fast)
 
 
 if __name__ == "__main__":

@@ -1,4 +1,4 @@
-PyInstaller
 pylint
 isort
 flake8
+Nuitka

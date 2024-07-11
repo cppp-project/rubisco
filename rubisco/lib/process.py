@@ -22,8 +22,8 @@
 Rubisco process control.
 """
 
-import ctypes
 import os
+import sys
 from pathlib import Path
 from subprocess import PIPE, STDOUT, Popen
 
@@ -36,21 +36,6 @@ from rubisco.lib.log import logger
 from rubisco.shared.ktrigger import IKernelTrigger, call_ktrigger
 
 __all__ = ["Process", "popen"]
-
-
-def _win32_set_console_visiable(visiable: bool) -> None:
-    if os.name == "nt":
-        if visiable:
-            ctypes.cdll.kernel32.FreeConsole()  # To avoid error 5 and 6.
-            ctypes.cdll.kernel32.AllocConsole()
-        else:
-            ctypes.cdll.kernel32.FreeConsole()
-        logger.debug(
-            "Set console visiable to %s. GetLastError() = %s",
-            visiable,
-            ctypes.cdll.kernel32.GetLastError(),
-        )
-        ctypes.cdll.kernel32.SetLastError(0)
 
 
 def get_system_shell() -> str:
@@ -84,7 +69,7 @@ class Process:
         cwd: Path = Path.cwd(),
     ) -> None:
         if isinstance(cmd, str) and "\n" in cmd:
-            self._tempfile = TemporaryObject.new_file()
+            self._tempfile = TemporaryObject.new_file(suffix=".bat")
             self._tempfile.path.write_text(
                 f"{cmd}\n",
                 encoding=DEFAULT_CHARSET,
@@ -107,32 +92,34 @@ class Process:
             int: The return code.
         """
 
-        _win32_set_console_visiable(True)
         call_ktrigger(IKernelTrigger.pre_exec_process, proc=self)
-        with Popen(self.cmd, shell=True, cwd=str(self.cwd)) as self.process:
-            try:
-                ret = self.process.wait()
-                raise_exc = ret != 0 and fail_on_error
-                call_ktrigger(
-                    IKernelTrigger.post_exec_process,
-                    proc=self,
-                    retcode=ret,
-                    raise_exc=raise_exc,
+        with Popen(
+            self.cmd,
+            shell=True,
+            cwd=str(self.cwd),
+            stdin=sys.stdin,
+            stdout=sys.stdout,
+            stderr=sys.stderr,
+        ) as self.process:
+            ret = self.process.wait()
+            raise_exc = ret != 0 and fail_on_error
+            call_ktrigger(
+                IKernelTrigger.post_exec_process,
+                proc=self,
+                retcode=ret,
+                raise_exc=raise_exc,
+            )
+            if raise_exc:
+                raise RUShellExecutionException(
+                    _("Shell execution error."), retcode=ret
                 )
-                if raise_exc:
-                    raise RUShellExecutionException(
-                        _("Shell execution error."), retcode=ret
-                    )
-                return ret
-            finally:
-                _win32_set_console_visiable(False)
+            return ret
 
     def terminate(self) -> None:
         """Terminate the process."""
 
         self.process.terminate()
         self.process.wait()
-        _win32_set_console_visiable(False)
 
     def __repr__(self) -> str:
         """Return the string representation of the object.

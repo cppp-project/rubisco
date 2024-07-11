@@ -23,6 +23,7 @@ Project configuration loader.
 """
 
 from pathlib import Path
+from typing import Any
 
 import json5 as json
 
@@ -32,8 +33,9 @@ from rubisco.lib.exceptions import RUValueException
 from rubisco.lib.fileutil import glob_path, resolve_path
 from rubisco.lib.l10n import _
 from rubisco.lib.process import Process
-from rubisco.lib.variable import (AutoFormatDict, format_str, make_pretty,
-                                  pop_variables, push_variables)
+from rubisco.lib.variable import (AutoFormatDict, assert_iter_types,
+                                  format_str, make_pretty, pop_variables,
+                                  push_variables)
 from rubisco.lib.version import Version
 
 __all__ = [
@@ -123,22 +125,25 @@ class ProjectConfigration:  # pylint: disable=too-many-instance-attributes
     license: str
     hooks: AutoFormatDict
 
+    pushed_variables: list[str]
+
     def __init__(self, config_file: Path):
         self.config_file = config_file
         self.config = AutoFormatDict()
         self.hooks = AutoFormatDict()
+        self.pushed_variables = []
 
         self._load()
 
     def _load(self):
         with self.config_file.open() as file:
-            self.config = AutoFormatDict.from_dict(json.load(file))
+            self.config = AutoFormatDict(json.load(file))
 
         self.name = self.config.get("name", valtype=str)
         self.version = Version(self.config.get("version", valtype=str))
         self.description = self.config.get(
             "description",
-            default="",
+            "",
             valtype=str,
         )
 
@@ -164,19 +169,41 @@ class ProjectConfigration:  # pylint: disable=too-many-instance-attributes
 
         self.maintainer = self.config.get(
             "maintainer",
-            default=_("[yellow]Unknown[/yellow]"),
+            _("[yellow]Unknown[/yellow]"),
             valtype=list | str,
         )
 
         self.license = self.config.get(
             "license",
-            default=_("[yellow]Unknown[/yellow]"),
+            _("[yellow]Unknown[/yellow]"),
             valtype=str,
         )
 
-        hooks = self.config.get("hooks", default={}, valtype=dict)
+        hooks: AutoFormatDict = self.config.get(
+            "hooks",
+            {},
+            valtype=dict,
+        )
+        assert_iter_types(hooks.values(), dict, RUValueException(
+            _("Hooks must be a dictionary."),
+        ))
         for name, data in hooks.items():
             self.hooks[name] = ProjectHook(data, name)
+
+        # Serialize configuration to variables.
+        def _push_vars(obj: AutoFormatDict | list | Any, prefix: str):
+            if isinstance(obj, AutoFormatDict):
+                for key, value in obj.items():
+                    _push_vars(value, f"{prefix}.{key}")
+            elif isinstance(obj, list):
+                self.pushed_variables.append(f"{prefix}.length")
+                push_variables(f"{prefix}.length", len(obj))
+                for idx, val in enumerate(obj):
+                    _push_vars(val, f"{prefix}.{idx}")
+            else:
+                self.pushed_variables.append(prefix)
+                push_variables(prefix, obj)
+        _push_vars(self.config, "project")
 
     def __repr__(self) -> str:
         """Get the string representation of the project configuration.
@@ -205,11 +232,19 @@ class ProjectConfigration:  # pylint: disable=too-many-instance-attributes
 
         self.hooks[name].run()
 
+    def __del__(self):
+        """
+        Remove all pushed variables.
+        """
+
+        for val in self.pushed_variables:
+            pop_variables(val)
+
 
 def _load_config(config_file: Path, loaded_list: list[Path]) -> AutoFormatDict:
     config_file = config_file.resolve()
     with config_file.open() as file:
-        config = AutoFormatDict.from_dict(json.load(file))
+        config = AutoFormatDict(json.load(file))
         if not isinstance(config, AutoFormatDict):
             raise RUValueException(
                 format_str(
