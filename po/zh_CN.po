@@ -20,7 +20,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Rubisco 0.1.0\n"
 "Report-Msgid-Bugs-To: cpppteam@email.cn\n"
-"POT-Creation-Date: 2024-07-05 20:04+0800\n"
+"POT-Creation-Date: 2024-07-11 22:58+0800\n"
 "PO-Revision-Date: 2024-06-25 11:07+0800\n"
 "Last-Translator:  <wushengwuxi-msctinoulk@outlook.com>\n"
 "Language-Team: Chinese (simplified) <i18n-zh@googlegroups.com>\n"
@@ -37,7 +37,7 @@ msgstr "${{speed}} 微秒"
 msgid "'${{name}}' is not a IKernelTrigger instance."
 msgstr "'${{name}}' 不是 IKernelTrigger 实例。"
 
-#: ../rubisco/cli/main.py:588
+#: ../rubisco/cli/main.py:600
 msgid "'[underline]${{path}}[/underline]' is not found."
 msgstr "未找到 '[underline]${{path}}[/underline]'。"
 
@@ -46,24 +46,24 @@ msgstr "未找到 '[underline]${{path}}[/underline]'。"
 msgid "'[underline]${{path}}[/underline]' is not in the subpath of '[underline]${{start}}[/underline]'"
 msgstr "'[underline]${{path}}[/underline]' 不在 '[underline]${{start}}[/underline]' 的子路径中"
 
-#: ../rubisco/cli/main.py:574
+#: ../rubisco/cli/main.py:586
 msgid "(${{num}} overrides)"
 msgstr "（${{num}} 个重载）"
 
-#: ../rubisco/kernel/workflow.py:681
+#: ../rubisco/kernel/workflow.py:792
 msgid "<Inline Workflow>"
 msgstr "<内联工作流>"
 
-#: ../rubisco/kernel/project_config.py:158 ../rubisco/kernel/workflow.py:567
-#: ../rubisco/kernel/workflow.py:568
+#: ../rubisco/kernel/project_config.py:163 ../rubisco/kernel/workflow.py:672
+#: ../rubisco/kernel/workflow.py:673
 msgid "<Unnamed>"
 msgstr "<未命名>"
 
-#: ../rubisco/kernel/project_config.py:86
+#: ../rubisco/kernel/project_config.py:88
 msgid "A workflow [yellow]SHOULD[/yellow] contain at least 'exec', 'run' and 'workflow'."
 msgstr "工作流 [yellow]应该[/yellow]至少包含 'exec'， 'run' 和 'workflow' 选项。"
 
-#: ../rubisco/kernel/workflow.py:509
+#: ../rubisco/kernel/workflow.py:614
 msgid "A workflow step must be a dict."
 msgstr "工作流步骤必须是一个字典。"
 
@@ -87,16 +87,20 @@ msgstr "命令 '${{cmd}}' 未找到。"
 msgid "Command to run."
 msgstr "要运行的命令。"
 
+#: ../rubisco/kernel/workflow.py:450
+msgid "Compress format must be a list of string or a string."
+msgstr "压缩格式必须是字符串或字符串列表。"
+
 #: ../rubisco/lib/archive.py:537 ../rubisco/lib/archive.py:632
 #: ../rubisco/lib/archive.py:706 ../rubisco/lib/archive.py:808
 msgid "Compressing '[underline]${{path}}[/underline]' to '[underline]${{file}}[/underline]' as '${{type}}' ..."
 msgstr "正在以 '${{type}}' 格式压缩 '[underline]${{path}}[/underline]' 到 '[underline]${{file}}[/underline]' ..."
 
-#: ../rubisco/cli/main.py:481
+#: ../rubisco/cli/main.py:493
 msgid "Config file: [underline]${{path}}[/underline]"
 msgstr "配置文件： [underline]${{path}}[/underline]"
 
-#: ../rubisco/kernel/project_config.py:222
+#: ../rubisco/kernel/project_config.py:257
 msgid "Configuration must be a JSON5 object. (dict)"
 msgstr "配置必须是 JSON5 对象。 (dict)"
 
@@ -116,7 +120,7 @@ msgstr "版权所有 (C) 2024 The C++ Plus Project。"
 msgid "Creating directory: [underline]${{path}}[/underline] ..."
 msgstr "创建目录： [underline]${{path}}[/underline] ..."
 
-#: ../rubisco/cli/main.py:510
+#: ../rubisco/cli/main.py:522
 msgid "Description: ${{desc}}"
 msgstr "描述： ${{desc}}"
 
@@ -165,9 +169,13 @@ msgstr "文件 '[underline]${{path}}[/underline]' 已经存在。"
 msgid "File '[underline]${{path}}[/underline]' already exists. [yellow]Overwrite[/yellow]?"
 msgstr "文件 '[underline]${{path}}[/underline]' 已经存在。 [yellow]是否覆盖[/yellow]？"
 
-#: ../rubisco/kernel/project_config.py:82
+#: ../rubisco/kernel/project_config.py:84
 msgid "Hook '${{name}}' is invalid."
 msgstr "无效的钩子 '${{name}}' 。"
+
+#: ../rubisco/kernel/project_config.py:188
+msgid "Hooks must be a dictionary."
+msgstr "钩子必须是一个字典。"
 
 #: ../rubisco/cli/output.py:180
 msgid "Internal error: ${{type}}: ${{msg}}"
@@ -177,7 +185,7 @@ msgstr "内部错误： ${{type}}： ${{msg}}"
 msgid "Interrupted by user."
 msgstr "被用户中断。"
 
-#: ../rubisco/kernel/project_config.py:217
+#: ../rubisco/kernel/project_config.py:252
 msgid "Invalid configuration in file '[underline]${{path}}[/underline]'."
 msgstr "文件 '[underline]${{path}}[/underline]' 中的配置无效。"
 
@@ -189,7 +197,7 @@ msgstr "无效的扩展名: '${{name}}' 。"
 msgid "Invalid input."
 msgstr "无效的输入。"
 
-#: ../rubisco/kernel/project_config.py:229
+#: ../rubisco/kernel/project_config.py:264
 msgid "Invalid path in '[underline]${{path}}[/underline]'."
 msgstr "在 '[underline]${{path}}[/underline]' 中的路径无效。"
 
@@ -213,11 +221,11 @@ msgstr "Kernel trigger ID '${{name}}' 已经存在。"
 msgid "License [bold]GPLv3+[/bold]: GNU GPL version [cyan]3[/cyan] or later <https://www.gnu.org/licenses/gpl.html>."
 msgstr "许可证 [bold]GPLv3+[/bold]: GNU GPL 第[cyan]三[/cyan]版或后续版本 <https://www.gnu.org/licenses/gpl.html>。"
 
-#: ../rubisco/cli/main.py:504
+#: ../rubisco/cli/main.py:516
 msgid "License: ${{license}}"
 msgstr "许可证： ${{license}}"
 
-#: ../rubisco/cli/main.py:498
+#: ../rubisco/cli/main.py:510
 msgid "Maintainer: ${{maintainer}}"
 msgstr "维护者： ${{maintainer}}"
 
@@ -245,11 +253,11 @@ msgstr "选项："
 msgid "Performing websites speed test ..."
 msgstr "正在进行网站速度测试 ..."
 
-#: ../rubisco/cli/main.py:554
+#: ../rubisco/cli/main.py:566
 msgid "Perhaps a typo?"
 msgstr "可能是拼写错误？"
 
-#: ../rubisco/kernel/workflow.py:553
+#: ../rubisco/kernel/workflow.py:658
 msgid "Please check typo or use 'type' attribute manually."
 msgstr "请检查拼写错误或手动使用 'type' 属性。"
 
@@ -269,7 +277,7 @@ msgstr "请确保这个扩展是有效的。"
 msgid "Please specify the compression type explicitly."
 msgstr "请明确指定压缩类型。"
 
-#: ../rubisco/kernel/project_config.py:162
+#: ../rubisco/kernel/project_config.py:167
 msgid "Please upgrade rubisco to the required version."
 msgstr "请升级 rubisco 到所需版本。"
 
@@ -281,7 +289,7 @@ msgstr "请为扩展使用不同的名称。"
 msgid "Positional Arguments:"
 msgstr "位置参数："
 
-#: ../rubisco/cli/main.py:475
+#: ../rubisco/cli/main.py:487
 msgid "Project: ${{name}}"
 msgstr "项目： ${{name}}"
 
@@ -301,6 +309,10 @@ msgstr "仓库 '[underline]${{path}}[/underline]' 已经存在。"
 msgid "Repository '[underline]${{path}}[/underline]' does not exist."
 msgstr "仓库 '[underline]${{path}}[/underline]' 不存在。"
 
+#: ../rubisco/cli/main.py:476
+msgid "Rubisco CLI language: '${{locale}}' '${{charset}}' '${{lang}}'"
+msgstr "Rubisco CLI 语言: '${{locale}}' '${{charset}}' '${{lang}}'"
+
 #: ../rubisco/cli/main.py:167
 msgid "Run rubisco in debug mode."
 msgstr "以调试模式运行 rubisco。"
@@ -317,7 +329,7 @@ msgstr "正在运行： [white]${{name}}[/white] [black](${{id}})[/black]"
 msgid "See: ${{url}}"
 msgstr "参见： ${{url}}"
 
-#: ../rubisco/lib/process.py:124 ../rubisco/lib/process.py:198
+#: ../rubisco/lib/process.py:114 ../rubisco/lib/process.py:185
 msgid "Shell execution error."
 msgstr "Shell 执行错误。"
 
@@ -337,11 +349,11 @@ msgstr "显示此帮助消息并退出。"
 msgid "Source '${{protocol}}/${{website}}/${{name}}' not found."
 msgstr "源 '${{protocol}}/${{website}}/${{name}}' 未找到。"
 
-#: ../rubisco/kernel/workflow.py:523
+#: ../rubisco/kernel/workflow.py:628
 msgid "Step id '${{step_id}}' is duplicated."
 msgstr "步骤 '${{step_id}}' 的 ID 重复。"
 
-#: ../rubisco/kernel/workflow.py:648
+#: ../rubisco/kernel/workflow.py:761
 msgid "Step type '${{name}}' registered multiple times. It's unsafe."
 msgstr "步骤类型 '${{name}}' 注册了多次。这是不安全的。"
 
@@ -377,23 +389,31 @@ msgstr "扩展的路径 '[underline]${{path}}[/underline]' 不存在。"
 msgid "The extention path '[underline]${{path}}[/underline]' is not a directory."
 msgstr "扩展的路径 '[underline]${{path}}[/underline]' 不是一个目录。"
 
-#: ../rubisco/kernel/project_config.py:153
+#: ../rubisco/kernel/project_config.py:158
 msgid "The minimum version of rubisco required by the project '[underline]${{name}}[/underline]' is '[underline]${{version}}[/underline]'."
 msgstr "项目 '[underline]${{name}}[/underline]' 所需的 rubisco 最低版本为 '[underline]${{version}}[/underline]'。"
 
-#: ../rubisco/kernel/workflow.py:285
+#: ../rubisco/kernel/workflow.py:173
+msgid "The paths must be a list of strings."
+msgstr "多个路径必须是一个字符串列表。"
+
+#: ../rubisco/kernel/workflow.py:316
 msgid "The remove item must be a string."
 msgstr "删除项必须是一个字符串。"
 
-#: ../rubisco/kernel/workflow.py:729
+#: ../rubisco/kernel/workflow.py:148
+msgid "The shell command list must be a list of strings."
+msgstr "shell 命令列表必须是一个字符串列表。"
+
+#: ../rubisco/kernel/workflow.py:837
 msgid "The suffix of '[underline]${{path}}[/underline]' is invalid."
 msgstr "文件 '[underline]${{path}}[/underline]' 的后缀无效。"
 
-#: ../rubisco/kernel/workflow.py:561
+#: ../rubisco/kernel/workflow.py:666
 msgid "The type of step '${{step}}'[black](${{step_id}})[/black] in workflow '${{workflow}}'[black](${{workflow_id}})[/black] is not provided and could not be inferred."
 msgstr "工作流 '${{workflow}}'[black](${{workflow_id}})[/black] 中的步骤 '${{step}}'[black](${{step_id}})[/black] 的类型未被提供，且无法推断。"
 
-#: ../rubisco/lib/variable.py:335
+#: ../rubisco/lib/variable.py:527
 msgid "The value of key ${{key}} needs to be ${{type}} instead of ${{value_type}}."
 msgstr "键 ${{key}} 的值需要是 ${{type}} 类型而不是 ${{value_type}} 。"
 
@@ -413,15 +433,19 @@ msgstr "尝试将扩展作为路径加载。"
 msgid "Unable to determine compression type of '[underline]${{path}}[/underline]'"
 msgstr "无法确定 '[underline]${{path}}[/underline]' 的压缩类型"
 
-#: ../rubisco/cli/main.py:551
+#: ../rubisco/cli/main.py:563
 msgid "Undefined command or hook ${{name}}"
 msgstr "未定义的命令或钩子 ${{name}}"
+
+#: ../rubisco/lib/l10n.py:59
+msgid "Unknown"
+msgstr "未知"
 
 #: ../rubisco/cli/output.py:157
 msgid "Unknown error."
 msgstr "未知错误。"
 
-#: ../rubisco/kernel/workflow.py:544
+#: ../rubisco/kernel/workflow.py:649
 msgid "Unknown step type: '${{step_type}}' of step '${{step_name}}'. Please check the workflow."
 msgstr "未知的步骤类型: '${{step_type}}' 的步骤 '${{step_name}}'。请检查工作流。"
 
@@ -437,11 +461,11 @@ msgstr "正在更新 Git 仓库 '[underline]${{path}}[/underline]'(${{branch}}) 
 msgid "Usage:"
 msgstr "用法："
 
-#: ../rubisco/cli/main.py:487
+#: ../rubisco/cli/main.py:499
 msgid "Version [white]${{version}}[/white]"
 msgstr "版本 [white]${{version}}[/white]"
 
-#: ../rubisco/kernel/workflow.py:734
+#: ../rubisco/kernel/workflow.py:842
 msgid "We only support '.json', '.json5', '.yaml', '.yml'."
 msgstr "我们只支持 '.json', '.json5', '.yaml', '.yml'。"
 
@@ -449,11 +473,15 @@ msgstr "我们只支持 '.json', '.json5', '.yaml', '.yml'。"
 msgid "Workflow '${{name}}' finished."
 msgstr "工作流 '${{name}}' 完成。"
 
-#: ../rubisco/kernel/workflow.py:696
+#: ../rubisco/kernel/workflow.py:804
 msgid "Workflow running failed: ${{exc}}"
 msgstr "工作流运行失败: ${{exc}}"
 
-#: ../rubisco/cli/main.py:582
+#: ../rubisco/kernel/workflow.py:582
+msgid "Workflow variables must be a list of name and value."
+msgstr "工作流变量必须是名称和值的列表。"
+
+#: ../rubisco/cli/main.py:594
 msgid "Working directory '[underline]${{path}}[/underline]' not a rubisco project."
 msgstr "工作目录 '[underline]${{path}}[/underline]' 不是一个 rubisco 项目。"
 
@@ -497,8 +525,8 @@ msgstr "[yellow]处理中[/yellow]"
 msgid "[yellow]Testing[/yellow] ..."
 msgstr "[yellow]测试中[/yellow] ..."
 
-#: ../rubisco/kernel/project_config.py:167
-#: ../rubisco/kernel/project_config.py:173
+#: ../rubisco/kernel/project_config.py:172
+#: ../rubisco/kernel/project_config.py:178
 msgid "[yellow]Unknown[/yellow]"
 msgstr "[yellow]未知[/yellow]"
 

@@ -447,7 +447,7 @@ class CompressStep(Step):  # pylint: disable=too-few-public-methods
                 self.compress_format,
                 str,
                 RUValueException(
-                    _("Compress format must be a list of string or a string")
+                    _("Compress format must be a list of string or a string.")
                 ),
             )
             for fmt in self.compress_format:

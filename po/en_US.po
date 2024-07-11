@@ -19,7 +19,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Rubisco 0.1.0\n"
 "Report-Msgid-Bugs-To: cpppteam@email.cn\n"
-"POT-Creation-Date: 2024-07-05 20:04+0800\n"
+"POT-Creation-Date: 2024-07-11 22:58+0800\n"
 "PO-Revision-Date: 2024-06-25 11:05+0800\n"
 "Last-Translator:  <wushengwuxi-msctinoulk@outlook.com>\n"
 "Language-Team: English\n"
@@ -37,7 +37,7 @@ msgstr "${{speed}} us"
 msgid "'${{name}}' is not a IKernelTrigger instance."
 msgstr "'${{name}}' is not a IKernelTrigger instance."
 
-#: ../rubisco/cli/main.py:588
+#: ../rubisco/cli/main.py:600
 msgid "'[underline]${{path}}[/underline]' is not found."
 msgstr "'[underline]${{path}}[/underline]' is not found."
 
@@ -46,24 +46,24 @@ msgstr "'[underline]${{path}}[/underline]' is not found."
 msgid "'[underline]${{path}}[/underline]' is not in the subpath of '[underline]${{start}}[/underline]'"
 msgstr "'[underline]${{path}}[/underline]' is not in the subpath of '[underline]${{start}}[/underline]'"
 
-#: ../rubisco/cli/main.py:574
+#: ../rubisco/cli/main.py:586
 msgid "(${{num}} overrides)"
 msgstr "(${{num}} overrides)"
 
-#: ../rubisco/kernel/workflow.py:681
+#: ../rubisco/kernel/workflow.py:792
 msgid "<Inline Workflow>"
 msgstr "<Inline Workflow>"
 
-#: ../rubisco/kernel/project_config.py:158 ../rubisco/kernel/workflow.py:567
-#: ../rubisco/kernel/workflow.py:568
+#: ../rubisco/kernel/project_config.py:163 ../rubisco/kernel/workflow.py:672
+#: ../rubisco/kernel/workflow.py:673
 msgid "<Unnamed>"
 msgstr "<Unnamed>"
 
-#: ../rubisco/kernel/project_config.py:86
+#: ../rubisco/kernel/project_config.py:88
 msgid "A workflow [yellow]SHOULD[/yellow] contain at least 'exec', 'run' and 'workflow'."
 msgstr "A workflow [yellow]SHOULD[/yellow] contain at least 'exec', 'run' and 'workflow'."
 
-#: ../rubisco/kernel/workflow.py:509
+#: ../rubisco/kernel/workflow.py:614
 msgid "A workflow step must be a dict."
 msgstr "A workflow step must be a dict."
 
@@ -87,16 +87,20 @@ msgstr "Command '${{cmd}}' not found."
 msgid "Command to run."
 msgstr "Command to run."
 
+#: ../rubisco/kernel/workflow.py:450
+msgid "Compress format must be a list of string or a string."
+msgstr "Compress format must be a list of string or a string."
+
 #: ../rubisco/lib/archive.py:537 ../rubisco/lib/archive.py:632
 #: ../rubisco/lib/archive.py:706 ../rubisco/lib/archive.py:808
 msgid "Compressing '[underline]${{path}}[/underline]' to '[underline]${{file}}[/underline]' as '${{type}}' ..."
 msgstr "Compressing '[underline]${{path}}[/underline]' to '[underline]${{file}}[/underline]' as '${{type}}' ..."
 
-#: ../rubisco/cli/main.py:481
+#: ../rubisco/cli/main.py:493
 msgid "Config file: [underline]${{path}}[/underline]"
 msgstr "Config file: [underline]${{path}}[/underline]"
 
-#: ../rubisco/kernel/project_config.py:222
+#: ../rubisco/kernel/project_config.py:257
 msgid "Configuration must be a JSON5 object. (dict)"
 msgstr "Configuration must be a JSON5 object. (dict)"
 
@@ -116,7 +120,7 @@ msgstr "Copyright (C) 2024 The C++ Plus Project."
 msgid "Creating directory: [underline]${{path}}[/underline] ..."
 msgstr "Creating directory: [underline]${{path}}[/underline] ..."
 
-#: ../rubisco/cli/main.py:510
+#: ../rubisco/cli/main.py:522
 msgid "Description: ${{desc}}"
 msgstr "Description: ${{desc}}"
 
@@ -165,9 +169,13 @@ msgstr "File '[underline]${{path}}[/underline]' already exists."
 msgid "File '[underline]${{path}}[/underline]' already exists. [yellow]Overwrite[/yellow]?"
 msgstr "File '[underline]${{path}}[/underline]' already exists. [yellow]Overwrite[/yellow]?"
 
-#: ../rubisco/kernel/project_config.py:82
+#: ../rubisco/kernel/project_config.py:84
 msgid "Hook '${{name}}' is invalid."
 msgstr "Hook '${{name}}' is invalid."
+
+#: ../rubisco/kernel/project_config.py:188
+msgid "Hooks must be a dictionary."
+msgstr "Hooks must be a dictionary."
 
 #: ../rubisco/cli/output.py:180
 msgid "Internal error: ${{type}}: ${{msg}}"
@@ -177,7 +185,7 @@ msgstr "Internal error: ${{type}}: ${{msg}}"
 msgid "Interrupted by user."
 msgstr "Interrupted by user."
 
-#: ../rubisco/kernel/project_config.py:217
+#: ../rubisco/kernel/project_config.py:252
 msgid "Invalid configuration in file '[underline]${{path}}[/underline]'."
 msgstr "Invalid configuration in file '[underline]${{path}}[/underline]'."
 
@@ -189,7 +197,7 @@ msgstr "Invalid extention name: '${{name}}' ."
 msgid "Invalid input."
 msgstr "Invalid input."
 
-#: ../rubisco/kernel/project_config.py:229
+#: ../rubisco/kernel/project_config.py:264
 msgid "Invalid path in '[underline]${{path}}[/underline]'."
 msgstr "Invalid path in '[underline]${{path}}[/underline]'."
 
@@ -213,11 +221,11 @@ msgstr "Kernel trigger id '${{name}}' is already exists."
 msgid "License [bold]GPLv3+[/bold]: GNU GPL version [cyan]3[/cyan] or later <https://www.gnu.org/licenses/gpl.html>."
 msgstr "License [bold]GPLv3+[/bold]: GNU GPL version [cyan]3[/cyan] or later <https://www.gnu.org/licenses/gpl.html>."
 
-#: ../rubisco/cli/main.py:504
+#: ../rubisco/cli/main.py:516
 msgid "License: ${{license}}"
 msgstr "License: ${{license}}"
 
-#: ../rubisco/cli/main.py:498
+#: ../rubisco/cli/main.py:510
 msgid "Maintainer: ${{maintainer}}"
 msgstr "Maintainer: ${{maintainer}}"
 
@@ -245,11 +253,11 @@ msgstr "Options:"
 msgid "Performing websites speed test ..."
 msgstr "Performing websites speed test ..."
 
-#: ../rubisco/cli/main.py:554
+#: ../rubisco/cli/main.py:566
 msgid "Perhaps a typo?"
 msgstr "Perhaps a typo?"
 
-#: ../rubisco/kernel/workflow.py:553
+#: ../rubisco/kernel/workflow.py:658
 msgid "Please check typo or use 'type' attribute manually."
 msgstr "Please check typo or use 'type' attribute manually."
 
@@ -269,7 +277,7 @@ msgstr "Please make sure this extention is valid."
 msgid "Please specify the compression type explicitly."
 msgstr "Please specify the compression type explicitly."
 
-#: ../rubisco/kernel/project_config.py:162
+#: ../rubisco/kernel/project_config.py:167
 msgid "Please upgrade rubisco to the required version."
 msgstr "Please upgrade rubisco to the required version."
 
@@ -281,7 +289,7 @@ msgstr "Please use a different name for the extention."
 msgid "Positional Arguments:"
 msgstr "Positional Arguments:"
 
-#: ../rubisco/cli/main.py:475
+#: ../rubisco/cli/main.py:487
 msgid "Project: ${{name}}"
 msgstr "Project: ${{name}}"
 
@@ -301,6 +309,10 @@ msgstr "Repository '[underline]${{path}}[/underline]' already exists."
 msgid "Repository '[underline]${{path}}[/underline]' does not exist."
 msgstr "Repository '[underline]${{path}}[/underline]' does not exist."
 
+#: ../rubisco/cli/main.py:476
+msgid "Rubisco CLI language: '${{locale}}' '${{charset}}' '${{lang}}'"
+msgstr "Rubisco CLI language: '${{locale}}' '${{charset}}' '${{lang}}'"
+
 #: ../rubisco/cli/main.py:167
 msgid "Run rubisco in debug mode."
 msgstr "Run rubisco in debug mode."
@@ -317,7 +329,7 @@ msgstr "Running: [white]${{name}}[/white] [black](${{id}})[/black]"
 msgid "See: ${{url}}"
 msgstr "See: ${{url}}"
 
-#: ../rubisco/lib/process.py:124 ../rubisco/lib/process.py:198
+#: ../rubisco/lib/process.py:114 ../rubisco/lib/process.py:185
 msgid "Shell execution error."
 msgstr "Shell execution error."
 
@@ -337,11 +349,11 @@ msgstr "Show this help message and exit."
 msgid "Source '${{protocol}}/${{website}}/${{name}}' not found."
 msgstr "Source '${{protocol}}/${{website}}/${{name}}' not found."
 
-#: ../rubisco/kernel/workflow.py:523
+#: ../rubisco/kernel/workflow.py:628
 msgid "Step id '${{step_id}}' is duplicated."
 msgstr "Step id '${{step_id}}' is duplicated."
 
-#: ../rubisco/kernel/workflow.py:648
+#: ../rubisco/kernel/workflow.py:761
 msgid "Step type '${{name}}' registered multiple times. It's unsafe."
 msgstr "Step type '${{name}}' registered multiple times. It's unsafe."
 
@@ -377,23 +389,31 @@ msgstr "The extention path '[underline]${{path}}[/underline]' does not exist."
 msgid "The extention path '[underline]${{path}}[/underline]' is not a directory."
 msgstr "The extention path '[underline]${{path}}[/underline]' is not a directory."
 
-#: ../rubisco/kernel/project_config.py:153
+#: ../rubisco/kernel/project_config.py:158
 msgid "The minimum version of rubisco required by the project '[underline]${{name}}[/underline]' is '[underline]${{version}}[/underline]'."
 msgstr "The minimum version of rubisco required by the project '[underline]${{name}}[/underline]' is '[underline]${{version}}[/underline]'."
 
-#: ../rubisco/kernel/workflow.py:285
+#: ../rubisco/kernel/workflow.py:173
+msgid "The paths must be a list of strings."
+msgstr "The paths must be a list of strings."
+
+#: ../rubisco/kernel/workflow.py:316
 msgid "The remove item must be a string."
 msgstr "The remove item must be a string."
 
-#: ../rubisco/kernel/workflow.py:729
+#: ../rubisco/kernel/workflow.py:148
+msgid "The shell command list must be a list of strings."
+msgstr "The shell command list must be a list of strings."
+
+#: ../rubisco/kernel/workflow.py:837
 msgid "The suffix of '[underline]${{path}}[/underline]' is invalid."
 msgstr "The suffix of '[underline]${{path}}[/underline]' is invalid."
 
-#: ../rubisco/kernel/workflow.py:561
+#: ../rubisco/kernel/workflow.py:666
 msgid "The type of step '${{step}}'[black](${{step_id}})[/black] in workflow '${{workflow}}'[black](${{workflow_id}})[/black] is not provided and could not be inferred."
 msgstr "The type of step '${{step}}'[black](${{step_id}})[/black] in workflow '${{workflow}}'[black](${{workflow_id}})[/black] is not provided and could not be inferred."
 
-#: ../rubisco/lib/variable.py:335
+#: ../rubisco/lib/variable.py:527
 msgid "The value of key ${{key}} needs to be ${{type}} instead of ${{value_type}}."
 msgstr "The value of key ${{key}} needs to be ${{type}} instead of ${{value_type}}."
 
@@ -413,15 +433,19 @@ msgstr "Try to load the extention as a path."
 msgid "Unable to determine compression type of '[underline]${{path}}[/underline]'"
 msgstr "Unable to determine compression type of '[underline]${{path}}[/underline]'"
 
-#: ../rubisco/cli/main.py:551
+#: ../rubisco/cli/main.py:563
 msgid "Undefined command or hook ${{name}}"
 msgstr "Undefined command or hook ${{name}}"
+
+#: ../rubisco/lib/l10n.py:59
+msgid "Unknown"
+msgstr "Unknown"
 
 #: ../rubisco/cli/output.py:157
 msgid "Unknown error."
 msgstr "Unknown error."
 
-#: ../rubisco/kernel/workflow.py:544
+#: ../rubisco/kernel/workflow.py:649
 msgid "Unknown step type: '${{step_type}}' of step '${{step_name}}'. Please check the workflow."
 msgstr "Unknown step type: '${{step_type}}' of step '${{step_name}}'. Please check the workflow."
 
@@ -437,11 +461,11 @@ msgstr "Updating Git repository '[underline]${{path}}[/underline]'(${{branch}}) 
 msgid "Usage:"
 msgstr "Usage:"
 
-#: ../rubisco/cli/main.py:487
+#: ../rubisco/cli/main.py:499
 msgid "Version [white]${{version}}[/white]"
 msgstr "Version [white]${{version}}[/white]"
 
-#: ../rubisco/kernel/workflow.py:734
+#: ../rubisco/kernel/workflow.py:842
 msgid "We only support '.json', '.json5', '.yaml', '.yml'."
 msgstr "We only support '.json', '.json5', '.yaml', '.yml'."
 
@@ -449,11 +473,15 @@ msgstr "We only support '.json', '.json5', '.yaml', '.yml'."
 msgid "Workflow '${{name}}' finished."
 msgstr "Workflow '${{name}}' finished."
 
-#: ../rubisco/kernel/workflow.py:696
+#: ../rubisco/kernel/workflow.py:804
 msgid "Workflow running failed: ${{exc}}"
 msgstr "Workflow running failed: ${{exc}}"
 
-#: ../rubisco/cli/main.py:582
+#: ../rubisco/kernel/workflow.py:582
+msgid "Workflow variables must be a list of name and value."
+msgstr "Workflow variables must be a list of name and value."
+
+#: ../rubisco/cli/main.py:594
 msgid "Working directory '[underline]${{path}}[/underline]' not a rubisco project."
 msgstr "Working directory '[underline]${{path}}[/underline]' not a rubisco project."
 
@@ -497,8 +525,8 @@ msgstr "[yellow]Processing[/yellow]"
 msgid "[yellow]Testing[/yellow] ..."
 msgstr "[yellow]Testing[/yellow] ..."
 
-#: ../rubisco/kernel/project_config.py:167
-#: ../rubisco/kernel/project_config.py:173
+#: ../rubisco/kernel/project_config.py:172
+#: ../rubisco/kernel/project_config.py:178
 msgid "[yellow]Unknown[/yellow]"
 msgstr "[yellow]Unknown[/yellow]"
 
