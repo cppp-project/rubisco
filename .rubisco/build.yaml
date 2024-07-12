@@ -6,6 +6,17 @@ vars:
   - copyright: Copyright (C) 2024 The C++ Plus Project
 
 steps:
+  - name: 🛠️ Build wheel distribution
+    run:
+      [
+        "python",
+        "-m",
+        "build",
+        "--wheel",
+        "--outdir=.",
+        "--verbose",
+      ]
+
   - name: 🛠️ Build standalone binary distribution
     run:
       [
@@ -34,13 +45,13 @@ steps:
 
   - name: 📦 Rename the distribution directory
     move: build/${{ project.name }}.dist
-    to: ${{ project.name }}-${{ host.machine }}-v${{ project.version }}
+    to: ${{ project.name }}-standalone-${{ host.machine }}-v${{ project.version }}
 
   - name: 📦 Copy files to distribution directory
     copy: LICENSE
-    to: ${{ project.name }}-${{ host.machine }}-v${{ project.version }}/LICENSE
+    to: ${{ project.name }}-standalone-${{ host.machine }}-v${{ project.version }}/LICENSE
 
   - name: 📦 Packing the standalone distribution
-    compress: ${{ project.name }}-${{ host.machine }}-v${{ project.version }}
-    to: ${{ project.name }}-${{ host.machine }}-v${{ project.version }}
+    compress: ${{ project.name }}-standalone-${{ host.machine }}-v${{ project.version }}
+    to: ${{ project.name }}-standalone-${{ host.machine }}-v${{ project.version }}
     format: [zip, tar.xz]

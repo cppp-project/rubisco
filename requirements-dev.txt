@@ -2,3 +2,5 @@ pylint
 isort
 flake8
 Nuitka
+build
+hatchling

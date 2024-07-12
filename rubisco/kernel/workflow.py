@@ -26,6 +26,7 @@ Workflow is a ordered list of steps. Each step only contains one action.
 import glob
 import os
 import shutil
+import sys
 import uuid
 from pathlib import Path
 
@@ -328,11 +329,17 @@ class RemoveStep(Step):  # pylint: disable=too-few-public-methods
         super().__init__(data, par_workflow)
 
         for glob_partten in self.globs:
-            paths = glob.glob(
-                glob_partten,
-                recursive=True,
-                include_hidden=self.include_hidden,
-            )
+            if sys.version_info >= (3, 10):
+                paths = glob.glob(  # pylint: disable=unexpected-keyword-arg
+                    glob_partten,
+                    recursive=True,
+                    include_hidden=self.include_hidden,
+                )
+            else:
+                paths = glob.glob(
+                    glob_partten,
+                    recursive=True,
+                )
             for path in paths:
                 path = Path(path)
                 call_ktrigger(IKernelTrigger.on_remove, path=path)

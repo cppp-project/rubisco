@@ -1,6 +1,5 @@
 aiohttp >= 3.5.4
 colorama >= 0.3.9
-gitignore_parser >= 0.0.3
 json-five >= 0.5.1
 requests >= 2.18.4
 rich >= 6.2.0
