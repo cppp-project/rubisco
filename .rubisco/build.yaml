@@ -6,6 +6,35 @@ vars:
   - copyright: Copyright (C) 2024 The C++ Plus Project
 
 steps:
+  - name: 📦 Make source distribution directory
+    mkdir: ${{ project.name }}-${{ project.version }}
+
+  - name: 📦 Copy files to source distribution directory
+    copy: "${{ cwd }}"
+    to: "${{ project.name }}-${{ project.version }}"
+    excludes: [
+      ".git*",
+      ".venv",
+      "build",
+      "__pycache__",
+      ".rubisco/*.log",
+      "*.7z",
+      "*.gz",
+      "*.xz",
+      "*.zip",
+      "*.whl",
+      "*.mo",
+      "*.pot",
+      "*.py[cod]",
+      "*$py.class",
+      "${{ project.name }}-*"
+    ]
+
+  - name: 📦 Packing the source distribution
+    compress: ${{ project.name }}-${{ project.version }}
+    to: ${{ project.name }}-${{ project.version }}
+    format: [zip, tar.xz]
+
   - name: 🛠️ Build wheel distribution
     run:
       [
@@ -44,14 +73,14 @@ steps:
       ]
 
   - name: 📦 Rename the distribution directory
-    move: build/${{ project.name }}.dist
-    to: ${{ project.name }}-standalone-${{ host.machine }}-v${{ project.version }}
+    copy: build/${{ project.name }}.dist
+    to: ${{ project.name }}-standalone-${{ host.machine }}-${{ project.version }}
 
   - name: 📦 Copy files to distribution directory
     copy: LICENSE
-    to: ${{ project.name }}-standalone-${{ host.machine }}-v${{ project.version }}/LICENSE
+    to: ${{ project.name }}-standalone-${{ host.machine }}-${{ project.version }}/LICENSE
 
   - name: 📦 Packing the standalone distribution
-    compress: ${{ project.name }}-standalone-${{ host.machine }}-v${{ project.version }}
-    to: ${{ project.name }}-standalone-${{ host.machine }}-v${{ project.version }}
+    compress: ${{ project.name }}-standalone-${{ host.machine }}-${{ project.version }}
+    to: ${{ project.name }}-standalone-${{ host.machine }}-${{ project.version }}
     format: [zip, tar.xz]

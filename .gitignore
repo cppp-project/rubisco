@@ -124,8 +124,6 @@ dmypy.json
 .vscode
 .cache
 .idea
-rubisco-setup.cache
 
 # Dist directory
-rubisco-*
-dist
+rubisco-**

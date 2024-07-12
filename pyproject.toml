@@ -45,3 +45,8 @@ dependencies = [
 [tool.hatch.build.targets.sdist]
 
 exclude = [".github"]
+
+[project.scripts]
+
+rubisco = "rubisco.cli.main:main"
+ru = "rubisco.cli.main:main"

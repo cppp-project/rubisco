@@ -156,10 +156,10 @@ def rm_recursive(path: Path, strict=False):
 def copy_recursive(  # pylint: disable=too-many-arguments
     src: Path,
     dst: Path,
-    strict=False,
+    strict: bool = False,
     symlinks: bool = False,
     exists_ok: bool = False,
-    ignore: list[str] = None,
+    ignore: list[str] | None = None,
 ):
     """Copy a file or directory recursively.
 
@@ -169,7 +169,7 @@ def copy_recursive(  # pylint: disable=too-many-arguments
         strict (bool): Raise an exception if error occurs.
         symlinks (bool): Copy symlinks as symlinks.
         exists_ok (bool): Do not raise an exception if the destination exists.
-        ignore (list[str]): The list of files to ignore.
+        ignore (list[str] | None): The list of files to ignore.
 
     Raises:
         OSError: If strict is True and an error occurs.

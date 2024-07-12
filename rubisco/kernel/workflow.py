@@ -170,9 +170,15 @@ class MkdirStep(Step):  # pylint: disable=too-few-public-methods
     def __init__(self, data: AutoFormatDict, par_workflow: "Workflow"):
         paths = data.get("mkdir", valtype=str | list)
         if isinstance(paths, list):
-            assert_iter_types(paths, str, RUValueException(
-                _("The paths must be a list of strings.")
-            ))
+            assert_iter_types(
+                paths,
+                str,
+                RUValueException(
+                    _(
+                        "The paths must be a list of strings.",
+                    )
+                ),
+            )
             self.paths = [Path(path) for path in paths]
         else:
             self.paths = [Path(paths)]
@@ -258,19 +264,29 @@ class MoveFileStep(Step):  # pylint: disable=too-few-public-methods
 
 
 class CopyFileStep(Step):  # pylint: disable=too-few-public-methods
-    """Copy a file."""
+    """Copy files or directories."""
 
-    src: Path
+    srcs: Path
     dst: Path
-    strict: bool
+    overwrite: bool
     keep_symlinks: bool
     excludes: list[str] | None
 
     def __init__(self, data: AutoFormatDict, par_workflow: "Workflow"):
-        self.src = Path(data.get("copy", valtype=str))
+        srcs = data.get("copy", valtype=str | list)
         self.dst = Path(data.get("to", valtype=str))
 
-        self.strict = data.get("strict", True, valtype=bool)
+        if isinstance(srcs, str):
+            self.srcs = [Path(srcs)]
+        else:
+            assert_iter_types(
+                srcs,
+                str,
+                RUValueException(_("The copy item must be a string.")),
+            )
+            self.srcs = [Path(src) for src in srcs]
+
+        self.overwrite = data.get("overwrite", True, valtype=bool)
         self.keep_symlinks = data.get(
             "keep-symlinks",
             False,
@@ -284,15 +300,23 @@ class CopyFileStep(Step):  # pylint: disable=too-few-public-methods
 
         super().__init__(data, par_workflow)
 
-        call_ktrigger(IKernelTrigger.on_copy, src=self.src, dst=self.dst)
-        copy_recursive(
-            self.src,
-            self.dst,
-            self.strict,
-            self.keep_symlinks,
-            not self.strict,
-            self.excludes,
-        )
+        if self.overwrite and self.dst.exists():
+            rm_recursive(self.dst, strict=True)
+        if self.dst.is_dir():
+            check_file_exists(self.dst)
+
+        for src_glob in self.srcs:
+            for src in glob.glob(str(src_glob)):
+                src = Path(src)
+                call_ktrigger(IKernelTrigger.on_copy, src=src, dst=self.dst)
+                copy_recursive(
+                    src,
+                    self.dst,
+                    not self.overwrite,
+                    self.keep_symlinks,
+                    self.overwrite,
+                    self.excludes,
+                )
 
 
 class RemoveStep(Step):  # pylint: disable=too-few-public-methods
