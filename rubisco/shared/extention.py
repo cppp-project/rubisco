@@ -56,17 +56,12 @@ class IRUExtention:
         Constructor. Please DO NOT initialize the extention here.
         """
 
-    def extention_can_load_now(self, is_auto: bool) -> bool:
+    def extention_can_load_now(self) -> bool:
         """
         Check if the extention can load now. Some extentions may initialize
         optionally like 'CMake' or 'Rust'.
 
         This method MUST be implemented by the subclass.
-
-        Args:
-            is_auto (bool): True if the extention is loaded automatically,
-                (load by `load_all_extentions`), otherwise False. (load by
-                project)
 
         Raises:
             NotImplementedError: Raise if the method is not implemented.
@@ -125,7 +120,6 @@ invalid_ext_names = ["rubisco"]  # Avoid logger's name conflict.
 def load_extention(  # pylint: disable=too-many-branches
     path: Path | str,
     strict: bool = False,
-    is_auto: bool = False,
 ) -> None:
     """Load the extention.
 
@@ -234,7 +228,7 @@ def load_extention(  # pylint: disable=too-many-branches
         logger.info("Loading extention '%s'...", instance.name)
 
         # Check if the extention can load now.
-        if not instance.extention_can_load_now(is_auto):
+        if not instance.extention_can_load_now():
             logger.info("Skipping extention '%s'...", instance.name)
             return
 
@@ -286,7 +280,7 @@ def load_all_extentions() -> None:
     try:
         for path in WORKSPACE_EXTENTIONS_DIR.iterdir():
             if path.is_dir():
-                load_extention(path, is_auto=True)
+                load_extention(path)
     except OSError as exc:
         logger.warning("Failed to load workspace extentions: %s", exc)
 
@@ -294,7 +288,7 @@ def load_all_extentions() -> None:
     try:
         for path in USER_EXTENTIONS_DIR.iterdir():
             if path.is_dir():
-                load_extention(path, is_auto=True)
+                load_extention(path)
     except OSError as exc:
         logger.warning("Failed to load user extentions: %s", exc)
 
@@ -302,7 +296,7 @@ def load_all_extentions() -> None:
     try:
         for path in GLOBAL_EXTENTIONS_DIR.iterdir():
             if path.is_dir():
-                load_extention(path, is_auto=True)
+                load_extention(path)
     except OSError as exc:
         logger.warning("Failed to load global extentions: %s", exc)
 

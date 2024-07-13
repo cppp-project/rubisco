@@ -22,6 +22,8 @@
 Extention for make.
 """
 
+import os
+
 from rubisco.shared.extention import IRUExtention
 from rubisco.lib.variable import push_variables
 from rubisco.lib.fileutil import find_command
@@ -34,11 +36,17 @@ class MakeExtention(IRUExtention):
 
     name = "make"
 
-    def extention_can_load_now(self, is_auto: bool) -> bool:
-        return not is_auto  # Only load when manually requested.
+    def extention_can_load_now(self) -> bool:
+        return True
 
     def on_load(self) -> None:
-        make = find_command("make")
+        make = os.getenv("MAKE")
+        if not make:
+            make = find_command("gmake", strict=False)  # GNU make preferred.
+        if not make:
+            make = find_command("make")
+        if not make:
+            make = "make"
         push_variables("MAKE", make)
 
     def reqs_is_sloved(self) -> bool:

@@ -385,7 +385,7 @@ class ExtentionLoadStep(Step):  # pylint: disable=too-few-public-methods
 
         super().__init__(data, par_workflow)
 
-        load_extention(self.path, self.strict, is_auto=False)
+        load_extention(self.path, self.strict)
 
 
 class WorkflowRunStep(Step):  # pylint: disable=too-few-public-methods

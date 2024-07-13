@@ -8,10 +8,11 @@ vars:
 steps:
   - name: 📦 Make source distribution directory
     mkdir: ${{ project.name }}-${{ project.version }}
+  - mkdir: dist
 
   - name: 📦 Copy files to source distribution directory
-    copy: "${{ cwd }}"
-    to: "${{ project.name }}-${{ project.version }}"
+    copy: ${{ cwd }}
+    to: ${{ project.name }}-${{ project.version }}
     excludes: [
       ".git*",
       ".venv",
@@ -32,7 +33,7 @@ steps:
 
   - name: 📦 Packing the source distribution
     compress: ${{ project.name }}-${{ project.version }}
-    to: ${{ project.name }}-${{ project.version }}
+    to: dist/${{ project.name }}-${{ project.version }}
     format: [zip, tar.xz]
 
   - name: 🛠️ Build wheel distribution
@@ -42,7 +43,7 @@ steps:
         "-m",
         "build",
         "--wheel",
-        "--outdir=.",
+        "--outdir=dist",
         "--verbose",
       ]
 
@@ -52,6 +53,33 @@ steps:
         "python",
         "-m",
         "nuitka",
+        "--standalone",
+        "--warn-unusual-code",
+        "--jobs=${{ nproc }}",
+        "--output-filename=${{ project.name }}",
+        "--output-dir=build",
+        "--show-progress",
+        "--show-memory",
+        "--show-modules",
+        "--windows-icon-from-ico=${{ icon_file }}",
+        "--macos-app-icon=${{ icon_file }}",
+        "--linux-icon=${{ icon_file }}",
+        "--company-name=${{ group }}",
+        "--product-name=${{ project.name }}",
+        "--file-version=${{ project.version }}.0",
+        "--product-version=${{ project.version }}",
+        "--file-description=${{ project.description }} main executable",
+        "--copyright=${{ copyright }}",
+        "${{ project.name }}",
+      ]
+
+  - name: 🛠️ Build onefile standalone binary distribution
+    run:
+      [
+        "python",
+        "-m",
+        "nuitka",
+        "--onefile",
         "--standalone",
         "--warn-unusual-code",
         "--jobs=${{ nproc }}",
@@ -82,5 +110,10 @@ steps:
 
   - name: 📦 Packing the standalone distribution
     compress: ${{ project.name }}-standalone-${{ host.machine }}-${{ project.version }}
-    to: ${{ project.name }}-standalone-${{ host.machine }}-${{ project.version }}
+    to: dist/${{ project.name }}-standalone-${{ host.machine }}-${{ project.version }}
+    format: [zip, tar.xz]
+
+  - name: 📦 Packing the onefile standalone distribution
+    compress: build/${{ project.name }}
+    to: dist/${{ project.name }}-onefile-standalone-${{ host.machine }}-${{ project.version }}
     format: [zip, tar.xz]

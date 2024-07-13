@@ -573,11 +573,13 @@ def human_readable_size(size: int | float) -> str:
     return f"{size:.2f}{unit}"
 
 
-def find_command(cmd: str, strict: bool = False) -> str:
+def find_command(cmd: str, strict: bool = True) -> str:
     """Find the command in the system.
 
     Args:
         cmd (str): The command to find.
+        strict (bool, optional): Raise an exception if the command is not
+            found. Defaults to True.
 
     Returns:
         str: The command path.
@@ -599,7 +601,7 @@ def find_command(cmd: str, strict: bool = False) -> str:
             retcode=RUShellExecutionException.RETCODE_COMMAND_NOT_FOUND,
         )
 
-    return res if res else cmd
+    return res if res else None
 
 
 # Register cleanup function.
@@ -678,7 +680,7 @@ if __name__ == "__main__":
     assert find_command("whoami") == shutil.which("whoami")
     try:
         find_command("_Not_Exist_Command_", strict=True)
-        assert False
+        assert False, "Should raise a RUShellExecutionException."
     except RUShellExecutionException as exc_:
         assert (
             exc_.retcode == RUShellExecutionException.RETCODE_COMMAND_NOT_FOUND
