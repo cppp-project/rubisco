@@ -265,7 +265,7 @@ def load_extention(  # pylint: disable=too-many-branches
             raise exc from None
         logger.exception("Failed to load extention '%s': %s", path, exc)
         call_ktrigger(
-            IKernelTrigger.on_warning,
+            IKernelTrigger.on_error,
             message=format_str(
                 _("Failed to load extention '${{name}}': ${{exc}}."),
                 fmt={"name": make_pretty(path.absolute()), "exc": str(exc)},

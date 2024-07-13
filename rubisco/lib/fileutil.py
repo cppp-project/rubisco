@@ -89,7 +89,7 @@ def assert_rel_path(path: Path) -> None:
         )
 
 
-def rm_recursive(path: Path, strict=False):
+def rm_recursive(path: Path, strict=True):
     """Remove a file or directory recursively.
 
     Args:
