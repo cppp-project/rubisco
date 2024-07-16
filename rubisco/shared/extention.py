@@ -24,11 +24,8 @@ Rubisco extentions interface.
 
 from pathlib import Path
 
-from rubisco.config import (
-    GLOBAL_EXTENTIONS_DIR,
-    USER_EXTENTIONS_DIR,
-    WORKSPACE_EXTENTIONS_DIR,
-)
+from rubisco.config import (GLOBAL_EXTENTIONS_DIR, USER_EXTENTIONS_DIR,
+                            WORKSPACE_EXTENTIONS_DIR)
 from rubisco.kernel.workflow import Step, _set_extloader, register_step_type
 from rubisco.lib.exceptions import RUValueException
 from rubisco.lib.l10n import _
@@ -36,12 +33,8 @@ from rubisco.lib.load_module import import_module_from_path
 from rubisco.lib.log import logger
 from rubisco.lib.variable import format_str, make_pretty
 from rubisco.lib.version import Version
-from rubisco.shared.ktrigger import (
-    IKernelTrigger,
-    bind_ktrigger_interface,
-    call_ktrigger,
-)
-from rubisco.kernel.config_file import config
+from rubisco.shared.ktrigger import (IKernelTrigger, bind_ktrigger_interface,
+                                     call_ktrigger)
 
 __all__ = ["IRUExtention"]
 
