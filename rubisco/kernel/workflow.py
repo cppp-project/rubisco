@@ -23,12 +23,12 @@ Workflow support.
 Workflow is a ordered list of steps. Each step only contains one action.
 """
 
-from abc import abstractmethod
 import glob
 import os
 import shutil
 import sys
 import uuid
+from abc import abstractmethod
 from pathlib import Path
 
 import json5 as json
@@ -37,22 +37,14 @@ import yaml
 from rubisco.config import DEFAULT_CHARSET
 from rubisco.lib.archive import compress, extract
 from rubisco.lib.exceptions import RUValueException
-from rubisco.lib.fileutil import (
-    check_file_exists,
-    copy_recursive,
-    rm_recursive,
-)
+from rubisco.lib.fileutil import (check_file_exists, copy_recursive,
+                                  rm_recursive)
 from rubisco.lib.l10n import _
 from rubisco.lib.log import logger
 from rubisco.lib.process import Process, popen
-from rubisco.lib.variable import (
-    AutoFormatDict,
-    assert_iter_types,
-    format_str,
-    make_pretty,
-    pop_variables,
-    push_variables,
-)
+from rubisco.lib.variable import (AutoFormatDict, assert_iter_types,
+                                  format_str, make_pretty, pop_variables,
+                                  push_variables)
 from rubisco.shared.ktrigger import IKernelTrigger, call_ktrigger
 
 __all__ = [

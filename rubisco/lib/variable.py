@@ -42,6 +42,10 @@ __all__ = [
     "make_pretty",
     "assert_iter_types",
     "format_str",
+    "VariableUpdateCallback",
+    "used_variables",
+    "undefined_variables",
+    "add_callback",
     "AutoFormatList",
     "AutoFormatDict",
 ]
@@ -154,10 +158,23 @@ def get_variable(name: str) -> Any:
 
     Returns:
         Any: The value of the given variable.
+
+    Raises:
+        KeyError: If the variable is not found.
     """
 
     if name in variables:
+        if name not in used_variables:
+            old = used_variables.copy()
+            used_variables.add(name)
+            for callback in callbacks:
+                callback.on_used_variables_update(old)
         return variables[name].top()
+    if name not in undefined_variables:
+        old = undefined_variables.copy()
+        undefined_variables.add(name)
+        for callback in callbacks:
+            callback.on_undefined_variables_update(old)
     raise KeyError(repr(name))
 
 
@@ -225,6 +242,46 @@ push_variables("host.machine", uname_result.machine)
 push_variables("host.processor", uname_result.processor)
 
 
+class VariableUpdateCallback:
+    """
+    The callback called when the `used_variables` and `undefined_variables` are
+    updated.
+    """
+
+    def on_used_variables_update(self, old: set[str]) -> None:
+        """The callback called when the `used_variables` are updated.
+
+        Args:
+            old (set[str]): The old `used_variables`.
+        """
+
+    def on_undefined_variables_update(self, old: set[str]) -> None:
+        """The callback called when the `undefined_variables` are updated.
+
+        Args:
+            old (set[str]): The old `undefined_variables`.
+        """
+
+
+# The variables that are used.
+used_variables = set()
+
+# The variables that are used but not defined.
+undefined_variables = set()
+
+callbacks: list[VariableUpdateCallback] = []
+
+
+def add_callback(callback: VariableUpdateCallback) -> None:
+    """Add the callback to the list.
+
+    Args:
+        callback (VariableUpdateCallback): The callback to add.
+    """
+
+    callbacks.append(callback)
+
+
 def format_str(
     string: str | Any, fmt: dict[str, str] | None = None  # noqa: E501
 ) -> str | Any:
@@ -249,7 +306,18 @@ def format_str(
     matches = re.findall(r"\$\{\{ *[\d|_|\-|a-z|A-Z|.]+ *\}\}", string)
     for match in matches:
         key = match[3:-2].strip()
+        if key not in used_variables:
+            old = used_variables.copy()
+            used_variables.add(key)
+            for callback in callbacks:
+                callback.on_used_variables_update(used_variables)
+                fmt = variables | fmt  # Update the variables.
         res = fmt.get(key, match)
+        if key not in fmt:
+            old = undefined_variables.copy()
+            undefined_variables.add(key)
+            for callback in callbacks:
+                callback.on_undefined_variables_update(old)
         if isinstance(res, Stack):
             res = res.top()
         string = string.replace(match, str(res))

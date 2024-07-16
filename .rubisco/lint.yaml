@@ -1,8 +1,13 @@
 name: ✔️ Lint
 
+id: lint
+
 steps:
-  - name: 🛠️ Analysing the code with pylint
-    run: python -m pylint -j $(nproc) $(git ls-files \*.py)
+  - popen: git ls-files \*.py
+    id: files
+
+  - name: 🛠️ Analysing the code with pylint ${{ MAKE }}
+    run: python -m pylint -j ${{ nproc }} $(git ls-files \*.py)
 
   - name: 🛠️ Analysing the code with flake8
     run: python -m flake8 rubisco
