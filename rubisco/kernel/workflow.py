@@ -37,11 +37,12 @@ import yaml
 from rubisco.config import DEFAULT_CHARSET
 from rubisco.lib.archive import compress, extract
 from rubisco.lib.exceptions import RUValueException
-from rubisco.lib.fileutil import (check_file_exists, copy_recursive,
+from rubisco.lib.fileutil import (check_file_exists,
+                                  copy_recursive,
                                   rm_recursive)
 from rubisco.lib.l10n import _
 from rubisco.lib.log import logger
-from rubisco.lib.process import Process, popen
+from rubisco.lib.process import Process
 from rubisco.lib.variable import (AutoFormatDict, assert_iter_types,
                                   format_str, make_pretty, pop_variables,
                                   push_variables)
@@ -70,15 +71,15 @@ __all__ = [
 ]
 
 try:  # Avoid circular import.
-    from rubisco.shared.extention import load_extention
+    from rubisco.shared.extension import load_extension
 except ImportError:
-    load_extention = NotImplemented
+    load_extension = NotImplemented
 
 
 def _set_extloader(extloader):  # Avoid circular import.
-    global load_extention  # pylint: disable=global-statement
+    global load_extension  # pylint: disable=global-statement
 
-    load_extention = extloader
+    load_extension = extloader
 
 
 class Step:  # pylint: disable=too-many-instance-attributes
@@ -254,8 +255,8 @@ class PopenStep(Step):
             self.stderr = 2
 
     def run(self):
-        stdout, stderr, retcode = popen(
-            self.cmd, self.cwd, self.stdout, self.stderr, self.fail_on_error
+        stdout, stderr, retcode = Process(self.cmd, cwd=self.cwd).popen(
+            self.stdout, self.stderr, self.fail_on_error, True
         )
         push_variables(f"{self.global_id}.stdout", stdout)
         push_variables(f"{self.global_id}.stderr", stderr)
@@ -408,10 +409,10 @@ class ExtentionLoadStep(Step):
     path: Path
 
     def init(self):
-        self.path = Path(self.raw_data.get("extention", valtype=str))
+        self.path = Path(self.raw_data.get("extension", valtype=str))
 
     def run(self):
-        load_extention(self.path, strict=True)
+        load_extension(self.path, strict=True)
 
 
 class WorkflowRunStep(Step):
@@ -585,7 +586,7 @@ step_types = {
     "move": MoveFileStep,
     "copy": CopyFileStep,
     "remove": RemoveStep,
-    "load-extention": ExtentionLoadStep,
+    "load-extension": ExtentionLoadStep,
     "run-workflow": WorkflowRunStep,
     "mklink": MklinkStep,
     "compress": CompressStep,
@@ -602,7 +603,7 @@ step_contribute = {
     MoveFileStep: ["move", "to"],
     CopyFileStep: ["copy", "to"],
     RemoveStep: ["remove"],
-    ExtentionLoadStep: ["extention"],
+    ExtentionLoadStep: ["extension"],
     WorkflowRunStep: ["workflow"],
     MklinkStep: ["mklink", "to"],
     CompressStep: ["compress", "to"],

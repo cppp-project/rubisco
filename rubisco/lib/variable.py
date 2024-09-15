@@ -303,7 +303,22 @@ def format_str(
 
     fmt = variables | fmt
 
+    # If string only contains one variable, return the value directly.
+    if string.startswith("${{") and string.endswith("}}"):
+        key = string[3:-2].strip()
+        res = fmt.get(key, string)
+        if isinstance(res, Stack):
+            res = res.top()
+
     matches = re.findall(r"\$\{\{ *[\d|_|\-|a-z|A-Z|.]+ *\}\}", string)
+    # If string only contains one variable, return the value directly.
+    if len(matches) == 1 and string == matches[0]:
+        key = string[3:-2].strip()
+        res = fmt.get(key, string)
+        if isinstance(res, Stack):
+            res = res.top()
+        return res
+
     for match in matches:
         key = match[3:-2].strip()
         if key not in used_variables:
@@ -589,6 +604,10 @@ class AutoFormatDict(dict):
                 raise KeyError(repr(key))
             res = format_str(self.raw_get(key))
         if not isinstance(res, valtype):
+            if hasattr(valtype, "__name__"):
+                valtype_name = valtype.__name__
+            else:
+                valtype_name = f"'{valtype}'"
             raise ValueError(
                 format_str(
                     _(
@@ -597,7 +616,7 @@ class AutoFormatDict(dict):
                     ),
                     fmt={
                         "key": repr(key),
-                        "type": repr(valtype.__name__),
+                        "type": valtype_name,
                         "value_type": repr(type(res).__name__),
                     },
                 ),

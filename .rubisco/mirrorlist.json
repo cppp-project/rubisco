@@ -37,5 +37,15 @@
             "official": "https://gitee.com/${{ user }}/${{ repo }}.git"
         }
     },
-    "gitee": "gitee.com"
+    "gitee": "gitee.com",
+
+    "pypi" : {
+        "http": {
+            "official": "https://pypi.org/simple",
+            "tsinghua": "https://pypi.tuna.tsinghua.edu.cn/simple",
+            "sustech": "https://mirrors.sustech.edu.cn/pypi/web/simple",
+            "ustc": "https://mirrors.ustc.edu.cn/pypi/simple",
+            "tencent": "https://mirrors.cloud.tencent.com/pypi/simple"
+        }
+    }
 }

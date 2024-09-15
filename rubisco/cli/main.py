@@ -24,6 +24,7 @@ C++ Plus Rubisco CLI main entry point.
 
 import argparse
 import atexit
+import os
 import sys
 from pathlib import Path
 from typing import Any, Iterable
@@ -35,22 +36,38 @@ import rich.progress
 from rich_argparse import RichHelpFormatter
 
 from rubisco.cli.input import ask_yesno
-from rubisco.cli.output import (output_error, output_hint, output_step,
-                                output_warning, pop_level, push_level,
-                                show_exception)
-from rubisco.config import (APP_NAME, APP_VERSION, DEFAULT_CHARSET,
-                            DEFAULT_LOG_KEEP_LINES, LOG_FILE, USER_REPO_CONFIG)
+from rubisco.cli.output import (
+    output_error,
+    output_hint,
+    output_step,
+    output_warning,
+    pop_level,
+    push_level,
+    show_exception,
+)
+from rubisco.config import (
+    APP_NAME,
+    APP_VERSION,
+    DEFAULT_CHARSET,
+    DEFAULT_LOG_KEEP_LINES,
+    LOG_FILE,
+    PIP_LOG_FILE,
+    USER_REPO_CONFIG,
+)
 from rubisco.kernel.project_config import ProjectConfigration  # noqa: E501
 from rubisco.kernel.project_config import load_project_config
 from rubisco.kernel.workflow import Step, Workflow
-from rubisco.lib.exceptions import RUValueException
+from rubisco.lib.exceptions import RUException, RUValueException
 from rubisco.lib.l10n import _, locale_language, locale_language_name
 from rubisco.lib.log import logger
 from rubisco.lib.process import Process
 from rubisco.lib.variable import format_str, make_pretty
-from rubisco.shared.extention import IRUExtention, load_all_extentions
-from rubisco.shared.ktrigger import (IKernelTrigger, bind_ktrigger_interface,
-                                     call_ktrigger)
+from rubisco.shared.extension import IRUExtention, load_all_extensions
+from rubisco.shared.ktrigger import (
+    IKernelTrigger,
+    bind_ktrigger_interface,
+    call_ktrigger,
+)
 
 __all__ = ["main"]
 
@@ -161,6 +178,8 @@ arg_parser.add_argument(
     version="",
 )
 
+arg_parser.add_argument("--root", type=str, help=_("Project root directory."))
+
 arg_parser.add_argument(
     "--debug",
     action="store_true",
@@ -168,16 +187,24 @@ arg_parser.add_argument(
 )
 
 arg_parser.add_argument(
+    "--usage",
+    action="store_true",
+    help=_("Show usage."),
+)
+
+arg_parser.add_argument(
     "command",
     action="store",
-    nargs=1,
+    nargs="?",
     help=_("Command to run."),
+    default=["info"],
 )
 
 hook_commands = arg_parser.add_subparsers(
     title=_("Available commands"),
     dest="command",
     metavar="",
+    required=False,
 )
 
 hook_commands.add_parser(
@@ -236,6 +263,10 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
         task_type: int,
         total: int | float,
     ) -> None:
+        if task_type == IKernelTrigger.TASK_WAIT:
+            self.task_types[task_name] = IKernelTrigger.TASK_WAIT
+            return
+
         output_step(task_name)
 
         if task_type == IKernelTrigger.TASK_DOWNLOAD:
@@ -270,6 +301,12 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
         ):
             path = str((more_data["dest"] / more_data["path"]).absolute())
             rich.print(f"[underline]{path}[/underline]")
+        elif self.task_types[task_name] == IKernelTrigger.TASK_WAIT:
+            output_step(
+                format_str(task_name, fmt={"seconds": current}),
+                end="\r",
+            )
+            return
         if delta:
             self.cur_progress.update(self.tasks[task_name], advance=current)
         else:
@@ -279,6 +316,10 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
         self.cur_progress.update(self.tasks[task_name], total=total)
 
     def on_finish_task(self, task_name: str):
+        if self.task_types[task_name] == IKernelTrigger.TASK_WAIT:
+            del self.task_types[task_name]
+            return
+
         self.cur_progress.remove_task(self.tasks[task_name])
         del self.tasks[task_name]
         del self.task_types[task_name]
@@ -333,6 +374,9 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
             )
         )
 
+    def on_hint(self, message: str) -> None:
+        output_hint(message)
+
     def on_warning(self, message: str) -> None:
         output_warning(message)
 
@@ -343,7 +387,7 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
         msg = ""
         for host_, status in self._speedtest_hosts.items():
             msg += format_str(
-                _("Testing ${{host}}: ${{status}}\n"),
+                _("Testing ${{host}} ... ${{status}}\n"),
                 fmt={"host": host_, "status": status},
             )
         msg = msg.strip()
@@ -461,7 +505,7 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
             )
         )
 
-    def on_extention_loaded(self, instance: IRUExtention):
+    def on_extension_loaded(self, instance: IRUExtention):
         output_step(
             format_str(
                 _("Extension '${{name}}' loaded."),
@@ -484,19 +528,25 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
         )
         rich.print(
             format_str(
-                _("Project: ${{name}}"),
+                _("[dark_orange]Project:[/dark_orange] ${{name}}"),
                 fmt={"name": make_pretty(project.name)},
             ),
         )
         rich.print(
             format_str(
-                _("Config file: [underline]${{path}}[/underline]"),
+                _(
+                    "[dark_orange]Configuration:[/dark_orange] "
+                    "[underline]${{path}}[/underline]",
+                ),
                 fmt={"path": make_pretty(project.config_file)},
             )
         )
         rich.print(
             format_str(
-                _("Version [white]${{version}}[/white]"),
+                _(
+                    "[dark_orange]Version:[/dark_orange]"
+                    " v[white]${{version}}[/white]"
+                ),
                 fmt={"version": str(project.version)},
             )
         )
@@ -507,20 +557,70 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
             maintainers = str(project.maintainer)
         rich.print(
             format_str(
-                _("Maintainer: ${{maintainer}}"),
+                _("[dark_orange]Maintainer:[/dark_orange] ${{maintainer}}"),
                 fmt={"maintainer": maintainers},
             )
         )
         rich.print(
             format_str(
-                _("License: ${{license}}"),
+                _("[dark_orange]License:[/dark_orange] ${{license}}"),
                 fmt={"license": project.license},
             )
         )
         rich.print(
             format_str(
-                _("Description: ${{desc}}"),
+                _("[dark_orange]Description:[/dark_orange] ${{desc}}"),
                 fmt={"desc": project.description},
+            )
+        )
+
+        rich.print(_("[dark_orange]Hooks:[/dark_orange]"))
+
+        for hook_name in project_config.hooks.keys():  # Bind all hooks.
+            hook_text = format_str(
+                                "\t[cyan]${{name}}[/cyan]",
+                                fmt={"name": hook_name},
+                            )
+            num_text = format_str(
+                                _("(${{num}} hooks)"),
+                                fmt={"num": str(len(hooks[hook_name]))},
+                            )
+            formatted_str = f"{hook_text:<60}\t{num_text:<10}"
+            rich.print(formatted_str)
+
+    def on_mklink(self, src: Path, dst: Path, symlink: bool) -> None:
+        if symlink:
+            output_step(
+                format_str(
+                    _(
+                        "Creating symbolic link: [underline]${{src}}"
+                        "[/underline] -> '[underline]${{dst}}[/underline]'..."
+                    ),
+                    fmt={
+                        "src": make_pretty(src.absolute()),
+                        "dst": make_pretty(dst.absolute()),
+                    },
+                )
+            )
+        else:
+            output_step(
+                format_str(
+                    _(
+                        "Creating hard link: [underline]${{src}}"
+                        "[/underline] -> '[underline]${{dst}}[/underline]'..."
+                    ),
+                    fmt={
+                        "src": make_pretty(src.absolute()),
+                        "dst": make_pretty(dst.absolute()),
+                    },
+                )
+            )
+
+    def on_create_venv(self, path: Path) -> None:
+        output_step(
+            format_str(
+                _("Creating venv: '[underline]${{path}}[/underline]' ..."),
+                fmt={"path": make_pretty(path.absolute())},
             )
         )
 
@@ -583,7 +683,7 @@ def load_project():
             hook_commands.add_parser(
                 hook_name,
                 help=format_str(
-                    _("(${{num}} overrides)"),
+                    _("(${{num}} hooks)"),
                     fmt={"num": str(len(hooks[hook_name]))},
                 ),
             )
@@ -620,6 +720,18 @@ def clean_log():
     except:  # pylint: disable=bare-except  # noqa: E722
         logger.warning("Failed to clean log file.", exc_info=True)
 
+    try:
+        line_count = 0
+        with open(PIP_LOG_FILE, "r+", encoding=DEFAULT_CHARSET) as f:
+            for _line in f:
+                line_count += 1
+                if line_count > DEFAULT_LOG_KEEP_LINES:
+                    f.seek(0)
+                    f.truncate()
+                    return
+    except:  # pylint: disable=bare-except  # noqa: E722
+        pass
+
 
 def main() -> None:
     """Main entry point."""
@@ -629,14 +741,51 @@ def main() -> None:
         logger.info("Rubisco CLI version %s started.", str(APP_VERSION))
         colorama.init()
         bind_ktrigger_interface("rubisco", RubiscoKTrigger())
-        load_all_extentions()
+        load_all_extensions()
 
+        # Parse argument without argparse.
+        if "-h" in sys.argv or "--help" in sys.argv:
+            arg_parser.print_help()
+            sys.exit(0)
+        if "-v" in sys.argv or "--version" in sys.argv:
+            show_version()
+            sys.exit(0)
+        if "--usage" in sys.argv:
+            arg_parser.print_usage()
+            sys.exit(0)
+        for idx, arg in enumerate(sys.argv):
+            if arg.startswith("--root"):
+                if "=" in arg:
+                    root = arg.split("=")[1].strip()
+                else:
+                    if idx + 1 >= len(sys.argv):
+                        arg_parser.print_usage()
+                        raise RUException(
+                            _("Missing argument for '--root' option."),
+                        )
+                    root = sys.argv[idx + 1].strip()
+                    if root.startswith("-"):
+                        arg_parser.print_usage()
+                        raise RUException(
+                            _("Missing argument for '--root' option."),
+                        )
+                if root:
+                    root = Path(root).absolute()
+                    output_step(
+                        format_str(
+                            _("Entering directory '${{path}}'"),
+                            fmt={"path": make_pretty(str(root))},
+                        )
+                    )
+                    os.chdir(root)
         try:
             load_project()
         finally:
             args = arg_parser.parse_args()
 
-        op_command = args.command[0]
+        op_command = args.command
+        if isinstance(op_command, list):  # This is not a good idea.
+            op_command = op_command[0]
         if op_command == "info":
             call_ktrigger(
                 IKernelTrigger.on_show_project_info,

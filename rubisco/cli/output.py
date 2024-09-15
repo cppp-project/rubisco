@@ -58,7 +58,7 @@ def pop_level() -> None:
     output_step_level -= 1
 
 
-def output_step(message: str, level: int = -1) -> None:
+def output_step(message: str, level: int = -1, end: str = "\n") -> None:
     """Output a step message.
 
     Args:
@@ -70,6 +70,7 @@ def output_step(message: str, level: int = -1) -> None:
                     :: Level 2 message.
             => Level 0 message.
             If it's -1, it will be determined by push_level() and pop_level().
+        end (str, optional): End of the message. Defaults to "\\n".
     """
 
     if level == -1:
@@ -88,6 +89,8 @@ def output_step(message: str, level: int = -1) -> None:
                     "msg": message,
                 },
             ),
+            end=end,
+            flush=True,
         )
 
 

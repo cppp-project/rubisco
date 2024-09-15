@@ -43,37 +43,42 @@ TIMEOUT = 15
 COPY_BUFSIZE = 1024 * 1024 if os.name == "nt" else 64 * 1024
 
 # Lib onfigurations.
-WORKSPACE_LIB_DIR = Path(".rubisco")
+WORKSPACE_LIB_DIR = Path(f".{APP_NAME}")
 WORKSPACE_CONFIG_DIR = WORKSPACE_LIB_DIR
 WORKSPACE_CONFIG_FILE = WORKSPACE_LIB_DIR / "config.json"
-WORKSPACE_EXTENTIONS_DIR = WORKSPACE_LIB_DIR / "extentions"
+WORKSPACE_EXTENSIONS_VENV_DIR = WORKSPACE_LIB_DIR / "extensions"
+WORKSPACE_EXTENSIONS_DIR = WORKSPACE_EXTENSIONS_VENV_DIR / "lib" / APP_NAME
 USER_REPO_CONFIG = Path("repo.json")
 if os.name == "nt":
-    local_appdata = Path(os.getenv("LOCALAPPDATA"))
-    if not local_appdata:
-        local_appdata = Path("~/AppData/Loacal").expanduser()
-    USER_LIB_DIR = Path(local_appdata) / "rubisco"
-    USER_CONFIG_DIR = Path(local_appdata) / "rubisco"
+    local_appdata_env = os.getenv("LOCALAPPDATA")
+    if not local_appdata_env or not Path(local_appdata_env).exists():
+        local_appdata = Path.home() / "AppData" / "Loacal"
+    else:
+        local_appdata = Path(local_appdata_env)
+    USER_LIB_DIR = local_appdata / APP_NAME
+    USER_CONFIG_DIR = local_appdata / APP_NAME
 else:
-    USER_LIB_DIR = Path("~/.local/rubisco").expanduser()
-    USER_CONFIG_DIR = Path("~/.config/rubisco").expanduser()
+    USER_LIB_DIR = Path.home() / ".local" / APP_NAME
+    USER_CONFIG_DIR = Path.home() / ".config" / APP_NAME
 USER_CONFIG_FILE = USER_CONFIG_DIR / "config.json"
-USER_EXTENTIONS_DIR = USER_LIB_DIR / "extentions"
-# Will override in Windows later.
-GLOBAL_LIB_DIR = Path("/usr/local/lib/rubisco")
-GLOBAL_CONFIG_DIR = Path("/etc/rubisco")
+USER_EXTENSIONS_DIR = USER_LIB_DIR / "extensions"
+# Override it in Windows later.
+GLOBAL_LIB_DIR = Path("/usr/local/lib") / APP_NAME
+GLOBAL_CONFIG_DIR = Path("/etc") / APP_NAME
 GLOBAL_CONFIG_FILE = GLOBAL_CONFIG_DIR / "config.json"
-GLOBAL_EXTENTIONS_DIR = GLOBAL_LIB_DIR / "extentions"
+GLOBAL_EXTENSIONS_DIR = GLOBAL_LIB_DIR / "extensions"
+VENV_LOCK_FILENAME = "venv.lock"
 
 
 # Logging configurations.
 # We don't need to absolute the path because rubisco supports '--root'
 # option.
-LOG_FILE = WORKSPACE_LIB_DIR / "rubisco.log"
+LOG_FILE = WORKSPACE_LIB_DIR / f"{APP_NAME}.log"
 LOG_FORMAT = "[%(asctime)s] [%(name)s] [%(levelname)s] %(message)s"
 LOG_REGEX = r"\[(.*)\] \[(.*)\] \[(.*)\] (.*)"
 LOG_TIME_FORMAT = "%Y-%m-%d %H:%M:%S"
 LOG_LEVEL = "DEBUG"
+PIP_LOG_FILE = WORKSPACE_LIB_DIR / "pip.log"
 DEFAULT_LOG_KEEP_LINES = 5000
 
 
@@ -99,4 +104,4 @@ if os.name == "nt":  # On Windows.
     GLOBAL_LIB_DIR = PROGRAM_DIR
     GLOBAL_CONFIG_DIR = PROGRAM_DIR / "config"
     GLOBAL_CONFIG_FILE = GLOBAL_CONFIG_DIR / "config.json"
-    GLOBAL_EXTENTIONS_DIR = GLOBAL_LIB_DIR / "extentions"
+    GLOBAL_EXTENSIONS_DIR = GLOBAL_LIB_DIR / "extensions"

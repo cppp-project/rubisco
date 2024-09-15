@@ -19,13 +19,13 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 """
-Rubisco extentions interface.
+Rubisco extensions interface.
 """
 
 from pathlib import Path
 
-from rubisco.config import (GLOBAL_EXTENTIONS_DIR, USER_EXTENTIONS_DIR,
-                            WORKSPACE_EXTENTIONS_DIR)
+from rubisco.config import (GLOBAL_EXTENSIONS_DIR, USER_EXTENSIONS_DIR,
+                            WORKSPACE_EXTENSIONS_VENV_DIR)
 from rubisco.kernel.workflow import Step, _set_extloader, register_step_type
 from rubisco.lib.exceptions import RUValueException
 from rubisco.lib.l10n import _
@@ -35,13 +35,14 @@ from rubisco.lib.variable import format_str, make_pretty
 from rubisco.lib.version import Version
 from rubisco.shared.ktrigger import (IKernelTrigger, bind_ktrigger_interface,
                                      call_ktrigger)
+from rubisco.kernel.config_file import config_file
 
 __all__ = ["IRUExtention"]
 
 
 class IRUExtention:
     """
-    Rubisco extention interface.
+    Rubisco extension interface.
     """
 
     name: str
@@ -53,15 +54,15 @@ class IRUExtention:
 
     def __init__(self) -> None:
         """
-        Constructor. Please DO NOT initialize the extention here.
+        Constructor. Please DO NOT initialize the extension here.
         """
 
         self.workflow_steps = {}
         self.steps_contributions = {}
 
-    def extention_can_load_now(self) -> bool:
+    def extension_can_load_now(self) -> bool:
         """
-        Check if the extention can load now. Some extentions may initialize
+        Check if the extension can load now. Some extensions may initialize
         optionally like 'CMake' or 'Rust'.
 
         This method MUST be implemented by the subclass.
@@ -70,15 +71,15 @@ class IRUExtention:
             NotImplementedError: Raise if the method is not implemented.
 
         Returns:
-            bool: True if the extention can load now, otherwise False.
+            bool: True if the extension can load now, otherwise False.
         """
 
         raise NotImplementedError
 
     def on_load(self) -> None:
         """
-        Load the extention.
-        Initialize the extention here.
+        Load the extension.
+        Initialize the extension here.
 
         This method MUST be implemented by the subclass.
         """
@@ -116,43 +117,43 @@ class IRUExtention:
 invalid_ext_names = ["rubisco"]  # Avoid logger's name conflict.
 
 
-# A basic extention contains these modules or variables:
-#   - extention/        directory    ---- The extention directory.
-#       - __init__.py   file         ---- The extention module.
-#           - instance  IRUExtention ---- The extention instance
-def load_extention(  # pylint: disable=too-many-branches
+# A basic extension contains these modules or variables:
+#   - extension/        directory    ---- The extension directory.
+#       - __init__.py   file         ---- The extension module.
+#           - instance  IRUExtention ---- The extension instance
+def load_extension(  # pylint: disable=too-many-branches
     path: Path | str,
     strict: bool = False,
 ) -> None:
-    """Load the extention.
+    """Load the extension.
 
     Args:
-        path (Path | str): The path of the extention or it's name.
-            If the path is a name, the extention will be loaded from the
-            default extention directory.
-        strict (bool, optional): If True, raise an exception if the extention
+        path (Path | str): The path of the extension or it's name.
+            If the path is a name, the extension will be loaded from the
+            default extension directory.
+        strict (bool, optional): If True, raise an exception if the extension
             loading failed.
     """
 
     try:
         if isinstance(path, str):
-            if (WORKSPACE_EXTENTIONS_DIR / path).is_dir():
-                path = GLOBAL_EXTENTIONS_DIR / path
-            elif (USER_EXTENTIONS_DIR / path).is_dir():
-                path = USER_EXTENTIONS_DIR / path
-            elif (GLOBAL_EXTENTIONS_DIR / path).is_dir():
-                path = WORKSPACE_EXTENTIONS_DIR / path
+            if (WORKSPACE_EXTENSIONS_VENV_DIR / path).is_dir():
+                path = GLOBAL_EXTENSIONS_DIR / path
+            elif (USER_EXTENSIONS_DIR / path).is_dir():
+                path = USER_EXTENSIONS_DIR / path
+            elif (GLOBAL_EXTENSIONS_DIR / path).is_dir():
+                path = WORKSPACE_EXTENSIONS_VENV_DIR / path
             else:
                 raise RUValueException(
                     format_str(
                         _(
-                            "The extention '${{name}}' does not exist in"
-                            " workspace, user, or global extention directory."
+                            "The extension '${{name}}' does not exist in"
+                            " workspace, user, or global extension directory."
                         ),
                         fmt={"name": path},
                     ),
                     hint=format_str(
-                        _("Try to load the extention as a path."),
+                        _("Try to load the extension as a path."),
                     ),
                 )
 
@@ -160,14 +161,14 @@ def load_extention(  # pylint: disable=too-many-branches
             raise RUValueException(
                 format_str(
                     _(
-                        "The extention path '[underline]${{path}}[/underline]'"
+                        "The extension path '[underline]${{path}}[/underline]'"
                         " is not a directory."
                     ),
                     fmt={"path": make_pretty(path.absolute())},
                 ),
             )
 
-        # Load the extention.
+        # Load the extension.
 
         try:
             module = import_module_from_path(path)
@@ -175,7 +176,7 @@ def load_extention(  # pylint: disable=too-many-branches
             raise RUValueException(
                 format_str(
                     _(
-                        "The extention path '[underline]${{path}}[/underline]'"
+                        "The extension path '[underline]${{path}}[/underline]'"
                         " does not exist."
                     ),
                     fmt={"path": make_pretty(path.absolute())},
@@ -185,14 +186,14 @@ def load_extention(  # pylint: disable=too-many-branches
             raise RUValueException(
                 format_str(
                     _(
-                        "Failed to load extention '[underline]${{path}}"
+                        "Failed to load extension '[underline]${{path}}"
                         "[/underline]'."
                     ),
                     fmt={"path": make_pretty(path.absolute())},
                 ),
                 hint=format_str(
                     _(
-                        "Please make sure this extention is valid.",
+                        "Please make sure this extension is valid.",
                     ),
                 ),
             ) from exc
@@ -201,14 +202,14 @@ def load_extention(  # pylint: disable=too-many-branches
             raise RUValueException(
                 format_str(
                     _(
-                        "The extention '[underline]${{path}}[/underline]' does"
+                        "The extension '[underline]${{path}}[/underline]' does"
                         " not have an instance."
                     ),
                     fmt={"path": make_pretty(path.absolute())},
                 ),
                 hint=format_str(
                     _(
-                        "Please make sure this extention is valid.",
+                        "Please make sure this extension is valid.",
                     )
                 ),
             )
@@ -218,33 +219,33 @@ def load_extention(  # pylint: disable=too-many-branches
         if instance.name in invalid_ext_names:
             raise RUValueException(
                 format_str(
-                    _("Invalid extention name: '${{name}}' ."),
+                    _("Invalid extension name: '${{name}}' ."),
                     fmt={"name": instance.name},
                 ),
                 hint=format_str(
                     _(
-                        "Please use a different name for the extention.",
+                        "Please use a different name for the extension.",
                     ),
                 ),
             )
 
-        logger.info("Loading extention '%s'...", instance.name)
+        logger.info("Loading extension '%s'...", instance.name)
 
-        # Check if the extention can load now.
-        if not instance.extention_can_load_now():
-            logger.info("Skipping extention '%s'...", instance.name)
+        # Check if the extension can load now.
+        if not instance.extension_can_load_now():
+            logger.info("Skipping extension '%s'...", instance.name)
             return
 
-        # Load the extention.
+        # Load the extension.
         if not instance.reqs_is_sloved():
             logger.info(
-                "Solving system requirements for extention '%s'...",
+                "Solving system requirements for extension '%s'...",
                 instance.name,
             )
             instance.reqs_solve()
             if not instance.reqs_is_sloved():
                 logger.error(
-                    "Failed to solve system requirements for extention '%s'.",
+                    "Failed to solve system requirements for extension '%s'.",
                     instance.name,
                 )
                 return
@@ -261,50 +262,52 @@ def load_extention(  # pylint: disable=too-many-branches
             instance.name,
             instance.ktrigger,
         )
-        call_ktrigger(IKernelTrigger.on_extention_loaded, instance=instance)
-        logger.info("Loaded extention '%s'.", instance.name)
+        call_ktrigger(IKernelTrigger.on_extension_loaded, instance=instance)
+        logger.info("Loaded extension '%s'.", instance.name)
     except Exception as exc:  # pylint: disable=broad-except
         if strict:
             raise exc from None
-        logger.exception("Failed to load extention '%s': %s", path, exc)
+        logger.exception("Failed to load extension '%s': %s", path, exc)
         call_ktrigger(
             IKernelTrigger.on_error,
             message=format_str(
-                _("Failed to load extention '${{name}}': ${{exc}}."),
+                _("Failed to load extension '${{name}}': ${{exc}}."),
                 fmt={"name": make_pretty(path.absolute()), "exc": str(exc)},
             ),
         )
 
 
-def load_all_extentions() -> None:
-    """Load all extentions."""
+def load_all_extensions() -> None:
+    """Load all extensions."""
 
-    # TODO: Refactor.  # pylint: disable=fixme # I don't want to fix you.
-    # It is not a good idea to load all extentions at once.
+    autoruns = config_file.get("autoruns", [])
+    autoruns = list(set(autoruns))
 
-    # Load the workspace extentions.
+    logger.info("Trying to load all extensions: %s ...", autoruns)
+
+    # Load the workspace extensions.
     try:
-        for path in WORKSPACE_EXTENTIONS_DIR.iterdir():
-            if path.is_dir():
-                load_extention(path)
+        for path in WORKSPACE_EXTENSIONS_VENV_DIR.iterdir():
+            if path.is_dir() and path.name in autoruns:
+                load_extension(path)
     except OSError as exc:
-        logger.warning("Failed to load workspace extentions: %s", exc)
+        logger.warning("Failed to load workspace extensions: %s", exc)
 
-    # Load the user extentions.
+    # Load the user extensions.
     try:
-        for path in USER_EXTENTIONS_DIR.iterdir():
-            if path.is_dir():
-                load_extention(path)
+        for path in USER_EXTENSIONS_DIR.iterdir():
+            if path.is_dir() and path.name in autoruns:
+                load_extension(path)
     except OSError as exc:
-        logger.warning("Failed to load user extentions: %s", exc)
+        logger.warning("Failed to load user extensions: %s", exc)
 
-    # Load the global extentions.
+    # Load the global extensions.
     try:
-        for path in GLOBAL_EXTENTIONS_DIR.iterdir():
-            if path.is_dir():
-                load_extention(path)
+        for path in GLOBAL_EXTENSIONS_DIR.iterdir():
+            if path.is_dir() and path.name in autoruns:
+                load_extension(path)
     except OSError as exc:
-        logger.warning("Failed to load global extentions: %s", exc)
+        logger.warning("Failed to load global extensions: %s", exc)
 
 
-_set_extloader(load_extention)  # Avoid circular import.
+_set_extloader(load_extension)  # Avoid circular import.

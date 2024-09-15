@@ -94,6 +94,10 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+.rubisco/extensions
+.vscode
+.cache
+.idea
 
 # Spyder project settings
 .spyderproject
@@ -121,9 +125,6 @@ dmypy.json
 *.swp
 .#*
 \#*#
-.vscode
-.cache
-.idea
 
 # Dist directory
 rubisco-**

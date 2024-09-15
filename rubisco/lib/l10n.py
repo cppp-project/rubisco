@@ -39,6 +39,13 @@ __all__ = [
 ]
 
 
+def _locale_language(category: int) -> str | None:
+    try:
+        return locale.getlocale(category)[0]
+    except (ValueError, TypeError):
+        return None
+
+
 def locale_language() -> str:
     """Get locale language.
 
@@ -46,7 +53,13 @@ def locale_language() -> str:
         str: Locale language.
     """
 
-    return locale.getlocale(locale.LC_ALL)[0] or "en_US"
+    return (
+        _locale_language(locale.LC_ALL)
+        or _locale_language(locale.LC_MESSAGES)
+        or _locale_language(locale.LC_CTYPE)
+        or _locale_language(locale.LC_NUMERIC)
+        or "C"
+    )
 
 
 def locale_language_name() -> str:
@@ -80,6 +93,7 @@ def has_domain(domain: str, locale_dir: Path) -> bool:
 
 
 translations: list[gettext.GNUTranslations] = []
+translations_path: list[Path] = []
 
 
 def load_locale_domain(root_dir: Path, domain: str) -> None:
@@ -111,6 +125,7 @@ def load_locale_domain(root_dir: Path, domain: str) -> None:
             domain, str(locale_dir), [locale_language()], fallback=False
         )
         translations.append(translation)
+        translations_path.append(locale_dir)
         logger.info(
             "Gettext domain '%s' in '%s' loaded.",
             str(domain),
@@ -161,6 +176,10 @@ def _(message: str) -> str:
             return translated
     return message
 
+
+if len(translations_path) >= 1:
+    gettext.bindtextdomain(TEXT_DOMAIN, translations_path[0])
+    gettext.textdomain(TEXT_DOMAIN)
 
 if __name__ == "__main__":
     print(f"{__file__}: {__doc__.strip()}")

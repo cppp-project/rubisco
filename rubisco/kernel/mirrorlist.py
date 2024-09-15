@@ -144,6 +144,7 @@ async def find_fastest_mirror(
         await future
         for task in tasks:
             task.cancel("Fastest mirror found.")
+        await asyncio.gather(*tasks)  # Wait for all tasks to finish.
         fastest = future.result()
         if fastest == C_INTMAX:
             return "official"

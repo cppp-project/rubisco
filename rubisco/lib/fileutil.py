@@ -130,7 +130,7 @@ def rm_recursive(path: Path, strict=True):
 
     try:
 
-        if path.is_dir():
+        if path.is_dir() and not path.is_symlink():
             if sys.version_info <= (3, 12):
                 shutil.rmtree(  # pylint: disable=deprecated-argument
                     path,

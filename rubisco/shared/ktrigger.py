@@ -57,6 +57,7 @@ class IKernelTrigger:  # pylint: disable=too-many-public-methods
     TASK_DOWNLOAD = "download"
     TASK_EXTRACT = "extract"
     TASK_COMPRESS = "compress"
+    TASK_WAIT = "wait"
 
     def pre_exec_process(self, proc: Any) -> None:
         """Pre-exec process.
@@ -218,6 +219,15 @@ class IKernelTrigger:  # pylint: disable=too-many-public-methods
             branch=branch,
         )
 
+    def on_hint(self, message: str) -> None:
+        """When a hint is got.
+
+        Args:
+            message (str): Hint message.
+        """
+
+        _null_trigger("on_hint", message=message)
+
     def on_warning(self, message: str) -> None:
         """When a warning is raised.
 
@@ -339,14 +349,14 @@ class IKernelTrigger:  # pylint: disable=too-many-public-methods
 
         _null_trigger("on_remove", path=path)
 
-    def on_extention_loaded(self, instance: Any):
-        """On a extention loaded.
+    def on_extension_loaded(self, instance: Any):
+        """On a extension loaded.
 
         Args:
             instance (IRUExtention): Extention instance.
         """
 
-        _null_trigger("on_extention_loaded", instance=instance)
+        _null_trigger("on_extension_loaded", instance=instance)
 
     def on_show_project_info(self, project: Any) -> None:
         """On show project information.
@@ -367,6 +377,25 @@ class IKernelTrigger:  # pylint: disable=too-many-public-methods
         """
 
         _null_trigger("on_mklink", src=src, dst=dst, symlink=symlink)
+
+    def on_create_venv(self, path: Path) -> None:
+        """On we are creating a virtual environment.
+
+        Args:
+            path (Path): Virtual environment path.
+        """
+
+        _null_trigger("on_create_venv", path=path)
+
+    def on_install_extension(self, dest: Any, ext_name: str) -> None:
+        """On we are installing an extension.
+
+        Args:
+            dest (EnvType): Destination environment type.
+            ext_name (str): Extension name.
+        """
+
+        _null_trigger("on_install_extension", dest=dest, ext_name=ext_name)
 
 
 # KTrigger instances.
@@ -488,7 +517,5 @@ if __name__ == "__main__":
     call_ktrigger("non_exists")
 
 
-# So, death is best?
-# Yes, death is a form of liberation.
-# A best form.
-# I want to follow you, but I'm feared. I CAN'T DO THIS.
+# Death is a form of liberation.
+# RIGHT. But I don't want to be liberated.

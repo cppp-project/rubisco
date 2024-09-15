@@ -19,7 +19,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 """
-Mirrorlist for extention installer.
+Mirrorlist for extension installer.
 """
 
 from pathlib import Path
@@ -27,7 +27,7 @@ from pathlib import Path
 from rubisco.kernel.mirrorlist import get_url
 from rubisco.lib.l10n import _
 from rubisco.lib.log import logger
-from rubisco.lib.process import Process, popen
+from rubisco.lib.process import Process
 from rubisco.lib.variable import format_str, make_pretty
 from rubisco.shared.ktrigger import IKernelTrigger, call_ktrigger
 
@@ -54,12 +54,13 @@ def is_git_repo(path: Path) -> bool:
     if not path.exists():
         return False
 
-    _stdout, _stderr, retcode = popen(
+    _stdout, _stderr, retcode = Process(
         ["git", "rev-parse", "--is-inside-work-tree"],
         cwd=path,
+    ).popen(
         stderr=False,
-        stdout=False,
-        strict=False,
+        stdout=0,
+        fail_on_error=False,
     )
     return retcode == 0
 
@@ -160,12 +161,12 @@ def git_has_remote(path: Path, remote: str) -> bool:
         bool: True if the remote repository exists.
     """
 
-    _stdout, _stderr, retcode = popen(
-        ["git", "remote", "get-url", remote],
-        cwd=path,
-        stderr=False,
+    _stdout, _stderr, retcode = Process(
+        ["git", "remote", "get-url", remote], cwd=path
+    ).popen(
         stdout=False,
-        strict=False,
+        stderr=0,
+        fail_on_error=False,
     )
     return retcode == 0
 
@@ -181,9 +182,7 @@ def git_get_remote(path: Path, remote: str = "origin") -> str:
         str: Remote URL.
     """
 
-    return popen(
-        ["git", "remote", "get-url", remote],
-        cwd=path,
+    return Process(["git", "remote", "get-url", remote], cwd=path).popen(
         stderr=False,
     )[0]
 
@@ -224,8 +223,9 @@ if __name__ == "__main__":
     import colorama
     import rich
 
-    from rubisco.lib.fileutil import \
-        TemporaryObject  # pylint: disable=ungrouped-imports
+    from rubisco.lib.fileutil import (  # pylint: disable=ungrouped-imports
+        TemporaryObject,
+    )
     from rubisco.shared.ktrigger import bind_ktrigger_interface
 
     colorama.init()

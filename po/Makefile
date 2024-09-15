@@ -28,9 +28,11 @@ PO_EXT = .po
 MO_EXT = .mo
 
 $(PACKAGE)$(POT_EXT):
+    export ARGPARSE_MODULE=$$(python3 -c "import argparse; print(argparse.__file__)") && \
 	for file in $$($(FIND) $(srccode_dir) -name "*$(PYTHON_EXT)"); do \
 		export files="$$files $$file"; \
 	done && \
+	export files="$$files $$ARGPARSE_MODULE"; \
 	$(XGETTEXT_) --language=$(LANGUAGE) \
 			--default-domain=$(PACKAGE) --package-name=$(PKG_NAME) --package-version=$(VERSION) \
 			--msgid-bugs-address=$(PACKAGE_BUGREPORT) \
