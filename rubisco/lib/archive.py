@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # -*- mode: python -*-
 # vi: set ft=python :
 
@@ -18,11 +17,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-"""
-Archive compression/extraction utilities.
-"""
+"""Archive compression/extraction utilities."""
+
+from __future__ import annotations
 
 import bz2
+import contextlib
 import gzip
 import lzma
 import os
@@ -36,7 +36,7 @@ import py7zr.callbacks
 import py7zr.exceptions
 
 from rubisco.config import COPY_BUFSIZE, DEFAULT_CHARSET
-from rubisco.lib.exceptions import RUValueException
+from rubisco.lib.exceptions import RUValueError
 from rubisco.lib.fileutil import check_file_exists, rm_recursive
 from rubisco.lib.l10n import _
 from rubisco.lib.log import logger
@@ -50,7 +50,7 @@ def extract_tarball(
     tarball: Path,
     dest: Path,
     compress_type: str | None = None,
-    overwrite: bool = False,
+    overwrite: bool = False,  # noqa: FBT001 FBT002
 ) -> None:
     """Extract tarball to destination.
 
@@ -63,8 +63,8 @@ def extract_tarball(
 
     Raises:
         AssertionError: If compress is not in ["gz", "bz2", "xz"]
-    """
 
+    """
     compress_type = compress_type.lower().strip() if compress_type else None
     if compress_type == "gzip":
         compress_type = "gz"
@@ -85,7 +85,7 @@ def extract_tarball(
         task_name = format_str(
             _(
                 "Extracting '[underline]${{file}}[/underline]' to "
-                "'[underline]${{path}}[/underline]' as '${{type}}' ..."
+                "'[underline]${{path}}[/underline]' as '${{type}}' ...",
             ),
             fmt={
                 "file": str(tarball),
@@ -116,7 +116,7 @@ def extract_tarball(
 def extract_zip(
     file: Path,
     dest: Path,
-    overwrite: bool = False,
+    overwrite: bool = False,  # noqa: FBT001 FBT002
     password: str | None = None,
 ) -> None:
     """Extract zip file to destination.
@@ -126,8 +126,8 @@ def extract_zip(
         dest (Path): Destination directory.
         overwrite (bool): Overwrite destination directory if it exists.
         password (str): Password to decrypt zip file. Default is None.
-    """
 
+    """
     with zipfile.ZipFile(file, "r") as fp:
         memembers = fp.infolist()
         if not overwrite:
@@ -137,7 +137,7 @@ def extract_zip(
         task_name = format_str(
             _(
                 "Extracting '[underline]${{file}}[/underline]' to "
-                "'[underline]${{path}}[/underline]' as '${{type}}' ..."
+                "'[underline]${{path}}[/underline]' as '${{type}}' ...",
             ),
             fmt={"file": str(file), "path": str(dest), "type": "zip"},
         )
@@ -156,10 +156,9 @@ def extract_zip(
             )
             perm = member.external_attr >> 16
             if perm:
-                os.chmod(dest / member.filename, perm)
+                (dest / member.filename).chmod(perm)
             utime = member.date_time
-            utime = time.mktime(utime + (0, 0, -1))
-            print(dest / member.filename, (utime, utime))
+            utime = time.mktime((*utime, 0, 0, -1))
             os.utime(dest / member.filename, (utime, utime))
             call_ktrigger(
                 IKernelTrigger.on_progress,
@@ -183,13 +182,13 @@ def extract_7z(
         file (Path): Path to 7z file.
         dest (Path): Destination directory.
         password (str): Password to decrypt 7z file. Default is None.
-    """
 
+    """
     with py7zr.SevenZipFile(file, mode="r", password=password) as fp:
         task_name = format_str(
             _(
                 "Extracting '[underline]${{file}}[/underline]' to "
-                "'[underline]${{path}}[/underline]' as '${{type}}' ..."
+                "'[underline]${{path}}[/underline]' as '${{type}}' ...",
             ),
             fmt={"file": str(file), "path": str(dest), "type": "7z"},
         )
@@ -197,12 +196,12 @@ def extract_7z(
         class _ExtractCallback(py7zr.callbacks.ExtractCallback):
             end: bool = False
 
-            def report_start_preparation(self):
-                """
+            def report_start_preparation(self) -> None:
+                """When the extraction process is started.
+
                 Report a start of preparation event such as making list of
                     files and looking into its properties.
                 """
-
                 self.end = False
                 call_ktrigger(
                     IKernelTrigger.on_new_task,
@@ -215,40 +214,45 @@ def extract_7z(
                 self,
                 processing_file_path: str,
                 processing_bytes: int,
-            ):
-                """
+            ) -> None:
+                """When the extraction process is started.
+
                 Report a start event of specified archive file and its input
                     bytes.
 
                 Args:
                     processing_file_path (str): Processing file path.
                     processing_bytes (int): Processing bytes.
+
                 """
 
-            def report_update(self, decompressed_bytes: int):
-                """
+            def report_update(self, decompressed_bytes: int) -> None:
+                """When the extraction process is updated.
+
                 Report an event when large file is being extracted more than 1
                     second or when extraction is finished. Receives a number of
                     decompressed bytes since the last update.
 
                 Args:
                     decompressed_bytes (int): Decompressed bytes.
+
                 """
 
             def report_end(  # pylint: disable=unused-argument
                 self,
                 processing_file_path: str,
-                wrote_bytes: int,
-            ):
-                """
+                wrote_bytes: int,  # noqa: ARG002
+            ) -> None:
+                """When the extraction process is finished.
+
                 Report an end event of specified archive file and its output
                     bytes.
 
                 Args:
                     processing_file_path (str): Processing file path.
                     wrote_bytes (int): Wrote bytes.
-                """
 
+                """
                 call_ktrigger(
                     IKernelTrigger.on_progress,
                     task_name=task_name,
@@ -260,25 +264,26 @@ def extract_7z(
                     },
                 )
 
-            def report_warning(self, message: str):
-                """
+            def report_warning(self, message: str) -> None:
+                """When the extraction process is warned.
+
                 Report an warning event with its message.
 
                 Args:
                     message (str): Warning message.
-                """
 
+                """
                 call_ktrigger(
                     IKernelTrigger.on_warning,
                     message=message,
                 )
 
-            def report_postprocess(self):
-                """
+            def report_postprocess(self) -> None:
+                """When the extraction process is finished.
+
                 Report a start of post processing event such as set file
                     properties and permissions or creating symlinks.
                 """
-
                 call_ktrigger(
                     IKernelTrigger.on_finish_task,
                     task_name=task_name,
@@ -286,23 +291,22 @@ def extract_7z(
                 self.end = True
 
         callback = _ExtractCallback()
-        fp.extractall(dest, callback=callback)
+        # Ruff mistakenly identified py7zr as a tarfile.
+        fp.extractall(dest, callback=callback)  # noqa: S202
 
-        # call_ktrigger(IKernelTrigger.on_finish_task, task_name=task_name)
         while not callback.end:
-            try:
-                fp.reporterd.join(0.01)
-            except RuntimeError:
-                pass
+            with contextlib.suppress(RuntimeError):
+                fp.reporterd.join(0.01)  # type: ignore[attr-defined]
 
 
-def extract_file(  # pylint: disable=too-many-branches
+def extract_file(  # pylint: disable=too-many-branches # noqa: C901 PLR0912
     file: Path,
     dest: Path,
     compress_type: str = "gz",
-    overwrite: bool = False,
+    overwrite: bool = False,  # noqa: FBT001 FBT002
 ) -> None:
     """Extract a compressed data file to destination.
+
     This function only supports gzip, bzip2 and xz compression which are
     only supports one-file compression.
 
@@ -314,8 +318,8 @@ def extract_file(  # pylint: disable=too-many-branches
 
     Raises:
         AssertionError: If compress is not in ["gz", "bz2", "xz"]
-    """
 
+    """
     compress_type = compress_type.lower().strip()
     if compress_type == "gzip":
         compress_type = "gz"
@@ -341,13 +345,13 @@ def extract_file(  # pylint: disable=too-many-branches
             check_file_exists(dest)
         elif dest.exists():
             rm_recursive(dest)
-        with open(dest, "wb") as fdst:
+        with dest.open("wb") as fdst:
             if fsize > COPY_BUFSIZE * 50:
                 task_name = format_str(
                     _(
                         "Extracting '[underline]${{file}}[/underline]'"
                         " to '[underline]${{path}}[/underline]'"
-                        " as '${{type}}' ..."
+                        " as '${{type}}' ...",
                     ),
                     fmt={
                         "file": str(file),
@@ -378,13 +382,13 @@ def extract_file(  # pylint: disable=too-many-branches
                     fdst.write(buf)
 
 
-def extract(  # pylint: disable=too-many-branches
+def extract(  # pylint: disable=too-many-branches # noqa: C901 PLR0912
     file: Path,
     dest: Path,
     compress_type: str | None = None,
-    overwrite: bool = False,
+    overwrite: bool = False,  # noqa: FBT001 FBT002
     password: str | None = None,
-):
+) -> None:
     """Extract compressed file to destination.
 
     Args:
@@ -397,8 +401,8 @@ def extract(  # pylint: disable=too-many-branches
             Defaults to False.
         password (str | None, optional): Password to decrypt compressed file.
             Defaults to None. Tarball is not supported.
-    """
 
+    """
     compress_type = compress_type.lower().strip() if compress_type else None
     try:
         if compress_type is None:
@@ -409,14 +413,14 @@ def extract(  # pylint: disable=too-many-branches
             elif suffix1:
                 compress_type = suffix1[1:]
             else:
-                raise RUValueException(
-                    format_str(
+                raise RUValueError(
+                    str(format_str(
                         _(
                             "Unable to determine compression type of "
-                            "'[underline]${{path}}[/underline]'"
+                            "'[underline]${{path}}[/underline]'",
                         ),
                         fmt={"path": str(file)},
-                    ),
+                    )),
                     hint=_("Please specify the compression type explicitly."),
                 )
         if compress_type in ["gz", "gzip"]:
@@ -447,21 +451,21 @@ def extract(  # pylint: disable=too-many-branches
             logger.info("Extracting '%s' to '%s' as 'tar' ...", file, dest)
             extract_tarball(file, dest, None, overwrite)
         else:
-            raise AssertionError
+            raise AssertionError  # noqa: TRY301
     except AssertionError:
         logger.error(
             "Unsupported compression type: '%s'",
             compress_type,
         )
-        raise RUValueException(
+        raise RUValueError(
             format_str(
                 _("Unsupported compression type: '${{type}}'"),
-                fmt={"type": compress_type},
+                fmt={"type": str(compress_type)},
             ),
             hint=_(
                 "Supported types are 'gz', 'bz2', 'xz', 'zip', '7z', 'tar', "
                 "'tar.gz', 'tar.bz2', 'tar.xz'. You can also use the 'tgz', "
-                "'txz' and 'tbz2'."
+                "'txz' and 'tbz2'.",
             ),
         ) from None
     except (
@@ -477,22 +481,22 @@ def extract(  # pylint: disable=too-many-branches
             file,
             dest,
         )
-        raise RUValueException(
+        raise RUValueError(
             format_str(
                 _("Failed to extract '${{file}}' to '${{dest}}': '${{exc}}'"),
-                fmt={"file": file, "dest": dest, "exc": str(exc)},
-            )
+                fmt={"file": str(file), "dest": str(dest), "exc": str(exc)},
+            ),
         ) from exc
 
 
-def compress_tarball(  # pylint: disable=too-many-arguments
+def compress_tarball(  # pylint: disable=R0913 # noqa: C901 PLR0913
     src: Path,
     dest: Path,
     start: Path | None = None,
     excludes: list[str] | None = None,
     compress_type: str | None = None,
     compress_level: int | None = None,
-    overwrite: bool = False,
+    overwrite: bool = False,  # noqa: FBT001 FBT002
 ) -> None:
     """Compress a tarball to destination.
 
@@ -518,8 +522,8 @@ def compress_tarball(  # pylint: disable=too-many-arguments
             others.
         overwrite (bool, optional): Overwrite destination if it exists.
             Defaults to False.
-    """
 
+    """
     compress_type = compress_type.lower().strip() if compress_type else None
     if compress_type == "gzip":
         compress_type = "gz"
@@ -535,7 +539,7 @@ def compress_tarball(  # pylint: disable=too-many-arguments
     task_name = format_str(
         _(
             "Compressing '[underline]${{path}}[/underline]' to "
-            "'[underline]${{file}}[/underline]' as '${{type}}' ..."
+            "'[underline]${{file}}[/underline]' as '${{type}}' ...",
         ),
         fmt={
             "path": str(src),
@@ -580,11 +584,11 @@ def compress_tarball(  # pylint: disable=too-many-arguments
             try:
                 arcname = path.relative_to(start)
             except ValueError as exc:
-                raise RUValueException(
+                raise RUValueError(
                     format_str(
                         _(
                             "'[underline]${{path}}[/underline]' is not in the "
-                            "subpath of '[underline]${{start}}[/underline]'"
+                            "subpath of '[underline]${{start}}[/underline]'",
                         ),
                         fmt={"path": str(path), "start": str(start)},
                     ),
@@ -600,13 +604,13 @@ def compress_tarball(  # pylint: disable=too-many-arguments
         call_ktrigger(IKernelTrigger.on_finish_task, task_name=task_name)
 
 
-def compress_zip(  # pylint: disable=too-many-arguments
+def compress_zip(  # pylint: disable=too-many-arguments # noqa: PLR0913
     src: Path,
     dest: Path,
     start: Path | None = None,
     excludes: list[str] | None = None,
     compress_level: int | None = None,
-    overwrite: bool = False,
+    overwrite: bool = False,  # noqa: FBT001 FBT002
 ) -> None:
     """Compress a zip file to destination.
 
@@ -621,8 +625,8 @@ def compress_zip(  # pylint: disable=too-many-arguments
             others.
         overwrite (bool, optional): Overwrite destination if it exists.
             Defaults to False.
-    """
 
+    """
     if not overwrite:
         check_file_exists(dest)
     elif dest.exists():
@@ -630,7 +634,7 @@ def compress_zip(  # pylint: disable=too-many-arguments
     task_name = format_str(
         _(
             "Compressing '[underline]${{path}}[/underline]' to "
-            "'[underline]${{file}}[/underline]' as '${{type}}' ..."
+            "'[underline]${{file}}[/underline]' as '${{type}}' ...",
         ),
         fmt={"path": str(src), "file": str(dest), "type": "zip"},
     )
@@ -658,11 +662,11 @@ def compress_zip(  # pylint: disable=too-many-arguments
             try:
                 arcname = path.relative_to(start)
             except ValueError as exc:
-                raise RUValueException(
+                raise RUValueError(
                     format_str(
                         _(
                             "'[underline]${{path}}[/underline]' is not in the "
-                            "subpath of '[underline]${{start}}[/underline]'"
+                            "subpath of '[underline]${{start}}[/underline]'",
                         ),
                         fmt={"path": str(path), "start": str(start)},
                     ),
@@ -683,7 +687,7 @@ def compress_7z(  # pylint: disable=too-many-arguments
     dest: Path,
     start: Path | None = None,
     excludes: list[str] | None = None,
-    overwrite: bool = False,
+    overwrite: bool = False,  # noqa: FBT001 FBT002
 ) -> None:
     """Compress a 7z file to destination.
 
@@ -695,8 +699,8 @@ def compress_7z(  # pylint: disable=too-many-arguments
             Supports glob patterns. Defaults to None.
         overwrite (bool, optional): Overwrite destination if it exists.
             Defaults to False.
-    """
 
+    """
     if not overwrite:
         check_file_exists(dest)
     elif dest.exists():
@@ -704,7 +708,7 @@ def compress_7z(  # pylint: disable=too-many-arguments
     task_name = format_str(
         _(
             "Compressing '[underline]${{path}}[/underline]' to "
-            "'[underline]${{file}}[/underline]' as '${{type}}' ..."
+            "'[underline]${{file}}[/underline]' as '${{type}}' ...",
         ),
         fmt={"path": str(src), "file": str(dest), "type": "7z"},
     )
@@ -735,16 +739,16 @@ def compress_7z(  # pylint: disable=too-many-arguments
             try:
                 arcname = path.relative_to(start)
             except ValueError as exc:
-                raise RUValueException(
+                raise RUValueError(
                     format_str(
                         _(
                             "'[underline]${{path}}[/underline]' is not in the "
-                            "subpath of '[underline]${{start}}[/underline]'"
+                            "subpath of '[underline]${{start}}[/underline]'",
                         ),
                         fmt={"path": str(path), "start": str(start)},
                     ),
                 ) from exc
-            fp.write(path, arcname)
+            fp.write(path, str(arcname))
             call_ktrigger(
                 IKernelTrigger.on_progress,
                 task_name=task_name,
@@ -755,12 +759,12 @@ def compress_7z(  # pylint: disable=too-many-arguments
         call_ktrigger(IKernelTrigger.on_finish_task, task_name=task_name)
 
 
-def compress_file(  # pylint: disable=too-many-arguments,too-many-branches
+def compress_file(  # pylint: disable=R0912 # noqa: C901 PLR0912
     src: Path,
     dest: Path,
     compress_type: str = "gz",
     compress_level: int | None = None,
-    overwrite: bool = False,
+    overwrite: bool = False,  # noqa: FBT001 FBT002
 ) -> None:
     """Compress a file to destination.
 
@@ -773,8 +777,8 @@ def compress_file(  # pylint: disable=too-many-arguments,too-many-branches
             others.
         overwrite (bool, optional): Overwrite destination if it exists.
             Defaults to False.
-    """
 
+    """
     compress_type = compress_type.lower().strip()
     if compress_type == "gzip":
         compress_type = "gz"
@@ -787,6 +791,9 @@ def compress_file(  # pylint: disable=too-many-arguments,too-many-branches
         check_file_exists(dest)
     elif dest.exists():
         rm_recursive(dest)
+
+    if compress_level is None:
+        compress_level = 9
 
     if compress_type == "gz":
         fsrc = gzip.open(src, "rb", compresslevel=compress_level)
@@ -801,13 +808,13 @@ def compress_file(  # pylint: disable=too-many-arguments,too-many-branches
         fsrc.seek(0, os.SEEK_END)
         fsize = fsrc.tell()
         fsrc.seek(0, os.SEEK_SET)
-        with open(dest, "wb") as fdst:
+        with dest.open("wb") as fdst:
             if fsize > COPY_BUFSIZE * 50:
                 task_name = format_str(
                     _(
                         "Compressing '[underline]${{path}}[/underline]'"
                         " to '[underline]${{file}}[/underline]'"
-                        " as '${{type}}' ..."
+                        " as '${{type}}' ...",
                     ),
                     fmt={
                         "path": str(src),
@@ -839,15 +846,15 @@ def compress_file(  # pylint: disable=too-many-arguments,too-many-branches
 
 
 # We should rewrite this ugly function later.
-def compress(  # pylint: disable=too-many-arguments,too-many-branches
+def compress(  # pylint: disable=R0912, R0913 # noqa: C901 PLR0912 PLR0913
     src: Path,
     dest: Path,
     start: Path | None = None,
     excludes: list[str] | None = None,
     compress_type: str | None = None,
     compress_level: int | None = None,
-    overwrite: bool = False,
-):
+    overwrite: bool = False,  # noqa: FBT001 FBT002
+) -> None:
     """Compress a file or directory to destination.
 
     Args:
@@ -864,8 +871,8 @@ def compress(  # pylint: disable=too-many-arguments,too-many-branches
             others.
         overwrite (bool, optional): Overwrite destination if it exists.
             Defaults to False.
-    """
 
+    """
     compress_type = compress_type.lower().strip() if compress_type else None
     try:
         if compress_type is None:
@@ -876,11 +883,11 @@ def compress(  # pylint: disable=too-many-arguments,too-many-branches
             elif suffix1:
                 compress_type = suffix1[1:]
             else:
-                raise RUValueException(
+                raise RUValueError(
                     format_str(
                         _(
                             "Unable to determine compression type of "
-                            "'[underline]${{path}}[/underline]'"
+                            "'[underline]${{path}}[/underline]'",
                         ),
                         fmt={"path": str(dest)},
                     ),
@@ -946,21 +953,21 @@ def compress(  # pylint: disable=too-many-arguments,too-many-branches
                 overwrite,
             )
         else:
-            raise AssertionError
+            raise AssertionError  # noqa: TRY301
     except AssertionError:
         logger.error(
             "Unsupported compression type: '%s'",
             compress_type,
         )
-        raise RUValueException(
+        raise RUValueError(
             format_str(
                 _("Unsupported compression type: '${{type}}'"),
-                fmt={"type": compress_type},
+                fmt={"type": str(compress_type)},
             ),
             hint=_(
                 "Supported types are 'gz', 'bz2', 'xz', 'zip', '7z', 'tar', "
                 "'tar.gz', 'tar.bz2', 'tar.xz'. You can also use the 'tgz', "
-                "'txz' and 'tbz2'."
+                "'txz' and 'tbz2'.",
             ),
         ) from None
     except (
@@ -976,9 +983,9 @@ def compress(  # pylint: disable=too-many-arguments,too-many-branches
             src,
             dest,
         )
-        raise RUValueException(
+        raise RUValueError(
             format_str(
                 _("Failed to compress '${{src}}' to '${{dest}}': '${{exc}}'"),
-                fmt={"src": src, "dest": dest, "exc": str(exc)},
-            )
+                fmt={"src": str(src), "dest": str(dest), "exc": str(exc)},
+            ),
         ) from exc

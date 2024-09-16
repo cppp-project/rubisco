@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # -*- mode: python -*-
 # vi: set ft=python :
 
@@ -18,17 +17,20 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-"""
-Logging system.
-"""
+"""Logging system."""
 
 import logging
-import os
 import sys
 from pathlib import Path
 
-from rubisco.config import (APP_NAME, DEFAULT_CHARSET, LOG_FILE, LOG_FORMAT,
-                            LOG_LEVEL, LOG_TIME_FORMAT)
+from rubisco.config import (
+    APP_NAME,
+    DEFAULT_CHARSET,
+    LOG_FILE,
+    LOG_FORMAT,
+    LOG_LEVEL,
+    LOG_TIME_FORMAT,
+)
 
 __all__ = ["logger"]
 
@@ -41,7 +43,7 @@ logger.setLevel(LOG_LEVEL)
 
 if "--log" in sys.argv:
     if not Path(LOG_FILE).parent.exists():
-        os.makedirs(Path(LOG_FILE).parent, exist_ok=True)
+        LOG_FILE.parent.mkdir(exist_ok=True)
     logger_handler = logging.FileHandler(LOG_FILE, encoding=DEFAULT_CHARSET)
     logger_handler.setLevel(LOG_LEVEL)
 
@@ -56,15 +58,14 @@ if "--debug" in sys.argv:  # Don't use argparse here.
     import rich.logging
 
     logger_handler = rich.logging.RichHandler(
-        level=LOG_LEVEL, console=rich.get_console()
+        level=LOG_LEVEL,
+        console=rich.get_console(),
     )
     logger_formatter = logging.Formatter(LOG_FORMAT)
     logger.addHandler(logger_handler)
 
 if __name__ == "__main__":
-    print(f"{__file__}: {__doc__.strip()}")
-
-    print("hint: Run with '--debug' to output logs.")
+    sys.stdout.write("hint: Run with '--debug' to output logs.\n")
 
     # Test.
     logger.debug("Debug message.")
@@ -73,7 +74,8 @@ if __name__ == "__main__":
     logger.error("Error message.")
     logger.critical("Critical message.")
     try:
-        raise RuntimeError("Test exception.")
+        _MSG = "Test exception."
+        raise RuntimeError(_MSG)  # noqa: TRY301
     except RuntimeError:
         logger.exception("Exception message.")
         logger.warning("Warning with exception.", exc_info=True)

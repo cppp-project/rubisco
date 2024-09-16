@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # -*- mode: python -*-
 # vi: set ft=python :
 
@@ -18,25 +17,28 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-"""
-File utilities.
-"""
+"""File utilities."""
+
+from __future__ import annotations
 
 import atexit
-import glob
-import os
 import shutil
 import sys
 import tempfile
 from pathlib import Path
-from types import FunctionType, TracebackType
+from typing import TYPE_CHECKING
+
+from typing_extensions import Self
 
 from rubisco.config import APP_NAME
-from rubisco.lib.exceptions import RUOSException, RUShellExecutionException
+from rubisco.lib.exceptions import RUOSError, RUShellExecutionError
 from rubisco.lib.l10n import _
 from rubisco.lib.log import logger
 from rubisco.lib.variable import format_str
 from rubisco.shared.ktrigger import IKernelTrigger, call_ktrigger
+
+if TYPE_CHECKING:
+    from types import FunctionType, TracebackType
 
 __all__ = [
     "check_file_exists",
@@ -59,8 +61,8 @@ def check_file_exists(path: Path) -> None:
     Raises:
         AssertionError: If the file or directory exists and user choose to
             skip.
-    """
 
+    """
     if path.exists():
         call_ktrigger(IKernelTrigger.file_exists, path=path)
         # UCI will raise an exception if user choose to skip.
@@ -75,21 +77,24 @@ def assert_rel_path(path: Path) -> None:
 
     Raises:
         AssertionError: If the path is not a relative path.
-    """
 
+    """
     if path.is_absolute():
         raise AssertionError(
             format_str(
                 _(
                     "Absolute path '[underline]${{path}}[/underline]'"
-                    " is not allowed."
+                    " is not allowed.",
                 ),
                 fmt={"path": str(path)},
-            )
+            ),
         )
 
 
-def rm_recursive(path: Path, strict=True):
+def rm_recursive(
+    path: Path,
+    strict: bool = True,  # noqa: FBT001 FBT002
+) -> None:
     """Remove a file or directory recursively.
 
     Args:
@@ -98,16 +103,16 @@ def rm_recursive(path: Path, strict=True):
 
     Raises:
         OSError: If strict is True and an error occurs.
-    """
 
+    """
     assert_rel_path(path)
 
     path = path.absolute()
 
     def _onexc(  # pylint: disable=unused-argument
-        func: FunctionType,
+        func: FunctionType | None,  # noqa: ARG001
         path: str | Path,
-        exc: OSError,
+        exc: BaseException,
     ) -> None:
         if not strict:
             call_ktrigger(
@@ -115,7 +120,7 @@ def rm_recursive(path: Path, strict=True):
                 message=format_str(
                     _(
                         "Error while removing '[underline]${{path}}"
-                        "[/underline]': ${{error}}"
+                        "[/underline]': ${{error}}",
                     ),
                     fmt={"path": str(path), "error": str(exc)},
                 ),
@@ -125,7 +130,7 @@ def rm_recursive(path: Path, strict=True):
         func: FunctionType,
         path: str | Path,
         exc_info: tuple[type, BaseException, TracebackType],
-    ):
+    ) -> None:
         return _onexc(func, path, exc_info[1])
 
     try:
@@ -135,32 +140,32 @@ def rm_recursive(path: Path, strict=True):
                 shutil.rmtree(  # pylint: disable=deprecated-argument
                     path,
                     ignore_errors=not strict,
-                    onerror=_onerror,
+                    onerror=_onerror,  # type: ignore[arg-type]
                 )
             else:
                 shutil.rmtree(  # pylint: disable=unexpected-keyword-arg
                     path,
                     ignore_errors=not strict,
-                    onexc=_onexc,
+                    onexc=_onexc,  # type: ignore[arg-type]
                 )
         else:
-            os.remove(path)
+            path.unlink()
         logger.debug("Removed '%s'.", str(path))
     except OSError as exc:
         if strict:
-            raise RUOSException(exc) from exc
+            raise RUOSError(exc) from exc
         _onexc(None, path, exc)
         logger.warning("Failed to remove '%s'.", str(path), exc_info=exc)
 
 
-def copy_recursive(  # pylint: disable=too-many-arguments
+def copy_recursive(  # pylint: disable=too-many-arguments # noqa: PLR0913
     src: Path,
     dst: Path,
-    strict: bool = False,
-    symlinks: bool = False,
-    exists_ok: bool = False,
+    strict: bool = False,  # noqa: FBT001 FBT002
+    symlinks: bool = False,  # noqa: FBT001 FBT002
+    exists_ok: bool = False,  # noqa: FBT001 FBT002
     ignore: list[str] | None = None,
-):
+) -> None:
     """Copy a file or directory recursively.
 
     Args:
@@ -173,8 +178,8 @@ def copy_recursive(  # pylint: disable=too-many-arguments
 
     Raises:
         OSError: If strict is True and an error occurs.
-    """
 
+    """
     if ignore is None:
         ignore = []
 
@@ -200,13 +205,13 @@ def copy_recursive(  # pylint: disable=too-many-arguments
                             "already exists.",
                         ),
                         fmt={"path": str(dst)},
-                    )
+                    ),
                 )
             dst = Path(shutil.copy2(src, dst, follow_symlinks=not symlinks))
         logger.debug("Copied '%s' to '%s'.", str(src), str(dst))
     except OSError as exc:
         if strict:
-            raise RUOSException(exc) from exc
+            raise RUOSError(exc) from exc
         logger.warning(
             "Failed to copy '%s' to '%s'.",
             str(src),
@@ -222,38 +227,40 @@ def new_tempdir(prefix: str = "", suffix: str = "") -> Path:
     """Create temporary directory but do not register it.
 
     Args:
+        prefix (str): The prefix of the temporary directory
         suffix (str): The suffix of the temporary directory.
 
     Returns:
         str: The temporary directory.
+
     """
-
-    path = Path(
+    return Path(
         tempfile.mkdtemp(
-            suffix=suffix, prefix=prefix, dir=tempfile.gettempdir()  # noqa: E501
-        )
+            suffix=suffix,
+            prefix=prefix,
+            dir=tempfile.gettempdir(),
+        ),
     ).absolute()
-
-    return path
 
 
 def new_tempfile(prefix: str = "", suffix: str = "") -> Path:
     """Create temporary file but do not register it.
 
     Args:
+        prefix (str): The prefix of the temporary file.
         suffix (str): The suffix of the temporary file.
 
     Returns:
         str: The temporary file.
+
     """
-
-    path = Path(
+    return Path(
         tempfile.mkstemp(
-            suffix=suffix, prefix=prefix, dir=tempfile.gettempdir()  # noqa: E501
-        )[1]
+            suffix=suffix,
+            prefix=prefix,
+            dir=tempfile.gettempdir(),
+        )[1],
     ).absolute()
-
-    return path
 
 
 def register_temp(path: Path) -> None:
@@ -261,8 +268,8 @@ def register_temp(path: Path) -> None:
 
     Args:
         path (Path): The path to register.
-    """
 
+    """
     tempdirs.add(path)
     logger.debug("Registered temporary object '%s'.", str(path))
 
@@ -272,8 +279,8 @@ def unregister_temp(path: Path) -> None:
 
     Args:
         path (Path): The path to unregister.
-    """
 
+    """
     try:
         tempdirs.remove(path)
         logger.debug("Unregistered temporary object '%s'.", str(path))
@@ -286,7 +293,7 @@ def unregister_temp(path: Path) -> None:
 
 
 class TemporaryObject:
-    """This class is a context manager for temporary files or directories."""
+    """A context manager for temporary files or directories."""
 
     # Type of the temporary object.
     TYPE_FILE: int = 0
@@ -306,23 +313,26 @@ class TemporaryObject:
                 TemporaryObject.TYPE_DIRECTORY.
             path (Path): The path of the temporary object.
                 We will register it for temporary later.
-        """
 
+        """
         self.__type = temp_type
         self.__path = path
         register_temp(self.__path)
 
-    def __enter__(self) -> "TemporaryObject":
+    def __enter__(self) -> Self:
         """Enter the context manager.
 
         Returns:
             TemporaryObject: The temporary object path.
-        """
 
+        """
         return self
 
     def __exit__(
-        self, exc_type: type, exc_value: Exception, traceback: TracebackType
+        self,
+        exc_type: type[BaseException] | None,
+        exc_value: BaseException | None,
+        traceback: TracebackType | None,
     ) -> None:
         """Exit the context manager.
 
@@ -330,8 +340,8 @@ class TemporaryObject:
             exc_type (type): The exception type.
             exc_value (Exception): The exception value.
             traceback (traceback): The traceback.
-        """
 
+        """
         self.remove()
 
     def __str__(self) -> str:
@@ -339,8 +349,8 @@ class TemporaryObject:
 
         Returns:
             str: The string representation of the temporary object.
-        """
 
+        """
         return str(self.path)
 
     def __repr__(self) -> str:
@@ -348,17 +358,17 @@ class TemporaryObject:
 
         Returns:
             str: The string representation of the temporary object.
-        """
 
-        return f"TemporaryDirectory({repr(self.path)})"
+        """
+        return f"TemporaryDirectory({self.path!r})"
 
     def __hash__(self) -> int:
         """Get the hash of the temporary object.
 
         Returns:
             int: The hash of the temporary object.
-        """
 
+        """
         return hash(self.path)
 
     def __eq__(self, obj: object) -> bool:
@@ -370,8 +380,8 @@ class TemporaryObject:
         Returns:
             bool: True if the temporary object is equal to the object,
                 False otherwise.
-        """
 
+        """
         if not isinstance(obj, TemporaryObject):
             return False
         return self.path == obj.path
@@ -385,8 +395,8 @@ class TemporaryObject:
         Returns:
             bool: True if the temporary object is not equal to the object,
                 False otherwise.
-        """
 
+        """
         return not self == obj
 
     @property
@@ -395,8 +405,8 @@ class TemporaryObject:
 
         Returns:
             Path: The temporary object path.
-        """
 
+        """
         return self.__path
 
     @property
@@ -405,8 +415,8 @@ class TemporaryObject:
 
         Returns:
             int: The temporary object type.
-        """
 
+        """
         return self.__type
 
     def is_file(self) -> bool:
@@ -414,8 +424,8 @@ class TemporaryObject:
 
         Returns:
             bool: True if the temporary object is a file, False otherwise.
-        """
 
+        """
         return self.path.is_file()
 
     def is_dir(self) -> bool:
@@ -423,16 +433,18 @@ class TemporaryObject:
 
         Returns:
             bool: True if the temporary object is a object, False otherwise.
-        """
 
+        """
         return self.path.is_dir()
 
     def remove(self) -> None:
         """Remove the temporary object."""
-
         if self.__moved:
             return
-        rm_recursive(self.path)
+        if self.path.is_file():
+            self.path.unlink()
+        else:
+            shutil.rmtree(self.path, ignore_errors=False)
         self.unregister()
 
     def unregister(self) -> None:
@@ -440,28 +452,27 @@ class TemporaryObject:
 
         Warning:
             Not recommended to call this method directly.
-        """
 
+        """
         if self.__moved:
             return
         unregister_temp(self.path)
 
     def move(self) -> Path:
         """Move the temporary object to a new location.
-            Release the ownership of this temporary object.
+
+        Release the ownership of this temporary object.
 
         Returns:
             Path: The new location of the temporary object.
-        """
 
+        """
         self.unregister()
         self.__moved = True
         return self.path
 
     @classmethod
-    def new_file(
-        cls, prefix: str = APP_NAME, suffix: str = ""  # noqa: E501
-    ) -> "TemporaryObject":
+    def new_file(cls, prefix: str = APP_NAME, suffix: str = "") -> Self:
         """Create a temporary file.
 
         Args:
@@ -472,14 +483,12 @@ class TemporaryObject:
 
         Returns:
             TemporaryObject: The temporary file.
-        """
 
+        """
         return cls(cls.TYPE_FILE, new_tempfile(prefix=prefix, suffix=suffix))
 
     @classmethod
-    def new_directory(
-        cls, prefix: str = APP_NAME, suffix: str = ""
-    ) -> "TemporaryObject":
+    def new_directory(cls, prefix: str = APP_NAME, suffix: str = "") -> Self:
         """Create a temporary directory.
 
         Args:
@@ -490,14 +499,15 @@ class TemporaryObject:
 
         Returns:
             TemporaryObject: The temporary directory.
-        """
 
+        """
         return cls(
-            cls.TYPE_DIRECTORY, new_tempdir(prefix=prefix, suffix=suffix)  # noqa: E501
+            cls.TYPE_DIRECTORY,
+            new_tempdir(prefix=prefix, suffix=suffix),
         )
 
     @classmethod
-    def register_tempobject(cls, path: Path) -> "TemporaryObject":
+    def register_tempobject(cls, path: Path) -> Self:
         """Register a file or a directory to a temporary object.
 
         Args:
@@ -505,24 +515,29 @@ class TemporaryObject:
 
         Returns:
             TemporaryObject: Registered temporary object.
-        """
 
+        """
         return cls(
-            cls.TYPE_DIRECTORY if path.is_dir() else cls.TYPE_FILE, path  # noqa: E501
+            cls.TYPE_DIRECTORY if path.is_dir() else cls.TYPE_FILE,
+            path,
         )
 
     @classmethod
     def cleanup(cls) -> None:
         """Clean up all temporary directories."""
-
         for tempdir in tempdirs:
-            if tempdir.exists():
-                shutil.rmtree(tempdir, ignore_errors=True)
+            if tempdir.is_file():
+                tempdir.unlink()
+            else:
+                shutil.rmtree(tempdir, ignore_errors=False)
             logger.debug("Unregistered temporary object '%s'.", str(tempdir))
         tempdirs.clear()
 
 
-def resolve_path(path: Path, absolute_only: bool = True) -> Path:
+def resolve_path(
+    path: Path,
+    absolute_only: bool = True,  # noqa: FBT001 FBT002
+) -> Path:
     """Resolve a path with globbing support.
 
     Args:
@@ -532,15 +547,18 @@ def resolve_path(path: Path, absolute_only: bool = True) -> Path:
 
     Returns:
         Path: Resolved path.
-    """
 
+    """
     res = path.expanduser().absolute()
     if absolute_only:
         return res
     return res.resolve()
 
 
-def glob_path(path: Path, absolute_only: bool = True) -> list[Path]:
+def glob_path(
+    path: Path,
+    absolute_only: bool = True,  # noqa: FBT001 FBT002
+) -> list[Path]:
     """Resolve a path and globbing it.
 
     Args:
@@ -550,30 +568,34 @@ def glob_path(path: Path, absolute_only: bool = True) -> list[Path]:
 
     Returns:
         list[Path]: List of resolved paths.
+
     """
-
-    res = glob.glob(str(resolve_path(path, absolute_only)))
-    return [Path(p).absolute() for p in res]
+    return list(resolve_path(path, absolute_only).glob("*"))
 
 
-def human_readable_size(size: int | float) -> str:
+def human_readable_size(size: float) -> str:
     """Convert size to human readable format.
 
     Args:
-        size (int | float): The size to convert.
+        size (float): The size to convert.
 
     Returns:
         str: The human readable size.
-    """
 
-    for unit in ["B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB"]:
-        if size < 1024.0:
+    """
+    unit: str
+    for unit_ in ["B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB"]:
+        unit = unit_
+        if size < 1024.0:  # noqa: PLR2004
             break
         size /= 1024.0
     return f"{size:.2f}{unit}"
 
 
-def find_command(cmd: str, strict: bool = True) -> str:
+def find_command(
+    cmd: str,
+    strict: bool = True,  # noqa: FBT001 FBT002
+) -> str | None:
     """Find the command in the system.
 
     Args:
@@ -583,8 +605,8 @@ def find_command(cmd: str, strict: bool = True) -> str:
 
     Returns:
         str: The command path.
-    """
 
+    """
     logger.debug("Checking for command '%s' ...", cmd)
 
     res = shutil.which(cmd)
@@ -596,9 +618,9 @@ def find_command(cmd: str, strict: bool = True) -> str:
     )
 
     if strict and res is None:
-        raise RUShellExecutionException(
+        raise RUShellExecutionError(
             format_str(_("Command '${{cmd}}' not found."), fmt={"cmd": cmd}),
-            retcode=RUShellExecutionException.RETCODE_COMMAND_NOT_FOUND,
+            retcode=RUShellExecutionError.RETCODE_COMMAND_NOT_FOUND,
         )
 
     return res if res else None
@@ -608,17 +630,16 @@ def find_command(cmd: str, strict: bool = True) -> str:
 atexit.register(TemporaryObject.cleanup)
 
 if __name__ == "__main__":
-    print(f"{__file__}: {__doc__.strip()}")
-
+    import pytest
     import rich
 
     # Test1: Basic usage.
     temp = TemporaryObject.new_file()
     rich.print("Created temporary file:", repr(temp))
     rich.print("tempdirs:", tempdirs)
-    assert temp.is_file()
-    assert not temp.is_dir()
-    assert temp.temp_type == TemporaryObject.TYPE_FILE
+    assert temp.is_file()  # noqa: S101
+    assert not temp.is_dir()  # noqa: S101
+    assert temp.temp_type == TemporaryObject.TYPE_FILE  # noqa: S101
     temp.remove()
     rich.print("Removed temporary file:", repr(temp))
     rich.print("tempdirs:", tempdirs)
@@ -626,9 +647,9 @@ if __name__ == "__main__":
     temp = TemporaryObject.new_directory()
     rich.print("Created temporary directory:", repr(temp))
     rich.print("tempdirs:", tempdirs)
-    assert not temp.is_file()
-    assert temp.is_dir()
-    assert temp.temp_type == TemporaryObject.TYPE_DIRECTORY
+    assert not temp.is_file()  # noqa: S101
+    assert temp.is_dir()  # noqa: S101
+    assert temp.temp_type == TemporaryObject.TYPE_DIRECTORY  # noqa: S101
     temp.remove()
     rich.print("Removed temporary directory:", repr(temp))
     rich.print("tempdirs:", tempdirs)
@@ -637,18 +658,18 @@ if __name__ == "__main__":
     with TemporaryObject.new_file() as temp:
         rich.print("Created temporary file:", repr(temp))
         rich.print("tempdirs:", tempdirs)
-        assert temp.is_file()
-        assert not temp.is_dir()
-        assert temp.temp_type == TemporaryObject.TYPE_FILE
+        assert temp.is_file()  # noqa: S101
+        assert not temp.is_dir()  # noqa: S101
+        assert temp.temp_type == TemporaryObject.TYPE_FILE  # noqa: S101
     rich.print("Removed temporary file:", repr(temp))
     rich.print("tempdirs:", tempdirs)
 
     with TemporaryObject.new_directory() as temp:
         rich.print("Created temporary directory:", repr(temp))
         rich.print("tempdirs:", tempdirs)
-        assert not temp.is_file()
-        assert temp.is_dir()
-        assert temp.temp_type == TemporaryObject.TYPE_DIRECTORY
+        assert not temp.is_file()  # noqa: S101
+        assert temp.is_dir()  # noqa: S101
+        assert temp.temp_type == TemporaryObject.TYPE_DIRECTORY  # noqa: S101
     rich.print("Removed temporary directory:", repr(temp))
     rich.print("tempdirs:", tempdirs)
 
@@ -661,27 +682,26 @@ if __name__ == "__main__":
     TemporaryObject.cleanup()
     rich.print("Cleaned up temporary directories.")
     rich.print("tempdirs:", tempdirs)
-    assert not temp1.path.exists()
-    assert not temp2.path.exists()
-    assert not temp3.path.exists()
-    assert not temp4.path.exists()
+    assert not temp1.path.exists()  # noqa: S101
+    assert not temp2.path.exists()  # noqa: S101
+    assert not temp3.path.exists()  # noqa: S101
+    assert not temp4.path.exists()  # noqa: S101
 
     # Test4: Human readable size.
-    assert human_readable_size(1023) == "1023.00B"
-    assert human_readable_size(1024) == "1.00KiB"
-    assert human_readable_size(1024**2) == "1.00MiB"
-    assert human_readable_size(1024**3) == "1.00GiB"
-    assert human_readable_size(1024**4) == "1.00TiB"
-    assert human_readable_size(1024**5) == "1.00PiB"
-    assert human_readable_size(1024**6) == "1.00EiB"
-    assert human_readable_size(0) == "0.00B"
+    assert human_readable_size(1023) == "1023.00B"  # noqa: S101
+    assert human_readable_size(1024) == "1.00KiB"  # noqa: S101
+    assert human_readable_size(1024**2) == "1.00MiB"  # noqa: S101
+    assert human_readable_size(1024**3) == "1.00GiB"  # noqa: S101
+    assert human_readable_size(1024**4) == "1.00TiB"  # noqa: S101
+    assert human_readable_size(1024**5) == "1.00PiB"  # noqa: S101
+    assert human_readable_size(1024**6) == "1.00EiB"  # noqa: S101
+    assert human_readable_size(0) == "0.00B"  # noqa: S101
 
     # Test5: Find command.
-    assert find_command("whoami") == shutil.which("whoami")
-    try:
+    assert find_command("whoami") == shutil.which("whoami")  # noqa: S101
+
+    with pytest.raises(RUShellExecutionError) as exc_:
         find_command("_Not_Exist_Command_", strict=True)
-        assert False, "Should raise a RUShellExecutionException."
-    except RUShellExecutionException as exc_:
-        assert (
-            exc_.retcode == RUShellExecutionException.RETCODE_COMMAND_NOT_FOUND
-        )  # noqa: E501
+    assert (  # noqa: S101
+        exc_.value.retcode == RUShellExecutionError.RETCODE_COMMAND_NOT_FOUND
+    )

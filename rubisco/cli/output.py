@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # -*- mode: python -*-
 # vi: set ft=python :
 
@@ -18,17 +17,17 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-"""
-C++ Plus Rubisco CLI output utils.
-"""
+"""C++ Plus Rubisco CLI output utils."""
+
+from __future__ import annotations
 
 import json5 as json
 import rich
 
-from rubisco.lib.exceptions import RUException
+from rubisco.lib.exceptions import RUError
 from rubisco.lib.l10n import _
 from rubisco.lib.log import logger
-from rubisco.lib.variable import format_str
+from rubisco.lib.variable import AFTypeError, format_str
 
 __all__ = [
     "push_level",
@@ -41,50 +40,50 @@ __all__ = [
 ]
 
 
-output_step_level = 0  # pylint: disable=invalid-name
+step_level: int = 0  # pylint: disable=invalid-name
 
 
 def push_level() -> None:
-    """Increase the output level."""
-
-    global output_step_level  # pylint: disable=global-statement
-    output_step_level += 1
+    """Increase the output step level."""
+    global step_level  # pylint: disable=global-statement # noqa: PLW0603
+    step_level += 1
 
 
 def pop_level() -> None:
     """Decrease the output level."""
-
-    global output_step_level  # pylint: disable=global-statement
-    output_step_level -= 1
+    global step_level  # pylint: disable=global-statement # noqa: PLW0603
+    step_level -= 1
 
 
 def output_step(message: str, level: int = -1, end: str = "\n") -> None:
-    """Output a step message.
+    r"""Output a step message.
 
     Args:
         message (str): Message.
-        level (int): Message level. The effect is as follows:
+        level (int): Message level. If it's `-1`, it will be determined by
+        `push_level()` and `pop_level()`. The effect is as follows:
+        ```
             => Level 0 message.
                 :: Level 1 message.
                 :: Level 1 message.
                     :: Level 2 message.
             => Level 0 message.
-            If it's -1, it will be determined by push_level() and pop_level().
-        end (str, optional): End of the message. Defaults to "\\n".
-    """
+        ```
+        end (str, optional): End of the message. Defaults to "\n".
 
+    """
     if level == -1:
-        level = output_step_level
+        level = step_level
 
     if message.strip():
         prompt = "=>" if level == 0 else "::"
-        indentation = "    " * level
+        indent = "    " * level
 
         rich.print(
             format_str(
-                "${{indentation}}[blue]${{prompt}}[/blue] [bold]${{msg}}[/bold]",  # noqa: E501
+                "${{indent}}[blue]${{prompt}}[/blue] [bold]${{msg}}[/bold]",
                 fmt={
-                    "indentation": indentation,
+                    "indent": indent,
                     "prompt": prompt,
                     "msg": message,
                 },
@@ -99,8 +98,8 @@ def output_error(message: str) -> None:
 
     Args:
         message (str): Message.
-    """
 
+    """
     rich.print(
         format_str(_("[red]Error: ${{msg}}[/red]"), fmt={"msg": message}),
     )
@@ -111,8 +110,8 @@ def output_warning(message: str) -> None:
 
     Args:
         message (str): Message.
-    """
 
+    """
     rich.print(
         format_str(
             _("[yellow]Warning: ${{msg}}[/yellow]"),
@@ -126,8 +125,8 @@ def output_hint(message: str) -> None:
 
     Args:
         message (str): Message.
-    """
 
+    """
     rich.print(
         format_str(
             _("[italic][magenta]Hint:[/magenta] ${{msg}}[/italic]"),
@@ -136,26 +135,26 @@ def output_hint(message: str) -> None:
     )
 
 
-def show_exception(exc: Exception, as_warn: bool = False) -> None:
+def show_exception(
+    exc: Exception | KeyboardInterrupt,
+    as_warn: bool = False,  # noqa: FBT001 FBT002
+) -> None:
     """Show an exception. If it has docurl or hint, show it also.
 
     Args:
         exc (Exception): Exception object.
         as_warn (bool, optional): Show it as a warning. Defaults to False.
-    """
 
+    """
     logger.exception(exc)
     hint = getattr(exc, "hint", None)
     docurl = getattr(exc, "docurl", None)
     message = str(exc)
     typestr = type(exc).__name__
 
-    if as_warn:
-        perror = output_warning
-    else:
-        perror = output_error
+    perror = output_warning if as_warn else output_error
 
-    if isinstance(exc, RUException | ValueError | AssertionError):
+    if isinstance(exc, RUError | ValueError | AFTypeError | AssertionError):
         if not message:
             message = _("Unknown error.")
         perror(message)
@@ -172,7 +171,7 @@ def show_exception(exc: Exception, as_warn: bool = False) -> None:
             format_str(
                 _("Missing key: ${{msg}}"),
                 fmt={"msg": message},
-            )
+            ),
         )
         output_hint(_("Is may caused by a invalid configuration file."))
     elif isinstance(exc, SystemExit):
@@ -182,8 +181,9 @@ def show_exception(exc: Exception, as_warn: bool = False) -> None:
             format_str(
                 _("Internal error: ${{type}}: ${{msg}}"),
                 fmt={"type": typestr, "msg": message},
-            )
+            ),
         )
+
     if hint:
         output_hint(hint)
     if docurl:

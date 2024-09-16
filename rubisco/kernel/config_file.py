@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # -*- mode: python -*-
 # vi: set ft=python :
 
@@ -18,9 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-"""
-Rubisco config file loader.
-"""
+"""Rubisco config file loader."""
 
 import json5 as json
 

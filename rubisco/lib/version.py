@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # -*- mode: python -*-
 # vi: set ft=python :
 
@@ -18,20 +17,20 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-"""
-Version numbering analysis and comparison module.
-"""
+"""Version numbering analysis and comparison module."""
+
+from __future__ import annotations
 
 import re
 from typing import overload
+
+from typing_extensions import Self
 
 __all__ = ["Version"]
 
 
 class Version:
-    """
-    Version analyzer.
-    """
+    """Version analyzer."""
 
     major: int
     minor: int
@@ -41,29 +40,26 @@ class Version:
 
     @overload
     def __init__(self, version: str) -> None:
-        """Analyze the version string.
-
-        Args:
-            version (str): The version string.
-        """
+        ...
 
     @overload
-    def __init__(self, version: "Version") -> None:
-        """Copy a version info.
-
-        Args:
-            version (Version): The version.
-        """
+    def __init__(self, version: Self) -> None:
+        ...
 
     @overload
     def __init__(self, version: tuple) -> None:
-        """Analyze the version tuple.
+        ...
+
+    def __init__(self, version: str | Self | tuple) -> None:
+        """Initialize the version analyzer.
 
         Args:
-            version (tuple): The version tuple.
-        """
+            version (str | Version | tuple): The version string.
 
-    def __init__(self, version: "str | Version | tuple") -> None:
+        Raises:
+            ValueError: Invalid version type.
+
+        """
         self.major = 0
         self.minor = 0
         self.patch = 0
@@ -82,20 +78,21 @@ class Version:
             self.major = int(version[0])
             self.minor = int(version[1])
             self.patch = int(version[2])
-            if len(version) > 3:
+            if len(version) > 3:  # noqa: PLR2004
                 self.pre = str(version[3])
-            if len(version) > 4:
+            if len(version) > 4:  # noqa: PLR2004
                 self.build = str(version[4])
         else:
-            raise ValueError("Invalid version type.")
+            msg = "Invalid version type."
+            raise ValueError(msg)  # noqa: TRY004
 
     def _analyze(self, version: str) -> None:
         """Analyze the version string.
 
         Args:
             version (str): The version string.
-        """
 
+        """
         match = re.match(
             r"(\d+)\.(\d+)\.(\d+)(?:-(\w+))?(?:\+(\w+))?",
             version,
@@ -112,8 +109,8 @@ class Version:
 
         Returns:
             str: The version string.
-        """
 
+        """
         verstr = f"{self.major}.{self.minor}.{self.patch}"
         if self.pre:
             verstr += f"-{self.pre}"
@@ -126,19 +123,22 @@ class Version:
 
         Returns:
             str: The version string.
+
         """
+        return f"Version({self!s})"
 
-        return f"Version({str(self)})"
-
-    def __eq__(self, other: "Version") -> bool:
+    def __eq__(self, other: Self | object) -> bool:
         """Compare two versions for equality.
 
         Args:
-            other (Version): The other version.
+            other (Version | object): The other version.
 
         Returns:
             bool: True if equal, False otherwise.
+
         """
+        if not isinstance(other, Version):
+            return False
 
         return (
             self.major == other.major
@@ -148,7 +148,7 @@ class Version:
             and self.build == other.build
         )
 
-    def __ne__(self, other) -> bool:
+    def __ne__(self, other: object) -> bool:
         """Compare two versions for inequality.
 
         Args:
@@ -156,13 +156,13 @@ class Version:
 
         Returns:
             bool: True if not equal, False otherwise.
-        """
 
+        """
         return not self.__eq__(other)
 
-    def __lt__(  # pylint: disable=too-many-return-statements
+    def __lt__(  # pylint: disable=R0911 # noqa: C901 PLR0911
         self,
-        other: "Version",
+        other: Self,
     ) -> bool:
         """Compare two versions for less than.
 
@@ -171,8 +171,8 @@ class Version:
 
         Returns:
             bool: True if less than, False otherwise.
-        """
 
+        """
         if self.major < other.major:
             return True
         if self.major > other.major:
@@ -202,43 +202,39 @@ class Version:
 
 
 if __name__ == "__main__":
-    import rich
-
-    rich.print(f"{__file__}: {__doc__.strip()}")
-
-    # Test: Version
+    # Test: Version.
     ver1 = Version("1.2.3")
-    assert str(ver1) == "1.2.3"
-    assert ver1.major == 1
-    assert ver1.minor == 2
-    assert ver1.patch == 3
-    assert ver1.pre == ""
-    assert ver1.build == ""
+    assert str(ver1) == "1.2.3"  # noqa: S101
+    assert ver1.major == 1  # noqa: S101
+    assert ver1.minor == 2  # noqa: S101 PLR2004
+    assert ver1.patch == 3  # noqa: S101 PLR2004
+    assert ver1.pre == ""  # noqa: S101
+    assert ver1.build == ""  # noqa: S101
 
     # Test: Version with pre-release and build
     ver2 = Version("1.2.3-alpha+build")
-    assert str(ver2) == "1.2.3-alpha+build"
-    assert ver2.major == 1
-    assert ver2.minor == 2
-    assert ver2.patch == 3
-    assert ver2.pre == "alpha"
-    assert ver2.build == "build"
+    assert str(ver2) == "1.2.3-alpha+build"  # noqa: S101
+    assert ver2.major == 1  # noqa: S101
+    assert ver2.minor == 2  # noqa: S101 PLR2004
+    assert ver2.patch == 3  # noqa: S101 PLR2004
+    assert ver2.pre == "alpha"  # noqa: S101
+    assert ver2.build == "build"  # noqa: S101
 
     # Test: Version comparison
-    assert (ver1 == ver2) is False
-    assert (ver1 != ver2) is True
-    assert (ver1 > ver2) is True
-    assert (ver1 < ver2) is False
+    assert (ver1 == ver2) is False  # noqa: S101
+    assert (ver1 != ver2) is True  # noqa: S101
+    assert (ver1 > ver2) is True  # noqa: S101
+    assert (ver1 < ver2) is False  # noqa: S101
 
     # Test: Version copy
     ver3 = Version(ver1)
-    assert (ver1 == ver3) is True
+    assert (ver1 == ver3) is True  # noqa: S101
 
     # Test: Version tuple
     ver4 = Version((1, 2, 3, "alpha", "build"))
-    assert str(ver4) == "1.2.3-alpha+build"
-    assert ver4.major == 1
-    assert ver4.minor == 2
-    assert ver4.patch == 3
-    assert ver4.pre == "alpha"
-    assert ver4.build == "build"
+    assert str(ver4) == "1.2.3-alpha+build"  # noqa: S101
+    assert ver4.major == 1  # noqa: S101
+    assert ver4.minor == 2  # noqa: S101 PLR2004
+    assert ver4.patch == 3  # noqa: S101 PLR2004
+    assert ver4.pre == "alpha"  # noqa: S101
+    assert ver4.build == "build"  # noqa: S101

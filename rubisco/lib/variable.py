@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # -*- mode: python -*-
 # vi: set ft=python :
 
@@ -18,9 +17,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-"""
-Rubisco variable system.
-"""
+"""Rubisco variable system."""
+
+from __future__ import annotations
 
 import os
 import re
@@ -29,10 +28,15 @@ from pathlib import Path
 from platform import uname
 from queue import Empty, LifoQueue
 from time import monotonic as time
-from typing import Any, Iterable, overload
+from typing import TYPE_CHECKING, Any, Generator, Iterable, Iterator, overload
+
+from typing_extensions import Self
 
 from rubisco.config import APP_VERSION, RUBISCO_COMMAND
 from rubisco.lib.l10n import _
+
+if TYPE_CHECKING:
+    from types import UnionType
 
 __all__ = [
     "variables",
@@ -42,6 +46,7 @@ __all__ = [
     "make_pretty",
     "assert_iter_types",
     "format_str",
+    "AFTypeError",
     "VariableUpdateCallback",
     "used_variables",
     "undefined_variables",
@@ -54,7 +59,11 @@ __all__ = [
 class Stack(LifoQueue):
     """A LifoQueue that can get the top value."""
 
-    def top(self, block: bool = True, timeout: int | None = None) -> Any:
+    def top(
+        self,
+        block: bool = True,  # noqa: FBT001 FBT002
+        timeout: int | None = None,
+    ) -> Any:  # noqa: ANN401
         """Get the top value of the stack.
 
         Args:
@@ -64,8 +73,8 @@ class Stack(LifoQueue):
 
         Returns:
             Any: The top value of the stack.
-        """
 
+        """
         with self.not_empty:
             if not block:
                 if not self._qsize():
@@ -74,7 +83,8 @@ class Stack(LifoQueue):
                 while not self._qsize():
                     self.not_empty.wait()
             elif timeout < 0:
-                raise ValueError("'timeout' must be a non-negative number")
+                msg = "'timeout' must be a non-negative number"
+                raise ValueError(msg)
             else:
                 endtime = time() + timeout
                 while not self._qsize():
@@ -82,25 +92,24 @@ class Stack(LifoQueue):
                     if remaining <= 0.0:
                         raise Empty
                     self.not_empty.wait(remaining)
-            item = self.queue[-1]
-            return item
+            return self.queue[-1]
 
-    def top_nowait(self) -> Any:
+    def top_nowait(self) -> Any:  # noqa: ANN401
         """Get the top value of the stack without blocking.
 
         Returns:
             Any: The top value of the stack.
-        """
 
-        return self.top(False)
+        """
+        return self.top(block=False)
 
     def __str__(self) -> str:
         """Get the string representation of the stack.
 
         Returns:
             The string representation of the stack.
-        """
 
+        """
         return self.__repr__()
 
     def __repr__(self) -> str:
@@ -108,8 +117,8 @@ class Stack(LifoQueue):
 
         Returns:
             The string representation of the stack.
-        """
 
+        """
         return f"[{', '.join([repr(item) for item in self.queue])}>"
 
 
@@ -117,14 +126,14 @@ class Stack(LifoQueue):
 variables: dict[str, Stack] = {}
 
 
-def push_variables(name: str, value: Any) -> None:
+def push_variables(name: str, value: Any) -> None:  # noqa: ANN401
     """Push a new variable.
 
     Args:
         name (str): The name of the variable.
         value (str): The value of the variable.
-    """
 
+    """
     if name in variables:
         variables[name].put(value)
     else:
@@ -132,7 +141,7 @@ def push_variables(name: str, value: Any) -> None:
         variables[name].put(value)
 
 
-def pop_variables(name: str) -> Any:
+def pop_variables(name: str) -> Any:  # noqa: ANN401
     """Pop the top value of the given variable.
 
     Args:
@@ -140,8 +149,8 @@ def pop_variables(name: str) -> Any:
 
     Returns:
         Any: The top value of the given variable.
-    """
 
+    """
     if name in variables:
         res = variables[name].get()
         if variables[name].empty():
@@ -150,7 +159,7 @@ def pop_variables(name: str) -> Any:
     return None
 
 
-def get_variable(name: str) -> Any:
+def get_variable(name: str) -> Any:  # noqa: ANN401
     """Get the value of the given variable.
 
     Args:
@@ -161,8 +170,8 @@ def get_variable(name: str) -> Any:
 
     Raises:
         KeyError: If the variable is not found.
-    """
 
+    """
     if name in variables:
         if name not in used_variables:
             old = used_variables.copy()
@@ -178,7 +187,7 @@ def get_variable(name: str) -> Any:
     raise KeyError(repr(name))
 
 
-def make_pretty(string: str | Any, empty: str = "") -> str:
+def make_pretty(string: str | Any, empty: str = "") -> str:  # noqa: ANN401
     """Make the string pretty.
 
     Args:
@@ -187,8 +196,8 @@ def make_pretty(string: str | Any, empty: str = "") -> str:
 
     Returns:
         str: Result string.
-    """
 
+    """
     string = str(string)
 
     if not string:
@@ -201,20 +210,20 @@ def make_pretty(string: str | Any, empty: str = "") -> str:
 
 def assert_iter_types(
     iterable: Iterable,
-    objtype: type,
+    objtype: type | UnionType,
     exc: Exception,
 ) -> None:
     """Assert the types of the elements in the iterable.
 
     Args:
         iterable (Iterable): The iterable to assert.
-        objtype (type): The type to assert.
+        objtype (type | UnionType): The type to assert.
         exc (Exception): The exception to raise.
 
     Raises:
         Exception: If the type of the element is not the same as the given.
-    """
 
+    """
     if objtype in [dict, AutoFormatDict]:
         objtype = dict | AutoFormatDict
 
@@ -242,24 +251,28 @@ push_variables("host.machine", uname_result.machine)
 push_variables("host.processor", uname_result.processor)
 
 
+# Unused now. May be used in extensions.
 class VariableUpdateCallback:
-    """
-    The callback called when the `used_variables` and `undefined_variables` are
-    updated.
+    """Variable update callback.
+
+    The callback called when the `used_variables` and `undefined_variables`
+    are updated.
     """
 
     def on_used_variables_update(self, old: set[str]) -> None:
-        """The callback called when the `used_variables` are updated.
+        """When the `used_variables` are updated.
 
         Args:
             old (set[str]): The old `used_variables`.
+
         """
 
     def on_undefined_variables_update(self, old: set[str]) -> None:
-        """The callback called when the `undefined_variables` are updated.
+        """When the `undefined_variables` are updated.
 
         Args:
             old (set[str]): The old `undefined_variables`.
+
         """
 
 
@@ -277,28 +290,32 @@ def add_callback(callback: VariableUpdateCallback) -> None:
 
     Args:
         callback (VariableUpdateCallback): The callback to add.
-    """
 
+    """
     callbacks.append(callback)
 
 
-def format_str(
-    string: str | Any, fmt: dict[str, str] | None = None  # noqa: E501
-) -> str | Any:
+# Toooo complex, need review.
+def format_str(  # noqa: C901
+    string: str | Any,  # noqa: ANN401
+    fmt: dict[str, Stack | str] | None = None,
+) -> str | Any:  # noqa: ANN401
     """Format the string with variables.
 
     Args:
         string (str | Any): The string to format.
+        fmt (dict[str, Stack | str] | None): The format dictionary.
+            Defaults to None.
 
     Returns:
         str | Any: The formatted string. If the input is not a string,
             return itself.
-    """
 
+    """
     if not isinstance(string, str):
         return string
 
-    if not fmt:  # ${{ key }} -> key, space is allowed.
+    if fmt is None:
         fmt = {}
 
     fmt = variables | fmt
@@ -326,7 +343,7 @@ def format_str(
             used_variables.add(key)
             for callback in callbacks:
                 callback.on_used_variables_update(used_variables)
-                fmt = variables | fmt  # Update the variables.
+                fmt = variables | fmt
         res = fmt.get(key, match)
         if key not in fmt:
             old = undefined_variables.copy()
@@ -340,12 +357,11 @@ def format_str(
     return string
 
 
-def _to_autotype(obj: Any) -> Any:
-    """
-    Convert the list or dict object to AutoFormatList or AutoFormatDict.
+def _to_autotype(obj: Any) -> Any:  # noqa: ANN401
+    """Convert the list or dict object to AutoFormatList or AutoFormatDict.
+
     If not list or dict, return itself.
     """
-
     if isinstance(obj, dict) and not isinstance(obj, AutoFormatDict):
         return AutoFormatDict(obj)
     if isinstance(obj, list) and not isinstance(obj, AutoFormatList):
@@ -355,8 +371,8 @@ def _to_autotype(obj: Any) -> Any:
 
 
 class AutoFormatList(list):
-    """
-    A list that can format value automatically with variables.
+    """A list that can format value automatically with variables.
+
     We will replace all the elements which are lists or dicts to
     AutoFormatList or AutoFormatDict recursively.
     The elements will be formatted when we get them.
@@ -369,22 +385,22 @@ class AutoFormatList(list):
         Args:
             iterable (Iterable, optional): The iterable to initialize the list.
                 Defaults to ().
-        """
 
+        """
         super().__init__([_to_autotype(item) for item in iterable])
 
-    def append(self, value: Any) -> None:
+    def append(self, value: Any) -> None:  # noqa: ANN401
         """Append the value to the list.
 
         Args:
             value (Any): The value to append.
-        """
 
+        """
         super().append(_to_autotype(value))
 
     raw_count = list.count
 
-    def count(self, value: Any) -> int:
+    def count(self, value: Any) -> int:  # noqa: ANN401
         """Count the value in the list.
 
         Args:
@@ -392,8 +408,8 @@ class AutoFormatList(list):
 
         Returns:
             int: The count of the value.
-        """
 
+        """
         counts = 0
         for item in self:
             if format_str(item) == format_str(value):
@@ -408,8 +424,8 @@ class AutoFormatList(list):
 
         Args:
             iterable (Iterable): The iterable to extend.
-        """
 
+        """
         for value in iterable:
             self.append(_to_autotype(value))
 
@@ -417,7 +433,7 @@ class AutoFormatList(list):
 
     def index(
         self,
-        value: Any,
+        value: Any,  # noqa: ANN401
         start: int = 0,
         stop: int = sys.maxsize,
     ) -> int:
@@ -430,8 +446,8 @@ class AutoFormatList(list):
 
         Returns:
             int: The index of the value.
-        """
 
+        """
         for index, item in enumerate(self[start:stop]):
             if format_str(item) == format_str(value):
                 return index
@@ -440,19 +456,19 @@ class AutoFormatList(list):
 
     raw_insert = list.insert
 
-    def insert(self, index: int, obj: Any) -> None:
+    def insert(self, index: int, obj: Any) -> None:  # noqa: ANN401
         """Insert the object to the given index.
 
         Args:
             index (int): The index to insert object.
             obj (Any): The object to insert.
-        """
 
+        """
         super().insert(index, _to_autotype(obj))
 
     raw_remove = list.remove
 
-    def pop(self, index: int = -1) -> Any:
+    def pop(self, index: int = -1) -> Any:  # noqa: ANN401
         """Pop the value of the given index.
 
         Args:
@@ -460,63 +476,47 @@ class AutoFormatList(list):
 
         Returns:
             Any: The value of the given index.
-        """
 
+        """
         return format_str(super().pop(index))
 
-    def reverse(self) -> None:
-        """
-        Reverse the list.
-        """
-
-        return AutoFormatList(super().reverse())
-
-    def __setitem__(self, index: int, value: Any) -> None:
+    def __setitem__(self, index: int, value: Any) -> None:  # noqa: ANN401
         """Set the value of the given index.
 
         Args:
             index (int): The index to set value.
             value (Any): The value to set.
-        """
 
+        """
         super().__setitem__(index, _to_autotype(value))
 
     raw_getitem = list.__getitem__
 
     @overload
-    def __getitem__(self, index: int) -> Any:
+    def __getitem__(self, index: int) -> Any:  # noqa: ANN401
+        ...
+
+    @overload
+    def __getitem__(self, index: slice) -> Self: ...
+
+    def __getitem__(self, index: int | slice) -> Any:
         """Get the value of the given index.
 
         Args:
-            index (int): The index to get value.
+            index (int | slice): The index to get value.
 
         Returns:
             Any: The value of the given index.
+
         """
-
-    @overload
-    def __getitem__(self, index: slice) -> "AutoFormatList":
-        """Get the slice of the list.
-
-        Args:
-            index (slice): The slice to get value.
-
-        Returns:
-            AutoFormatList: The slice of the list.
-        """
-
-    def __getitem__(self, index: int | slice) -> Any:
         if isinstance(index, int):
             return format_str(super().__getitem__(index))
         return AutoFormatList(super().__getitem__(index))
 
     raw_iter = list.__iter__
 
-    def __iter__(self):
-        """
-        Get the iterator of the list.
-        """
-
+    def __iter__(self) -> Generator[Any, None, None]:
+        """Get the iterator of the list."""
         for item in super().__iter__():
             yield format_str(item)
 
@@ -527,28 +527,32 @@ class AutoFormatList(list):
 
         Returns:
             str: The string representation of the list.
-        """
 
+        """
         return f"[{', '.join([repr(item) for item in self])}]"
 
 
+class AFTypeError(TypeError):
+    """AutoFormatDict valtype error."""
+
+
 class AutoFormatDict(dict):
-    """
-    A dictionary that can format value automatically with variables.
+    """A dictionary that can format value automatically with variables.
+
     We will replace all the elements which are lists or dicts to
     AutoFormatList or AutoFormatDict recursively.
     The elements will be formatted when we get them.
     Python's built-in list and dict will NEVER appear here.
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:  # noqa: ANN401
         """Initialize the AutoFormatDict.
 
         Args:
             *args: The arguments to initialize the dict.
             **kwargs: The keyword arguments to initialize the dict.
-        """
 
+        """
         super().__init__(*args, **kwargs)
         for key, value in self.items():
             # Replace the value with AutoFormatList or AutoFormatDict.
@@ -557,36 +561,42 @@ class AutoFormatDict(dict):
     raw_get = dict.get
 
     @overload
-    def get(self, key: str) -> Any:
+    def get(self, key: str) -> Any:  # noqa: ANN401
+        ...
+
+    @overload
+    def get(self, key: str, valtype: type | UnionType) -> Any:  # noqa: ANN401
+        ...
+
+    @overload
+    def get(self, key: str, default: Any) -> Any:  # noqa: ANN401
+        ...
+
+    @overload
+    def get(
+        self,
+        key: str,
+        default: Any,  # noqa: ANN401
+        valtype: type | UnionType,
+    ) -> Any:  # noqa: ANN401
+        ...
+
+    def get(self, key: str, *args: Any, **kwargs: Any) -> Any:
         """Get the value of the given key.
 
         Args:
             key (str): The key to get value.
-            valtype (type, optional): The type to assert. Defaults to object.
-                Only works for keyword arguments.
-
-        Returns:
-            Any: The value of the given key.
+            *args: The arguments to get value.
+            **kwargs: The keyword arguments to get value.
 
         Raises:
             KeyError: If the key is not found.
-            ValueError: If the type of the value is not the same as the given.
-        """
-
-    @overload
-    def get(self, key: str, default: Any) -> Any:
-        """Get the value of the given key.
-
-        Args:
-            key (str): The key to get value.
-            default (Any): The default value to return if the key is not found.
+            AFTypeError: If the value is not the same as the given type.
 
         Returns:
             Any: The value of the given key.
-            ValueError: If the type of the value is not the same as the given.
-        """
 
-    def get(self, key: str, *args, **kwargs) -> Any:
+        """
         valtype = kwargs.pop("valtype", object)
         if valtype == AutoFormatDict:
             valtype = dict
@@ -608,7 +618,7 @@ class AutoFormatDict(dict):
                 valtype_name = valtype.__name__
             else:
                 valtype_name = f"'{valtype}'"
-            raise ValueError(
+            raise AFTypeError(
                 format_str(
                     _(
                         "The value of key ${{key}} needs to be ${{type}}"
@@ -625,34 +635,31 @@ class AutoFormatDict(dict):
 
     raw_keys = dict.keys
 
-    def keys(self):
+    def keys(self) -> Generator[str, None, None]:
         """Get the keys of the dict."""
-
-        for key in super().keys():
+        for key in super().keys():  # noqa: SIM118
             yield format_str(key)
 
     raw_values = dict.values
 
-    def values(self):
+    def values(self) -> Generator[Any, None, None]:
         """Get the values of the dict."""
-
         for value in super().values():
             yield format_str(value)
 
     raw_items = dict.items
 
-    def items(self):
+    def items(self) -> list[tuple[str, Any]]:
         """Get the items of the dict."""
+        return list(zip(list(self.keys()), list(self.values())))
 
-        return zip(list(self.keys()), list(self.values()))
-
-    def update(self, src: "dict | AutoFormatDict") -> None:
+    def update(self, src: dict | Self) -> None:
         """Update the dict with the given mapping.
 
         Args:
             src (dict | AutoFormatDict): The mapping to update.
-        """
 
+        """
         if isinstance(src, dict) and not isinstance(src, AutoFormatDict):
             src = AutoFormatDict(src)
 
@@ -662,39 +669,24 @@ class AutoFormatDict(dict):
     raw_pop = dict.pop
 
     @overload
-    def pop(
-        self,
-        key: str,
-    ) -> Any:
-        """Pop the value of the given key.
-
-        Args:
-            key (str): The key to pop value.
-
-        Returns:
-            Any: The value of the given key.
-
-        Raises:
-            KeyError: If the key is not found.
-        """
+    def pop(self, key: str) -> Any: ...  # noqa: ANN401
 
     @overload
-    def pop(
-        self,
-        key: str,
-        default: Any,
-    ) -> Any:
+    def pop(self, key: str, default: Any) -> Any:  # noqa: ANN401
+        ...
+
+    def pop(self, key: str, *args: Any, **kwargs: Any) -> Any:
         """Pop the value of the given key.
 
         Args:
             key (str): The key to pop value.
-            default (Any): The default value to return if the key is not found.
+            *args: The arguments to pop value.
+            **kwargs: The keyword arguments to pop value.
 
         Returns:
             Any: The value of the given key.
-        """
 
-    def pop(self, key: str, *args, **kwargs) -> Any:
+        """
         if len(args) == 1:
             res = format_str(self.raw_pop(format_str(key), args[0]))
         elif "default" in kwargs:
@@ -705,13 +697,13 @@ class AutoFormatDict(dict):
             res = format_str(self.raw_pop(format_str(key)))
         return res
 
-    def copy(self) -> "AutoFormatDict":
+    def copy(self) -> AutoFormatDict:
         """Get a copy of the dict.
 
         Returns:
             AutoFormatDict: The copy of the dict.
-        """
 
+        """
         return AutoFormatDict(self)
 
     def popitem(self) -> tuple[str, Any]:
@@ -719,20 +711,21 @@ class AutoFormatDict(dict):
 
         Returns:
             tuple[str, Any]: The item of the dict.
-        """
 
+        """
         key, value = super().popitem()
         return format_str(key), format_str(value)
 
-    def merge(self, mapping: "dict | AutoFormatDict") -> None:
+    def merge(self, mapping: dict | Self) -> None:
         """Merge the dict with the given mapping.
+
         Merge is a recursive operation. It can update all the values
         in the dict, including the nested dicts and lists.
 
         Args:
             mapping (dict | AutoFormatDict): The mapping to merge.
-        """
 
+        """
         mapping = _to_autotype(mapping)
 
         for key, value in mapping.items():
@@ -750,17 +743,17 @@ class AutoFormatDict(dict):
                     self[key] = AutoFormatList()
                 self[key].extend(value)
 
-    def __setitem__(self, key: str, value: Any) -> None:
+    def __setitem__(self, key: str, value: Any) -> None:  # noqa: ANN401
         """Set the value of the given key.
 
         Args:
             key (str): The key to set value.
             value (Any): The value to set.
-        """
 
+        """
         super().__setitem__(key, _to_autotype(value))
 
-    def __getitem__(self, key: str) -> Any:
+    def __getitem__(self, key: str) -> Any:  # noqa: ANN401
         """Get the value of the given key.
 
         Args:
@@ -768,15 +761,12 @@ class AutoFormatDict(dict):
 
         Returns:
             Any: The value of the given key.
-        """
 
+        """
         return format_str(self.get(format_str(key)))
 
-    def __iter__(self):
-        """
-        Get the keys iterator of the dict.
-        """
-
+    def __iter__(self) -> Iterator[str]:
+        """Get the keys iterator of the dict."""
         return self.keys()
 
     def __repr__(self) -> str:
@@ -784,22 +774,22 @@ class AutoFormatDict(dict):
 
         Returns:
             str: The string representation of the dict.
-        """
 
-        kvs = [f"{repr(key)}: {repr(value)}" for key, value in self.items()]
+        """
+        kvs = [f"{key!r}: {value!r}" for key, value in self.items()]
 
         return f"{{{', '.join(kvs)}}}"
 
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         """Check if the dict is equal to the other.
 
         Args:
-            other (Any): The other object to compare.
+            other (object): The other object to compare.
 
         Returns:
             bool: If the dict is equal to the other.
-        """
 
+        """
         if not isinstance(other, dict):
             return False
 
@@ -809,20 +799,24 @@ class AutoFormatDict(dict):
 
         return True
 
-    def __ne__(self, other: Any) -> bool:
+    def __ne__(self, other: object) -> bool:
         """Check if the dict is not equal to the other.
 
         Args:
-            other (Any): The other object to compare.
+            other (object): The other object to compare.
 
         Returns:
             bool: If the dict is not equal to the other.
-        """
 
+        """
         return not self.__eq__(other)
 
     @classmethod
-    def fromkeys(cls, keys: Iterable, value: Any = None) -> "AutoFormatDict":
+    def fromkeys(
+        cls,
+        keys: Iterable,
+        value: Any = None,  # noqa: ANN401
+    ) -> Self:
         """Create a new dict with the given keys and value.
 
         Args:
@@ -832,8 +826,8 @@ class AutoFormatDict(dict):
 
         Returns:
             AutoFormatDict: The new dict.
-        """
 
+        """
         return cls({key: value for key in keys})
 
 
@@ -843,13 +837,13 @@ def merge_object(obj: AutoFormatDict, src: dict | AutoFormatDict) -> None:
     Args:
         obj (AutoFormatDict): The object to merge.
         src (dict | AutoFormatDict): The source to merge.
-    """
 
+    """
     for key, value in obj.items():
         if isinstance(value, AutoFormatDict):
             merge_object(value, src.get(key, {}))
         elif isinstance(value, list):
-            obj[key].extend(src.get(key, []))  # type: ignore
+            obj[key].extend(src.get(key, []))  # type: ignore[union-attr]
         else:
             obj[key] = src.get(key, value)  # Overwrite the value.
     for key, value in src.items():
@@ -858,9 +852,8 @@ def merge_object(obj: AutoFormatDict, src: dict | AutoFormatDict) -> None:
 
 
 if __name__ == "__main__":
+    import pytest
     import rich
-
-    rich.print(f"{__file__}: {__doc__.strip()}")
 
     # Test: Variables.
     rich.print(variables)
@@ -870,38 +863,28 @@ if __name__ == "__main__":
     afd["test"] = "test"
     afd.merge({"test": "merged", "non": "ok"})
     rich.print(afd)
-    assert afd == {"test": "merged", "non": "ok"}
+    assert afd == {"test": "merged", "non": "ok"}  # noqa: S101
 
     # Test: Getting the value of the key.
     afd = AutoFormatDict({"test": "testval"})
-    assert afd.get("test") == "testval"
-    assert afd.get("non", "ok") == "ok"
-    assert afd.get("test", valtype=str) == "testval"
-    assert afd.get("non", 0, valtype=int) == 0
-    assert afd.get("non", "ok", valtype=str) == "ok"
-    try:
-        afd.get("non")
-        assert False, "Should raise KeyError."
-    except KeyError as e:
-        rich.print("Exception caught:", e)
+    assert afd.get("test") == "testval"  # noqa: S101
+    assert afd.get("non", "ok") == "ok"  # noqa: S101
+    assert afd.get("test", valtype=str) == "testval"  # noqa: S101
+    assert afd.get("non", 0, valtype=int) == 0  # noqa: S101
+    assert afd.get("non", "ok", valtype=str) == "ok"  # noqa: S101
+    pytest.raises(KeyError, lambda: afd.get("non"))
 
-    # Test: Args and kwargs for get().
-    assert afd.get("test", valtype=str) == "testval"
-    try:
-        afd.get("test", valtype=int)
-        assert False, "Should raise ValueError."
-    except ValueError as e:
-        rich.print("Exception caught:", e)
-    assert afd.get("non", "ok", valtype=str) == "ok"
-    try:
-        afd.get("non", valtype=int)
-        assert False, "Should raise KeyError."
-    except KeyError as e:
-        rich.print("Exception caught:", e)
-    assert afd.get("non", "ok") == "ok"
-    assert afd.get("non", "ok", valtype=str) == "ok"
+    # Test: Args and kwargs of get().
+    assert afd.get("test", valtype=str) == "testval"  # noqa: S101
+    pytest.raises(AFTypeError, lambda: afd.get("test", valtype=int))
+    assert afd.get("non", "ok", valtype=str) == "ok"  # noqa: S101
+    pytest.raises(KeyError, lambda: afd.get("non", valtype=int))
+    assert afd.get("non", "ok") == "ok"  # noqa: S101
+    assert afd.get("non", "ok", valtype=str) == "ok"  # noqa: S101
 
     push_variables("test", "test")
-    assert get_variable("test") == "test"
-    assert AutoFormatDict({"${{test}}": "${{test}}"}) == {"test": "test"}
-    assert pop_variables("test") == "test"
+    assert get_variable("test") == "test"  # noqa: S101
+    assert AutoFormatDict(  # noqa: S101
+        {"${{test}}": "${{test}}"},
+    ) == {"test": "test"}
+    assert pop_variables("test") == "test"  # noqa: S101

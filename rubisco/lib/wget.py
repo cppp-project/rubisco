@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # -*- mode: python -*-
 # vi: set ft=python :
 
@@ -18,9 +17,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-"""
-Download a file from the Internet.
-"""
+"""Download a file from the Internet."""
+from __future__ import annotations
 
 from pathlib import Path
 from typing import Any
@@ -37,53 +35,60 @@ from rubisco.shared.ktrigger import IKernelTrigger, call_ktrigger
 __all__ = ["wget"]
 
 
-def wget(url: str, save_to: Path, overwrite: bool = True) -> None:
+def wget(
+    url: str,
+    save_to: Path,
+    overwrite: bool = True,  # noqa: FBT001 FBT002
+) -> None:
     """Download a file from the Internet.
 
     Args:
         url (str): The URL of the file.
         save_to (Path): The path to save the file to.
         overwrite (bool): Whether to overwrite the file if it already exists.
-    """
 
+    """
     if not overwrite:
         check_file_exists(save_to)
 
     logger.debug("Downloading '%s' ...", url)
 
+    content_length = 0
     with requests.head(url, timeout=TIMEOUT) as response:
+        response.raise_for_status()
         content_length = int(response.headers.get("Content-Length", 0))
 
+    with (
+        save_to.open("wb") as file,
+        requests.get(url, stream=True, timeout=TIMEOUT) as response,
+    ):
         response.raise_for_status()
-        with open(save_to, "wb") as file:
-            with requests.get(url, stream=True, timeout=TIMEOUT) as response:
-                response.raise_for_status()
-                task_name = format_str(
-                    _(
-                        "Downloading ${{url}} ...",
-                    ),
-                    fmt={"url": url},
-                )
-                call_ktrigger(
-                    IKernelTrigger.on_new_task,
-                    task_name=task_name,
-                    task_type=IKernelTrigger.TASK_DOWNLOAD,
-                    total=content_length,
-                )
-                for chunk in response.iter_content(chunk_size=COPY_BUFSIZE):
-                    file.write(chunk)
-                    file.flush()
-                    call_ktrigger(
-                        IKernelTrigger.on_progress,
-                        task_name=task_name,
-                        current=len(chunk),
-                        delta=True,
-                        more_data={"url": url},
-                    )
-                call_ktrigger(
-                    IKernelTrigger.on_finish_task,
-                    task_name=task_name,
-                )
+        task_name = format_str(
+            _(
+                "Downloading ${{url}} ...",
+            ),
+            fmt={"url": url},
+        )
+        call_ktrigger(
+            IKernelTrigger.on_new_task,
+            task_name=task_name,
+            task_type=IKernelTrigger.TASK_DOWNLOAD,
+            total=content_length,
+        )
+        for chunk in response.iter_content(chunk_size=COPY_BUFSIZE):
+            file.write(chunk)
+            file.flush()
+            call_ktrigger(
+                IKernelTrigger.on_progress,
+                task_name=task_name,
+                current=len(chunk),
+                delta=True,
+                more_data={"url": url},
+            )
+        call_ktrigger(
+            IKernelTrigger.on_finish_task,
+            task_name=task_name,
+        )
     logger.debug("Downloaded '%s' to '%s'.", url, save_to)
 
 
@@ -91,14 +96,13 @@ if __name__ == "__main__":
     import rich
     import rich.progress_bar
 
-    from rubisco.shared.ktrigger import \
-        bind_ktrigger_interface  # pylint: disable=ungrouped-imports
-
-    rich.print(f"{__file__}: {__doc__.strip()}")
+    from rubisco.shared.ktrigger import (  # pylint: disable=ungrouped-imports
+        bind_ktrigger_interface,
+    )
 
     rich.print(
         "[yellow]Make sure you have Internet connection. Otherwise, "
-        "it may fail.[/yellow]"
+        "it may fail.[/yellow]",
     )
 
     URL = "https://musl.libc.org/releases/musl-1.2.5.tar.gz"
@@ -109,7 +113,10 @@ if __name__ == "__main__":
         _cur = 0
 
         def on_new_task(
-            self, task_name: str, task_type: int, total: int | float
+            self,
+            task_name: str,
+            task_type: int,
+            total: float,
         ) -> None:
             rich.print("on_new_task():", task_name, task_type, total)
             self._progress_bar = rich.progress_bar.ProgressBar(
@@ -119,11 +126,11 @@ if __name__ == "__main__":
 
         def on_progress(
             self,
-            task_name: str,
-            current: int | float,
-            delta: bool = False,
-            more_data: dict[str, Any] | None = None,
-        ):
+            task_name: str,  # noqa: ARG002
+            current: float,
+            delta: bool = False,  # noqa: FBT001 FBT002
+            more_data: dict[str, Any] | None = None,  # noqa: ARG002
+        ) -> None:
             if delta:
                 current += self._cur
                 self._cur = current
@@ -131,7 +138,7 @@ if __name__ == "__main__":
             rich.print(self._progress_bar)
             rich.get_console().file.write("\r")
 
-        def on_finish_task(self, task_name: str):
+        def on_finish_task(self, task_name: str) -> None:
             rich.print("\non_finish_task():", task_name)
 
     kt = _TestKTrigger()

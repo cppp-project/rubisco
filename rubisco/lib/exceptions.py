@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # -*- mode: python -*-
 # vi: set ft=python :
 
@@ -18,74 +17,84 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-"""
-Rubisco exceptions definitions.
+"""Rubisco exceptions definitions.
+
 These exceptions is used to describe a exception that has a document link or a
 hint.
 """
 
+from __future__ import annotations
+
 import os
+from typing import Any
 
 from rubisco.lib.l10n import _
 from rubisco.lib.variable import format_str
 
 __all__ = [
-    "RUException",
-    "RUValueException",
-    "RUOSException",
-    "RUShellExecutionException",
+    "RUError",
+    "RUValueError",
+    "RUOSError",
+    "RUShellExecutionError",
 ]
 
 
-class RUException(RuntimeError):
+class RUError(RuntimeError):
     """Rubisco exception basic class."""
 
     docurl: str
     hint: str
 
-    def __init__(self, *args, docurl: str = "", hint: str = "", **kwargs):
+    def __init__(
+        self,
+        *args: str | Exception,
+        docurl: str = "",
+        hint: str = "",
+        **kwargs: Any,  # noqa: ANN401
+    ) -> None:
         """Initialize a basic rubisco exception.
 
         Args:
+            *args: Positional arguments.
             docurl (str, optional): Document link url. Defaults to "".
             hint (str, optional): Exception hint. Defaults to "".
+            **kwargs: Keyword arguments.
+
         """
         self.docurl = docurl
         self.hint = hint
         super().__init__(*args, **kwargs)
 
 
-class RUValueException(RUException, ValueError):
-    """
-    Rubisco value exception.
-    """
+class RUValueError(RUError, ValueError):
+    """Rubisco value exception."""
 
 
-class RUOSException(RUException, OSError):
-    """
-    OS Exception.
-    """
+class RUOSError(RUError, OSError):
+    """OS Exception."""
 
 
-class RUShellExecutionException(RUException):
-    """
-    Shell execution exception.
-    """
+class RUShellExecutionError(RUError):
+    """Shell execution exception."""
 
-    if os.name == "nt":
-        RETCODE_COMMAND_NOT_FOUND = 9009
-    else:
-        RETCODE_COMMAND_NOT_FOUND = 127
+    RETCODE_COMMAND_NOT_FOUND = 9009 if os.name == "nt" else 127
 
     retcode: int
 
-    def __init__(self, *args, retcode: int = 0, **kwargs):
+    def __init__(
+        self,
+        *args: str,
+        retcode: int = 0,
+        **kwargs: Any,  # noqa: ANN401
+    ) -> None:
         """Initialize a shell execution exception.
 
         Args:
+            *args: Positional arguments.
             retcode (int, optional): Shell return code. Defaults to 0.
-        """
+            **kwargs: Keyword arguments.
 
+        """
         hint = format_str(
             _("Subprocess return code is ${{retcode}}."),
             fmt={
@@ -96,10 +105,15 @@ class RUShellExecutionException(RUException):
             hint = format_str(
                 _(
                     "Subprocess return code is ${{retcode}}. "
-                    "It may be caused by command not found."
+                    "It may be caused by command not found.",
                 ),
                 fmt={"retcode": str(retcode)},
             )
 
-        super().__init__(hint=hint, *args, **kwargs)
+        super().__init__(
+            *args,
+            docurl=str(kwargs.get("docurl", "")),
+            hint=hint,
+            **kwargs,
+        )
         self.retcode = retcode

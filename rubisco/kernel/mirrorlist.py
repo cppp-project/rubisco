@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # -*- mode: python -*-
 # vi: set ft=python :
 
@@ -18,10 +17,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-"""
-Git URL parser that supports mirrorlist.
+"""Git URL parser that supports mirrorlist.
+
 e.g:
-    "https://github.com/${{ user }}/${{ repo }}.git"
+    `https://github.com/${{ user }}/${{ repo }}.git`
 """
 
 import asyncio
@@ -30,9 +29,13 @@ import re
 import json5 as json
 from urllib3.util import parse_url
 
-from rubisco.config import (DEFAULT_CHARSET, GLOBAL_CONFIG_DIR,
-                            USER_CONFIG_DIR, WORKSPACE_CONFIG_DIR)
-from rubisco.lib.exceptions import RUValueException
+from rubisco.config import (
+    DEFAULT_CHARSET,
+    GLOBAL_CONFIG_DIR,
+    USER_CONFIG_DIR,
+    WORKSPACE_CONFIG_DIR,
+)
+from rubisco.lib.exceptions import RUValueError
 from rubisco.lib.l10n import _
 from rubisco.lib.log import logger
 from rubisco.lib.speedtest import C_INTMAX, url_speedtest
@@ -63,11 +66,13 @@ for mirrorlist_file in [
                 mirrorlist.merge(lower_data)
         except (OSError, json.JSON5DecodeError) as exc_:
             logger.warning(
-                "Failed to load mirrorlist file: %s: %s", mirrorlist_file, exc_
+                "Failed to load mirrorlist file: %s: %s",
+                mirrorlist_file,
+                exc_,
             )
 
 
-async def _speedtest(future: asyncio.Future, mirror: str, url: str):
+async def _speedtest(future: asyncio.Future, mirror: str, url: str) -> None:
     try:
         parsed_url = parse_url(url)
         url = f"{parsed_url.scheme}://{parsed_url.host}"  # Host only.
@@ -94,18 +99,24 @@ def get_mirrorlist(
 
     Returns:
         dict: The mirrorlist.
-    """
 
+    """
     host = host.lower()
 
-    mlist1 = mirrorlist.get(host, valtype=dict | str)
+    mlist1 = mirrorlist.get(  # type: ignore[no-untyped-call]
+        host,
+        valtype=dict | str,
+    )
     if isinstance(mlist1, str):  # Alias support.
-        mlist1 = mirrorlist.get(mlist1, valtype=dict | str)
+        mlist1 = mirrorlist.get(  # type: ignore[no-untyped-call]
+            mlist1,
+            valtype=dict | str,
+        )
     if isinstance(mlist1, str):
         try:
             return get_mirrorlist(mlist1, protocol)
         except RecursionError as exc:  # The easiest way to detect recursion :)
-            raise RUValueException(
+            raise RUValueError(
                 format_str(
                     _("Recursion detected in mirrorlist: '${{name}}'"),
                     fmt={"name": mlist1},
@@ -131,8 +142,8 @@ async def find_fastest_mirror(
 
     Returns:
         str: The mirror name.
-    """
 
+    """
     try:
         mlist: AutoFormatDict = get_mirrorlist(host, protocol)
         future = asyncio.get_event_loop().create_future()
@@ -148,7 +159,7 @@ async def find_fastest_mirror(
         fastest = future.result()
         if fastest == C_INTMAX:
             return "official"
-        return fastest
+        return fastest  # noqa: TRY300
     except KeyError:
         return "official"
 
@@ -156,7 +167,7 @@ async def find_fastest_mirror(
 def get_url(
     remote: str,
     protocol: str = "http",
-    use_fastest: bool = True,
+    use_fastest: bool = True,  # noqa: FBT001 FBT002
 ) -> str:
     """Get the mirror URL of a remote Git repository.
 
@@ -167,8 +178,8 @@ def get_url(
 
     Returns:
         str: The mirror URL.
-    """
 
+    """
     logger.debug("Getting mirror of: %s ", remote)
 
     matched = re.match(
@@ -182,7 +193,10 @@ def get_url(
         else:
             mirror = "official"
         try:
-            url_template = get_mirrorlist(website, protocol).get(
+            url_template = get_mirrorlist(
+                website,
+                protocol,
+            ).get(  # type: ignore[no-untyped-call]
                 mirror,
                 valtype=str,
             )
@@ -198,24 +212,23 @@ def get_url(
                     "name": mirror,
                 },
             )
-            raise RUValueException(message) from None
+            raise RUValueError(message) from None
     return remote
 
 
 if __name__ == "__main__":
     import rich
 
-    from rubisco.shared.ktrigger import \
-        bind_ktrigger_interface  # pylint: disable=ungrouped-imports
-
-    rich.print(f"{__file__}: {__doc__.strip()}")
+    from rubisco.shared.ktrigger import (  # pylint: disable=ungrouped-imports
+        bind_ktrigger_interface,
+    )
 
     class _TestKTrigger(IKernelTrigger):
 
-        def pre_speedtest(self, host: str):
+        def pre_speedtest(self, host: str) -> None:
             rich.print(f"[blue]=>[/blue] Testing {host} ...", end="\n")
 
-        def post_speedtest(self, host: str, speed: int):
+        def post_speedtest(self, host: str, speed: int) -> None:
             speed_str = f"{speed} us" if speed != -1 else " - CANCELED"
             rich.print(f"[blue]::[/blue] Testing {host} {speed_str}", end="\n")
 
@@ -232,6 +245,7 @@ if __name__ == "__main__":
     # Test: Get a non-exist mirror URL.
     try:
         url_ = get_url("cppp-project/rubisco@non-exist")
-        assert False
+        _MSG = "Should not reach here"
+        raise AssertionError(_MSG)
     except ValueError as exc_:
         rich.print(f"[green]Exception caught: {exc_}[/green]")

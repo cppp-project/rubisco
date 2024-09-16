@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # -*- mode: python -*-
 # vi: set ft=python :
 
@@ -18,20 +17,19 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-"""
-Package management utils for environment.
-"""
+"""Package management utils for environment."""
+
+from __future__ import annotations
 
 import os
 
-from rubisco.lib.l10n import _
-from rubisco.shared.ktrigger import IKernelTrigger, call_ktrigger
 from rubisco.config import PIP_LOG_FILE
-from rubisco.lib.process import Process
-from rubisco.envutils.utils import is_venv
 from rubisco.envutils.env import RUEnvironment, setup_new_venv
+from rubisco.envutils.utils import is_venv
 from rubisco.kernel.mirrorlist import get_url
-
+from rubisco.lib.l10n import _
+from rubisco.lib.process import Process
+from rubisco.shared.ktrigger import IKernelTrigger, call_ktrigger
 
 __all__ = ["install_pip_package"]
 
@@ -41,7 +39,8 @@ def _exec_pip(dest: RUEnvironment, args: list[str]) -> None:
     if os.name == "nt":
         pip_path = dest.path / "Scripts" / "pip.exe"
     if not pip_path.exists():
-        raise ValueError(f"Pip not found: '{pip_path}'")  # Internal error.
+        msg = f"Pip not found: '{pip_path}'"
+        raise ValueError(msg)  # Internal error.
 
     Process(
         [
@@ -52,8 +51,8 @@ def _exec_pip(dest: RUEnvironment, args: list[str]) -> None:
             "--no-color",
             "--log",
             str(PIP_LOG_FILE),
-        ]
-        + args
+            *args,
+        ],
     ).run()
 
 
@@ -62,9 +61,9 @@ def install_pip_package(dest: RUEnvironment, pkgs: list[str]) -> None:
 
     Args:
         dest (RUEnvironment): Destination environment.
-        name (str): Extension name.
-    """
+        pkgs (list[str]): Pip packages.
 
+    """
     if not pkgs:
         return
 
@@ -73,7 +72,7 @@ def install_pip_package(dest: RUEnvironment, pkgs: list[str]) -> None:
             IKernelTrigger.on_hint,
             message=_(
                 "You are installing a extension to the global environment. "
-                "Please make sure that you have the right permissions."
+                "Please make sure that you have the right permissions.",
             ),
         )
 
@@ -81,4 +80,4 @@ def install_pip_package(dest: RUEnvironment, pkgs: list[str]) -> None:
         setup_new_venv(dest)
 
     index_url = get_url("/@pypi")
-    _exec_pip(dest, ["install"] + pkgs + ["--index-url", index_url])
+    _exec_pip(dest, ["install", *pkgs, "--index-url", index_url])

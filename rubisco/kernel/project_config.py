@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # -*- mode: python -*-
 # vi: set ft=python :
 
@@ -18,9 +17,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-"""
-Project configuration loader.
-"""
+"""Project configuration loader."""
+
+from __future__ import annotations
 
 from pathlib import Path
 from typing import Any
@@ -29,13 +28,18 @@ import json5 as json
 
 from rubisco.config import APP_VERSION, USER_REPO_CONFIG
 from rubisco.kernel.workflow import run_inline_workflow, run_workflow
-from rubisco.lib.exceptions import RUValueException
+from rubisco.lib.exceptions import RUValueError
 from rubisco.lib.fileutil import glob_path, resolve_path
 from rubisco.lib.l10n import _
 from rubisco.lib.process import Process
-from rubisco.lib.variable import (AutoFormatDict, assert_iter_types,
-                                  format_str, make_pretty, pop_variables,
-                                  push_variables)
+from rubisco.lib.variable import (
+    AutoFormatDict,
+    assert_iter_types,
+    format_str,
+    make_pretty,
+    pop_variables,
+    push_variables,
+)
 from rubisco.lib.version import Version
 
 __all__ = [
@@ -46,21 +50,18 @@ __all__ = [
 
 
 class ProjectHook:  # pylint: disable=too-few-public-methods
-    """
-    Project hook.
-    """
+    """Project hook."""
 
     _raw_data: AutoFormatDict
     name: str
 
-    def __init__(self, data: AutoFormatDict, name: str):
+    def __init__(self, data: AutoFormatDict, name: str) -> None:
+        """Initialize the project hook."""
         self._raw_data = data
         self.name = name
 
-    def run(self):
-        """
-        Run this hook.
-        """
+    def run(self) -> None:
+        """Run this hook."""
         variables: AutoFormatDict = self._raw_data.get(
             "vars",
             {},
@@ -79,14 +80,14 @@ class ProjectHook:  # pylint: disable=too-few-public-methods
             )
 
             if not cmd and not workflow and not inline_wf:
-                raise RUValueException(
+                raise RUValueError(
                     format_str(
                         _("Hook '${{name}}' is invalid."),
                         fmt={"name": make_pretty(self.name)},
                     ),
                     hint=_(
                         "A workflow [yellow]SHOULD[/yellow] contain at "
-                        "least 'exec', 'run' and 'workflow'."
+                        "least 'exec', 'run' and 'workflow'.",
                     ),
                 )
 
@@ -102,14 +103,12 @@ class ProjectHook:  # pylint: disable=too-few-public-methods
             if cmd:
                 Process(cmd).run()
         finally:
-            for name in variables.keys():
+            for name in variables:
                 pop_variables(name)
 
 
 class ProjectConfigration:  # pylint: disable=too-many-instance-attributes
-    """
-    Project configuration instance.
-    """
+    """Project configuration instance."""
 
     config_file: Path
     config: AutoFormatDict
@@ -127,7 +126,8 @@ class ProjectConfigration:  # pylint: disable=too-many-instance-attributes
 
     pushed_variables: list[str]
 
-    def __init__(self, config_file: Path):
+    def __init__(self, config_file: Path) -> None:
+        """Initialize the project configuration."""
         self.config_file = config_file
         self.config = AutoFormatDict()
         self.hooks = AutoFormatDict()
@@ -135,7 +135,7 @@ class ProjectConfigration:  # pylint: disable=too-many-instance-attributes
 
         self._load()
 
-    def _load(self):
+    def _load(self) -> None:
         with self.config_file.open() as file:
             self.config = AutoFormatDict(json.load(file))
 
@@ -148,20 +148,20 @@ class ProjectConfigration:  # pylint: disable=too-many-instance-attributes
         )
 
         self.rubisco_min_version = Version(
-            self.config.get("rubisco-min-version", "0.0.0", valtype=str)
+            self.config.get("rubisco-min-version", "0.0.0", valtype=str),
         )
 
         if self.rubisco_min_version > APP_VERSION:
-            raise RUValueException(
+            raise RUValueError(
                 format_str(
                     _(
-                        "The minimum version of rubisco required by the project "  # noqa: E501
-                        "'[underline]${{name}}[/underline]' is "
-                        "'[underline]${{version}}[/underline]'."
+                        "The minimum version of rubisco required by the "
+                        "project '[underline]${{name}}[/underline]' is "
+                        "'[underline]${{version}}[/underline]'.",
                     ),
                     fmt={
                         "name": make_pretty(self.name, _("<Unnamed>")),
-                        "version": self.rubisco_min_version,
+                        "version": str(self.rubisco_min_version),
                     },
                 ),
                 hint=_("Please upgrade rubisco to the required version."),
@@ -184,14 +184,24 @@ class ProjectConfigration:  # pylint: disable=too-many-instance-attributes
             {},
             valtype=dict,
         )
-        assert_iter_types(hooks.values(), dict, RUValueException(
-            _("Hooks must be a dictionary."),
-        ))
+        assert_iter_types(
+            hooks.values(),
+            dict,
+            RUValueError(
+                _("Hooks must be a dictionary."),
+            ),
+        )
         for name, data in hooks.items():
-            self.hooks[name] = ProjectHook(data, name)
+            self.hooks[name] = ProjectHook(
+                data,  # type: ignore[assignment]
+                name,
+            )
 
         # Serialize configuration to variables.
-        def _push_vars(obj: AutoFormatDict | list | Any, prefix: str):
+        def _push_vars(
+            obj: AutoFormatDict | list | Any,  # noqa: ANN401
+            prefix: str,
+        ) -> None:
             if isinstance(obj, AutoFormatDict):
                 for key, value in obj.items():
                     _push_vars(value, f"{prefix}.{key}")
@@ -203,6 +213,7 @@ class ProjectConfigration:  # pylint: disable=too-many-instance-attributes
             else:
                 self.pushed_variables.append(prefix)
                 push_variables(prefix, obj)
+
         _push_vars(self.config, "project")
 
     def __repr__(self) -> str:
@@ -210,8 +221,8 @@ class ProjectConfigration:  # pylint: disable=too-many-instance-attributes
 
         Returns:
             str: The string representation of the project configuration.
-        """
 
+        """
         return f"<ProjectConfiguration: {self.name} {self.version}>"
 
     def __str__(self) -> str:
@@ -219,24 +230,21 @@ class ProjectConfigration:  # pylint: disable=too-many-instance-attributes
 
         Returns:
             str: The string representation of the project configuration.
-        """
 
+        """
         return repr(self)
 
-    def run_hook(self, name: str):
+    def run_hook(self, name: str) -> None:
         """Run a hook by its name.
 
         Args:
             name (str): The hook name.
-        """
 
+        """
         self.hooks[name].run()
 
-    def __del__(self):
-        """
-        Remove all pushed variables.
-        """
-
+    def __del__(self) -> None:
+        """Remove all pushed variables."""
         for val in self.pushed_variables:
             pop_variables(val)
 
@@ -246,11 +254,11 @@ def _load_config(config_file: Path, loaded_list: list[Path]) -> AutoFormatDict:
     with config_file.open() as file:
         config = AutoFormatDict(json.load(file))
         if not isinstance(config, AutoFormatDict):
-            raise RUValueException(
+            raise RUValueError(
                 format_str(
                     _(
                         "Invalid configuration in file "
-                        "'[underline]${{path}}[/underline]'."
+                        "'[underline]${{path}}[/underline]'.",
                     ),
                     fmt={"path": make_pretty(config_file.absolute())},
                 ),
@@ -258,13 +266,13 @@ def _load_config(config_file: Path, loaded_list: list[Path]) -> AutoFormatDict:
             )
         for include in config.get("includes", [], valtype=list):
             if not isinstance(include, str):
-                raise RUValueException(
+                raise RUValueError(
                     format_str(
                         _(
-                            "Invalid path in '[underline]${{path}}[/underline]'."  # noqa: E501
+                            "Invalid path '[underline]${{path}}[/underline]'.",
                         ),
                         fmt={"path": make_pretty(config_file.absolute())},
-                    )
+                    ),
                 )
             include_file = config_file.parent / include
             if include_file.is_dir():
@@ -288,14 +296,12 @@ def load_project_config(project_dir: Path) -> ProjectConfigration:
 
     Returns:
         ProjectConfigration: The project configuration instance.
-    """
 
+    """
     return ProjectConfigration(project_dir / USER_REPO_CONFIG)
 
 
 if __name__ == "__main__":
     import rich
-
-    rich.print(f"{__file__}: {__doc__.strip()}")
 
     rich.print(_load_config(Path("project.json"), []))

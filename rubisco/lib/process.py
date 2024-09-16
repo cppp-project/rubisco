@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # -*- mode: python -*-
 # vi: set ft=python :
 
@@ -18,9 +17,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-"""
-Rubisco process control.
-"""
+"""Rubisco process control."""
+
+from __future__ import annotations
 
 import os
 import sys
@@ -31,7 +30,7 @@ import psutil
 
 from rubisco.config import DEFAULT_CHARSET
 from rubisco.lib.command import command
-from rubisco.lib.exceptions import RUShellExecutionException
+from rubisco.lib.exceptions import RUShellExecutionError
 from rubisco.lib.fileutil import TemporaryObject
 from rubisco.lib.l10n import _
 from rubisco.lib.log import logger
@@ -45,16 +44,17 @@ def get_system_shell() -> str:
 
     Returns:
         str: The system shell.
-    """
 
+    """
     if os.name == "nt":
         return os.environ.get("COMSPEC", "cmd.exe")
     return os.environ.get("SHELL", "/bin/sh")
 
 
 class Process:
-    """
-    Process controler. Process's stdin/stdout/stderr will be direct to
+    """Process controler.
+
+    Process's stdin/stdout/stderr will be direct to
     parent process's stdin/stdout/stderr. We will allocate a new console for
     non-console application on Windows.
     """
@@ -68,8 +68,12 @@ class Process:
     def __init__(
         self,
         cmd: list[str] | str,
-        cwd: Path = Path.cwd(),
+        cwd: Path | None = None,
     ) -> None:
+        """Prepare to run a process."""
+        if cwd is None:
+            cwd = Path.cwd()
+
         if isinstance(cmd, str) and "\n" in cmd:
             self._tempfile = TemporaryObject.new_file(suffix=".bat")
             self._tempfile.path.write_text(
@@ -84,7 +88,10 @@ class Process:
         self.origin_cmd = command(cmd)
         self.cwd = cwd
 
-    def run(self, fail_on_error: bool = True) -> int:
+    def run(
+        self,
+        fail_on_error: bool = True,  # noqa: FBT001 FBT002
+    ) -> int:
         """Run the process.
 
         Args:
@@ -92,8 +99,8 @@ class Process:
 
         Returns:
             int: The return code.
-        """
 
+        """
         logger.debug(
             "Executing: %s cwd=%s\n%s",
             repr(self.cmd),
@@ -101,9 +108,9 @@ class Process:
             self.origin_cmd,
         )
         call_ktrigger(IKernelTrigger.pre_exec_process, proc=self)
-        with Popen(
-            self.cmd,
-            shell=True,
+        with Popen(  # noqa: S602
+            self.cmd,  # The executed command should be output.
+            shell=True,  # We are not responsible for security.
             cwd=str(self.cwd),
             stdin=sys.stdin,
             stdout=sys.stdout,
@@ -118,18 +125,19 @@ class Process:
                 raise_exc=raise_exc,
             )
             if raise_exc:
-                raise RUShellExecutionException(
-                    _("Shell execution error."), retcode=ret
+                raise RUShellExecutionError(
+                    _("Shell execution error."),  # type: ignore[arg-type]
+                    retcode=ret,
                 )
 
             return ret
 
     def popen(
         self,
-        stdout: bool = True,
+        stdout: bool = True,  # noqa: FBT001 FBT002
         stderr: int = 1,
-        fail_on_error: bool = True,
-        show_step: bool = True,
+        fail_on_error: bool = True,  # noqa: FBT001 FBT002
+        show_step: bool = True,  # noqa: FBT001 FBT002
     ) -> tuple[str, str, int]:
         """Run the command and return the stdout and stderr.
 
@@ -148,20 +156,22 @@ class Process:
                 required, it will be "".
 
         Raises:
-            RUShellExecutionException: If retcode !=0 and strict == True.
-        """
+            RUShellExecutionError: If retcode !=0 and strict == True.
 
+        """
         if show_step:
             call_ktrigger(IKernelTrigger.pre_exec_process, proc=self)
-        with Popen(
+        with Popen(  # noqa: S602
             self.cmd,
             shell=True,
             cwd=str(self.cwd),
             stdin=sys.stdin,
             stdout=PIPE if stdout else sys.stdout,
             stderr=(
-                PIPE if stderr == 1 else STDOUT if stderr == 2 else sys.stderr
-            ),  # noqa: E501
+                PIPE
+                if stderr == 1
+                else (STDOUT if stderr == 2 else sys.stderr)  # noqa: PLR2004
+            ),
         ) as self.process:
             ret = self.process.wait()
             raise_exc = ret != 0 and fail_on_error
@@ -173,15 +183,16 @@ class Process:
                     raise_exc=raise_exc,
                 )
             if raise_exc:
-                raise RUShellExecutionException(
-                    _("Shell execution error."), retcode=ret
+                raise RUShellExecutionError(
+                    _("Shell execution error."),  # type: ignore[arg-type]
+                    retcode=ret,
                 )
-            if stdout:
+            if stdout and self.process.stdout:
                 stdout_data = self.process.stdout.read()
                 stdout_data = stdout_data.decode(DEFAULT_CHARSET)
             else:
                 stdout_data = ""
-            if stderr == 1:
+            if stderr == 1 and self.process.stderr:
                 stderr_data = self.process.stderr.read()
                 stderr_data = stderr_data.decode(DEFAULT_CHARSET)
             else:
@@ -190,7 +201,6 @@ class Process:
 
     def terminate(self) -> None:
         """Terminate the process."""
-
         self.process.terminate()
         self.process.wait()
 
@@ -199,11 +209,11 @@ class Process:
 
         Returns:
             str: The string representation.
-        """
 
+        """
         if self._tempfile:
-            return f"Process({repr(self.origin_cmd)})"
-        return f"Process({repr(self.cmd)})"
+            return f"Process({self.origin_cmd!r})"
+        return f"Process({self.cmd!r})"
 
 
 def is_valid_pid(pid: int) -> bool:
@@ -214,16 +224,13 @@ def is_valid_pid(pid: int) -> bool:
 
     Returns:
         bool: True if the pid is valid, otherwise False.
-    """
 
+    """
     return psutil.pid_exists(pid)
 
 
 if __name__ == "__main__":
-
-    import rich
-
-    rich.print(f"{__file__}: {__doc__.strip()}")
+    import pytest
 
     # Test: Process.
     p = Process("echo Hello, world!")
@@ -233,51 +240,43 @@ if __name__ == "__main__":
 
     # Test: Process with error
     p = Process("echo Hello, world! && exit 1")
-    try:
-        p.run(fail_on_error=True)
-        assert False
-    except RUShellExecutionException as e:
-        assert e.retcode == 1
+    pytest.raises(RUShellExecutionError, lambda: p.run(fail_on_error=True))
 
     # Test: Process with error.
     p = Process("echo Hello, world! && exit 1")
-    try:
-        assert p.run(fail_on_error=False) == 1
-    except RUShellExecutionException:
-        assert False
+    p.run(fail_on_error=False)
 
     # Test: Popen.
     stdout_, stderr_, retcode_ = Process("echo Hello, world!").popen()
-    assert stdout_ == "Hello, world!\n"
-    assert stderr_ == ""
-    assert retcode_ == 0
+    assert stdout_ == "Hello, world!\n"  # noqa: S101
+    assert stderr_ == ""  # noqa: S101
+    assert retcode_ == 0  # noqa: S101
 
     # Test: Popen with an exception.
-    try:
-        stdout_, stderr_, retcode_ = Process(
+    pytest.raises(
+        RUShellExecutionError,
+        lambda: Process(
             "false",
-        ).popen(stdout=False, stderr=1)
-        assert 0
-    except RUShellExecutionException:
-        print("Exception caught.")
+        ).popen(stdout=False, stderr=1),
+    )
 
     # Test: A multiline command.
     p = Process("echo line1 \n echo line2")
-    assert p.run() == 0
+    assert p.run() == 0  # noqa: S101
 
     # Test: A multiline popen.
     stdout_, stderr_, retcode_ = Process("echo line1 \n echo line2").popen()
-    assert stdout_.strip() == "line1\nline2"
-    assert stderr_ == ""
-    assert retcode_ == 0
+    assert stdout_.strip() == "line1\nline2"  # noqa: S101
+    assert stderr_ == ""  # noqa: S101
+    assert retcode_ == 0  # noqa: S101
 
     # Test: Popen with stderr redirection.
     stdout_, stderr_, retcode_ = Process("echo Hello, world! >&2").popen(
         stderr=2,
     )
-    assert stdout_ == "Hello, world!\n"
-    assert stderr_ == ""
-    assert retcode_ == 0
+    assert stdout_ == "Hello, world!\n"  # noqa: S101
+    assert stderr_ == ""  # noqa: S101
+    assert retcode_ == 0  # noqa: S101
 
     # Test: PID check.
-    assert is_valid_pid(0)
+    assert is_valid_pid(0)  # noqa: S101

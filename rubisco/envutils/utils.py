@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # -*- mode: python -*-
 # vi: set ft=python :
 
@@ -18,17 +17,15 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-"""
-Package management utils for environment.
-"""
+"""Package management utils for environment."""
 
 import os
 import sys
 from pathlib import Path
 
-from rubisco.shared.ktrigger import IKernelTrigger, call_ktrigger
 from rubisco.lib.l10n import _
 from rubisco.lib.variable import format_str
+from rubisco.shared.ktrigger import IKernelTrigger, call_ktrigger
 
 
 def is_venv(path: Path) -> bool:
@@ -40,18 +37,15 @@ def is_venv(path: Path) -> bool:
     Returns:
         bool: True if the path is a Python virtual environment,
               otherwise False.
-    """
 
+    """
     if not path.exists():
         return False
 
     if not path.is_dir():
         return False
 
-    if not (path / "pyvenv.cfg").is_file():
-        return False
-
-    return True
+    return (path / "pyvenv.cfg").is_file()
 
 
 def add_venv_to_syspath(path: Path) -> None:
@@ -59,8 +53,8 @@ def add_venv_to_syspath(path: Path) -> None:
 
     Args:
         path (Path): The path to add.
-    """
 
+    """
     if not is_venv(path):
         return
 
@@ -80,6 +74,6 @@ def add_venv_to_syspath(path: Path) -> None:
             IKernelTrigger.on_warning,
             message=format_str(
                 _("Failed to add '${{path}}' to sys.path: ${{exc}}"),
-                fmt={"path": path, "exc": exc},
+                fmt={"path": str(path), "exc": str(exc)},
             ),
         )

@@ -6,3 +6,4 @@ rich >= 6.2.0
 rich-argparse >= 1.0.0
 pyyaml >= 5.4.1
 py7zr >= 0.16.1
+typing_extensions

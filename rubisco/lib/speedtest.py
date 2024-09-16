@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # -*- mode: python -*-
 # vi: set ft=python :
 
@@ -18,9 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-"""
-Test the speed of the given host.
-"""
+"""Test the speed of the given host."""
 
 import time
 
@@ -42,8 +39,8 @@ async def url_speedtest(url: str) -> int:
 
     Returns:
         int: Speed of the given URL. (us)
-    """
 
+    """
     logger.debug("Testing speed for '%s' ...", url)
     start = time.time_ns()
 
@@ -65,50 +62,10 @@ async def url_speedtest(url: str) -> int:
         return delta
 
 
-# We don't need this function for now.
-# def ssh_speedtest(host: str, username: str, password: str | None = None):
-#     """Test the speed of the given host.
-#
-#     Args:
-#         host (str): Host to test.
-#         username (str): Username for the host.
-#         password (str | None): Password for the host.
-#
-#     Returns:
-#         int: Speed of the given host. (us)
-#     """
-#
-#     cur_time = time.time()
-#     try:
-#         ssh = paramiko.SSHClient()
-#         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-#         ssh.connect(
-#             host,
-#             username=username,
-#             password=password,
-#             timeout=TIMEOUT,
-#         )
-#         delta = int((time.time() - cur_time) * 1000 * 1000)  # us
-#         logger.info("SSH speed test for '%s' took %d us", host, delta)
-#         return delta
-#     except paramiko.AuthenticationException as exc:
-#         delta = int((time.time() - cur_time) * 1000 * 1000)
-#         # Authentication failed means the host is reachable.
-#         logger.warning("SSH authentication failed for '%s': %s", host, exc)
-#         return delta
-#     except paramiko.SSHException as exc:
-#         logger.warning("Failed to test speed of '%s': %s", host, exc)
-#         return C_INTMAX
-#     finally:
-#         ssh.close()
-
-
 if __name__ == "__main__":
     import asyncio
 
     import rich
-
-    rich.print(f"{__file__}: {__doc__.strip()}")
 
     # Test: Test the speed of the given URL.
     speed = asyncio.run(url_speedtest("https://www.gnu.org"))

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # -*- mode: python -*-
 # vi: set ft=python :
 
@@ -18,14 +17,14 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-"""
-Ask for user input.
-"""
+"""CLI Input utilties."""
+
+from __future__ import annotations
 
 import rich
 
 from rubisco.cli.output import output_warning
-from rubisco.lib.exceptions import RUValueException
+from rubisco.lib.exceptions import RUValueError
 from rubisco.lib.l10n import _
 
 __all__ = ["ask_yesno"]
@@ -40,9 +39,9 @@ def ask_yesno(message: str, default: bool | None = None) -> bool:
 
     Returns:
         bool: True if the user answered yes.
-    """
 
-    for i in range(15):  # pylint: disable=unused-variable
+    """
+    for _i in range(15):  # pylint: disable=unused-variable
         choise = "(y/n)"
 
         if default is True:
@@ -71,9 +70,9 @@ def ask_yesno(message: str, default: bool | None = None) -> bool:
             _(
                 "[yellow]Invalid input. Please enter '[green]Y"
                 "[/green]' or '[red]N[/red]'.",
-            )
+            ),
         )
 
     if default is not None:
         return default
-    raise RUValueException(_("Invalid input."))
+    raise RUValueError(_("Invalid input."))

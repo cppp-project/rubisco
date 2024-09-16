@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # -*- mode: python -*-
 # vi: set ft=python :
 
@@ -18,10 +17,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-"""
-Load module from path dynamically. To perfect fking Python import system.
-"""
+"""Load module from path dynamically.
 
+To perfect fking Python import system.
+"""
 
 import importlib.util
 from pathlib import Path
@@ -43,8 +42,8 @@ def import_module_from_path(path: Path) -> ModuleType:
         FileNotFoundError: If the path does not exist or is a directory
             without `__init__.py`.
         ImportError: If the module cannot be loaded.
-    """
 
+    """
     if path.is_dir():
         path = path / "__init__.py"
 
@@ -54,7 +53,7 @@ def import_module_from_path(path: Path) -> ModuleType:
     spec = importlib.util.spec_from_file_location(path.stem, path)
     if spec:
         module = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(module)
+        spec.loader.exec_module(module)  # type: ignore[union-attr]
     else:
         raise ImportError(path)
 

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # -*- mode: python -*-
 # vi: set ft=python :
 
@@ -18,16 +17,16 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-"""
-C++ Plus Rubisco CLI main entry point.
-"""
+"""C++ Plus Rubisco CLI main entry point."""
+
+from __future__ import annotations
 
 import argparse
 import atexit
 import os
 import sys
 from pathlib import Path
-from typing import Any, Iterable
+from typing import TYPE_CHECKING, Any, Iterable, Sequence
 
 import colorama
 import rich
@@ -54,13 +53,13 @@ from rubisco.config import (
     PIP_LOG_FILE,
     USER_REPO_CONFIG,
 )
-from rubisco.kernel.project_config import ProjectConfigration  # noqa: E501
-from rubisco.kernel.project_config import load_project_config
-from rubisco.kernel.workflow import Step, Workflow
-from rubisco.lib.exceptions import RUException, RUValueException
+from rubisco.kernel.project_config import (
+    ProjectConfigration,
+    load_project_config,
+)
+from rubisco.lib.exceptions import RUError, RUValueError
 from rubisco.lib.l10n import _, locale_language, locale_language_name
 from rubisco.lib.log import logger
-from rubisco.lib.process import Process
 from rubisco.lib.variable import format_str, make_pretty
 from rubisco.shared.extension import IRUExtention, load_all_extensions
 from rubisco.shared.ktrigger import (
@@ -69,55 +68,45 @@ from rubisco.shared.ktrigger import (
     call_ktrigger,
 )
 
+if TYPE_CHECKING:
+    from rubisco.kernel.workflow import Step, Workflow
+    from rubisco.lib.process import Process
+
+
 __all__ = ["main"]
 
 
-def show_version() -> str:
-    """
-    Get version string.
-    """
+def show_version() -> None:
+    """Get version string."""
+    rich.print(APP_NAME, f"[white]{APP_VERSION}[/white]", end="\n")
 
-    rich.print(APP_NAME, end=" ")
-    print(str(APP_VERSION))
-    rich.print(
-        _("Copyright (C) 2024 The C++ Plus Project."),
+    copyright_text = _(
+        "Copyright (C) 2024 The C++ Plus Project.\n"
+        "License [bold]GPLv3+[/bold]: GNU GPL version [cyan]3[/cyan] or later "
+        "<https://www.gnu.org/licenses/gpl.html>.\nThis is free "
+        "software: you are free to change and redistribute it.\nThere is "
+        "[yellow]NO WARRANTY[/yellow], to the extent permitted by law.\n"
+        "Written by [underline]ChenPi11[/underline].",
     )
-    rich.print(
-        _(
-            "License [bold]GPLv3+[/bold]: GNU GPL version [cyan]3"
-            "[/cyan] or later <https://www.gnu.org/licenses/gpl.html>."
-        ),
-    )
-    rich.print(
-        _(
-            "This is free software: you are free to change and redistribute it."  # noqa: E501
-        ),
-    )
-    rich.print(
-        _(
-            "There is [yellow]NO WARRANTY[/yellow], to the extent permitted by law.",  # noqa: E501
-        ),
-    )
-    rich.print(
-        _("Written by [underline]ChenPi11[/underline]."),
-    )
+
+    rich.print(copyright_text)
 
 
 class _VersionAction(argparse.Action):
-    """
-    Version Action for rubisco.
-    """
+    """Version Action for rubisco."""
 
     def __init__(  # pylint: disable=too-many-arguments
         self,
-        option_strings,
-        version=None,
-        dest=argparse.SUPPRESS,
-        default=argparse.SUPPRESS,
-        help=None,
-    ):  # pylint: disable=redefined-builtin
+        option_strings: Sequence[str],
+        version: str | None = None,
+        dest: str = argparse.SUPPRESS,
+        default: str = argparse.SUPPRESS,
+        help: str | None = None,  # pylint: disable=W0622 # noqa: A002
+    ) -> None:
         if help is None:
-            help = _("Show program's version number and exit.")
+            help = _(  # pylint: disable=W0622 # noqa: A001
+                "Show program's version number and exit.",
+            )
         super().__init__(
             option_strings=option_strings,
             dest=dest,
@@ -127,7 +116,13 @@ class _VersionAction(argparse.Action):
         )
         self.version = version
 
-    def __call__(self, parser, namespace, values, option_string=None):
+    def __call__(
+        self,
+        parser: argparse.ArgumentParser,
+        namespace: argparse.Namespace,  # noqa: ARG002
+        values: list,  # noqa: ARG002
+        option_string: str | None = None,  # noqa: ARG002
+    ) -> None:
         show_version()
         parser.exit()
 
@@ -144,7 +139,7 @@ class RUHelpFormatter(RichHelpFormatter):
         actions: Iterable[argparse.Action],
         groups: Iterable[argparse._MutuallyExclusiveGroup],
         prefix: str | None = None,
-    ):
+    ) -> None:
         for action in actions:
             if action.help == "show this help message and exit":
                 action.help = _("Show this help message and exit.")
@@ -159,9 +154,7 @@ class RUHelpFormatter(RichHelpFormatter):
             _("Positional Arguments:"),
         )
 
-        help_str = help_str.replace("Options:", _("Options:"))
-
-        return help_str
+        return help_str.replace("Options:", _("Options:"))
 
 
 arg_parser = argparse.ArgumentParser(
@@ -222,40 +215,52 @@ project_config: ProjectConfigration | None = None
 
 
 class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
-    IKernelTrigger
+    IKernelTrigger,
 ):  # Rubisco CLI kernel trigger.
     """Rubisco kernel trigger."""
 
-    cur_progress: rich.progress.Progress | None = None
-    tasks: dict[str, rich.progress.TaskID] = {}
-    task_types: dict[str, int] = {}
-    task_totals: dict[str, int] = {}
-    live: rich.live.Live | None = None
-    _speedtest_hosts: dict[str, str] = {}
+    # Singleton pattern, but linter does not like it.
+    cur_progress: rich.progress.Progress | None
+    tasks: dict[str, rich.progress.TaskID]
+    task_types: dict[str, str]
+    task_totals: dict[str, float]
+    live: rich.live.Live | None
+    _speedtest_hosts: dict[str, str]
 
-    def pre_exec_process(self, proc: Process):
+    def __init__(self) -> None:
+        super().__init__()
+        self.cur_progress = None
+        self.tasks = {}
+        self.task_types = {}
+        self.task_totals = {}
+        self.live = None
+        self._speedtest_hosts = {}
+
+    def pre_exec_process(self, proc: Process) -> None:
         output_step(
             format_str(
                 _("Executing: [cyan]${{cmd}}[/cyan] ..."),
                 fmt={"cmd": proc.origin_cmd.strip()},
-            )
+            ),
         )
-        print(colorama.Fore.LIGHTBLACK_EX, end="", flush=True)
+        sys.stdout.write(colorama.Fore.LIGHTBLACK_EX)
+        sys.stdout.flush()
 
     def post_exec_process(
         self,
-        proc: Process,
-        retcode: int,
-        raise_exc: bool,
+        proc: Process,  # noqa: ARG002
+        retcode: int,  # noqa: ARG002
+        raise_exc: bool,  # noqa: ARG002 FBT001
     ) -> None:
-        print(colorama.Fore.RESET, end="", flush=True)
+        sys.stdout.write(colorama.Fore.RESET)
+        sys.stdout.flush()
 
-    def file_exists(self, path: Path):
+    def file_exists(self, path: Path) -> None:
         if not ask_yesno(
             format_str(
                 _(
                     "File '[underline]${{path}}[/underline]' already exists."
-                    " [yellow]Overwrite[/yellow]?"
+                    " [yellow]Overwrite[/yellow]?",
                 ),
                 fmt={"path": make_pretty(path.absolute())},
             ),
@@ -266,8 +271,8 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
     def on_new_task(
         self,
         task_name: str,
-        task_type: int,
-        total: int | float,
+        task_type: str,
+        total: float,
     ) -> None:
         if task_type == IKernelTrigger.TASK_WAIT:
             self.task_types[task_name] = IKernelTrigger.TASK_WAIT
@@ -284,11 +289,11 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
         else:
             title = _("[yellow]Processing[/yellow]")
 
-        if task_name in self.tasks:
-            self.cur_progress.update(self.tasks[task_name], completed=0)
         if self.cur_progress is None:
             self.cur_progress = rich.progress.Progress()
             self.cur_progress.start()
+        if task_name in self.tasks:
+            self.cur_progress.update(self.tasks[task_name], completed=0)
         task_id = self.cur_progress.add_task(title, total=total)
         self.tasks[task_name] = task_id
         self.task_types[task_name] = task_type
@@ -297,35 +302,47 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
     def on_progress(
         self,
         task_name: str,
-        current: int | float,
-        delta: bool = False,
+        current: float,
+        delta: bool = False,  # noqa: FBT001 FBT002
         more_data: dict[str, Any] | None = None,
-    ):
+    ) -> None:
+        if more_data is None:
+            more_data = {}
         if (
             self.task_types[task_name] == IKernelTrigger.TASK_EXTRACT
-            and self.task_totals[task_name] < 2500
+            and self.task_totals[task_name] < 2500  # noqa: PLR2004
         ):
+            # If extracting a few files (< 2500), show the file name.
             path = str((more_data["dest"] / more_data["path"]).absolute())
             rich.print(f"[underline]{path}[/underline]")
         elif self.task_types[task_name] == IKernelTrigger.TASK_WAIT:
             output_step(
-                format_str(task_name, fmt={"seconds": current}),
+                format_str(task_name, fmt={"seconds": str(current)}),
                 end="\r",
             )
+            return
+        if self.cur_progress is None:
+            logger.warning("Progress not started.")
             return
         if delta:
             self.cur_progress.update(self.tasks[task_name], advance=current)
         else:
             self.cur_progress.update(self.tasks[task_name], completed=current)
 
-    def set_progress_total(self, task_name: str, total: int | float):
+    def set_progress_total(self, task_name: str, total: float) -> None:
+        if self.cur_progress is None:
+            logger.warning("Progress not started.")
+            return
         self.cur_progress.update(self.tasks[task_name], total=total)
 
-    def on_finish_task(self, task_name: str):
+    def on_finish_task(self, task_name: str) -> None:
         if self.task_types[task_name] == IKernelTrigger.TASK_WAIT:
             del self.task_types[task_name]
             return
 
+        if self.cur_progress is None:
+            logger.warning("Progress not started.")
+            return
         self.cur_progress.remove_task(self.tasks[task_name])
         del self.tasks[task_name]
         del self.task_types[task_name]
@@ -344,10 +361,10 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
             format_str(
                 _(
                     "Please install the following packages manually:"
-                    " [bold]${{packages}}[/bold]."
+                    " [bold]${{packages}}[/bold].",
                 ),
                 fmt={"packages": ", ".join(packages)},
-            )
+            ),
         )
 
         if not ask_yesno(_("Continue anyway?"), default=False):
@@ -361,7 +378,7 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
                     "'(${{branch}}) ...",
                 ),
                 fmt={"path": make_pretty(path), "branch": make_pretty(branch)},
-            )
+            ),
         )
 
     def on_clone_git_repo(
@@ -377,7 +394,7 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
                     "'[underline]${{path}}[/underline]' ...",
                 ),
                 fmt={"url": url, " branch": branch, "path": make_pretty(path)},
-            )
+            ),
         )
 
     def on_hint(self, message: str) -> None:
@@ -389,7 +406,10 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
     def on_error(self, message: str) -> None:
         output_error(message)
 
-    def _update_live(self):
+    def _update_live(self) -> None:
+        if self.live is None:
+            msg = "RubiscoKTrigger.live is None."
+            raise ValueError(msg)
         msg = ""
         for host_, status in self._speedtest_hosts.items():
             msg += format_str(
@@ -399,7 +419,7 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
         msg = msg.strip()
         self.live.update(msg)
 
-    def pre_speedtest(self, host: str):
+    def pre_speedtest(self, host: str) -> None:
         if self.live is None:
             output_step(_("Performing websites speed test ..."))
             self.live = rich.live.Live()
@@ -408,12 +428,16 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
         self._speedtest_hosts[host] = _("[yellow]Testing[/yellow] ...")
         self._update_live()
 
-    def post_speedtest(self, host: str, speed: int):
+    def post_speedtest(self, host: str, speed: int) -> None:
+        if self.live is None:
+            msg = "RubiscoKTrigger.live is None."
+            raise ValueError(msg)
         if speed == -1:
             self._speedtest_hosts[host] = _("[red]Canceled[/red]")
         else:
             self._speedtest_hosts[host] = format_str(
-                _("${{speed}} us"), fmt={"speed": speed}
+                _("${{speed}} us"),
+                fmt={"speed": str(speed)},
             )
 
         self._update_live()
@@ -432,15 +456,19 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
         if step.name.strip():
             output_step(
                 format_str(
-                    _(
-                        "Running: [white]${{name}}[/white] [black](${{id}})[/black]",  # noqa: E501
+                    _(  # Don't remove next line's comment.
+                        "Running: [white]${{name}}[/white]"  # Black?
+                        " [black](${{id}})[/black]",
                     ),
                     fmt={"name": step.name, "id": step.id},
-                )
+                ),
             )
         push_level()
 
-    def post_run_workflow_step(self, step: Step) -> None:
+    def post_run_workflow_step(
+        self,
+        step: Step,  # noqa: ARG002
+    ) -> None:
         pop_level()
 
     def pre_run_workflow(self, workflow: Workflow) -> None:
@@ -451,7 +479,7 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
                     "[black](${{id}})[/black]",
                 ),
                 fmt={"name": workflow.name, "id": workflow.id},
-            )
+            ),
         )
         push_level()
 
@@ -461,7 +489,7 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
             format_str(
                 _("Workflow '${{name}}' finished."),
                 fmt={"name": workflow.name},
-            )
+            ),
         )
 
     def on_mkdir(self, path: Path) -> None:
@@ -469,7 +497,7 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
             format_str(
                 _("Creating directory: [underline]${{path}}[/underline] ..."),
                 fmt={"path": make_pretty(path.absolute())},
-            )
+            ),
         )
 
     def on_output(self, msg: str) -> None:
@@ -486,7 +514,7 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
                     "src": make_pretty(src.absolute()),
                     "dst": make_pretty(dst.absolute()),
                 },
-            )
+            ),
         )
 
     def on_copy(self, src: Path, dst: Path) -> None:
@@ -500,7 +528,7 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
                     "src": make_pretty(src.absolute()),
                     "dst": str(dst.absolute()),
                 },
-            )
+            ),
         )
 
     def on_remove(self, path: Path) -> None:
@@ -508,29 +536,30 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
             format_str(
                 _("Removing '[underline]${{path}}[/underline]' ..."),
                 fmt={"path": make_pretty(path.absolute())},
-            )
+            ),
         )
 
-    def on_extension_loaded(self, instance: IRUExtention):
+    def on_extension_loaded(self, instance: IRUExtention) -> None:
         output_step(
             format_str(
                 _("Extension '${{name}}' loaded."),
                 fmt={"name": instance.name},
-            )
+            ),
         )
 
-    def on_show_project_info(self, project: ProjectConfigration):
+    def on_show_project_info(self, project: ProjectConfigration) -> None:
         rich.print(
             format_str(
                 _(
-                    "Rubisco CLI language: '${{locale}}' '${{charset}}' '${{lang}}'",  # noqa: E501
+                    "Rubisco CLI language: '${{locale}}' "
+                    "'${{charset}}' '${{language_name}}'",
                 ),
                 fmt={
                     "locale": locale_language(),
                     "charset": DEFAULT_CHARSET,
-                    "lang": locale_language_name(),
+                    "language_name": locale_language_name(),
                 },
-            )
+            ),
         )
         rich.print(
             format_str(
@@ -545,16 +574,16 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
                     "[underline]${{path}}[/underline]",
                 ),
                 fmt={"path": make_pretty(project.config_file)},
-            )
+            ),
         )
         rich.print(
             format_str(
                 _(
                     "[dark_orange]Version:[/dark_orange]"
-                    " v[white]${{version}}[/white]"
+                    " v[white]${{version}}[/white]",
                 ),
                 fmt={"version": str(project.version)},
-            )
+            ),
         )
 
         if isinstance(project.maintainer, list):
@@ -565,61 +594,66 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
             format_str(
                 _("[dark_orange]Maintainer:[/dark_orange] ${{maintainer}}"),
                 fmt={"maintainer": maintainers},
-            )
+            ),
         )
         rich.print(
             format_str(
                 _("[dark_orange]License:[/dark_orange] ${{license}}"),
                 fmt={"license": project.license},
-            )
+            ),
         )
         rich.print(
             format_str(
                 _("[dark_orange]Description:[/dark_orange] ${{desc}}"),
                 fmt={"desc": project.description},
-            )
+            ),
         )
 
         rich.print(_("[dark_orange]Hooks:[/dark_orange]"))
 
-        for hook_name in project_config.hooks.keys():  # Bind all hooks.
+        for hook_name in project.hooks:  # Bind all hooks.
             hook_text = format_str(
-                                "\t[cyan]${{name}}[/cyan]",
-                                fmt={"name": hook_name},
-                            )
+                "\t[cyan]${{name}}[/cyan]",
+                fmt={"name": hook_name},
+            )
             num_text = format_str(
-                                _("(${{num}} hooks)"),
-                                fmt={"num": str(len(hooks[hook_name]))},
-                            )
+                _("(${{num}} hooks)"),
+                fmt={"num": str(len(hooks[hook_name]))},
+            )
             formatted_str = f"{hook_text:<60}\t{num_text:<10}"
             rich.print(formatted_str)
 
-    def on_mklink(self, src: Path, dst: Path, symlink: bool) -> None:
+    def on_mklink(
+        self,
+        src: Path,
+        dst: Path,
+        symlink: bool,  # noqa: FBT001
+    ) -> None:
         if symlink:
             output_step(
                 format_str(
                     _(
                         "Creating symbolic link: [underline]${{src}}"
-                        "[/underline] -> '[underline]${{dst}}[/underline]'..."
+                        "[/underline] -> '[underline]${{dst}}[/underline]'...",
                     ),
                     fmt={
                         "src": make_pretty(src.absolute()),
                         "dst": make_pretty(dst.absolute()),
                     },
-                )
+                ),
             )
         else:
             output_step(
                 format_str(
                     _(
                         "Creating hard link: [underline]${{src}}"
-                        "[/underline] -> '[underline]${{dst}}[/underline]'..."
+                        "[/underline] -> '[underline]${{dst}}[/underline]'...",
                     ),
                     fmt={
                         "src": make_pretty(src.absolute()),
                         "dst": make_pretty(dst.absolute()),
                     },
-                )
+                ),
             )
 
     def on_create_venv(self, path: Path) -> None:
@@ -627,44 +661,42 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
             format_str(
                 _("Creating venv: '[underline]${{path}}[/underline]' ..."),
                 fmt={"path": make_pretty(path.absolute())},
-            )
+            ),
         )
 
 
-def on_exit():
-    """
-    Reset terminal color.
-    """
-
-    print(colorama.Fore.RESET, end="", flush=True)
+def on_exit() -> None:
+    """Reset terminal color."""
+    sys.stdout.write(colorama.Fore.RESET)
+    sys.stdout.flush()
 
 
 atexit.register(on_exit)
 
 
-def bind_hook(name: str):
+def bind_hook(name: str) -> None:
     """Bind hook to a command.
 
     Args:
         name (str): Hook name.
-    """
 
+    """
     logger.debug("Binding hook: %s", name)
-    if project_config and name in project_config.hooks.keys():
+    if project_config and name in project_config.hooks:
         if name not in hooks:
             hooks[name] = []
         hooks[name].append(project_config.hooks[name])
 
 
-def call_hook(name: str):
+def call_hook(name: str) -> None:
     """Call a hook.
 
     Args:
         name (str): The hook name.
-    """
 
+    """
     if name not in hooks:
-        raise RUValueException(
+        raise RUValueError(
             format_str(
                 _("Undefined command or hook ${{name}}"),
                 fmt={"name": make_pretty(name)},
@@ -675,16 +707,12 @@ def call_hook(name: str):
         hook.run()
 
 
-def load_project():
-    """
-    Load the project in cwd.
-    """
-
-    global project_config  # pylint: disable=global-statement
-
+def load_project() -> None:
+    """Load the project in cwd."""
+    global project_config  # pylint: disable=global-statement # noqa: PLW0603
     try:
         project_config = load_project_config(Path.cwd())
-        for hook_name in project_config.hooks.keys():  # Bind all hooks.
+        for hook_name in project_config.hooks:  # Bind all hooks.
             bind_hook(hook_name)
             hook_commands.add_parser(
                 hook_name,
@@ -694,11 +722,11 @@ def load_project():
                 ),
             )
     except FileNotFoundError as exc:
-        raise RUValueException(
+        raise RUValueError(
             format_str(
                 _(
                     "Working directory '[underline]${{path}}[/underline]'"
-                    " not a rubisco project."
+                    " not a rubisco project.",
                 ),
                 fmt={"path": make_pretty(Path.cwd().absolute())},
             ),
@@ -709,14 +737,11 @@ def load_project():
         ) from exc
 
 
-def clean_log():
-    """
-    Clean the log file.
-    """
-
+def clean_log() -> None:
+    """Clean the log file."""
     try:
         line_count = 0
-        with open(LOG_FILE, "r+", encoding=DEFAULT_CHARSET) as f:
+        with Path.open(LOG_FILE, "r+", encoding=DEFAULT_CHARSET) as f:
             for _line in f:
                 line_count += 1
                 if line_count > DEFAULT_LOG_KEEP_LINES:
@@ -728,62 +753,69 @@ def clean_log():
 
     try:
         line_count = 0
-        with open(PIP_LOG_FILE, "r+", encoding=DEFAULT_CHARSET) as f:
+        with Path.open(PIP_LOG_FILE, "r+", encoding=DEFAULT_CHARSET) as f:
             for _line in f:
                 line_count += 1
                 if line_count > DEFAULT_LOG_KEEP_LINES:
                     f.seek(0)
                     f.truncate()
                     return
-    except:  # pylint: disable=bare-except  # noqa: E722
-        pass
+    except:  # pylint: disable=bare-except  # noqa: E722 S110
+        pass  # Logging a log file exception?
+
+
+def early_arg_parse() -> None:
+    """Parse arguments without argparse.
+
+    Some arguments will be added to argparse later (like hooks).
+    If we use argparse here, they will inoperative.
+    """
+    if "-h" in sys.argv or "--help" in sys.argv:
+        arg_parser.print_help()
+        sys.exit(0)
+    if "-v" in sys.argv or "--version" in sys.argv:
+        show_version()
+        sys.exit(0)
+    if "--usage" in sys.argv:
+        arg_parser.print_usage()
+        sys.exit(0)
+    for idx, arg in enumerate(sys.argv):
+        if arg.startswith("--root"):
+            if "=" in arg:
+                root = arg.split("=")[1].strip()
+            else:
+                if idx + 1 >= len(sys.argv):
+                    arg_parser.print_usage()
+                    raise RUError(
+                        _("Missing argument for '--root' option."),
+                    )
+                root = sys.argv[idx + 1].strip()
+                if root.startswith("-"):
+                    arg_parser.print_usage()
+                    raise RUError(
+                        _("Missing argument for '--root' option."),
+                    )
+            if root:
+                root = Path(root).absolute()
+                output_step(
+                    format_str(
+                        _("Entering directory '${{path}}'"),
+                        fmt={"path": make_pretty(str(root))},
+                    ),
+                )
+                os.chdir(root)
 
 
 def main() -> None:
-    """Main entry point."""
-
+    """Rubisco main entry point."""
     try:
         clean_log()
         logger.info("Rubisco CLI version %s started.", str(APP_VERSION))
         colorama.init()
         bind_ktrigger_interface("rubisco", RubiscoKTrigger())
         load_all_extensions()
+        early_arg_parse()
 
-        # Parse argument without argparse.
-        if "-h" in sys.argv or "--help" in sys.argv:
-            arg_parser.print_help()
-            sys.exit(0)
-        if "-v" in sys.argv or "--version" in sys.argv:
-            show_version()
-            sys.exit(0)
-        if "--usage" in sys.argv:
-            arg_parser.print_usage()
-            sys.exit(0)
-        for idx, arg in enumerate(sys.argv):
-            if arg.startswith("--root"):
-                if "=" in arg:
-                    root = arg.split("=")[1].strip()
-                else:
-                    if idx + 1 >= len(sys.argv):
-                        arg_parser.print_usage()
-                        raise RUException(
-                            _("Missing argument for '--root' option."),
-                        )
-                    root = sys.argv[idx + 1].strip()
-                    if root.startswith("-"):
-                        arg_parser.print_usage()
-                        raise RUException(
-                            _("Missing argument for '--root' option."),
-                        )
-                if root:
-                    root = Path(root).absolute()
-                    output_step(
-                        format_str(
-                            _("Entering directory '${{path}}'"),
-                            fmt={"path": make_pretty(str(root))},
-                        )
-                    )
-                    os.chdir(root)
         try:
             load_project()
         finally:
@@ -805,7 +837,7 @@ def main() -> None:
     except KeyboardInterrupt as exc:
         show_exception(exc)
         sys.exit(1)
-    except Exception as exc:  # pylint: disable=broad-exception-caught
+    except Exception as exc:  # pylint: disable=broad-except # noqa: BLE001
         logger.critical("An unexpected error occurred.", exc_info=True)
         show_exception(exc)
         sys.exit(1)

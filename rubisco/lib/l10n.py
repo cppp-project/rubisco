@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # -*- mode: python -*-
 # vi: set ft=python :
 
@@ -18,9 +17,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-"""
-Localization support.
-"""
+"""Localization support."""
+
+from __future__ import annotations
 
 import gettext
 import locale
@@ -51,8 +50,8 @@ def locale_language() -> str:
 
     Returns:
         str: Locale language.
-    """
 
+    """
     return (
         _locale_language(locale.LC_ALL)
         or _locale_language(locale.LC_MESSAGES)
@@ -67,8 +66,8 @@ def locale_language_name() -> str:
 
     Returns:
         str: Locale language name.
-    """
 
+    """
     return LOCALE_NAMES.get(locale_language(), _("Unknown"))
 
 
@@ -81,13 +80,16 @@ def has_domain(domain: str, locale_dir: Path) -> bool:
 
     Returns:
         bool: True if the domain exists, False otherwise.
-    """
 
+    """
     try:
         gettext.translation(
-            domain, str(locale_dir), [locale_language()], fallback=False
+            domain,
+            str(locale_dir),
+            [locale_language()],
+            fallback=False,
         )
-        return True
+        return True  # noqa: TRY300
     except:  # noqa: E722 # pylint: disable=bare-except
         return False
 
@@ -102,8 +104,8 @@ def load_locale_domain(root_dir: Path, domain: str) -> None:
     Args:
         root_dir (Path): Gettext objects' directory.
         domain (str): Domain name.
-    """
 
+    """
     locale_dir: Path
 
     possible_dirs = [
@@ -122,7 +124,10 @@ def load_locale_domain(root_dir: Path, domain: str) -> None:
 
     try:
         translation = gettext.translation(
-            domain, str(locale_dir), [locale_language()], fallback=False
+            domain,
+            str(locale_dir),
+            [locale_language()],
+            fallback=False,
         )
         translations.append(translation)
         translations_path.append(locale_dir)
@@ -168,8 +173,8 @@ def _(message: str) -> str:
 
     Returns:
         str: Translated message. Return message itself if translation failed.
-    """
 
+    """
     for translation in translations:
         translated = translation.gettext(message)
         if translated:
@@ -182,10 +187,9 @@ if len(translations_path) >= 1:
     gettext.textdomain(TEXT_DOMAIN)
 
 if __name__ == "__main__":
-    print(f"{__file__}: {__doc__.strip()}")
-
     import os
 
-    print("locale_language(): ", locale_language())
-    print("locale_language_name(): ", locale_language_name())
-    print("os.strerror(2): ", os.strerror(2))
+    sys.stdout.write(f"locale_language(): {locale_language()}\n")
+    sys.stdout.write(f"locale_language_name(): {locale_language_name()}\n")
+    sys.stdout.write(f"os.strerror(2): {os.strerror(2)}\n")
+    sys.stdout.flush()

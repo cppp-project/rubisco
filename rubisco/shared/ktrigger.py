@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # -*- mode: python -*-
 # vi: set ft=python :
 
@@ -18,20 +17,24 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-"""
-Rubisco kernel trigger.
+"""Rubisco kernel trigger.
+
 Kernel trigger is called when kernel do something. It makes User Control
 Interface can do something before or after kernel operations.
 """
 
-from functools import partial
-from pathlib import Path
-from typing import Any, Callable
+from __future__ import annotations
 
-from rubisco.lib.exceptions import RUValueException
+from functools import partial
+from typing import TYPE_CHECKING, Any, Callable
+
+from rubisco.lib.exceptions import RUValueError
 from rubisco.lib.l10n import _
 from rubisco.lib.log import logger
 from rubisco.lib.variable import format_str, make_pretty
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 __all__ = [
     "IKernelTrigger",
@@ -40,7 +43,11 @@ __all__ = [
 ]
 
 
-def _null_trigger(name, *args, **kwargs) -> None:
+def _null_trigger(
+    name: str,
+    *args: Any,  # noqa: ANN401
+    **kwargs: Any,  # noqa: ANN401
+) -> None:
     logger.debug(
         "Not implemented KTrigger '%s' called(%s, %s).",
         name,
@@ -50,29 +57,27 @@ def _null_trigger(name, *args, **kwargs) -> None:
 
 
 class IKernelTrigger:  # pylint: disable=too-many-public-methods
-    """
-    Kernel trigger interface.
-    """
+    """Kernel trigger interface."""
 
     TASK_DOWNLOAD = "download"
     TASK_EXTRACT = "extract"
     TASK_COMPRESS = "compress"
     TASK_WAIT = "wait"
 
-    def pre_exec_process(self, proc: Any) -> None:
+    def pre_exec_process(self, proc: Any) -> None:  # noqa: ANN401
         """Pre-exec process.
 
         Args:
             proc (Process): Process instance.
-        """
 
+        """
         _null_trigger("pre_exec_process", proc=proc)
 
     def post_exec_process(
         self,
-        proc: Any,
+        proc: Any,  # noqa: ANN401
         retcode: int,
-        raise_exc: bool,
+        raise_exc: bool,  # noqa: FBT001
     ) -> None:
         """Post-exec process.
 
@@ -80,8 +85,8 @@ class IKernelTrigger:  # pylint: disable=too-many-public-methods
             proc (Process): Process instance.
             retcode (int): Return code.
             raise_exc (bool): If raise exception.
-        """
 
+        """
         _null_trigger(
             "post_exec_process",
             proc=proc,
@@ -94,24 +99,24 @@ class IKernelTrigger:  # pylint: disable=too-many-public-methods
 
         Args:
             path (Path): File path.
-        """
 
+        """
         _null_trigger("file_exists", path=path)
 
     def on_new_task(
         self,
         task_name: str,
         task_type: int,
-        total: int | float,
+        total: float,
     ) -> None:
         """When a progressive task is created.
 
         Args:
             task_name (str): Task name.
             task_type (int): Task type. Must be TASK_DOWNLOAD or TASK_EXTRACT.
-            total (int | float): Total steps.
-        """
+            total (float): Total steps.
 
+        """
         _null_trigger(
             "on_new_task",
             task_name=task_name,
@@ -122,10 +127,10 @@ class IKernelTrigger:  # pylint: disable=too-many-public-methods
     def on_progress(
         self,
         task_name: str,
-        current: int | float,
-        delta: bool = False,
+        current: float,
+        delta: bool = False,  # noqa: FBT001 FBT002
         more_data: dict[str, Any] | None = None,
-    ):
+    ) -> None:
         """When the progressive task progress is updated.
 
         Args:
@@ -133,8 +138,8 @@ class IKernelTrigger:  # pylint: disable=too-many-public-methods
             current (int | float): Current step.
             delta (bool): If the current is delta.
             more_data (dict[str, Any] | None): More data of the progress.
-        """
 
+        """
         _null_trigger(
             "on_progress",
             task_name=task_name,
@@ -143,27 +148,27 @@ class IKernelTrigger:  # pylint: disable=too-many-public-methods
             more_data=more_data,
         )
 
-    def set_progress_total(self, task_name: str, total: int | float):
+    def set_progress_total(self, task_name: str, total: float) -> None:
         """Set the total steps of a progressive task.
 
         Args:
             task_name (str): Task name.
-            total (int | float): Total steps.
-        """
+            total (float): Total steps.
 
+        """
         _null_trigger(
             "set_progress_total",
             task_name=task_name,
             total=total,
         )
 
-    def on_finish_task(self, task_name: str):
+    def on_finish_task(self, task_name: str) -> None:
         """When a progressive task is finished.
 
         Args:
             task_name (str): Task name.
-        """
 
+        """
         _null_trigger("on_finish_task", task_name=task_name)
 
     def on_syspkg_installation_skip(
@@ -176,8 +181,8 @@ class IKernelTrigger:  # pylint: disable=too-many-public-methods
         Args:
             packages (list[str]): Package name.
             message (str): Skip reason.
-        """
 
+        """
         _null_trigger(
             "on_syspkg_installation_skip",
             packages=packages,
@@ -190,8 +195,8 @@ class IKernelTrigger:  # pylint: disable=too-many-public-methods
         Args:
             path (Path): Repository path.
             branch (str): Branch name.
-        """
 
+        """
         _null_trigger(
             "on_update_git_repo",
             path=path,
@@ -210,8 +215,8 @@ class IKernelTrigger:  # pylint: disable=too-many-public-methods
             url (str): Repository URL.
             path (Path): Repository path.
             branch (str): Branch name.
-        """
 
+        """
         _null_trigger(
             "on_clone_git_repo",
             url=url,
@@ -224,8 +229,8 @@ class IKernelTrigger:  # pylint: disable=too-many-public-methods
 
         Args:
             message (str): Hint message.
-        """
 
+        """
         _null_trigger("on_hint", message=message)
 
     def on_warning(self, message: str) -> None:
@@ -233,8 +238,8 @@ class IKernelTrigger:  # pylint: disable=too-many-public-methods
 
         Args:
             message (str): Warning message.
-        """
 
+        """
         _null_trigger("on_warning", message=message)
 
     def on_error(self, message: str) -> None:
@@ -242,8 +247,8 @@ class IKernelTrigger:  # pylint: disable=too-many-public-methods
 
         Args:
             message (str): Error message.
-        """
 
+        """
         _null_trigger("on_error", message=message)
 
     def pre_speedtest(self, host: str) -> None:
@@ -251,8 +256,8 @@ class IKernelTrigger:  # pylint: disable=too-many-public-methods
 
         Args:
             host (str): Host to test.
-        """
 
+        """
         _null_trigger("pre_speedtest", host=host)
 
     def post_speedtest(self, host: str, speed: int) -> None:
@@ -261,45 +266,45 @@ class IKernelTrigger:  # pylint: disable=too-many-public-methods
         Args:
             host (str): Host to test.
             speed (int): Speed of the host. (us)
-                -1 means canceled, C_INTMAX means failed.
-        """
+                `-1` means canceled, `C_INTMAX` means failed.
 
+        """
         _null_trigger("post_speedtest", host=host, speed=speed)
 
-    def pre_run_workflow_step(self, step: Any) -> None:
+    def pre_run_workflow_step(self, step: Any) -> None:  # noqa: ANN401
         """When a workflow is started.
 
         Args:
             step (Step): The step.
-        """
 
+        """
         _null_trigger("pre_run_workflow_step", step=step)
 
-    def post_run_workflow_step(self, step: Any) -> None:
+    def post_run_workflow_step(self, step: Any) -> None:  # noqa: ANN401
         """When a workflow is finished.
 
         Args:
             step (Step): The step.
-        """
 
+        """
         _null_trigger("post_run_workflow_step", step=step)
 
-    def pre_run_workflow(self, workflow: Any) -> None:
+    def pre_run_workflow(self, workflow: Any) -> None:  # noqa: ANN401
         """When a workflow is started.
 
         Args:
             workflow (Workflow): The workflow.
-        """
 
+        """
         _null_trigger("pre_run_workflow", workflow=workflow)
 
-    def post_run_workflow(self, workflow: Any) -> None:
+    def post_run_workflow(self, workflow: Any) -> None:  # noqa: ANN401
         """When a workflow is finished.
 
         Args:
             workflow (Workflow): The workflow.
-        """
 
+        """
         _null_trigger("post_run_workflow", workflow=workflow)
 
     def on_mkdir(self, path: Path) -> None:
@@ -307,8 +312,8 @@ class IKernelTrigger:  # pylint: disable=too-many-public-methods
 
         Args:
             path (Path): Directory/directories's path.
-        """
 
+        """
         _null_trigger("on_mkdir", path=path)
 
     def on_output(self, msg: str) -> None:
@@ -316,8 +321,8 @@ class IKernelTrigger:  # pylint: disable=too-many-public-methods
 
         Args:
             msg (str): Message.
-        """
 
+        """
         _null_trigger("on_output", msg=msg)
 
     def on_move_file(self, src: Path, dst: Path) -> None:
@@ -326,8 +331,8 @@ class IKernelTrigger:  # pylint: disable=too-many-public-methods
         Args:
             src (Path): Source file path.
             dst (Path): Destination file path.
-        """
 
+        """
         _null_trigger("on_move_file", src=src, dst=dst)
 
     def on_copy(self, src: Path, dst: Path) -> None:
@@ -336,8 +341,8 @@ class IKernelTrigger:  # pylint: disable=too-many-public-methods
         Args:
             src (Path): Source file path.
             dst (Path): Destination file path.
-        """
 
+        """
         _null_trigger("on_copy", src=src, dst=dst)
 
     def on_remove(self, path: Path) -> None:
@@ -345,37 +350,42 @@ class IKernelTrigger:  # pylint: disable=too-many-public-methods
 
         Args:
             path (Path): File path.
-        """
 
+        """
         _null_trigger("on_remove", path=path)
 
-    def on_extension_loaded(self, instance: Any):
+    def on_extension_loaded(self, instance: Any) -> None:  # noqa: ANN401
         """On a extension loaded.
 
         Args:
             instance (IRUExtention): Extention instance.
-        """
 
+        """
         _null_trigger("on_extension_loaded", instance=instance)
 
-    def on_show_project_info(self, project: Any) -> None:
+    def on_show_project_info(self, project: Any) -> None:  # noqa: ANN401
         """On show project information.
 
         Args:
             project (ProjectConfigration): Project configuration.
-        """
 
+        """
         _null_trigger("on_show_project_info", project=project)
 
-    def on_mklink(self, src: Path, dst: Path, symlink: bool) -> None:
+    def on_mklink(
+        self,
+        src: Path,
+        dst: Path,
+        symlink: bool,  # noqa: FBT001
+    ) -> None:
         """On we are creating a symlink.
 
         Args:
             src (Path): Source file path.
             dst (Path): Destination file path.
             symlink (bool): If it is a symlink.
-        """
 
+        """
         _null_trigger("on_mklink", src=src, dst=dst, symlink=symlink)
 
     def on_create_venv(self, path: Path) -> None:
@@ -383,18 +393,22 @@ class IKernelTrigger:  # pylint: disable=too-many-public-methods
 
         Args:
             path (Path): Virtual environment path.
-        """
 
+        """
         _null_trigger("on_create_venv", path=path)
 
-    def on_install_extension(self, dest: Any, ext_name: str) -> None:
+    def on_install_extension(
+        self,
+        dest: Any,  # noqa: ANN401
+        ext_name: str,
+    ) -> None:
         """On we are installing an extension.
 
         Args:
             dest (EnvType): Destination environment type.
             ext_name (str): Extension name.
-        """
 
+        """
         _null_trigger("on_install_extension", dest=dest, ext_name=ext_name)
 
 
@@ -410,41 +424,47 @@ def bind_ktrigger_interface(kid: str, instance: IKernelTrigger) -> None:
         instance (IKernelTrigger): KTrigger instance.
 
     Raises:
-        RUValueException: If id is already exists.
+        RUValueError: If id is already exists.
         TypeError: If instance is not a IKernelTrigger instance.
-    """
 
+    """
     if not isinstance(instance, IKernelTrigger):
         raise TypeError(
             format_str(
                 _("'${{name}}' is not a IKernelTrigger instance."),
                 fmt={"name": make_pretty(instance)},
-            )
+            ),
         )
 
     if kid in ktriggers:
-        raise RUValueException(
+        raise RUValueError(
             format_str(
                 _("Kernel trigger id '${{name}}' is already exists."),
                 fmt={"name": make_pretty(kid)},
-            )
+            ),
         )
 
     ktriggers[kid] = instance
     logger.debug("Bind kernel trigger '%s' to '%s'.", kid, repr(instance))
 
 
-def call_ktrigger(name: str | Callable, *args, **kwargs) -> None:
+def call_ktrigger(
+    name: str | Callable,
+    *args: Any,  # noqa: ANN401
+    **kwargs: Any,  # noqa: ANN401
+) -> None:
     """Call a KTrigger.
 
     Args:
         name (str | Callable): KTrigger's name.
+        *args (Any): Arguments.
+        **kwargs (Any): Keyword arguments
 
     Hint:
         Passing arguments by kwargs is recommended. It can make the code
         more readable and avoid bug caused by the wrong order of arguments.
-    """
 
+    """
     if isinstance(name, Callable):
         name = name.__name__
     logger.debug(
@@ -459,10 +479,9 @@ def call_ktrigger(name: str | Callable, *args, **kwargs) -> None:
 
 
 if __name__ == "__main__":
-    import rich
     from contextlib import suppress
 
-    rich.print(f"{__file__}: {__doc__.strip()}")
+    import rich
 
     # Test: Bind a KTrigger.
     class _TestKTrigger(IKernelTrigger):
@@ -470,31 +489,34 @@ if __name__ == "__main__":
         _prog_current: int | float
 
         def on_test0(self) -> None:
-            "Test0: KTrigger without arguments."
-
+            """Test0: KTrigger without arguments."""
             rich.print("on_test0()")
 
         def on_test1(self, arg1: str, arg2: str) -> None:
-            "Test1: KTrigger with two arguments."
+            """Test1: KTrigger with two arguments."""
             rich.print("on_test1():", arg1, arg2)
-            assert arg1 == "Linus"
-            assert arg2 == "Torvalds"
+            assert arg1 == "Linus"  # noqa: S101
+            assert arg2 == "Torvalds"  # noqa: S101
 
-        def on_test2(self, *args, **kwargs) -> None:
-            "Test2: KTrigger with *args and **kwargs."
+        def on_test2(self, *args: Any, **kwargs: Any) -> None:  # noqa: ANN401
+            """Test2: KTrigger with *args and **kwargs."""
             rich.print("on_test2():", args, kwargs)
-            assert args == ("Linus", "Torvalds")
-            assert kwargs == {"gnu": "Stallman", "nividia": "F**k"}
+            assert args == ("Linus", "Torvalds")  # noqa: S101
+            assert kwargs == {  # noqa: S101
+                "gnu": "Stallman",
+                "nividia": "F**k",
+            }
 
         def on_test3(self) -> None:
-            "Test3: KTrigger raises an exception."
-            raise ValueError("Test3 exception.")
+            """Test3: KTrigger raises an exception."""
+            msg = "Test3 exception."
+            raise ValueError(msg)
 
     kt = _TestKTrigger()
     bind_ktrigger_interface("test", kt)
 
     # Test: Bind a KTrigger with the same sign.
-    with suppress(RUValueException):
+    with suppress(RUValueError):
         bind_ktrigger_interface("test", kt)
 
     # Test: Call a KTrigger.

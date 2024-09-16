@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # -*- mode: python -*-
 # vi: set ft=python :
 
@@ -18,9 +17,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-"""
-Generate command line.
-"""
+"""Generate command line."""
+from __future__ import annotations
 
 __all__ = ["command"]
 
@@ -29,12 +27,12 @@ def command(args: list[str] | str) -> str:
     """Generate shell command from a list of arguments.
 
     Args:
-        command (list[str] | str): The list of arguments.
+        args (list[str] | str): The list of arguments.
 
     Returns:
         str: The shell command.
-    """
 
+    """
     if isinstance(args, str):
         return args
 
@@ -42,7 +40,7 @@ def command(args: list[str] | str) -> str:
     for arg in args:
         if " " in arg:
             if '"' in arg:
-                arg = arg.replace('"', '\\"')
+                arg = arg.replace('"', '\\"')  # noqa: PLW2901
             res_command += f'"{arg}" '
         else:
             res_command += f"{arg} "
@@ -50,9 +48,7 @@ def command(args: list[str] | str) -> str:
 
 
 if __name__ == "__main__":
-    import rich
-
-    rich.print(f"{__file__}: {__doc__.strip()}")
-
-    assert command(["echo", "Hello, world!"]) == 'echo "Hello, world!"'
-    assert command("echo Hello, world!") == "echo Hello, world!"
+    _cmd = command(["echo", "Hello, world!"])
+    assert _cmd == 'echo "Hello, world!"'  # noqa: S101
+    _cmd = command("echo Hello, world!")
+    assert _cmd == "echo Hello, world!"  # noqa: S101

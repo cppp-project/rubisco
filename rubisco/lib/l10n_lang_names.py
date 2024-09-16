@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # -*- mode: python -*-
 # vi: set ft=python :
 
@@ -18,9 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-"""
-Locale names for l10n.
-"""
+"""Locale names for l10n."""
 
 __all__ = ["LOCALE_NAMES"]
 
@@ -60,7 +57,7 @@ LOCALE_NAMES = {
     "az_AZ": "Azərbaycan dili (Azərbaycan)",  # Azerbaijani (Azerbaijan)
     "az_IR": "Azərbaycan dili (İran)",  # Azerbaijani (Iran)
     "be_BY": "Беларуская (Беларусь)",  # Belarusian (Belarus)
-    "be_BY@latin": "Беларуская (Беларусь, лацінка)",  # Belarusian (Belarus, Latin) # noqa
+    "be_BY@latin": "Беларуская (Беларусь, лацінка)",  # Belarusian (Belarus, Latin) # noqa: E501
     "bem_ZM": "Bemba (Zambia)",  # Bemba (Zambia)
     "ber_DZ": "Berber (Algeria)",  # Berber (Algeria)
     "ber_MA": "Berber (Morocco)",  # Berber (Morocco)
@@ -76,19 +73,19 @@ LOCALE_NAMES = {
     "br_FR": "Brezhoneg (Frañs)",  # Breton (France)
     "br_FR@euro": "Brezhoneg (Frañs, euro)",  # Breton (France, Euro)
     "brx_IN": "बड़ो (भारत)",  # Bodo (India)
-    "bs_BA": "Bosanski (Bosna i Hercegovina)",  # Bosnian (Bosnia and Herzegovina) # noqa
+    "bs_BA": "Bosanski (Bosna i Hercegovina)",  # Bosnian (Bosnia and Herzegovina) # noqa: E501
     "byn_ER": "Blin (Eritrea)",  # Blin (Eritrea)
     "C": "Default (C)",  # C
     "ca_AD": "Català (Andorra)",  # Catalan (Andorra)
     "ca_ES": "Català (Espanya)",  # Catalan (Spain)
     "ca_ES@euro": "Català (Espanya, euro)",  # Catalan (Spain, Euro)
-    "ca_ES@valencia": "Català (Espanya, valencia)",  # Catalan (Spain, Valencia) # noqa
+    "ca_ES@valencia": "Català (Espanya, valencia)",  # Catalan (Spain, Valencia) # noqa: E501
     "ca_FR": "Català (França)",  # Catalan (France)
     "ca_IT": "Català (Itàlia)",  # Catalan (Italy)
     "ce_RU": "Нохчийн (Росси)",  # Chechen (Russia)
     "chr_US": "ᏣᎳᎩ (ᎠᎹᏂᎠ)",  # Cherokee (United States)
     "ckb_IQ": "کوردی (عێراق)",  # Kurdish (Iraq)
-    "crh_UA": "Qırımtatarca (Ukrayna)",  # Crimean Tatar (Ukraine)
+    "crh_UA": "Qırımtatarca (Ukrayna)",  # Crimean Tatar (Ukraine) # noqa: E501 RUF001 RUF100
     "csb_PL": "Kaszëbsczi (Pòlskô)",  # Kashubian (Poland)
     "cs_CZ": "Čeština (Česká republika)",  # Czech (Czech Republic)
     "cv_RU": "Чӑвашла (Росси)",  # Chuvash (Russia)
@@ -178,7 +175,7 @@ LOCALE_NAMES = {
     "fy_NL": "Frysk (Nederlân)",  # Frisian (Netherlands)
     "ga_IE": "Gaeilge (Éire)",  # Irish (Ireland)
     "ga_IE@euro": "Gaeilge (Éire, euro)",  # Irish (Ireland, Euro)
-    "gd_GB": "Gàidhlig (An Rìoghachd Aonaichte)",  # Scottish Gaelic (United Kingdom) # noqa
+    "gd_GB": "Gàidhlig (An Rìoghachd Aonaichte)",  # Scottish Gaelic (United Kingdom)  # noqa: E501
     "gez_ER": "ግዕዝ (ኤርትራ)",  # Ge'ez (Eritrea)
     "gez_ER@abegede": "ግዕዝ (ኤርትራ, abegede)",  # Ge'ez (Eritrea, Abegede)
     "gez_ET": "ግዕዝ (ኢትዮጵያ)",  # Ge'ez (Ethiopia)
@@ -217,7 +214,7 @@ LOCALE_NAMES = {
     "kok_IN": "कोंकणी (भारत)",  # Konkani (India)
     "ko_KR": "한국어 (대한민국)",  # Korean (South Korea)
     "#ks_IN": "کٲشُر (ہِندوستان)",  # Kashmiri (India)
-    "#ks_IN@devanagari": "कٲشُر (ہِندوستان, devanagari)",  # Kashmiri (India, Devanagari) # noqa
+    "#ks_IN@devanagari": "कٲشُر (ہِندوستان, devanagari)",  # Kashmiri (India, Devanagari) # noqa: E501 # pylint: disable=line-too-long
     "ku_TR": "Kurdî (Tirkiye)",  # Kurdish (Turkey)
     "kw_GB": "Kernewek (Rywvaneth Unys)",  # Cornish (United Kingdom)
     "ky_KG": "Кыргызча (Кыргызстан)",  # Kyrgyz (Kyrgyzstan)
@@ -265,7 +262,7 @@ LOCALE_NAMES = {
     "nl_NL@euro": "Nederlands (Nederland, euro)",  # Dutch (Netherlands, Euro)
     "nn_NO": "Norsk nynorsk (Noreg)",  # Norwegian Nynorsk (Norway)
     "nr_ZA": "isiNdebele (iNingizimu Afrika)",  # South Ndebele (South Africa)
-    "nso_ZA": "Sesotho sa Leboa (Afrika Borwa)",  # Northern Sotho (South Africa) # noqa
+    "nso_ZA": "Sesotho sa Leboa (Afrika Borwa)",  # Northern Sotho (South Africa) # noqa: E501
     "oc_FR": "Occitan (França)",  # Occitan (France)
     "om_ET": "Oromoo (Itoophiyaa)",  # Oromo (Ethiopia)
     "om_KE": "Oromoo (Keeniyaa)",  # Oromo (Kenya)
@@ -287,12 +284,12 @@ LOCALE_NAMES = {
     "ru_RU": "Русский (Россия)",  # Russian (Russia)
     "ru_UA": "Русский (Украина)",  # Russian (Ukraine)
     "rw_RW": "Kinyarwanda (Rwanda)",  # Kinyarwanda (Rwanda)
-    "sah_RU": "Саха (Россия)",  # Yakut (Russia)
+    "sah_RU": "Саха (Россия)",  # Yakut (Russia)  # noqa: RUF001
     "sa_IN": "संस्कृत (भारत)",  # Sanskrit (India)
     "sat_IN": "ᱥᱟᱱᱛᱟᱲᱤ (ᱥᱟᱱᱛᱟᱲᱤ)",  # Santali (India)
     "sc_IT": "Sardu (Italia)",  # Sardinian (Italy)
     "sd_IN": "سنڌي (هند)",  # Sindhi (India)
-    "sd_IN@devanagari": "सिन्धी (भारत, devanagari)",  # Sindhi (India, Devanagari) # noqa
+    "sd_IN@devanagari": "सिन्धी (भारत, devanagari)",  # Sindhi (India, Devanagari) # noqa: E501
     "se_NO": "Davvisámegiella (Norga)",  # Northern Sami (Norway)
     "sgs_LT": "Žemaitėška (Lietuva)",  # Samogitian (Lithuania)
     "shn_MM": "လိၵ်ႈတႆး (မိူင်းတီး)",  # Shan (Myanmar)
@@ -335,7 +332,7 @@ LOCALE_NAMES = {
     "tn_ZA": "Setswana (Aforika Borwa)",  # Tswana (South Africa)
     "to_TO": "lea fakatonga (Tonga)",  # Tongan (Tonga)
     "tpi_PG": "Tok Pisin (Papua Niugini)",  # Tok Pisin (Papua New Guinea)
-    "tr_CY": "Türkçe (Kıbrıs)",  # Turkish (Cyprus)
+    "tr_CY": "Türkçe (Kıbrıs)",  # Turkish (Cyprus)  # noqa: RUF001
     "tr_TR": "Türkçe (Türkiye)",  # Turkish (Turkey)
     "ts_ZA": "Xitsonga (Afrika Dzonga)",  # Tsonga (South Africa)
     "tt_RU": "Татар (Россия)",  # Tatar (Russia)
@@ -345,8 +342,8 @@ LOCALE_NAMES = {
     "unm_US": "Unami (United States)",  # Unami (United States)
     "ur_IN": "اردو (بھارت)",  # Urdu (India)
     "ur_PK": "اردو (پاکستان)",  # Urdu (Pakistan)
-    "uz_UZ": "O‘zbek (Uzbekistan)",  # Uzbek (Uzbekistan)
-    "uz_UZ@cyrillic": "Ўзбек (Ўзбекистон, cyrillic)",  # Uzbek (Uzbekistan, Cyrillic) # noqa
+    "uz_UZ": "O‘zbek (Uzbekistan)",  # Uzbek (Uzbekistan)  # noqa: RUF001
+    "uz_UZ@cyrillic": "Ўзбек (Ўзбекистон, cyrillic)",  # Uzbek (Uzbekistan, Cyrillic) # noqa: E501
     "ve_ZA": "Tshivenda (Afurika Tshipembe)",  # Venda (South Africa)
     "vi_VN": "Tiếng Việt (Việt Nam)",  # Vietnamese (Vietnam)
     "wa_BE": "Walloon (Belgium)",  # Walloon (Belgium)

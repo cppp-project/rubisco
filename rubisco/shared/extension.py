@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # -*- mode: python -*-
 # vi: set ft=python :
 
@@ -18,51 +17,60 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-"""
-Rubisco extensions interface.
-"""
+"""Rubisco extensions interface."""
 
-from pathlib import Path
+from __future__ import annotations
 
-from rubisco.config import (GLOBAL_EXTENSIONS_DIR, USER_EXTENSIONS_DIR,
-                            WORKSPACE_EXTENSIONS_VENV_DIR)
+from typing import TYPE_CHECKING
+
+from rubisco.config import (
+    GLOBAL_EXTENSIONS_DIR,
+    USER_EXTENSIONS_DIR,
+    WORKSPACE_EXTENSIONS_VENV_DIR,
+)
+from rubisco.kernel.config_file import config_file
 from rubisco.kernel.workflow import Step, _set_extloader, register_step_type
-from rubisco.lib.exceptions import RUValueException
+from rubisco.lib.exceptions import RUValueError
 from rubisco.lib.l10n import _
 from rubisco.lib.load_module import import_module_from_path
 from rubisco.lib.log import logger
 from rubisco.lib.variable import format_str, make_pretty
-from rubisco.lib.version import Version
-from rubisco.shared.ktrigger import (IKernelTrigger, bind_ktrigger_interface,
-                                     call_ktrigger)
-from rubisco.kernel.config_file import config_file
+from rubisco.shared.ktrigger import (
+    IKernelTrigger,
+    bind_ktrigger_interface,
+    call_ktrigger,
+)
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from rubisco.lib.version import Version
 
 __all__ = ["IRUExtention"]
 
 
 class IRUExtention:
-    """
-    Rubisco extension interface.
-    """
+    """Rubisco extension interface."""
 
     name: str
     description: str
     version: Version
     ktrigger: IKernelTrigger
-    workflow_steps: dict[str, Step]
-    steps_contributions: dict[Step, list[str]]
+    workflow_steps: dict[str, type[Step]]
+    steps_contributions: dict[type[Step], list[str]]
 
     def __init__(self) -> None:
-        """
-        Constructor. Please DO NOT initialize the extension here.
-        """
+        """Construct the instance.
 
+        Please DO NOT initialize the extension here.
+        """
         self.workflow_steps = {}
         self.steps_contributions = {}
 
     def extension_can_load_now(self) -> bool:
-        """
-        Check if the extension can load now. Some extensions may initialize
+        """Check if the extension can load now.
+
+        Some extensions may initialize
         optionally like 'CMake' or 'Rust'.
 
         This method MUST be implemented by the subclass.
@@ -72,23 +80,22 @@ class IRUExtention:
 
         Returns:
             bool: True if the extension can load now, otherwise False.
-        """
 
+        """
         raise NotImplementedError
 
     def on_load(self) -> None:
-        """
-        Load the extension.
+        """Load the extension.
+
         Initialize the extension here.
-
         This method MUST be implemented by the subclass.
-        """
 
+        """
         raise NotImplementedError
 
     def reqs_is_sloved(self) -> bool:
-        """
-        Check if the system requirements are solved.
+        """Check if the system requirements are solved.
+
         This method should return True if the system requirements are solved,
         otherwise False.
 
@@ -99,18 +106,17 @@ class IRUExtention:
 
         Returns:
             bool: True if the system requirements are solved, otherwise False.
-        """
 
+        """
         raise NotImplementedError
 
     def reqs_solve(self) -> None:
-        """
-        Solve the system requirements.
+        """Solve the system requirements.
+
         This method MUST be implemented by the subclass.
         If the slution is not possible, please raise an exception here.
-        It is recommended to use RUException if you have hint, docurl, etc.
+        It is recommended to use RUError if you have hint, docurl, etc.
         """
-
         raise NotImplementedError
 
 
@@ -121,9 +127,9 @@ invalid_ext_names = ["rubisco"]  # Avoid logger's name conflict.
 #   - extension/        directory    ---- The extension directory.
 #       - __init__.py   file         ---- The extension module.
 #           - instance  IRUExtention ---- The extension instance
-def load_extension(  # pylint: disable=too-many-branches
+def load_extension(  # pylint: disable=too-many-branches # noqa: C901 PLR0912
     path: Path | str,
-    strict: bool = False,
+    strict: bool = False,  # noqa: FBT001 FBT002
 ) -> None:
     """Load the extension.
 
@@ -133,8 +139,8 @@ def load_extension(  # pylint: disable=too-many-branches
             default extension directory.
         strict (bool, optional): If True, raise an exception if the extension
             loading failed.
-    """
 
+    """
     try:
         if isinstance(path, str):
             if (WORKSPACE_EXTENSIONS_VENV_DIR / path).is_dir():
@@ -144,11 +150,11 @@ def load_extension(  # pylint: disable=too-many-branches
             elif (GLOBAL_EXTENSIONS_DIR / path).is_dir():
                 path = WORKSPACE_EXTENSIONS_VENV_DIR / path
             else:
-                raise RUValueException(
+                raise RUValueError(  # noqa: TRY301
                     format_str(
                         _(
                             "The extension '${{name}}' does not exist in"
-                            " workspace, user, or global extension directory."
+                            " workspace, user, or global extension directory.",
                         ),
                         fmt={"name": path},
                     ),
@@ -158,11 +164,11 @@ def load_extension(  # pylint: disable=too-many-branches
                 )
 
         if not path.is_dir():
-            raise RUValueException(
+            raise RUValueError(  # noqa: TRY301
                 format_str(
                     _(
                         "The extension path '[underline]${{path}}[/underline]'"
-                        " is not a directory."
+                        " is not a directory.",
                     ),
                     fmt={"path": make_pretty(path.absolute())},
                 ),
@@ -173,21 +179,21 @@ def load_extension(  # pylint: disable=too-many-branches
         try:
             module = import_module_from_path(path)
         except FileNotFoundError as exc:
-            raise RUValueException(
+            raise RUValueError(
                 format_str(
                     _(
                         "The extension path '[underline]${{path}}[/underline]'"
-                        " does not exist."
+                        " does not exist.",
                     ),
                     fmt={"path": make_pretty(path.absolute())},
                 ),
             ) from exc
         except ImportError as exc:
-            raise RUValueException(
+            raise RUValueError(
                 format_str(
                     _(
                         "Failed to load extension '[underline]${{path}}"
-                        "[/underline]'."
+                        "[/underline]'.",
                     ),
                     fmt={"path": make_pretty(path.absolute())},
                 ),
@@ -199,25 +205,25 @@ def load_extension(  # pylint: disable=too-many-branches
             ) from exc
 
         if not hasattr(module, "instance"):
-            raise RUValueException(
+            raise RUValueError(  # noqa: TRY301
                 format_str(
                     _(
                         "The extension '[underline]${{path}}[/underline]' does"
-                        " not have an instance."
+                        " not have an instance.",
                     ),
                     fmt={"path": make_pretty(path.absolute())},
                 ),
                 hint=format_str(
                     _(
                         "Please make sure this extension is valid.",
-                    )
+                    ),
                 ),
             )
         instance: IRUExtention = module.instance
 
         # Security check.
         if instance.name in invalid_ext_names:
-            raise RUValueException(
+            raise RUValueError(  # noqa: TRY301
                 format_str(
                     _("Invalid extension name: '${{name}}' ."),
                     fmt={"name": instance.name},
@@ -251,7 +257,7 @@ def load_extension(  # pylint: disable=too-many-branches
                 return
 
         # Register the workflow steps.
-        for step_name, step in instance.workflow_steps:
+        for step_name, step in instance.workflow_steps.items():
             contributions = []
             if step in instance.steps_contributions:
                 contributions = instance.steps_contributions[step]
@@ -264,7 +270,7 @@ def load_extension(  # pylint: disable=too-many-branches
         )
         call_ktrigger(IKernelTrigger.on_extension_loaded, instance=instance)
         logger.info("Loaded extension '%s'.", instance.name)
-    except Exception as exc:  # pylint: disable=broad-except
+    except Exception as exc:  # pylint: disable=broad-except # noqa: BLE001
         if strict:
             raise exc from None
         logger.exception("Failed to load extension '%s': %s", path, exc)
@@ -272,14 +278,13 @@ def load_extension(  # pylint: disable=too-many-branches
             IKernelTrigger.on_error,
             message=format_str(
                 _("Failed to load extension '${{name}}': ${{exc}}."),
-                fmt={"name": make_pretty(path.absolute()), "exc": str(exc)},
+                fmt={"name": make_pretty(path), "exc": str(exc)},
             ),
         )
 
 
 def load_all_extensions() -> None:
     """Load all extensions."""
-
     autoruns = config_file.get("autoruns", [])
     autoruns = list(set(autoruns))
 

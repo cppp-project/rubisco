@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # -*- mode: python -*-
 # vi: set ft=python :
 
@@ -18,17 +17,18 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-"""
-Package management utils for environment.
-"""
+"""Package management utils for environment."""
 
-from rubisco.lib.version import Version
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from rubisco.lib.version import Version
 
 
 class ExtensionPackage:
-    """
-    A package.
-    """
+    """A package."""
 
     name: str
     version: Version
@@ -46,8 +46,12 @@ class ExtensionPackage:
             name (str): The package name.
             version (Version): The package version.
             dependencies (list[list[str]]): The package dependencies.
-        """
 
+        """
         self.name = name
         self.version = version
         self.dependencies = dependencies
+
+
+if __name__ == "__main__":
+    pass  # TODO
