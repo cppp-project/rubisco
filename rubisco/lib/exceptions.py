@@ -38,9 +38,7 @@ __all__ = [
 
 
 class RUException(RuntimeError):
-    """
-    Rubisco exception basic class.
-    """
+    """Rubisco exception basic class."""
 
     docurl: str
     hint: str

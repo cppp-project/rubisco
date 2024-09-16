@@ -181,6 +181,12 @@ arg_parser.add_argument(
 arg_parser.add_argument("--root", type=str, help=_("Project root directory."))
 
 arg_parser.add_argument(
+    "--log",
+    action="store_true",
+    help=_("Save log to the log file."),
+)
+
+arg_parser.add_argument(
     "--debug",
     action="store_true",
     help=_("Run rubisco in debug mode."),

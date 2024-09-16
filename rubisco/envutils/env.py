@@ -25,6 +25,7 @@ Package management utils for environment.
 import enum
 import os
 from pathlib import Path
+import sys
 import time
 import venv
 
@@ -34,13 +35,15 @@ from rubisco.config import (
     USER_EXTENSIONS_DIR,
     WORKSPACE_EXTENSIONS_VENV_DIR,
     VENV_LOCK_FILENAME,
+    EXTENSIONS_DIR,
 )
 from rubisco.envutils.utils import is_venv, add_venv_to_syspath
 from rubisco.lib.exceptions import RUException, RUOSException
 from rubisco.shared.ktrigger import call_ktrigger, IKernelTrigger
-from rubisco.lib.variable import format_str
+from rubisco.lib.variable import format_str, make_pretty
 from rubisco.lib.l10n import _
 from rubisco.lib.process import is_valid_pid
+from rubisco.lib.log import logger
 
 __all__ = [
     "EnvType",
@@ -121,6 +124,13 @@ class RUEnvironment:
             except ValueError:
                 pass
 
+            logger.warning(
+                "The environment '%s' is already locked by PID %d. "
+                "If you want to force unlock it, please remove the lock file '%s' manually.",
+                self.path,
+                pid,
+                self._lockfile,
+            )
             call_ktrigger(
                 IKernelTrigger.on_warning,
                 message=format_str(
@@ -150,6 +160,8 @@ class RUEnvironment:
                         },
                     ),
                 )
+
+            logger.info("Waiting for the environment to be unlocked ('%s')", self._lockfile)
 
             task_name = format_str(
                 _(
@@ -183,7 +195,9 @@ class RUEnvironment:
                 task_name=task_name,
             )
 
+
         pid = os.getpid()
+        logger.info("Locking the environment '%s' with PID %d.", self.path, pid)
         with open(
             self.path / VENV_LOCK_FILENAME,
             "w",
@@ -195,7 +209,10 @@ class RUEnvironment:
         """Unlock the environment."""
 
         if self.is_locked():
+            logger.info("Unlocking the environment '%s'.", self.path)
             os.remove(self.path / VENV_LOCK_FILENAME)
+        else:
+            logger.warning("The environment '%s' is not locked.", self.path)
 
     def __enter__(self) -> "RUEnvironment":
         self.lock()
@@ -217,6 +234,7 @@ def setup_new_venv(env: RUEnvironment) -> None:
         env (RUEnvironment): Path to setup the virtual environment.
     """
 
+    logger.info("Setting up a new venv: '%s'", env.path)
     call_ktrigger(IKernelTrigger.on_create_venv, path=env.path)
     try:
         if env.path.exists() and not is_venv(env.path):
@@ -230,6 +248,7 @@ def setup_new_venv(env: RUEnvironment) -> None:
                 )
             )
         venv.create(env.path, with_pip=True, upgrade_deps=True)
+        os.makedirs(env.path / EXTENSIONS_DIR, exist_ok=True)
         add_venv_to_syspath(env.path)
     except OSError as exc:
         raise RUOSException(
@@ -248,3 +267,29 @@ WORKSPACE_ENV = RUEnvironment(WORKSPACE_EXTENSIONS_VENV_DIR, EnvType.WORKSPACE)
 GLOBAL_ENV.add_to_path()
 USER_ENV.add_to_path()
 WORKSPACE_ENV.add_to_path()
+
+
+if __name__ == "__main__":
+    import rubisco.shared.ktrigger
+    import rubisco.cli.output
+
+    class _InstallTrigger(IKernelTrigger):
+        def on_create_venv(self, path: Path) -> None:
+            rubisco.cli.output.output_step(
+                format_str(
+                    _("Creating venv: '[underline]${{path}}[/underline]' ..."),
+                    fmt={"path": make_pretty(path.absolute())},
+                )
+            )
+
+    rubisco.shared.ktrigger.bind_ktrigger_interface(
+        "installer",
+        _InstallTrigger(),
+    )
+
+    if "--setup-global-env" in sys.argv:
+        try:
+            setup_new_venv(GLOBAL_ENV)
+        except Exception as exc:  # pylint: disable=broad-exception-caught
+            logger.exception("Failed to setup global environment.")
+            rubisco.cli.output.show_exception(exc)

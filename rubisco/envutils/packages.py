@@ -23,10 +23,9 @@ Package management utils for environment.
 """
 
 from rubisco.lib.version import Version
-from rubisco.lib.process import Process
 
 
-class Package:
+class ExtensionPackage:
     """
     A package.
     """

@@ -39,15 +39,18 @@ logger = logging.getLogger(APP_NAME)
 
 logger.setLevel(LOG_LEVEL)
 
-if not Path(LOG_FILE).parent.exists():
-    os.makedirs(Path(LOG_FILE).parent, exist_ok=True)
-logger_handler = logging.FileHandler(LOG_FILE, encoding=DEFAULT_CHARSET)
-logger_handler.setLevel(LOG_LEVEL)
+if "--log" in sys.argv:
+    if not Path(LOG_FILE).parent.exists():
+        os.makedirs(Path(LOG_FILE).parent, exist_ok=True)
+    logger_handler = logging.FileHandler(LOG_FILE, encoding=DEFAULT_CHARSET)
+    logger_handler.setLevel(LOG_LEVEL)
 
-logger_formatter = logging.Formatter(LOG_FORMAT, datefmt=LOG_TIME_FORMAT)
-logger_handler.setFormatter(logger_formatter)
+    logger_formatter = logging.Formatter(LOG_FORMAT, datefmt=LOG_TIME_FORMAT)
+    logger_handler.setFormatter(logger_formatter)
 
-logger.addHandler(logger_handler)
+    logger.addHandler(logger_handler)
+else:
+    logger.addHandler(logging.NullHandler())
 
 if "--debug" in sys.argv:  # Don't use argparse here.
     import rich.logging
@@ -55,9 +58,7 @@ if "--debug" in sys.argv:  # Don't use argparse here.
     logger_handler = rich.logging.RichHandler(
         level=LOG_LEVEL, console=rich.get_console()
     )
-
     logger_formatter = logging.Formatter(LOG_FORMAT)
-
     logger.addHandler(logger_handler)
 
 if __name__ == "__main__":

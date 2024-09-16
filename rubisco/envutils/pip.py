@@ -33,6 +33,9 @@ from rubisco.envutils.env import RUEnvironment, setup_new_venv
 from rubisco.kernel.mirrorlist import get_url
 
 
+__all__ = ["install_pip_package"]
+
+
 def _exec_pip(dest: RUEnvironment, args: list[str]) -> None:
     pip_path = dest.path / "bin" / "pip"
     if os.name == "nt":

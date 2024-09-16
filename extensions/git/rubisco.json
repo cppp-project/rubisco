@@ -1,0 +1,9 @@
+{
+    "name": "git",
+    "version": "0.1.0",
+    "description": "Git Extension for Rubisco.",
+    "homepage": "https://github.com/cppp-project/rubisco",
+    "maintainer": ["ChenPi11"],
+    "license": "GPL-3.0",
+    "tags": ["git", "rubisco"]
+}

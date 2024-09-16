@@ -460,6 +460,7 @@ def call_ktrigger(name: str | Callable, *args, **kwargs) -> None:
 
 if __name__ == "__main__":
     import rich
+    from contextlib import suppress
 
     rich.print(f"{__file__}: {__doc__.strip()}")
 
@@ -493,10 +494,8 @@ if __name__ == "__main__":
     bind_ktrigger_interface("test", kt)
 
     # Test: Bind a KTrigger with the same sign.
-    try:
+    with suppress(RUValueException):
         bind_ktrigger_interface("test", kt)
-    except RUValueException:
-        pass
 
     # Test: Call a KTrigger.
     call_ktrigger("on_test0")
@@ -508,10 +507,8 @@ if __name__ == "__main__":
         gnu="Stallman",
         nividia="F**k",
     )
-    try:
+    with suppress(ValueError):
         call_ktrigger("on_test3")
-    except ValueError:
-        pass
 
     # Test: Call a non-exists KTrigger.
     call_ktrigger("non_exists")
