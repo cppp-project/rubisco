@@ -18,3 +18,11 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 """C++ Plus repository distributing, packaging and initialization utilities."""
+
+import sys
+
+from rubisco.config import MINIMUM_PYTHON_VERSION
+from rubisco.lib.version import Version
+
+if Version(sys.version_info) < MINIMUM_PYTHON_VERSION:
+    sys.exit(f"Python {MINIMUM_PYTHON_VERSION} or newer is required.")

@@ -28,9 +28,7 @@ from pathlib import Path
 from platform import uname
 from queue import Empty, LifoQueue
 from time import monotonic as time
-from typing import TYPE_CHECKING, Any, overload
-
-from typing_extensions import Self
+from typing import TYPE_CHECKING, Any, Self, overload
 
 from rubisco.config import APP_VERSION, RUBISCO_COMMAND
 from rubisco.lib.l10n import _

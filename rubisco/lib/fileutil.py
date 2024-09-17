@@ -26,9 +26,7 @@ import shutil
 import sys
 import tempfile
 from pathlib import Path
-from typing import TYPE_CHECKING
-
-from typing_extensions import Self
+from typing import TYPE_CHECKING, Self
 
 from rubisco.config import APP_NAME
 from rubisco.lib.exceptions import RUOSError, RUShellExecutionError

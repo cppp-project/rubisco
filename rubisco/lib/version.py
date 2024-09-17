@@ -22,9 +22,7 @@
 from __future__ import annotations
 
 import re
-from typing import overload
-
-from typing_extensions import Self
+from typing import Self, overload
 
 __all__ = ["Version"]
 
