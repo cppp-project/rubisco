@@ -234,7 +234,6 @@ if __name__ == "__main__":
     colorama.init()
 
     class _GitTestKTrigger(IKernelTrigger):
-
         def on_update_git_repo(
             self,
             path: Path,

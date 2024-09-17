@@ -46,7 +46,7 @@ if TYPE_CHECKING:
 
     from rubisco.lib.version import Version
 
-__all__ = ["IRUExtention"]
+__all__ = ["IRUExtention", "load_extension"]
 
 
 class IRUExtention:

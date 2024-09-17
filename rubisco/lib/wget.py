@@ -18,6 +18,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 """Download a file from the Internet."""
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -115,7 +116,7 @@ if __name__ == "__main__":
         def on_new_task(
             self,
             task_name: str,
-            task_type: int,
+            task_type: str,
             total: float,
         ) -> None:
             rich.print("on_new_task():", task_name, task_type, total)

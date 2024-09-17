@@ -28,7 +28,7 @@ from pathlib import Path
 from platform import uname
 from queue import Empty, LifoQueue
 from time import monotonic as time
-from typing import TYPE_CHECKING, Any, Generator, Iterable, Iterator, overload
+from typing import TYPE_CHECKING, Any, overload
 
 from typing_extensions import Self
 
@@ -36,6 +36,7 @@ from rubisco.config import APP_VERSION, RUBISCO_COMMAND
 from rubisco.lib.l10n import _
 
 if TYPE_CHECKING:
+    from collections.abc import Generator, Iterable, Iterator
     from types import UnionType
 
 __all__ = [
@@ -515,7 +516,9 @@ class AutoFormatList(list):
 
     raw_iter = list.__iter__
 
-    def __iter__(self) -> Generator[Any, None, None]:
+    def __iter__(
+        self,
+    ) -> Generator[Any, None, None]:  # type: ignore[signature-mismatch]
         """Get the iterator of the list."""
         for item in super().__iter__():
             yield format_str(item)
@@ -612,7 +615,7 @@ class AutoFormatDict(dict):
             key = format_str(key)
             if key not in self:
                 raise KeyError(repr(key))
-            res = format_str(self.raw_get(key))
+            res = format_str(super().get(key))
         if not isinstance(res, valtype):
             if hasattr(valtype, "__name__"):
                 valtype_name = valtype.__name__
@@ -635,31 +638,40 @@ class AutoFormatDict(dict):
 
     raw_keys = dict.keys
 
-    def keys(self) -> Generator[str, None, None]:
+    def keys(
+        self,
+    ) -> Generator[str, None, None]:  # type: ignore[signature-mismatch]
         """Get the keys of the dict."""
         for key in super().keys():  # noqa: SIM118
             yield format_str(key)
 
     raw_values = dict.values
 
-    def values(self) -> Generator[Any, None, None]:
+    def values(
+        self,
+    ) -> Generator[Any, None, None]:  # type: ignore[signature-mismatch]
         """Get the values of the dict."""
         for value in super().values():
             yield format_str(value)
 
     raw_items = dict.items
 
-    def items(self) -> list[tuple[str, Any]]:
+    def items(
+        self,
+    ) -> list[tuple[str, Any]]:  # type: ignore[signature-mismatch]
         """Get the items of the dict."""
-        return list(zip(list(self.keys()), list(self.values())))
+        return list(zip(list(self.keys()), list(self.values()), strict=False))
 
-    def update(self, src: dict | Self) -> None:
+    def update(self, src: dict | AutoFormatDict | None = None) -> None:
         """Update the dict with the given mapping.
 
         Args:
             src (dict | AutoFormatDict): The mapping to update.
 
         """
+        if src is None:
+            return
+
         if isinstance(src, dict) and not isinstance(src, AutoFormatDict):
             src = AutoFormatDict(src)
 
@@ -688,13 +700,13 @@ class AutoFormatDict(dict):
 
         """
         if len(args) == 1:
-            res = format_str(self.raw_pop(format_str(key), args[0]))
+            res = format_str(super().pop(format_str(key), args[0]))
         elif "default" in kwargs:
             res = format_str(
-                self.raw_pop(format_str(key), kwargs["default"]),
+                super().pop(format_str(key), kwargs["default"]),
             )
         else:
-            res = format_str(self.raw_pop(format_str(key)))
+            res = format_str(super().pop(format_str(key)))
         return res
 
     def copy(self) -> AutoFormatDict:

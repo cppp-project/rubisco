@@ -21,6 +21,7 @@
 
 import time
 
+import aiohttp
 import aiohttp.client_exceptions
 
 from rubisco.config import TIMEOUT

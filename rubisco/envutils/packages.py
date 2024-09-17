@@ -27,7 +27,7 @@ if TYPE_CHECKING:
     from rubisco.lib.version import Version
 
 
-class ExtensionPackage:
+class ExtensionPackage:  # pylint: disable=too-few-public-methods
     """A package."""
 
     name: str
@@ -54,4 +54,4 @@ class ExtensionPackage:
 
 
 if __name__ == "__main__":
-    pass  # TODO
+    pass

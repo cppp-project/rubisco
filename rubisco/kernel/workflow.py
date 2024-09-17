@@ -21,16 +21,17 @@
 
 Workflow is a ordered list of steps. Each step only contains one action.
 """
+
 from __future__ import annotations
 
+import abc
 import glob
 import os
 import shutil
-import sys
 import uuid
 from abc import abstractmethod
 from pathlib import Path
-from typing import Generator
+from typing import TYPE_CHECKING, Any
 
 import json5 as json
 import yaml
@@ -56,6 +57,9 @@ from rubisco.lib.variable import (
 )
 from rubisco.shared.ktrigger import IKernelTrigger, call_ktrigger
 
+if TYPE_CHECKING:
+    from collections.abc import Generator
+
 __all__ = [
     "Step",
     "ShellExecStep",
@@ -78,10 +82,19 @@ __all__ = [
     "_set_extloader",
 ]
 
-try:  # Avoid circular import.
-    from rubisco.shared.extension import load_extension
-except ImportError:
-    load_extension = NotImplemented
+
+def load_extension(*args: Any, **kwargs: Any) -> None:  # noqa: ANN401
+    """Not implemented. Use `_set_extloader` to set.
+
+    Args:
+        *args: The arguments.
+        **kwargs: The keyword arguments.
+
+    Raises:
+        NotImplementedError: Always.
+
+    """
+    raise NotImplementedError
 
 
 # Avoid circular import.
@@ -91,7 +104,7 @@ def _set_extloader(extloader) -> None:  # noqa: ANN001
     load_extension = extloader
 
 
-class Step:  # pylint: disable=too-many-instance-attributes
+class Step(abc.ABC):  # pylint: disable=too-many-instance-attributes
     """A step in the workflow."""
 
     id: str
@@ -413,17 +426,11 @@ class RemoveStep(Step):
     def run(self) -> None:
         """Run the step."""
         for glob_partten in self.globs:
-            if sys.version_info >= (3, 10):
-                paths = glob.glob(  # pylint: disable=E1123  # noqa: PTH207
-                    glob_partten,
-                    recursive=True,
-                    include_hidden=self.include_hidden,
-                )
-            else:
-                paths = glob.glob(  # pylint: disable=E1123  # noqa: PTH207
-                    glob_partten,
-                    recursive=True,
-                )
+            paths = glob.glob(  # pylint: disable=E1123  # noqa: PTH207
+                glob_partten,
+                recursive=True,
+                include_hidden=self.include_hidden,
+            )
             for str_path in paths:
                 path = Path(str_path)
                 call_ktrigger(IKernelTrigger.on_remove, path=path)

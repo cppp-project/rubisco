@@ -414,13 +414,15 @@ def extract(  # pylint: disable=too-many-branches # noqa: C901 PLR0912
                 compress_type = suffix1[1:]
             else:
                 raise RUValueError(
-                    str(format_str(
-                        _(
-                            "Unable to determine compression type of "
-                            "'[underline]${{path}}[/underline]'",
+                    str(
+                        format_str(
+                            _(
+                                "Unable to determine compression type of "
+                                "'[underline]${{path}}[/underline]'",
+                            ),
+                            fmt={"path": str(file)},
                         ),
-                        fmt={"path": str(file)},
-                    )),
+                    ),
                     hint=_("Please specify the compression type explicitly."),
                 )
         if compress_type in ["gz", "gzip"]:

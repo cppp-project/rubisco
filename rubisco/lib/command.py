@@ -18,6 +18,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 """Generate command line."""
+
 from __future__ import annotations
 
 __all__ = ["command"]

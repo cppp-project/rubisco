@@ -168,9 +168,7 @@ class Process:
             stdin=sys.stdin,
             stdout=PIPE if stdout else sys.stdout,
             stderr=(
-                PIPE
-                if stderr == 1
-                else (STDOUT if stderr == 2 else sys.stderr)  # noqa: PLR2004
+                PIPE if stderr == 1 else (STDOUT if stderr == 2 else sys.stderr)  # noqa: PLR2004
             ),
         ) as self.process:
             ret = self.process.wait()

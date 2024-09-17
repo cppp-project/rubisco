@@ -15,7 +15,7 @@
       "run": ".rubisco/build.yaml"
     },
     "format": {
-      "exec": "python -m isort rubisco"
+      "exec": "python -m ruff format rubisco"
     },
     "clean": {
       "workflow": [

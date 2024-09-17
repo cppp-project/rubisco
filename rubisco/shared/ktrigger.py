@@ -25,8 +25,9 @@ Interface can do something before or after kernel operations.
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from functools import partial
-from typing import TYPE_CHECKING, Any, Callable
+from typing import TYPE_CHECKING, Any
 
 from rubisco.lib.exceptions import RUValueError
 from rubisco.lib.l10n import _
@@ -106,14 +107,15 @@ class IKernelTrigger:  # pylint: disable=too-many-public-methods
     def on_new_task(
         self,
         task_name: str,
-        task_type: int,
+        task_type: str,
         total: float,
     ) -> None:
         """When a progressive task is created.
 
         Args:
             task_name (str): Task name.
-            task_type (int): Task type. Must be TASK_DOWNLOAD or TASK_EXTRACT.
+            task_type (str): Task type.
+                Must be `IKernelTrigger.TASK_*`.
             total (float): Total steps.
 
         """

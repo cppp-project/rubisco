@@ -8,6 +8,7 @@ __pycache__/
 *.so
 
 # Distribution / packaging
+rubisco-**
 .Python
 build/
 develop-eggs/
@@ -98,6 +99,7 @@ venv.bak/
 .vscode
 .cache
 .idea
+.ruff_cache
 
 # Spyder project settings
 .spyderproject
@@ -117,6 +119,9 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
+# Pytype type checker
+.pytype/
+
 # Patterns for all subdirectories: all kinds of automatic backup files.
 *.orig
 *.rej
@@ -125,6 +130,3 @@ dmypy.json
 *.swp
 .#*
 \#*#
-
-# Dist directory
-rubisco-**

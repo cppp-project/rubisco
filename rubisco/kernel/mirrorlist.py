@@ -224,7 +224,6 @@ if __name__ == "__main__":
     )
 
     class _TestKTrigger(IKernelTrigger):
-
         def pre_speedtest(self, host: str) -> None:
             rich.print(f"[blue]=>[/blue] Testing {host} ...", end="\n")
 

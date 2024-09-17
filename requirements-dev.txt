@@ -1,7 +1,9 @@
-pylint
-isort
-flake8
-Nuitka
 build
 hatchling
+isort
+Nuitka
+pylint
+urllib3[socks]  # Avoid urllib3's warning in pytype's check
 pytest
+pytype
+ruff

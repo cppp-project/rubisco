@@ -26,7 +26,7 @@ import atexit
 import os
 import sys
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Iterable, Sequence
+from typing import TYPE_CHECKING, Any
 
 import colorama
 import rich
@@ -69,6 +69,8 @@ from rubisco.shared.ktrigger import (
 )
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable, Sequence
+
     from rubisco.kernel.workflow import Step, Workflow
     from rubisco.lib.process import Process
 
@@ -120,7 +122,7 @@ class _VersionAction(argparse.Action):
         self,
         parser: argparse.ArgumentParser,
         namespace: argparse.Namespace,  # noqa: ARG002
-        values: list,  # noqa: ARG002
+        values: str | Sequence[Any] | None,  # noqa: ARG002
         option_string: str | None = None,  # noqa: ARG002
     ) -> None:
         show_version()

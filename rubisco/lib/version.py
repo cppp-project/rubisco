@@ -39,16 +39,13 @@ class Version:
     build: str
 
     @overload
-    def __init__(self, version: str) -> None:
-        ...
+    def __init__(self, version: str) -> None: ...
 
     @overload
-    def __init__(self, version: Self) -> None:
-        ...
+    def __init__(self, version: Self) -> None: ...
 
     @overload
-    def __init__(self, version: tuple) -> None:
-        ...
+    def __init__(self, version: tuple) -> None: ...
 
     def __init__(self, version: str | Self | tuple) -> None:
         """Initialize the version analyzer.

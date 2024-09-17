@@ -55,6 +55,7 @@ else:
     logger.addHandler(logging.NullHandler())
 
 if "--debug" in sys.argv:  # Don't use argparse here.
+    import rich
     import rich.logging
 
     logger_handler = rich.logging.RichHandler(
