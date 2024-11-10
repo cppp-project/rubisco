@@ -49,7 +49,7 @@ def command(args: list[str] | str) -> str:
 
 
 if __name__ == "__main__":
-    _cmd = command(["echo", "Hello, world!"])
-    assert _cmd == 'echo "Hello, world!"'  # noqa: S101
-    _cmd = command("echo Hello, world!")
-    assert _cmd == "echo Hello, world!"  # noqa: S101
+    _CMD = command(["echo", "Hello, world!"])
+    assert _CMD == 'echo "Hello, world!"'  # noqa: S101
+    _CMD = command("echo Hello, world!")
+    assert _CMD == "echo Hello, world!"  # noqa: S101

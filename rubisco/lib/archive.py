@@ -329,11 +329,11 @@ def extract_file(  # pylint: disable=too-many-branches # noqa: C901 PLR0912
         raise AssertionError
 
     if compress_type == "gz":
-        fsrc = gzip.open(file, "rb")
+        fsrc = gzip.open(file, "rb")  # noqa: SIM115
     elif compress_type == "bz2":
         fsrc = bz2.BZ2File(file, "rb")
     elif compress_type == "xz":
-        fsrc = lzma.open(file, "rb")
+        fsrc = lzma.open(file, "rb")  # noqa: SIM115
     else:
         raise AssertionError
 
@@ -491,7 +491,7 @@ def extract(  # pylint: disable=too-many-branches # noqa: C901 PLR0912
         ) from exc
 
 
-def compress_tarball(  # pylint: disable=R0913 # noqa: C901 PLR0913
+def compress_tarball(  # pylint: disable=R0913, R0917 # noqa: C901 PLR0913
     src: Path,
     dest: Path,
     start: Path | None = None,
@@ -555,13 +555,13 @@ def compress_tarball(  # pylint: disable=R0913 # noqa: C901 PLR0913
 
     if compress_type in ["gz", "bz2"]:
         compress_level = compress_level if compress_level else 9
-        fp = tarfile.open(
+        fp = tarfile.open(  # noqa: SIM115
             dest,
             f"w:{compress_type}" if compress_type else "w",
             compresslevel=compress_level,
         )
     else:
-        fp = tarfile.open(
+        fp = tarfile.open(  # noqa: SIM115
             dest,
             f"w:{compress_type}" if compress_type else "w",
         )
@@ -606,7 +606,7 @@ def compress_tarball(  # pylint: disable=R0913 # noqa: C901 PLR0913
         call_ktrigger(IKernelTrigger.on_finish_task, task_name=task_name)
 
 
-def compress_zip(  # pylint: disable=too-many-arguments # noqa: PLR0913
+def compress_zip(  # pylint: disable=R0913, R0917 # noqa: PLR0913
     src: Path,
     dest: Path,
     start: Path | None = None,
@@ -798,11 +798,11 @@ def compress_file(  # pylint: disable=R0912 # noqa: C901 PLR0912
         compress_level = 9
 
     if compress_type == "gz":
-        fsrc = gzip.open(src, "rb", compresslevel=compress_level)
+        fsrc = gzip.open(src, "rb", compresslevel=compress_level)  # noqa: SIM115
     elif compress_type == "bz2":
         fsrc = bz2.BZ2File(src, "rb", compresslevel=compress_level)
     elif compress_type == "xz":
-        fsrc = lzma.open(src, "rb")
+        fsrc = lzma.open(src, "rb")  # noqa: SIM115
     else:
         raise AssertionError
 
@@ -848,7 +848,7 @@ def compress_file(  # pylint: disable=R0912 # noqa: C901 PLR0912
 
 
 # We should rewrite this ugly function later.
-def compress(  # pylint: disable=R0912, R0913 # noqa: C901 PLR0912 PLR0913
+def compress(  # pylint: disable=R0912, R0913, R0917 # noqa: C901 PLR0912 PLR0913 E501 RUF100
     src: Path,
     dest: Path,
     start: Path | None = None,

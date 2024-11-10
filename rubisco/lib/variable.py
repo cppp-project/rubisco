@@ -34,7 +34,7 @@ from rubisco.config import APP_VERSION, RUBISCO_COMMAND
 from rubisco.lib.l10n import _
 
 if TYPE_CHECKING:
-    from collections.abc import Generator, Iterable, Iterator
+    from collections.abc import Callable, Generator, Iterable, Iterator
     from types import UnionType
 
 __all__ = [
@@ -44,6 +44,7 @@ __all__ = [
     "get_variable",
     "make_pretty",
     "assert_iter_types",
+    "iter_assert",
     "format_str",
     "AFTypeError",
     "VariableUpdateCallback",
@@ -229,6 +230,38 @@ def assert_iter_types(
     for obj in iterable:
         if not isinstance(obj, objtype):
             raise exc
+
+
+def iter_assert(
+    iterable: Iterable[Any],
+    checker: Callable[[Any], bool],
+    exc: Exception | Callable[[Any], Exception],
+) -> None:
+    """Iterate the iterable and assert the elements.
+
+    Args:
+        iterable (Iterable[Any]): The iterable to iterate.
+        checker (Callable[[Any], bool]): Element checker.
+            The argument is the element in the iterable.
+        exc (Exception | Callable[Any]): The exception to raise or the
+            `on_error` callback. The argument is the element in the iterable.
+            Returns the exception to raise.
+
+    Raises:
+        Exception: If the element does not pass the checker
+
+    """
+    if isinstance(exc, Exception):
+
+        def _exc(
+            e: Any,  # noqa: ARG001 ANN401 # pylint: disable=unused-argument
+        ) -> Exception:
+            return exc  # type: ignore[no-any-return]
+        exc = _exc
+
+    for obj in iterable:
+        if not checker(obj):
+            raise exc(obj)
 
 
 uname_result = uname()

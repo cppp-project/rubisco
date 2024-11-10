@@ -87,7 +87,7 @@ def git_update(path: Path, branch: str = "main") -> None:
     logger.info("Repository '%s' updated.", str(path))
 
 
-def git_clone(  # pylint: disable=too-many-arguments # noqa: PLR0913
+def git_clone(  # pylint: disable=R0913, R0917 # noqa: PLR0913
     url: str,
     path: Path,
     branch: str = "main",

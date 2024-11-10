@@ -37,6 +37,8 @@ from rubisco.lib.variable import format_str, make_pretty
 if TYPE_CHECKING:
     from pathlib import Path
 
+    from rubisco.lib.version import Version
+
 __all__ = [
     "IKernelTrigger",
     "bind_ktrigger_interface",
@@ -403,15 +405,43 @@ class IKernelTrigger:  # pylint: disable=too-many-public-methods
         self,
         dest: Any,  # noqa: ANN401
         ext_name: str,
+        ext_version: Version,
     ) -> None:
         """On we are installing an extension.
 
         Args:
-            dest (EnvType): Destination environment type.
+            dest (RUEnvironment): Destination environment.
             ext_name (str): Extension name.
+            ext_version (Version): Extension version.
 
         """
-        _null_trigger("on_install_extension", dest=dest, ext_name=ext_name)
+        _null_trigger(
+            "on_install_extension",
+            dest=dest,
+            ext_name=ext_name,
+            ext_version=ext_version,
+        )
+
+    def on_extension_installed(
+        self,
+        dest: Any,  # noqa: ANN401
+        ext_name: str,
+        ext_version: Version,
+    ) -> None:
+        """On a extension installed.
+
+        Args:
+            dest (EnvType): Destination environment type.
+            ext_name (str): Extension name.
+            ext_version (Version): Extension version.
+
+        """
+        _null_trigger(
+            "on_extension_installed",
+            dest=dest,
+            ext_name=ext_name,
+            ext_version=ext_version,
+        )
 
 
 # KTrigger instances.

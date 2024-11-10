@@ -71,8 +71,10 @@ from rubisco.shared.ktrigger import (
 if TYPE_CHECKING:
     from collections.abc import Iterable, Sequence
 
+    from rubisco.envutils.env import RUEnvironment
     from rubisco.kernel.workflow import Step, Workflow
     from rubisco.lib.process import Process
+    from rubisco.lib.version import Version
 
 
 __all__ = ["main"]
@@ -97,7 +99,7 @@ def show_version() -> None:
 class _VersionAction(argparse.Action):
     """Version Action for rubisco."""
 
-    def __init__(  # pylint: disable=too-many-arguments
+    def __init__(  # pylint: disable=R0913, R0917
         self,
         option_strings: Sequence[str],
         version: str | None = None,
@@ -663,6 +665,71 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
             format_str(
                 _("Creating venv: '[underline]${{path}}[/underline]' ..."),
                 fmt={"path": make_pretty(path.absolute())},
+            ),
+        )
+
+    def on_install_extension(
+        self,
+        dest: RUEnvironment,
+        ext_name: str,
+        ext_version: Version,
+    ) -> None:
+        if dest.is_global():
+            output_step(
+                format_str(
+                    _(
+                        "Installing extension [green]${{name}}[/green]:[black]"
+                        "${{version}}[/black] to global (${{path}}) ...",
+                    ),
+                    fmt={
+                        "name": ext_name,
+                        "version": str(ext_version),
+                        "path": make_pretty(dest.path),
+                    },
+                ),
+            )
+        elif dest.is_user():
+            output_step(
+                format_str(
+                    _(
+                        "Installing extension [green]${{name}}[/green]:[black]"
+                        "${{version}}[/black] to user (${{path}}) ...",
+                    ),
+                    fmt={
+                        "name": ext_name,
+                        "version": str(ext_version),
+                        "path": make_pretty(dest.path),
+                    },
+                ),
+            )
+        else:
+            output_step(
+                format_str(
+                    _(
+                        "Installing extension [green]${{name}}[/green]:[black]"
+                        "${{version}}[/black] to workspace (${{path}}) ...",
+                    ),
+                    fmt={
+                        "name": ext_name,
+                        "version": str(ext_version),
+                        "path": make_pretty(dest.path),
+                    },
+                ),
+            )
+
+    def on_extension_installed(
+        self,
+        dest: Any,  # noqa: ANN401 ARG002
+        ext_name: str,
+        ext_version: Version,
+    ) -> None:
+        output_step(
+            format_str(
+                _(
+                    "Extension [green]${{name}}[/green]:[black]${{version}}"
+                    "[/black] was successfully installed.",
+                ),
+                fmt={"name": ext_name, "version": str(ext_version)},
             ),
         )
 

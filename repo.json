@@ -17,6 +17,9 @@
     "format": {
       "exec": "python -m ruff format rubisco"
     },
+    "test": {
+      "run": ".rubisco/test.yaml"
+    },
     "clean": {
       "workflow": [
         {

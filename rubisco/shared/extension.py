@@ -24,8 +24,8 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from rubisco.config import (
-    GLOBAL_EXTENSIONS_DIR,
-    USER_EXTENSIONS_DIR,
+    GLOBAL_EXTENSIONS_VENV_DIR,
+    USER_EXTENSIONS_VENV_DIR,
     WORKSPACE_EXTENSIONS_VENV_DIR,
 )
 from rubisco.kernel.config_file import config_file
@@ -144,10 +144,10 @@ def load_extension(  # pylint: disable=too-many-branches # noqa: C901 PLR0912
     try:
         if isinstance(path, str):
             if (WORKSPACE_EXTENSIONS_VENV_DIR / path).is_dir():
-                path = GLOBAL_EXTENSIONS_DIR / path
-            elif (USER_EXTENSIONS_DIR / path).is_dir():
-                path = USER_EXTENSIONS_DIR / path
-            elif (GLOBAL_EXTENSIONS_DIR / path).is_dir():
+                path = GLOBAL_EXTENSIONS_VENV_DIR / path
+            elif (USER_EXTENSIONS_VENV_DIR / path).is_dir():
+                path = USER_EXTENSIONS_VENV_DIR / path
+            elif (GLOBAL_EXTENSIONS_VENV_DIR / path).is_dir():
                 path = WORKSPACE_EXTENSIONS_VENV_DIR / path
             else:
                 raise RUValueError(  # noqa: TRY301
@@ -300,7 +300,7 @@ def load_all_extensions() -> None:
 
     # Load the user extensions.
     try:
-        for path in USER_EXTENSIONS_DIR.iterdir():
+        for path in USER_EXTENSIONS_VENV_DIR.iterdir():
             if path.is_dir() and path.name in autoruns:
                 load_extension(path)
     except OSError as exc:
@@ -308,7 +308,7 @@ def load_all_extensions() -> None:
 
     # Load the global extensions.
     try:
-        for path in GLOBAL_EXTENSIONS_DIR.iterdir():
+        for path in GLOBAL_EXTENSIONS_VENV_DIR.iterdir():
             if path.is_dir() and path.name in autoruns:
                 load_extension(path)
     except OSError as exc:

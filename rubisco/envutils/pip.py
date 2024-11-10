@@ -22,6 +22,7 @@
 from __future__ import annotations
 
 import os
+from typing import TYPE_CHECKING
 
 from rubisco.config import PIP_LOG_FILE
 from rubisco.envutils.env import RUEnvironment, setup_new_venv
@@ -31,7 +32,10 @@ from rubisco.lib.l10n import _
 from rubisco.lib.process import Process
 from rubisco.shared.ktrigger import IKernelTrigger, call_ktrigger
 
-__all__ = ["install_pip_package"]
+if TYPE_CHECKING:
+    from pathlib import Path
+
+__all__ = ["install_pip_package", "install_requirements"]
 
 
 def _exec_pip(dest: RUEnvironment, args: list[str]) -> None:
@@ -81,3 +85,16 @@ def install_pip_package(dest: RUEnvironment, pkgs: list[str]) -> None:
 
     index_url = get_url("/@pypi")
     _exec_pip(dest, ["install", *pkgs, "--index-url", index_url])
+
+
+def install_requirements(dest: RUEnvironment, req_file: Path) -> None:
+    """Install Pip packages from the requirements file.
+
+    Args:
+        dest (RUEnvironment): Destination environment.
+        req_file (Path): Requirements file.
+
+    """
+    req_file = req_file.absolute()
+    # Poor readability but works.
+    install_pip_package(dest, ["-r", str(req_file)])

@@ -21,16 +21,18 @@
 
 import enum
 import os
+import sqlite3
 import sys
 import time
 import venv
 from pathlib import Path
 
 from rubisco.config import (
+    DB_FILENAME,
     DEFAULT_CHARSET,
     EXTENSIONS_DIR,
-    GLOBAL_EXTENSIONS_DIR,
-    USER_EXTENSIONS_DIR,
+    GLOBAL_EXTENSIONS_VENV_DIR,
+    USER_EXTENSIONS_VENV_DIR,
     VENV_LOCK_FILENAME,
     WORKSPACE_EXTENSIONS_VENV_DIR,
 )
@@ -66,12 +68,14 @@ class RUEnvironment:
     _path: Path
     _type: EnvType
     _lockfile: Path
+    db_file: Path
 
     def __init__(self, path: Path, env_type: EnvType) -> None:
         """Initialize the environment manager."""
         self._path = path
         self._type = env_type
         self._lockfile = self.path / VENV_LOCK_FILENAME
+        self.db_file = self.path / DB_FILENAME
 
     def _create(self) -> None:
         if not is_venv(self.path):
@@ -253,6 +257,25 @@ def setup_new_venv(env: RUEnvironment) -> None:
             )
         venv.create(env.path, with_pip=True, upgrade_deps=True)
         (env.path / EXTENSIONS_DIR).mkdir(exist_ok=True, parents=True)
+        logger.debug("Creating database %s", env.db_file)
+        db_connection = sqlite3.connect(env.db_file)
+        db_cursor = db_connection.cursor()
+        db_cursor.execute(
+            """
+CREATE TABLE extensions (
+    name VARCHAR() PRIMARY KEY,
+    version VARCHAR(64) NOT NULL,
+    description TEXT,
+    homepage TEXT,
+    maintainers TEXT,
+    license TEXT,
+    tags TEXT,
+    requirements TEXT
+)
+            """,
+        )
+        db_connection.commit()
+        db_connection.close()
         add_venv_to_syspath(env.path)
     except OSError as exc:
         raise RUOSError(
@@ -262,10 +285,17 @@ def setup_new_venv(env: RUEnvironment) -> None:
                 "permissions of the path.",
             ),
         ) from exc
+    except sqlite3.Error as exc:
+        raise RUError(
+            exc,
+            hint=_(
+                "Failed to create the database for the environment.",
+            ),
+        ) from exc
 
 
-GLOBAL_ENV = RUEnvironment(GLOBAL_EXTENSIONS_DIR, EnvType.GLOBAL)
-USER_ENV = RUEnvironment(USER_EXTENSIONS_DIR, EnvType.USER)
+GLOBAL_ENV = RUEnvironment(GLOBAL_EXTENSIONS_VENV_DIR, EnvType.GLOBAL)
+USER_ENV = RUEnvironment(USER_EXTENSIONS_VENV_DIR, EnvType.USER)
 WORKSPACE_ENV = RUEnvironment(WORKSPACE_EXTENSIONS_VENV_DIR, EnvType.WORKSPACE)
 
 GLOBAL_ENV.add_to_path()
@@ -298,4 +328,20 @@ if __name__ == "__main__":
             Exception  # pylint: disable=broad-exception-caught  # noqa: BLE001
         ) as exc_:
             logger.exception("Failed to setup global environment.")
+            rubisco.cli.output.show_exception(exc_)
+    elif "--setup-user-env" in sys.argv:
+        try:
+            setup_new_venv(USER_ENV)
+        except (
+            Exception  # pylint: disable=broad-exception-caught  # noqa: BLE001
+        ) as exc_:
+            logger.exception("Failed to setup user environment.")
+            rubisco.cli.output.show_exception(exc_)
+    elif "--setup-workspace-env" in sys.argv:
+        try:
+            setup_new_venv(WORKSPACE_ENV)
+        except (
+            Exception  # pylint: disable=broad-exception-caught  # noqa: BLE001
+        ) as exc_:
+            logger.exception("Failed to setup workspace environment.")
             rubisco.cli.output.show_exception(exc_)

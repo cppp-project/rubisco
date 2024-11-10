@@ -16,12 +16,9 @@ steps:
         rubisco,
         --config,
         ruff.toml,
-        --select,
-        ALL,
-        --ignore,
-        D203,
-        --ignore,
-        D213,
+        --select=ALL,
+        --ignore=D203,
+        --ignore=D213,
       ]
 
   - name: 🛠️ Analysing the code with pylint

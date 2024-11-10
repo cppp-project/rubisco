@@ -60,13 +60,14 @@ else:
     USER_LIB_DIR = Path.home() / ".local" / APP_NAME
     USER_CONFIG_DIR = Path.home() / ".config" / APP_NAME
 USER_CONFIG_FILE = USER_CONFIG_DIR / "config.json"
-USER_EXTENSIONS_DIR = USER_LIB_DIR / "extensions"
+USER_EXTENSIONS_VENV_DIR = USER_LIB_DIR / "extensions"
 # Override it in Windows later.
 GLOBAL_LIB_DIR = Path("/usr/local/lib") / APP_NAME
 GLOBAL_CONFIG_DIR = Path("/etc") / APP_NAME
 GLOBAL_CONFIG_FILE = GLOBAL_CONFIG_DIR / "config.json"
-GLOBAL_EXTENSIONS_DIR = GLOBAL_LIB_DIR / "extensions"
+GLOBAL_EXTENSIONS_VENV_DIR = GLOBAL_LIB_DIR / "extensions"
 VENV_LOCK_FILENAME = "venv.lock"
+DB_FILENAME = f"{APP_NAME}.db"
 
 
 # Logging configurations.
@@ -103,4 +104,4 @@ if os.name == "nt":  # On Windows.
     GLOBAL_LIB_DIR = PROGRAM_DIR
     GLOBAL_CONFIG_DIR = PROGRAM_DIR / "config"
     GLOBAL_CONFIG_FILE = GLOBAL_CONFIG_DIR / "config.json"
-    GLOBAL_EXTENSIONS_DIR = GLOBAL_LIB_DIR / "extensions"
+    GLOBAL_EXTENSIONS_VENV_DIR = GLOBAL_LIB_DIR / "extensions"
