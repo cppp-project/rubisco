@@ -27,7 +27,7 @@ import aiohttp.client_exceptions
 from rubisco.config import TIMEOUT
 from rubisco.lib.log import logger
 
-__all__ = ["url_speedtest"]
+__all__ = ["url_speedtest", "C_INTMAX"]
 
 C_INTMAX = 0xFFFFFFFF
 
@@ -48,6 +48,7 @@ async def url_speedtest(url: str) -> int:
     async with aiohttp.ClientSession(
         timeout=aiohttp.ClientTimeout(TIMEOUT),
         raise_for_status=False,
+        trust_env=True,
         read_bufsize=1,  # We don't need to read the response.
     ) as session:
         try:

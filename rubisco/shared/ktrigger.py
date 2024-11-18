@@ -275,6 +275,15 @@ class IKernelTrigger:  # pylint: disable=too-many-public-methods
         """
         _null_trigger("post_speedtest", host=host, speed=speed)
 
+    def stop_speedtest(self, choise: str | None) -> None:
+        """When a speed test task is stopped.
+
+        Args:
+            choise (str | None): User's choise. None means error.
+
+        """
+        _null_trigger("stop_speedtest", choise=choise)
+
     def pre_run_workflow_step(self, step: Any) -> None:  # noqa: ANN401
         """When a workflow is started.
 

@@ -25,6 +25,7 @@ share/python-wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+*.zip
 MANIFEST
 
 # PyInstaller
@@ -121,6 +122,9 @@ dmypy.json
 
 # Pytype type checker
 .pytype/
+
+# VizTracer
+result.json
 
 # Patterns for all subdirectories: all kinds of automatic backup files.
 *.orig

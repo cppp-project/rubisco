@@ -252,11 +252,12 @@ def iter_assert(
 
     """
     if isinstance(exc, Exception):
+        exc_ = exc
 
         def _exc(
             e: Any,  # noqa: ARG001 ANN401 # pylint: disable=unused-argument
         ) -> Exception:
-            return exc  # type: ignore[no-any-return]
+            return exc_
         exc = _exc
 
     for obj in iterable:

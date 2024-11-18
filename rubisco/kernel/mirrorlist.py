@@ -72,6 +72,27 @@ for mirrorlist_file in [
             )
 
 
+async def _speedtest_daemon(
+    future: asyncio.Future,
+    tasks: list[asyncio.Task],
+) -> None:
+    """If all tasks are done but the future is not set, set it to None."""
+    try:
+        for task in tasks:
+            await task
+        if not future.done():
+            future.set_result(None)
+    except (
+        asyncio.exceptions.CancelledError,
+        asyncio.exceptions.InvalidStateError,
+        asyncio.exceptions.TimeoutError,
+        asyncio.exceptions.IncompleteReadError,
+        asyncio.exceptions.LimitOverrunError,
+        asyncio.exceptions.SendfileNotAvailableError,
+    ):
+        pass
+
+
 async def _speedtest(future: asyncio.Future, mirror: str, url: str) -> None:
     try:
         parsed_url = parse_url(url)
@@ -81,7 +102,8 @@ async def _speedtest(future: asyncio.Future, mirror: str, url: str) -> None:
         if future.done():
             return
         call_ktrigger(IKernelTrigger.post_speedtest, host=url, speed=speed)
-        future.set_result(mirror)
+        if speed != C_INTMAX:
+            future.set_result(mirror)
     except asyncio.exceptions.CancelledError:
         call_ktrigger(IKernelTrigger.post_speedtest, host=url, speed=-1)
 
@@ -151,15 +173,40 @@ async def find_fastest_mirror(
         for mirror, murl in mlist.items():
             task = asyncio.ensure_future(_speedtest(future, mirror, murl))
             tasks.append(task)
+        daemon = asyncio.ensure_future(_speedtest_daemon(future, tasks))
         # Waiting for fastest mirror (future result is set).
-        await future
+        try:
+            await future
+            daemon.cancel("Fastest mirror found.")
+            fastest: str | None = future.result()
+        except asyncio.exceptions.CancelledError:
+            fastest = None
         for task in tasks:
             task.cancel("Fastest mirror found.")
         await asyncio.gather(*tasks)  # Wait for all tasks to finish.
-        fastest = future.result()
-        if fastest == C_INTMAX:
+
+        call_ktrigger(IKernelTrigger.stop_speedtest, choise=fastest)
+        if fastest is None:
+            call_ktrigger(
+                IKernelTrigger.on_warning,
+                message=format_str(
+                    _(
+                        "All mirrors are unreachable or canceled. Switching to"
+                        " official [underline][blue]${{url}}"
+                        "[/blue][/underline] ...",
+                    ),
+                    fmt={
+                        "url": mlist.get(
+                            "official",
+                            valtype=str,
+                        )
+                        or _("Unknown"),
+                    },
+                ),
+            )
             return "official"
-        return fastest  # noqa: TRY300
+        # If fastest is None, "official" was returned.
+        return fastest  # noqa: TRY300 # type: ignore[bad-return-type]
     except KeyError:
         return "official"
 

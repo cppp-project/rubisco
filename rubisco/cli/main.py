@@ -38,11 +38,13 @@ from rubisco.cli.input import ask_yesno
 from rubisco.cli.output import (
     output_error,
     output_hint,
+    output_line,
     output_step,
     output_warning,
     pop_level,
     push_level,
     show_exception,
+    sum_level_indent,
 )
 from rubisco.config import (
     APP_NAME,
@@ -60,6 +62,7 @@ from rubisco.kernel.project_config import (
 from rubisco.lib.exceptions import RUError, RUValueError
 from rubisco.lib.l10n import _, locale_language, locale_language_name
 from rubisco.lib.log import logger
+from rubisco.lib.speedtest import C_INTMAX
 from rubisco.lib.variable import format_str, make_pretty
 from rubisco.shared.extension import IRUExtention, load_all_extensions
 from rubisco.shared.ktrigger import (
@@ -318,7 +321,7 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
         ):
             # If extracting a few files (< 2500), show the file name.
             path = str((more_data["dest"] / more_data["path"]).absolute())
-            rich.print(f"[underline]{path}[/underline]")
+            output_line(f"[underline]{path}[/underline]", level=-2)
         elif self.task_types[task_name] == IKernelTrigger.TASK_WAIT:
             output_step(
                 format_str(task_name, fmt={"seconds": str(current)}),
@@ -416,11 +419,10 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
             raise ValueError(msg)
         msg = ""
         for host_, status in self._speedtest_hosts.items():
-            msg += format_str(
-                _("Testing ${{host}} ... ${{status}}\n"),
+            msg += sum_level_indent(-2) + format_str(
+                _("[blue]>[/blue] Testing ${{host}} ... ${{status}}"),
                 fmt={"host": host_, "status": status},
-            )
-        msg = msg.strip()
+            ) + "\n"
         self.live.update(msg)
 
     def pre_speedtest(self, host: str) -> None:
@@ -438,6 +440,8 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
             raise ValueError(msg)
         if speed == -1:
             self._speedtest_hosts[host] = _("[red]Canceled[/red]")
+        elif speed == C_INTMAX:
+            self._speedtest_hosts[host] = _("[red]Failed[/red]")
         else:
             self._speedtest_hosts[host] = format_str(
                 _("${{speed}} us"),
@@ -448,13 +452,26 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
 
         cant_stop = False
         for status in self._speedtest_hosts.values():
-            cant_stop = cant_stop or status == _(
+            cant_stop |= status == _(
                 "[yellow]Testing[/yellow] ...",
             )
 
         if not cant_stop:
             self.live.stop()
             self.live = None
+
+    def stop_speedtest(self, choise: str | None) -> None:
+        if self.live is None:
+            return
+        self.live.stop()
+        self.live = None
+        if choise:
+            output_step(
+                format_str(
+                    _("Selected mirror: ${{url}}"),
+                    fmt={"url": choise},
+                ),
+            )
 
     def pre_run_workflow_step(self, step: Step) -> None:
         if step.name.strip():
@@ -678,8 +695,9 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
             output_step(
                 format_str(
                     _(
-                        "Installing extension [green]${{name}}[/green]:[black]"
-                        "${{version}}[/black] to global (${{path}}) ...",
+                        "Installing extension [green]${{name}}[/green]:[cyan]"
+                        "${{version}}[/cyan] to global "
+                        "([underline]${{path}}[/underline]) ...",
                     ),
                     fmt={
                         "name": ext_name,
@@ -692,8 +710,9 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
             output_step(
                 format_str(
                     _(
-                        "Installing extension [green]${{name}}[/green]:[black]"
-                        "${{version}}[/black] to user (${{path}}) ...",
+                        "Installing extension [green]${{name}}[/green]:[cyan]"
+                        "${{version}}[/cyan] to user "
+                        "([underline]${{path}}[/underline]) ...",
                     ),
                     fmt={
                         "name": ext_name,
@@ -706,8 +725,9 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
             output_step(
                 format_str(
                     _(
-                        "Installing extension [green]${{name}}[/green]:[black]"
-                        "${{version}}[/black] to workspace (${{path}}) ...",
+                        "Installing extension [green]${{name}}[/green]:[cyan]"
+                        "${{version}}[/cyan] to workspace "
+                        "([underline]${{path}}[/underline]) ...",
                     ),
                     fmt={
                         "name": ext_name,
@@ -716,6 +736,7 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
                     },
                 ),
             )
+        push_level()
 
     def on_extension_installed(
         self,
@@ -723,11 +744,12 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
         ext_name: str,
         ext_version: Version,
     ) -> None:
+        pop_level()
         output_step(
             format_str(
                 _(
-                    "Extension [green]${{name}}[/green]:[black]${{version}}"
-                    "[/black] was successfully installed.",
+                    "Extension [green]${{name}}[/green]:[cyan]${{version}}"
+                    "[/cyan] was successfully installed.",
                 ),
                 fmt={"name": ext_name, "version": str(ext_version)},
             ),
@@ -884,6 +906,14 @@ def main() -> None:
         bind_ktrigger_interface("rubisco", RubiscoKTrigger())
         load_all_extensions()
         early_arg_parse()
+
+        from rubisco.envutils.env import WORKSPACE_ENV
+        from rubisco.envutils.packages import install_extension
+
+        install_extension(
+            Path("/workspaces/cppp/rubisco/extensions/git.zip"), WORKSPACE_ENV
+        )
+        WORKSPACE_ENV.create()
 
         try:
             load_project()

@@ -32,6 +32,9 @@ from rubisco.lib.variable import AFTypeError, format_str
 __all__ = [
     "push_level",
     "pop_level",
+    "sum_level_indent",
+    "get_prompt",
+    "output_line",
     "output_step",
     "output_error",
     "output_warning",
@@ -55,13 +58,60 @@ def pop_level() -> None:
     step_level -= 1
 
 
+def sum_level_indent(level: int) -> str:
+    """Sum the indent of the level.
+
+    Args:
+        level (int): Message level. If it <= -1, it will be set to
+        `step_level - level - 1`.
+
+    Returns:
+        str: Indent string. Only contains spaces.
+
+    """
+    if level <= -1:
+        level = step_level - level - 1
+    return "    " * level
+
+
+def output_line(message: str, level: int = -1, end: str = "\n") -> None:
+    r"""Output a line message with level.
+
+    Args:
+        message (str): Message.
+        level (int): Message level. If it <= -1, it will be set to
+        `step_level - level - 1`.
+        end (str, optional): End of the message. Defaults to "\n".
+
+    """
+    indent = sum_level_indent(level)
+    rich.print(f"{indent}{message}", end=end, flush=True)
+
+
+def get_prompt(level: int, style1: str = "=>", style2: str = "::") -> str:
+    """Get the prompt of the level.
+
+    Args:
+        level (int): Message level.
+        style1 (str, optional): Style of level 0. Defaults to "=>".
+        style2 (str, optional): Style of other levels. Defaults to "::".
+
+    Returns:
+        str: Prompt string.
+
+    """
+    if level <= -1:
+        level = step_level - level - 1
+    return f"[blue]{style1}[/blue]" if level == 0 else f"[blue]{style2}[/blue]"
+
+
 def output_step(message: str, level: int = -1, end: str = "\n") -> None:
     r"""Output a step message.
 
     Args:
         message (str): Message.
-        level (int): Message level. If it's `-1`, it will be determined by
-        `push_level()` and `pop_level()`. The effect is as follows:
+        level (int): Message level. If it <= -1, it will be set to
+        `step_level - level - 1`. The effect is as follows:
         ```
             => Level 0 message.
                 :: Level 1 message.
@@ -72,12 +122,9 @@ def output_step(message: str, level: int = -1, end: str = "\n") -> None:
         end (str, optional): End of the message. Defaults to "\n".
 
     """
-    if level == -1:
-        level = step_level
-
     if message.strip():
-        prompt = "=>" if level == 0 else "::"
-        indent = "    " * level
+        indent = sum_level_indent(level)
+        prompt = get_prompt(level)
 
         rich.print(
             format_str(

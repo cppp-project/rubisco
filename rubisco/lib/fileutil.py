@@ -29,7 +29,11 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Self
 
 from rubisco.config import APP_NAME
-from rubisco.lib.exceptions import RUOSError, RUShellExecutionError
+from rubisco.lib.exceptions import (
+    RUOSError,
+    RUShellExecutionError,
+    RUValueError,
+)
 from rubisco.lib.l10n import _
 from rubisco.lib.log import logger
 from rubisco.lib.variable import format_str
@@ -260,35 +264,6 @@ def new_tempfile(prefix: str = "", suffix: str = "") -> Path:
     ).absolute()
 
 
-def register_temp(path: Path) -> None:
-    """Register temporary.
-
-    Args:
-        path (Path): The path to register.
-
-    """
-    tempdirs.add(path)
-    logger.debug("Registered temporary object '%s'.", str(path))
-
-
-def unregister_temp(path: Path) -> None:
-    """Unregister temporary.
-
-    Args:
-        path (Path): The path to unregister.
-
-    """
-    try:
-        tempdirs.remove(path)
-        logger.debug("Unregistered temporary object '%s'.", str(path))
-    except KeyError as exc:
-        logger.warning(
-            "Temporary object '%s' not found when unregistering.",
-            str(path),
-            exc_info=exc,
-        )
-
-
 class TemporaryObject:
     """A context manager for temporary files or directories."""
 
@@ -296,6 +271,8 @@ class TemporaryObject:
     TYPE_FILE: int = 0
     # Type of the temporary object.
     TYPE_DIRECTORY: int = 1
+    # Auto-detecting the type of the temporary object. For register_tempobject.
+    TYPE_AUTO: int = 2
 
     __path: Path
     __type: int
@@ -314,7 +291,8 @@ class TemporaryObject:
         """
         self.__type = temp_type
         self.__path = path
-        register_temp(self.__path)
+        tempdirs.add(self.__path)
+        logger.debug("Registered temporary object '%s'.", str(self.__path))
 
     def __enter__(self) -> Self:
         """Enter the context manager.
@@ -442,29 +420,26 @@ class TemporaryObject:
             self.path.unlink()
         else:
             shutil.rmtree(self.path, ignore_errors=False)
-        self.unregister()
-
-    def unregister(self) -> None:
-        """Unregister the temporary object.
-
-        Warning:
-            Not recommended to call this method directly.
-
-        """
-        if self.__moved:
-            return
-        unregister_temp(self.path)
+        self.move()
 
     def move(self) -> Path:
-        """Move the temporary object to a new location.
-
-        Release the ownership of this temporary object.
+        """Release the ownership of this temporary object.
 
         Returns:
             Path: The new location of the temporary object.
 
         """
-        self.unregister()
+        if self.__moved:
+            return self.path
+        try:
+            tempdirs.remove(self.path)
+            logger.debug("Unregistered temporary object '%s'.", str(self.path))
+        except KeyError as exc:
+            logger.warning(
+                "Temporary object '%s' not found when unregistering.",
+                str(self.path),
+                exc_info=exc,
+            )
         self.__moved = True
         return self.path
 
@@ -504,20 +479,54 @@ class TemporaryObject:
         )
 
     @classmethod
-    def register_tempobject(cls, path: Path) -> Self:
+    def register_tempobject(
+        cls,
+        path: Path,
+        path_type: int = TYPE_AUTO,
+    ) -> Self:
         """Register a file or a directory to a temporary object.
 
         Args:
             path (Path): The path of the object.
+            path_type (int, optional): The type of the object.
+                Can be TYPE_FILE, TYPE_DIRECTORY or TYPE_AUTO.
+                If TYPE_FILE or TYPE_DIRECTORY is specified, create a temporary
+                object with the specified type. If TYPE_AUTO is specified,
+                auto-detect the type of the object. Defaults to TYPE_AUTO.
 
         Returns:
             TemporaryObject: Registered temporary object.
 
         """
-        return cls(
-            cls.TYPE_DIRECTORY if path.is_dir() else cls.TYPE_FILE,
-            path,
-        )
+        match path_type:
+            case cls.TYPE_AUTO:
+                return cls(
+                    cls.TYPE_DIRECTORY if path.is_dir() else cls.TYPE_FILE,
+                    path,
+                )
+            case cls.TYPE_FILE:
+                if not path.exists():
+                    path.touch()
+                elif not path.is_file():
+                    msg = format_str(
+                        _("Invalid type: '${{path}}', expected file."),
+                        fmt={"path": str(path)},
+                    )
+                    raise RUValueError(msg)
+                return cls(cls.TYPE_FILE, path)
+            case cls.TYPE_DIRECTORY:
+                if not path.exists():
+                    path.mkdir(parents=True, exist_ok=True)
+                elif not path.is_dir():
+                    msg = format_str(
+                        _("Invalid type: '${{path}}', expected directory."),
+                        fmt={"path": str(path)},
+                    )
+                    raise RUValueError(msg)
+                return cls(cls.TYPE_DIRECTORY, path)
+            case _:
+                msg = "Invalid path type."
+                raise ValueError(msg)
 
     @classmethod
     def cleanup(cls) -> None:

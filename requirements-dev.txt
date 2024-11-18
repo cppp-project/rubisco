@@ -1,9 +1,10 @@
 build
 hatchling
+IPython  # For developer.
 Nuitka
+pickleshare
 pylint
-urllib3[socks]  # Avoid urllib3's warning in pytype's check.
 pytest
 pytype
 ruff
-IPython  # For developer.
+urllib3[socks]  # Avoid urllib3's warning in pytype's check.
