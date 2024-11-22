@@ -36,6 +36,7 @@ from rich_argparse import RichHelpFormatter
 
 from rubisco.cli.input import ask_yesno
 from rubisco.cli.output import (
+    get_prompt,
     output_error,
     output_hint,
     output_line,
@@ -419,10 +420,16 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
             raise ValueError(msg)
         msg = ""
         for host_, status in self._speedtest_hosts.items():
-            msg += sum_level_indent(-2) + format_str(
-                _("[blue]>[/blue] Testing ${{host}} ... ${{status}}"),
-                fmt={"host": host_, "status": status},
-            ) + "\n"
+            msg += (
+                sum_level_indent(-2)
+                + get_prompt(-2, ">", ">")
+                + " "
+                + format_str(
+                    _("Testing ${{host}} ... ${{status}}"),
+                    fmt={"host": host_, "status": status},
+                )
+                + "\n"
+            )
         self.live.update(msg)
 
     def pre_speedtest(self, host: str) -> None:
@@ -906,14 +913,6 @@ def main() -> None:
         bind_ktrigger_interface("rubisco", RubiscoKTrigger())
         load_all_extensions()
         early_arg_parse()
-
-        from rubisco.envutils.env import WORKSPACE_ENV
-        from rubisco.envutils.packages import install_extension
-
-        install_extension(
-            Path("/workspaces/cppp/rubisco/extensions/git.zip"), WORKSPACE_ENV
-        )
-        WORKSPACE_ENV.create()
 
         try:
             load_project()
