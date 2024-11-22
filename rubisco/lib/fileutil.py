@@ -22,6 +22,7 @@
 from __future__ import annotations
 
 import atexit
+import fnmatch
 import shutil
 import sys
 import tempfile
@@ -40,6 +41,7 @@ from rubisco.lib.variable import format_str
 from rubisco.shared.ktrigger import IKernelTrigger, call_ktrigger
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
     from types import FunctionType, TracebackType
 
 __all__ = [
@@ -159,6 +161,38 @@ def rm_recursive(
         logger.warning("Failed to remove '%s'.", str(path), exc_info=exc)
 
 
+def _match_path_only(pattern: str) -> bool:
+    return "/" in pattern
+
+
+def _ignore_patterns(
+    patterns: list[str],
+    start_dir: Path,
+) -> Callable[[str, list[str]], set[str]]:
+    """Return the function that can be used as `copytree()` ignore parameter.
+
+    Patterns is a sequence of glob-style patterns
+    that are used to exclude files
+
+    """
+    patterns = [pattern for pattern in patterns if pattern]
+
+    def __ignore_patterns(strpath: str, strnames: list[str]) -> set[str]:
+        path = Path(strpath).relative_to(start_dir)  # Always noexcept.
+        names = [(path / Path(name)).as_posix() for name in strnames]
+        ignored_names = []
+
+        for pattern in patterns:
+            if _match_path_only(pattern):
+                res = fnmatch.filter(names, pattern)
+                ignored_names.extend([Path(i).name for i in res])
+            else:
+                ignored_names.extend(fnmatch.filter(strnames, pattern))
+        return set(ignored_names)
+
+    return __ignore_patterns
+
+
 def copy_recursive(  # pylint: disable=R0913, R0917 # noqa: PLR0913
     src: Path,
     dst: Path,
@@ -193,7 +227,7 @@ def copy_recursive(  # pylint: disable=R0913, R0917 # noqa: PLR0913
                 dst,
                 symlinks=symlinks,
                 dirs_exist_ok=exists_ok,
-                ignore=shutil.ignore_patterns(*ignore),
+                ignore=_ignore_patterns(ignore, src),
             )
         else:
             if dst.is_dir():

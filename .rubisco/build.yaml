@@ -17,8 +17,9 @@ steps:
       ".git*",
       ".venv",
       "build",
+      "dist",
       "__pycache__",
-      ".rubisco/*.log",
+      "*.log",
       "*.7z",
       "*.gz",
       "*.xz",
@@ -28,6 +29,11 @@ steps:
       "*.pot",
       "*.py[cod]",
       "*$py.class",
+      ".ruff_cache",
+      ".pytype",
+      ".vscode",
+      ".rubisco/extensions",
+      "result.json",
       "${{ project.name }}-*"
     ]
 
