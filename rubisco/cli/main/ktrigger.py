@@ -17,24 +17,20 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-"""C++ Plus Rubisco CLI main entry point."""
+"""The CLI kernel trigger."""
 
 from __future__ import annotations
 
-import argparse
-import atexit
-import os
 import sys
-from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 import colorama
 import rich
 import rich.live
 import rich.progress
-from rich_argparse import RichHelpFormatter
 
 from rubisco.cli.input import ask_yesno
+from rubisco.cli.main.project_config import get_hooks
 from rubisco.cli.output import (
     get_prompt,
     output_error,
@@ -44,182 +40,34 @@ from rubisco.cli.output import (
     output_warning,
     pop_level,
     push_level,
-    show_exception,
     sum_level_indent,
 )
 from rubisco.config import (
-    APP_NAME,
-    APP_VERSION,
     DEFAULT_CHARSET,
-    DEFAULT_LOG_KEEP_LINES,
-    LOG_FILE,
-    PIP_LOG_FILE,
-    USER_REPO_CONFIG,
 )
-from rubisco.kernel.project_config import (
-    ProjectConfigration,
-    load_project_config,
-)
-from rubisco.lib.exceptions import RUError, RUValueError
 from rubisco.lib.l10n import _, locale_language, locale_language_name
 from rubisco.lib.log import logger
 from rubisco.lib.speedtest import C_INTMAX
 from rubisco.lib.variable import format_str, make_pretty
-from rubisco.shared.extension import IRUExtention, load_all_extensions
 from rubisco.shared.ktrigger import (
     IKernelTrigger,
-    bind_ktrigger_interface,
-    call_ktrigger,
 )
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Sequence
+    from pathlib import Path
 
     from rubisco.envutils.env import RUEnvironment
+    from rubisco.kernel.project_config import ProjectConfigration
     from rubisco.kernel.workflow import Step, Workflow
     from rubisco.lib.process import Process
     from rubisco.lib.version import Version
+    from rubisco.shared.extension import IRUExtention
 
 
-__all__ = ["main"]
+# ruff: noqa: D102 D107
+# pylint: disable=missing-function-docstring
 
-
-def show_version() -> None:
-    """Get version string."""
-    rich.print(APP_NAME, f"[white]{APP_VERSION}[/white]", end="\n")
-
-    copyright_text = _(
-        "Copyright (C) 2024 The C++ Plus Project.\n"
-        "License [bold]GPLv3+[/bold]: GNU GPL version [cyan]3[/cyan] or later "
-        "<https://www.gnu.org/licenses/gpl.html>.\nThis is free "
-        "software: you are free to change and redistribute it.\nThere is "
-        "[yellow]NO WARRANTY[/yellow], to the extent permitted by law.\n"
-        "Written by [underline]ChenPi11[/underline].",
-    )
-
-    rich.print(copyright_text)
-
-
-class _VersionAction(argparse.Action):
-    """Version Action for rubisco."""
-
-    def __init__(  # pylint: disable=R0913, R0917
-        self,
-        option_strings: Sequence[str],
-        version: str | None = None,
-        dest: str = argparse.SUPPRESS,
-        default: str = argparse.SUPPRESS,
-        help: str | None = None,  # pylint: disable=W0622 # noqa: A002
-    ) -> None:
-        if help is None:
-            help = _(  # pylint: disable=W0622 # noqa: A001
-                "Show program's version number and exit.",
-            )
-        super().__init__(
-            option_strings=option_strings,
-            dest=dest,
-            default=default,
-            nargs=0,
-            help=help,
-        )
-        self.version = version
-
-    def __call__(
-        self,
-        parser: argparse.ArgumentParser,
-        namespace: argparse.Namespace,  # noqa: ARG002
-        values: str | Sequence[Any] | None,  # noqa: ARG002
-        option_string: str | None = None,  # noqa: ARG002
-    ) -> None:
-        show_version()
-        parser.exit()
-
-
-hooks: dict[str, list] = {}
-
-
-class RUHelpFormatter(RichHelpFormatter):
-    """Rubisco CLI help formatter."""
-
-    def add_usage(
-        self,
-        usage: str | None,
-        actions: Iterable[argparse.Action],
-        groups: Iterable[argparse._MutuallyExclusiveGroup],
-        prefix: str | None = None,
-    ) -> None:
-        for action in actions:
-            if action.help == "show this help message and exit":
-                action.help = _("Show this help message and exit.")
-
-        super().add_usage(usage, actions, groups, prefix)
-
-    def format_help(self) -> str:
-        help_str = super().format_help()
-        help_str = help_str.replace("Usage:", _("Usage:"))
-        help_str = help_str.replace(
-            "Positional Arguments:",
-            _("Positional Arguments:"),
-        )
-
-        return help_str.replace("Options:", _("Options:"))
-
-
-arg_parser = argparse.ArgumentParser(
-    description="Rubisco CLI",
-    formatter_class=RUHelpFormatter,
-)
-
-arg_parser.register("action", "version", _VersionAction)
-
-arg_parser.add_argument(
-    "-v",
-    "--version",
-    action="version",
-    version="",
-)
-
-arg_parser.add_argument("--root", type=str, help=_("Project root directory."))
-
-arg_parser.add_argument(
-    "--log",
-    action="store_true",
-    help=_("Save log to the log file."),
-)
-
-arg_parser.add_argument(
-    "--debug",
-    action="store_true",
-    help=_("Run rubisco in debug mode."),
-)
-
-arg_parser.add_argument(
-    "--usage",
-    action="store_true",
-    help=_("Show usage."),
-)
-
-arg_parser.add_argument(
-    "command",
-    action="store",
-    nargs="?",
-    help=_("Command to run."),
-    default=["info"],
-)
-
-hook_commands = arg_parser.add_subparsers(
-    title=_("Available commands"),
-    dest="command",
-    metavar="",
-    required=False,
-)
-
-hook_commands.add_parser(
-    "info",
-    help=_("Show project information."),
-)
-
-project_config: ProjectConfigration | None = None
+__all__ = ["RubiscoKTrigger"]
 
 
 class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
@@ -646,7 +494,7 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
             )
             num_text = format_str(
                 _("(${{num}} hooks)"),
-                fmt={"num": str(len(hooks[hook_name]))},
+                fmt={"num": str(len(get_hooks()[hook_name]))},
             )
             formatted_str = f"{hook_text:<60}\t{num_text:<10}"
             rich.print(formatted_str)
@@ -747,7 +595,7 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
 
     def on_extension_installed(
         self,
-        dest: Any,  # noqa: ANN401 ARG002
+        dest: RUEnvironment,  # noqa: ARG002
         ext_name: str,
         ext_version: Version,
     ) -> None:
@@ -762,184 +610,142 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
             ),
         )
 
-
-def on_exit() -> None:
-    """Reset terminal color."""
-    sys.stdout.write(colorama.Fore.RESET)
-    sys.stdout.flush()
-
-
-atexit.register(on_exit)
-
-
-def bind_hook(name: str) -> None:
-    """Bind hook to a command.
-
-    Args:
-        name (str): Hook name.
-
-    """
-    logger.debug("Binding hook: %s", name)
-    if project_config and name in project_config.hooks:
-        if name not in hooks:
-            hooks[name] = []
-        hooks[name].append(project_config.hooks[name])
-
-
-def call_hook(name: str) -> None:
-    """Call a hook.
-
-    Args:
-        name (str): The hook name.
-
-    """
-    if name not in hooks:
-        raise RUValueError(
-            format_str(
-                _("Undefined command or hook ${{name}}"),
-                fmt={"name": make_pretty(name)},
-            ),
-            hint=_("Perhaps a typo?"),
-        )
-    for hook in hooks[name]:
-        hook.run()
-
-
-def load_project() -> None:
-    """Load the project in cwd."""
-    global project_config  # pylint: disable=global-statement # noqa: PLW0603
-    try:
-        project_config = load_project_config(Path.cwd())
-        for hook_name in project_config.hooks:  # Bind all hooks.
-            bind_hook(hook_name)
-            hook_commands.add_parser(
-                hook_name,
-                help=format_str(
-                    _("(${{num}} hooks)"),
-                    fmt={"num": str(len(hooks[hook_name]))},
+    def on_uninstall_extension(
+        self,
+        dest: RUEnvironment,
+        ext_name: str,
+        ext_version: Version,
+    ) -> None:
+        if dest.is_global():
+            output_step(
+                format_str(
+                    _(
+                        "Uninstalling extension [green]${{name}}[/green]:"
+                        "[cyan]${{version}}[/cyan] from global "
+                        "([underline]${{path}}[/underline]) ...",
+                    ),
+                    fmt={
+                        "name": ext_name,
+                        "version": str(ext_version),
+                        "path": make_pretty(dest.path),
+                    },
                 ),
             )
-    except FileNotFoundError as exc:
-        raise RUValueError(
-            format_str(
-                _(
-                    "Working directory '[underline]${{path}}[/underline]'"
-                    " not a rubisco project.",
-                ),
-                fmt={"path": make_pretty(Path.cwd().absolute())},
-            ),
-            hint=format_str(
-                _("'[underline]${{path}}[/underline]' is not found."),
-                fmt={"path": make_pretty(USER_REPO_CONFIG.absolute())},
-            ),
-        ) from exc
-
-
-def clean_log() -> None:
-    """Clean the log file."""
-    try:
-        line_count = 0
-        with Path.open(LOG_FILE, "r+", encoding=DEFAULT_CHARSET) as f:
-            for _line in f:
-                line_count += 1
-                if line_count > DEFAULT_LOG_KEEP_LINES:
-                    f.seek(0)
-                    f.truncate()
-                    return
-    except:  # pylint: disable=bare-except  # noqa: E722
-        logger.warning("Failed to clean log file.", exc_info=True)
-
-    try:
-        line_count = 0
-        with Path.open(PIP_LOG_FILE, "r+", encoding=DEFAULT_CHARSET) as f:
-            for _line in f:
-                line_count += 1
-                if line_count > DEFAULT_LOG_KEEP_LINES:
-                    f.seek(0)
-                    f.truncate()
-                    return
-    except:  # pylint: disable=bare-except  # noqa: E722 S110
-        pass  # Logging a log file exception?
-
-
-def early_arg_parse() -> None:
-    """Parse arguments without argparse.
-
-    Some arguments will be added to argparse later (like hooks).
-    If we use argparse here, they will inoperative.
-    """
-    if "-h" in sys.argv or "--help" in sys.argv:
-        arg_parser.print_help()
-        sys.exit(0)
-    if "-v" in sys.argv or "--version" in sys.argv:
-        show_version()
-        sys.exit(0)
-    if "--usage" in sys.argv:
-        arg_parser.print_usage()
-        sys.exit(0)
-    for idx, arg in enumerate(sys.argv):
-        if arg.startswith("--root"):
-            if "=" in arg:
-                root = arg.split("=")[1].strip()
-            else:
-                if idx + 1 >= len(sys.argv):
-                    arg_parser.print_usage()
-                    raise RUError(
-                        _("Missing argument for '--root' option."),
-                    )
-                root = sys.argv[idx + 1].strip()
-                if root.startswith("-"):
-                    arg_parser.print_usage()
-                    raise RUError(
-                        _("Missing argument for '--root' option."),
-                    )
-            if root:
-                root = Path(root).absolute()
-                output_step(
-                    format_str(
-                        _("Entering directory '${{path}}'"),
-                        fmt={"path": make_pretty(str(root))},
+        elif dest.is_user():
+            output_step(
+                format_str(
+                    _(
+                        "Uninstalling extension [green]${{name}}[/green]:"
+                        "[cyan]${{version}}[/cyan] from user "
+                        "([underline]${{path}}[/underline]) ...",
                     ),
-                )
-                os.chdir(root)
-
-
-def main() -> None:
-    """Rubisco main entry point."""
-    try:
-        clean_log()
-        logger.info("Rubisco CLI version %s started.", str(APP_VERSION))
-        colorama.init()
-        bind_ktrigger_interface("rubisco", RubiscoKTrigger())
-        load_all_extensions()
-        early_arg_parse()
-
-        try:
-            load_project()
-        finally:
-            args = arg_parser.parse_args()
-
-        op_command = args.command
-        if isinstance(op_command, list):  # This is not a good idea.
-            op_command = op_command[0]
-        if op_command == "info":
-            call_ktrigger(
-                IKernelTrigger.on_show_project_info,
-                project=project_config,
+                    fmt={
+                        "name": ext_name,
+                        "version": str(ext_version),
+                        "path": make_pretty(dest.path),
+                    },
+                ),
             )
         else:
-            call_hook(op_command)
+            output_step(
+                format_str(
+                    _(
+                        "Uninstalling extension [green]${{name}}[/green]:"
+                        "[cyan]${{version}}[/cyan] from workspace "
+                        "([underline]${{path}}[/underline]) ...",
+                    ),
+                    fmt={
+                        "name": ext_name,
+                        "version": str(ext_version),
+                        "path": make_pretty(dest.path),
+                    },
+                ),
+            )
+        push_level()
 
-    except SystemExit as exc:
-        raise exc from None  # Do not show traceback.
-    except KeyboardInterrupt as exc:
-        show_exception(exc)
-        sys.exit(1)
-    except Exception as exc:  # pylint: disable=broad-except # noqa: BLE001
-        logger.critical("An unexpected error occurred.", exc_info=True)
-        show_exception(exc)
-        sys.exit(1)
+    def on_extension_uninstalled(
+        self,
+        dest: RUEnvironment,  # noqa: ARG002 # pylint: disable=unused-argument
+        ext_name: str,
+        ext_version: Version,
+    ) -> None:
+        pop_level()
+        output_step(
+            format_str(
+                _(
+                    "Extension [green]${{name}}[/green]:[cyan]${{version}}"
+                    "[/cyan] was successfully uninstalled.",
+                ),
+                fmt={"name": ext_name, "version": str(ext_version)},
+            ),
+        )
 
+    def on_upgrade_extension(
+        self,
+        dest: RUEnvironment,
+        ext_name: str,
+        ext_version: Version,
+    ) -> None:
+        if dest.is_global():
+            output_step(
+                format_str(
+                    _(
+                        "Upgrading extension [green]${{name}}[/green]:"
+                        "[cyan]${{version}}[/cyan] from global "
+                        "([underline]${{path}}[/underline]) ...",
+                    ),
+                    fmt={
+                        "name": ext_name,
+                        "version": str(ext_version),
+                        "path": make_pretty(dest.path),
+                    },
+                ),
+            )
+        elif dest.is_user():
+            output_step(
+                format_str(
+                    _(
+                        "Upgrading extension [green]${{name}}[/green]:"
+                        "[cyan]${{version}}[/cyan] from user "
+                        "([underline]${{path}}[/underline]) ...",
+                    ),
+                    fmt={
+                        "name": ext_name,
+                        "version": str(ext_version),
+                        "path": make_pretty(dest.path),
+                    },
+                ),
+            )
+        else:
+            output_step(
+                format_str(
+                    _(
+                        "Upgrading extension [green]${{name}}[/green]:"
+                        "[cyan]${{version}}[/cyan] from workspace "
+                        "([underline]${{path}}[/underline]) ...",
+                    ),
+                    fmt={
+                        "name": ext_name,
+                        "version": str(ext_version),
+                        "path": make_pretty(dest.path),
+                    },
+                ),
+            )
+        push_level()
 
-if __name__ == "__main__":
-    main()
+    def on_extension_upgraded(
+        self,
+        dest: RUEnvironment,  # noqa: ARG002 # pylint: disable=unused-argument
+        ext_name: str,
+        ext_version: Version,
+    ) -> None:
+        pop_level()
+        output_step(
+            format_str(
+                _(
+                    "Extension [green]${{name}}[/green]:[cyan]${{version}}"
+                    "[/cyan] was successfully upgraded.",
+                ),
+                fmt={"name": ext_name, "version": str(ext_version)},
+            ),
+        )

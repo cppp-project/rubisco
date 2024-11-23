@@ -17,9 +17,4 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-"""Rubisco CLI main entry point."""
-
-from rubisco.cli.main.main import main
-
-if __name__ == "__main__":
-    main()
+"""The main entry of the Rubisco CLI."""
