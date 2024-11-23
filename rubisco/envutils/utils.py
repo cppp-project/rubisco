@@ -27,7 +27,7 @@ from rubisco.lib.pathlib import Path
 from rubisco.lib.variable import format_str
 from rubisco.shared.ktrigger import IKernelTrigger, call_ktrigger
 
-__all__ = ["is_venv", "add_venv_to_syspath"]
+__all__ = ["add_venv_to_syspath", "is_venv"]
 
 
 def is_venv(path: Path) -> bool:

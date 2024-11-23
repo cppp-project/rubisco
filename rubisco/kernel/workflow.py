@@ -61,25 +61,25 @@ if TYPE_CHECKING:
     from collections.abc import Generator
 
 __all__ = [
-    "Step",
-    "ShellExecStep",
-    "MkdirStep",
-    "PopenStep",
-    "OutputStep",
-    "EchoStep",
-    "MoveFileStep",
-    "CopyFileStep",
-    "RemoveStep",
-    "ExtentionLoadStep",
-    "WorkflowRunStep",
-    "MklinkStep",
     "CompressStep",
+    "CopyFileStep",
+    "EchoStep",
+    "ExtentionLoadStep",
     "ExtractStep",
+    "MkdirStep",
+    "MklinkStep",
+    "MoveFileStep",
+    "OutputStep",
+    "PopenStep",
+    "RemoveStep",
+    "ShellExecStep",
+    "Step",
     "Workflow",
+    "WorkflowRunStep",
+    "_set_extloader",
     "register_step_type",
     "run_inline_workflow",
     "run_workflow",
-    "_set_extloader",
 ]
 
 

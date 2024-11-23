@@ -27,7 +27,7 @@ import aiohttp.client_exceptions
 from rubisco.config import TIMEOUT
 from rubisco.lib.log import logger
 
-__all__ = ["url_speedtest", "C_INTMAX"]
+__all__ = ["C_INTMAX", "url_speedtest"]
 
 C_INTMAX = 0xFFFFFFFF
 

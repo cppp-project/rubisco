@@ -38,21 +38,21 @@ if TYPE_CHECKING:
     from types import UnionType
 
 __all__ = [
-    "variables",
-    "push_variables",
-    "pop_variables",
-    "get_variable",
-    "make_pretty",
-    "assert_iter_types",
-    "iter_assert",
-    "format_str",
     "AFTypeError",
-    "VariableUpdateCallback",
-    "used_variables",
-    "undefined_variables",
-    "add_callback",
-    "AutoFormatList",
     "AutoFormatDict",
+    "AutoFormatList",
+    "VariableUpdateCallback",
+    "add_callback",
+    "assert_iter_types",
+    "format_str",
+    "get_variable",
+    "iter_assert",
+    "make_pretty",
+    "pop_variables",
+    "push_variables",
+    "undefined_variables",
+    "used_variables",
+    "variables",
 ]
 
 

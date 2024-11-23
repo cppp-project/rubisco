@@ -31,10 +31,10 @@ from rubisco.lib.log import logger
 from rubisco.lib.pathlib import Path
 
 __all__ = [
+    "_",
+    "load_locale_domain",
     "locale_language",
     "locale_language_name",
-    "load_locale_domain",
-    "_",
 ]
 
 

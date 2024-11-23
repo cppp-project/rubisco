@@ -29,9 +29,9 @@ from rubisco.shared.ktrigger import IKernelTrigger, call_ktrigger
 
 __all__ = [
     "git_clone",
+    "git_get_remote",
     "git_has_remote",
     "git_set_remote",
-    "git_get_remote",
     "git_update",
     "is_git_repo",
 ]

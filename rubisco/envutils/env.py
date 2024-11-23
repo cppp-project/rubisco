@@ -47,11 +47,11 @@ from rubisco.lib.variable import format_str, make_pretty
 from rubisco.shared.ktrigger import IKernelTrigger, call_ktrigger
 
 __all__ = [
-    "EnvType",
-    "RUEnvironment",
     "GLOBAL_ENV",
     "USER_ENV",
     "WORKSPACE_ENV",
+    "EnvType",
+    "RUEnvironment",
 ]
 
 

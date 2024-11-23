@@ -31,7 +31,7 @@ from rubisco.lib.l10n import _
 # ruff: noqa: D102 D107
 # pylint: disable=missing-function-docstring
 
-__all__ = ["show_version", "CLIVersionAction"]
+__all__ = ["CLIVersionAction", "show_version"]
 
 
 def show_version() -> None:

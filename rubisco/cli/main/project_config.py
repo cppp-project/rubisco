@@ -36,10 +36,10 @@ if TYPE_CHECKING:
     from rubisco.kernel.project_config import ProjectConfigration
 
 __all__ = [
-    "get_hooks",
-    "get_project_config",
     "bind_hook",
     "call_hook",
+    "get_hooks",
+    "get_project_config",
     "load_project",
 ]
 

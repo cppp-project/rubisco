@@ -33,9 +33,9 @@ from rubisco.lib.variable import format_str
 
 __all__ = [
     "RUError",
-    "RUValueError",
     "RUOSError",
     "RUShellExecutionError",
+    "RUValueError",
 ]
 
 

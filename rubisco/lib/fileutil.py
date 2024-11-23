@@ -45,14 +45,14 @@ if TYPE_CHECKING:
     from types import FunctionType, TracebackType
 
 __all__ = [
-    "check_file_exists",
-    "rm_recursive",
-    "copy_recursive",
-    "human_readable_size",
-    "find_command",
-    "resolve_path",
-    "glob_path",
     "TemporaryObject",
+    "check_file_exists",
+    "copy_recursive",
+    "find_command",
+    "glob_path",
+    "human_readable_size",
+    "resolve_path",
+    "rm_recursive",
 ]
 
 

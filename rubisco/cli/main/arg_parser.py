@@ -31,7 +31,7 @@ from rubisco.lib.l10n import _
 from rubisco.lib.pathlib import Path
 from rubisco.lib.variable import format_str, make_pretty
 
-__all__ = ["arg_parser", "hook_commands", "early_arg_parse"]
+__all__ = ["arg_parser", "early_arg_parse", "hook_commands"]
 
 arg_parser = argparse.ArgumentParser(
     description="Rubisco CLI",
