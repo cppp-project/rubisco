@@ -22,7 +22,6 @@
 import sys
 
 from rubisco.config import MINIMUM_PYTHON_VERSION
-from rubisco.lib.version import Version
 
-if Version(sys.version_info) < MINIMUM_PYTHON_VERSION:
+if sys.version_info < MINIMUM_PYTHON_VERSION:
     sys.exit(f"Python {MINIMUM_PYTHON_VERSION} or newer is required.")

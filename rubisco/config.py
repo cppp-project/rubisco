@@ -31,7 +31,7 @@ from rubisco.lib.version import Version
 # Application basic configurations.
 APP_NAME = "rubisco"
 APP_VERSION = Version((0, 1, 0))
-MINIMUM_PYTHON_VERSION = Version((3, 11, 0))
+MINIMUM_PYTHON_VERSION = (3, 11)
 
 # I18n configurations.
 TEXT_DOMAIN = APP_NAME

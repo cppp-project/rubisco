@@ -22,6 +22,7 @@
 
 import os
 import pathlib
+import sys
 
 __all__ = ["Path"]
 
@@ -37,3 +38,10 @@ class Path(pathlib.Path):
 
         """
         return Path(os.path.normpath(str(self)))
+
+
+# In Python 3.11, parent's @classmethod will catch children.
+if sys.version_info < (3, 12):
+    # "Inject" the extended methods into the built-in pathlib.Path class.
+    pathlib.Path.normpath = Path.normpath  # type: ignore[method-required]
+    Path = pathlib.Path  # type: ignore[assignment]
