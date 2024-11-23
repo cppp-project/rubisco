@@ -27,6 +27,8 @@ from rubisco.lib.l10n import _
 from rubisco.lib.variable import format_str
 from rubisco.shared.ktrigger import IKernelTrigger, call_ktrigger
 
+__all__ = ["is_venv", "add_venv_to_syspath"]
+
 
 def is_venv(path: Path) -> bool:
     """Check if a path is a Python virtual environment.

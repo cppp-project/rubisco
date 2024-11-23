@@ -25,8 +25,6 @@ import os
 from typing import TYPE_CHECKING
 
 from rubisco.config import PIP_LOG_FILE
-from rubisco.envutils.env import RUEnvironment, setup_new_venv
-from rubisco.envutils.utils import is_venv
 from rubisco.kernel.mirrorlist import get_url
 from rubisco.lib.l10n import _
 from rubisco.lib.process import Process
@@ -34,6 +32,8 @@ from rubisco.shared.ktrigger import IKernelTrigger, call_ktrigger
 
 if TYPE_CHECKING:
     from pathlib import Path
+
+    from rubisco.envutils.env import RUEnvironment
 
 __all__ = ["install_pip_package", "install_requirements"]
 
@@ -44,7 +44,7 @@ def _exec_pip(dest: RUEnvironment, args: list[str]) -> None:
         pip_path = dest.path / "Scripts" / "pip.exe"
     if not pip_path.exists():
         msg = f"Pip not found: '{pip_path}'"
-        raise ValueError(msg)  # Internal error.
+        raise ValueError(msg)  # Internal error. Should not happen.
 
     Process(
         [
@@ -80,11 +80,9 @@ def install_pip_package(dest: RUEnvironment, pkgs: list[str]) -> None:
             ),
         )
 
-    if not is_venv(dest.path):
-        setup_new_venv(dest)
-
-    index_url = get_url("/@pypi")
-    _exec_pip(dest, ["install", *pkgs, "--index-url", index_url])
+    with dest:
+        index_url = get_url("/@pypi")
+        _exec_pip(dest, ["install", *pkgs, "--index-url", index_url])
 
 
 def install_requirements(dest: RUEnvironment, req_file: Path) -> None:

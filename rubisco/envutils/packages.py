@@ -37,6 +37,7 @@ from rubisco.lib.archive import extract_zip
 from rubisco.lib.exceptions import RUValueError
 from rubisco.lib.fileutil import TemporaryObject
 from rubisco.lib.l10n import _
+from rubisco.lib.log import logger
 from rubisco.lib.variable import (
     AutoFormatDict,
     assert_iter_types,
@@ -125,7 +126,7 @@ def get_extension_package_info(pkg_file: Path) -> ExtensionPackageInfo:
             )
             pkg_config = AutoFormatDict(json_data)
             pkg_name = pkg_config.get("name", valtype=str)
-            if not re.match(r"^[A-Za-z0-9_-.]+$", pkg_name):
+            if not re.match(r"^[A-Za-z0-9_\-.]+$", pkg_name):
                 raise RUValueError(
                     format_str(
                         _(
@@ -159,6 +160,7 @@ def get_extension_package_info(pkg_file: Path) -> ExtensionPackageInfo:
 
             def _check(x: str) -> bool:
                 return re.match(r"^[a-z0-9_-]+$", x) is not None
+
             iter_assert(
                 tags,
                 _check,
@@ -229,6 +231,47 @@ def get_extension_package_info(pkg_file: Path) -> ExtensionPackageInfo:
         ) from exc
 
 
+_EIS_NOT_INSTALLED = 0
+_EIS_LOWER_VERSION = 1
+_EIS_SAME_VERSION = 2
+_EIS_HIGHER_VERSION = 3
+
+
+def _ext_is_installed(
+    name: str,
+    dest: RUEnvironment,
+    cur_version: Version,
+) -> int:
+    """Check for the extension installation status.
+
+    Return 0 if the extension is not installed, 1 if lower version, 2 if
+    same version and 3 if higher version.
+    """
+    installed_exts = dest.db_handle.query_packages(name)
+    if len(installed_exts) > 1:
+        logger.warning("Multiple instances of '%s' extension found.", name)
+        call_ktrigger(
+            IKernelTrigger.on_warning,
+            message=format_str(
+                _(
+                    "Multiple instances of '${{name}}' extension"
+                    " found in the database. Selecting the first one.",
+                ),
+                fmt={"name": name},
+            ),
+        )
+    elif not installed_exts:
+        return _EIS_NOT_INSTALLED
+
+    installed_ext = installed_exts[0]
+
+    if installed_ext.version < cur_version:
+        return _EIS_LOWER_VERSION
+    if installed_ext.version == cur_version:
+        return _EIS_SAME_VERSION
+    return _EIS_HIGHER_VERSION
+
+
 def install_extension(pkg_file: Path, dest: RUEnvironment) -> None:
     """Install the extension package.
 
@@ -238,41 +281,89 @@ def install_extension(pkg_file: Path, dest: RUEnvironment) -> None:
 
     """
     info = get_extension_package_info(pkg_file)
-    call_ktrigger(
-        IKernelTrigger.on_install_extension,
-        dest=dest,
-        ext_name=info.name,
-        ext_version=info.version,
-    )
-    with TemporaryObject.new_directory() as temp_dir:
-        extract_zip(pkg_file, temp_dir.path / "data")
-        if (temp_dir.path / "data" / "requirements.txt").exists():
-            install_requirements(
-                dest,
-                temp_dir.path / "data" / "requirements.txt",
+    with dest:
+        # EIS: Extension Installation Status.
+        eis = _ext_is_installed(info.name, dest, info.version)
+        if eis == _EIS_LOWER_VERSION:
+            pass  # TODO(ChenPi11): Upgrade.
+        elif eis == _EIS_SAME_VERSION:
+            call_ktrigger(
+                IKernelTrigger.on_hint,
+                message=format_str(
+                    _(
+                        "The same version of '${{name}}' extension is "
+                        "already installed.",
+                    ),
+                    fmt={"name": info.name},
+                ),
             )
-            shutil.move(
-                (temp_dir.path / "data" / "requirements.txt"),
-                dest.path / EXTENSIONS_DIR / info.name / "requirements.txt",
+            return
+        elif eis == _EIS_HIGHER_VERSION:
+            call_ktrigger(
+                IKernelTrigger.on_hint,
+                message=format_str(
+                    _(
+                        "The higher version of '${{name}}' extension is "
+                        "already installed.",
+                    ),
+                    fmt={"name": info.name},
+                ),
             )
-        (temp_dir.path / "data" / info.name).rename(
-            dest.path / EXTENSIONS_DIR / info.name,
-        )
-        if (temp_dir.path / "data" / "LICENSE").exists():
-            (temp_dir.path / "data" / "LICENSE").rename(
-                dest.path / EXTENSIONS_DIR / info.name / "LICENSE",
-            )
-        if (temp_dir.path / "data" / "README.md").exists():
-            (temp_dir.path / "data" / "README.md").rename(
-                dest.path / EXTENSIONS_DIR / info.name / "README.md",
-            )
+            return
 
-    call_ktrigger(
-        IKernelTrigger.on_extension_installed,
-        dest=dest.type,
-        ext_name=info.name,
-        ext_version=info.version,
-    )
+        call_ktrigger(
+            IKernelTrigger.on_install_extension,
+            dest=dest,
+            ext_name=info.name,
+            ext_version=info.version,
+        )
+        if (dest.path / EXTENSIONS_DIR / info.name).exists():
+            raise RUValueError(
+                format_str(
+                    _(
+                        "${{path}} already exists in the filesystem.",
+                    ),
+                    fmt={"path": str(dest.path / EXTENSIONS_DIR / info.name)},
+                ),
+            )
+        with (
+            TemporaryObject.register_tempobject(
+                dest.path / EXTENSIONS_DIR / info.name,
+                TemporaryObject.TYPE_DIRECTORY,
+            ) as dest_dir,
+            TemporaryObject.new_directory() as temp_dir,
+        ):
+            extract_zip(pkg_file, temp_dir.path / "data")
+            if (temp_dir.path / "data" / "requirements.txt").exists():
+                install_requirements(
+                    dest,
+                    temp_dir.path / "data" / "requirements.txt",
+                )
+                shutil.move(
+                    (temp_dir.path / "data" / "requirements.txt"),
+                    dest_dir.path / "requirements.txt",
+                )
+            shutil.move(temp_dir.path / "data" / info.name, dest_dir.path)
+            if (temp_dir.path / "data" / "LICENSE").exists():
+                shutil.move(
+                    temp_dir.path / "data" / "LICENSE",
+                    dest_dir.path / "LICENSE",
+                )
+            if (temp_dir.path / "data" / "README.md").exists():
+                shutil.move(
+                    temp_dir.path / "data" / "README.md",
+                    dest_dir.path / "README.md",
+                )
+            # Register the extension.
+            dest_dir.move()  # Release the ownership. Make it permanent.
+        dest.db_handle.add_packages([info])
+
+        call_ktrigger(
+            IKernelTrigger.on_extension_installed,
+            dest=dest.type,
+            ext_name=info.name,
+            ext_version=info.version,
+        )
 
 
 if __name__ == "__main__":
