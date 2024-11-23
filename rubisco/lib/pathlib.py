@@ -37,7 +37,7 @@ class Path(pathlib.Path):
             Path: The normalized path.
 
         """
-        return Path(os.path.normpath(str(self)))
+        return Path(os.path.normpath(str(self)))  # type: ignore[return-value]
 
 
 # In Python 3.11, parent's @classmethod will catch children.
