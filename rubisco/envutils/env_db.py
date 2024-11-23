@@ -181,6 +181,14 @@ class RUEnvDB:
             except sqlite3.Error as exc:
                 self._rethrow_sqlite_error(exc)
 
+    def rollback(self) -> None:
+        """Rollback the database."""
+        with self:
+            try:
+                self.db.rollback()  # type: ignore[union-attr]
+            except sqlite3.Error as exc:
+                self._rethrow_sqlite_error(exc)
+
     def get_package(self, name: str) -> ExtensionPackageInfo:
         """Get a package from the database.
 
@@ -241,7 +249,7 @@ class RUEnvDB:
             except sqlite3.Error as exc:
                 self._rethrow_sqlite_error(exc)
 
-    def query_packages(self, pattern: str) -> list[ExtensionPackageInfo]:
+    def query_packages(self, pattern: str) -> set[ExtensionPackageInfo]:
         """Query packages from the database.
 
         Args:
@@ -268,18 +276,18 @@ class RUEnvDB:
                     (pattern,),
                 )
 
-                return [
-                    ExtensionPackageInfo(
-                        name=row[0],
-                        version=Version(row[1]),
-                        description=row[2],
-                        homepage=row[3],
-                        maintainers=row[4].split(","),
-                        pkg_license=row[5],
-                        tags=row[6].split(","),
-                        requirements=row[7],
-                    )
-                    for row in cursor.fetchall()
-                ]
+                return {
+                        ExtensionPackageInfo(
+                            name=row[0],
+                            version=Version(row[1]),
+                            description=row[2],
+                            homepage=row[3],
+                            maintainers=row[4].split(","),
+                            pkg_license=row[5],
+                            tags=row[6].split(","),
+                            requirements=row[7],
+                        )
+                        for row in cursor.fetchall()
+                }
             except sqlite3.Error as exc:
                 self._rethrow_sqlite_error(exc)

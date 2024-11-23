@@ -440,13 +440,97 @@ class IKernelTrigger:  # pylint: disable=too-many-public-methods
         """On a extension installed.
 
         Args:
-            dest (EnvType): Destination environment type.
+            dest (RUEnvironment): Destination environment type.
             ext_name (str): Extension name.
             ext_version (Version): Extension version.
 
         """
         _null_trigger(
             "on_extension_installed",
+            dest=dest,
+            ext_name=ext_name,
+            ext_version=ext_version,
+        )
+
+    def on_uninstall_extension(
+        self,
+        dest: Any,  # noqa: ANN401
+        ext_name: str,
+        ext_version: Version,
+    ) -> None:
+        """On we are removing an extension.
+
+        Args:
+            dest (RUEnvironment): Destination environment type.
+            ext_name (str): Extension name.
+            ext_version (Version): Extension version.
+
+        """
+        _null_trigger(
+            "on_uninstall_extension",
+            dest=dest,
+            ext_name=ext_name,
+            ext_version=ext_version,
+        )
+
+    def on_extension_uninstalled(
+        self,
+        dest: Any,  # noqa: ANN401
+        ext_name: str,
+        ext_version: Version,
+    ) -> None:
+        """On a extension removed.
+
+        Args:
+            dest (RUEnvironment): Destination environment type.
+            ext_name (str): Extension name.
+            ext_version (Version): Extension version.
+
+        """
+        _null_trigger(
+            "on_extension_uninstalled",
+            dest=dest,
+            ext_name=ext_name,
+            ext_version=ext_version,
+        )
+
+    def on_upgrade_extension(
+        self,
+        dest: Any,  # noqa: ANN401
+        ext_name: str,
+        ext_version: Version,
+    ) -> None:
+        """On we are upgrading an extension.
+
+        Args:
+            dest (RUEnvironment): Destination environment type.
+            ext_name (str): Extension name.
+            ext_version (Version): Extension version.
+
+        """
+        _null_trigger(
+            "on_upgrade_extension",
+            dest=dest,
+            ext_name=ext_name,
+            ext_version=ext_version,
+        )
+
+    def on_extension_upgraded(
+        self,
+        dest: Any,  # noqa: ANN401
+        ext_name: str,
+        ext_version: Version,
+    ) -> None:
+        """On a extension upgraded.
+
+        Args:
+            dest (RUEnvironment): Destination environment type.
+            ext_name (str): Extension name.
+            ext_version (Version): Extension version.
+
+        """
+        _null_trigger(
+            "on_extension_upgraded",
             dest=dest,
             ext_name=ext_name,
             ext_version=ext_version,
