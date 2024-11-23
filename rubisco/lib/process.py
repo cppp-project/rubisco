@@ -23,7 +23,6 @@ from __future__ import annotations
 
 import os
 import sys
-from pathlib import Path
 from subprocess import PIPE, STDOUT, Popen
 
 import psutil
@@ -34,6 +33,7 @@ from rubisco.lib.exceptions import RUShellExecutionError
 from rubisco.lib.fileutil import TemporaryObject
 from rubisco.lib.l10n import _
 from rubisco.lib.log import logger
+from rubisco.lib.pathlib import Path
 from rubisco.shared.ktrigger import IKernelTrigger, call_ktrigger
 
 __all__ = ["Process", "is_valid_pid"]
@@ -168,7 +168,9 @@ class Process:
             stdin=sys.stdin,
             stdout=PIPE if stdout else sys.stdout,
             stderr=(
-                PIPE if stderr == 1 else (STDOUT if stderr == 2 else sys.stderr)  # noqa: PLR2004
+                PIPE
+                if stderr == 1
+                else (STDOUT if stderr == 2 else sys.stderr)  # noqa: PLR2004
             ),
         ) as self.process:
             ret = self.process.wait()

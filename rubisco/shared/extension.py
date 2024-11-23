@@ -42,8 +42,7 @@ from rubisco.shared.ktrigger import (
 )
 
 if TYPE_CHECKING:
-    from pathlib import Path
-
+    from rubisco.lib.pathlib import Path
     from rubisco.lib.version import Version
 
 __all__ = ["IRUExtention", "load_extension"]

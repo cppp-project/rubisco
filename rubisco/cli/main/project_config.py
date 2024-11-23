@@ -21,7 +21,6 @@
 
 from __future__ import annotations
 
-from pathlib import Path
 from typing import TYPE_CHECKING
 
 from rubisco.cli.main.arg_parser import hook_commands
@@ -30,6 +29,7 @@ from rubisco.kernel.project_config import load_project_config
 from rubisco.lib.exceptions import RUValueError
 from rubisco.lib.l10n import _
 from rubisco.lib.log import logger
+from rubisco.lib.pathlib import Path
 from rubisco.lib.variable import format_str, make_pretty
 
 if TYPE_CHECKING:

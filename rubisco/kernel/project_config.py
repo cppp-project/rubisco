@@ -21,7 +21,6 @@
 
 from __future__ import annotations
 
-from pathlib import Path
 from typing import Any
 
 import json5 as json
@@ -31,6 +30,7 @@ from rubisco.kernel.workflow import run_inline_workflow, run_workflow
 from rubisco.lib.exceptions import RUValueError
 from rubisco.lib.fileutil import glob_path, resolve_path
 from rubisco.lib.l10n import _
+from rubisco.lib.pathlib import Path
 from rubisco.lib.process import Process
 from rubisco.lib.variable import (
     AutoFormatDict,

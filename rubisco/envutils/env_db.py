@@ -21,7 +21,6 @@
 
 import re
 import sqlite3
-from pathlib import Path
 from types import TracebackType
 from typing import NoReturn
 
@@ -29,6 +28,7 @@ from rubisco.envutils.packages import ExtensionPackageInfo
 from rubisco.lib.exceptions import RUError, RUValueError
 from rubisco.lib.l10n import _
 from rubisco.lib.log import logger
+from rubisco.lib.pathlib import Path
 from rubisco.lib.sqlite_strerror import sqlite_strerror
 from rubisco.lib.variable import format_str
 from rubisco.lib.version import Version

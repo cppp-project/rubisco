@@ -26,7 +26,6 @@ import sys
 import threading
 import time
 import venv
-from pathlib import Path
 
 from rubisco.config import (
     DB_FILENAME,
@@ -42,6 +41,7 @@ from rubisco.envutils.utils import add_venv_to_syspath, is_venv
 from rubisco.lib.exceptions import RUError, RUOSError
 from rubisco.lib.l10n import _
 from rubisco.lib.log import logger
+from rubisco.lib.pathlib import Path
 from rubisco.lib.process import is_valid_pid
 from rubisco.lib.variable import format_str, make_pretty
 from rubisco.shared.ktrigger import IKernelTrigger, call_ktrigger

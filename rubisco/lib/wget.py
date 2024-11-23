@@ -21,7 +21,6 @@
 
 from __future__ import annotations
 
-from pathlib import Path
 from typing import Any
 
 import requests
@@ -30,6 +29,7 @@ from rubisco.config import COPY_BUFSIZE, TIMEOUT
 from rubisco.lib.fileutil import check_file_exists, rm_recursive
 from rubisco.lib.l10n import _
 from rubisco.lib.log import logger
+from rubisco.lib.pathlib import Path
 from rubisco.lib.variable import format_str
 from rubisco.shared.ktrigger import IKernelTrigger, call_ktrigger
 

@@ -29,7 +29,6 @@ import os
 import tarfile
 import time
 import zipfile
-from pathlib import Path
 
 import py7zr
 import py7zr.callbacks
@@ -40,6 +39,7 @@ from rubisco.lib.exceptions import RUValueError
 from rubisco.lib.fileutil import check_file_exists, rm_recursive
 from rubisco.lib.l10n import _
 from rubisco.lib.log import logger
+from rubisco.lib.pathlib import Path
 from rubisco.lib.variable import format_str
 from rubisco.shared.ktrigger import IKernelTrigger, call_ktrigger
 

@@ -21,7 +21,6 @@
 
 import logging
 import sys
-from pathlib import Path
 
 from rubisco.config import (
     APP_NAME,
@@ -31,6 +30,7 @@ from rubisco.config import (
     LOG_LEVEL,
     LOG_TIME_FORMAT,
 )
+from rubisco.lib.pathlib import Path
 
 __all__ = ["logger"]
 

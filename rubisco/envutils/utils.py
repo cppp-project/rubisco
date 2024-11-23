@@ -21,9 +21,9 @@
 
 import os
 import sys
-from pathlib import Path
 
 from rubisco.lib.l10n import _
+from rubisco.lib.pathlib import Path
 from rubisco.lib.variable import format_str
 from rubisco.shared.ktrigger import IKernelTrigger, call_ktrigger
 

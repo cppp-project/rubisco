@@ -22,13 +22,13 @@
 import argparse
 import os
 import sys
-from pathlib import Path
 
 from rubisco.cli.main.help_formatter import RUHelpFormatter
 from rubisco.cli.main.version_action import CLIVersionAction, show_version
 from rubisco.cli.output import output_step
 from rubisco.lib.exceptions import RUError
 from rubisco.lib.l10n import _
+from rubisco.lib.pathlib import Path
 from rubisco.lib.variable import format_str, make_pretty
 
 __all__ = ["arg_parser", "hook_commands", "early_arg_parse"]
@@ -120,7 +120,7 @@ def early_arg_parse() -> None:
                         _("Missing argument for '--root' option."),
                     )
             if root:
-                root = Path(root).absolute()
+                root = Path(root).absolute().normpath()
                 output_step(
                     format_str(
                         _("Entering directory '${{path}}'"),

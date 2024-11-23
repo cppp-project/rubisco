@@ -24,11 +24,11 @@ from __future__ import annotations
 import gettext
 import locale
 import sys
-from pathlib import Path
 
 from rubisco.config import TEXT_DOMAIN
 from rubisco.lib.l10n_lang_names import LOCALE_NAMES
 from rubisco.lib.log import logger
+from rubisco.lib.pathlib import Path
 
 __all__ = [
     "locale_language",

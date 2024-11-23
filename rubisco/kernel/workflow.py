@@ -30,7 +30,6 @@ import os
 import shutil
 import uuid
 from abc import abstractmethod
-from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 import json5 as json
@@ -46,6 +45,7 @@ from rubisco.lib.fileutil import (
 )
 from rubisco.lib.l10n import _
 from rubisco.lib.log import logger
+from rubisco.lib.pathlib import Path
 from rubisco.lib.process import Process
 from rubisco.lib.variable import (
     AutoFormatDict,

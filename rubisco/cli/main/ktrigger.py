@@ -54,11 +54,10 @@ from rubisco.shared.ktrigger import (
 )
 
 if TYPE_CHECKING:
-    from pathlib import Path
-
     from rubisco.envutils.env import RUEnvironment
     from rubisco.kernel.project_config import ProjectConfigration
     from rubisco.kernel.workflow import Step, Workflow
+    from rubisco.lib.pathlib import Path
     from rubisco.lib.process import Process
     from rubisco.lib.version import Version
     from rubisco.shared.extension import IRUExtention

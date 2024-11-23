@@ -19,8 +19,6 @@
 
 """Utils for clean log. Called by the main entry point."""
 
-from pathlib import Path
-
 from rubisco.config import (
     DEFAULT_CHARSET,
     DEFAULT_LOG_KEEP_LINES,
@@ -28,6 +26,7 @@ from rubisco.config import (
     PIP_LOG_FILE,
 )
 from rubisco.lib.log import logger
+from rubisco.lib.pathlib import Path
 
 __all__ = ["clean_log"]
 

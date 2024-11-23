@@ -19,11 +19,10 @@
 
 """Mirrorlist for extension installer."""
 
-from pathlib import Path
-
 from rubisco.kernel.mirrorlist import get_url
 from rubisco.lib.l10n import _
 from rubisco.lib.log import logger
+from rubisco.lib.pathlib import Path
 from rubisco.lib.process import Process
 from rubisco.lib.variable import format_str, make_pretty
 from rubisco.shared.ktrigger import IKernelTrigger, call_ktrigger

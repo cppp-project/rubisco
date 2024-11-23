@@ -35,8 +35,7 @@ from rubisco.lib.log import logger
 from rubisco.lib.variable import format_str, make_pretty
 
 if TYPE_CHECKING:
-    from pathlib import Path
-
+    from rubisco.lib.pathlib import Path
     from rubisco.lib.version import Version
 
 __all__ = [

@@ -26,7 +26,6 @@ import re
 import shutil
 import zipfile
 from dataclasses import dataclass
-from pathlib import Path
 from typing import TYPE_CHECKING
 
 import json5
@@ -38,6 +37,7 @@ from rubisco.lib.exceptions import RUValueError
 from rubisco.lib.fileutil import TemporaryObject, rm_recursive
 from rubisco.lib.l10n import _
 from rubisco.lib.log import logger
+from rubisco.lib.pathlib import Path
 from rubisco.lib.variable import (
     AutoFormatDict,
     assert_iter_types,
