@@ -33,6 +33,8 @@ __all__ = ["clean_log"]
 
 def clean_log() -> None:
     """Clean the log file."""
+    if not LOG_FILE.exists():
+        return
     try:
         line_count = 0
         with Path.open(LOG_FILE, "r+", encoding=DEFAULT_CHARSET) as f:
