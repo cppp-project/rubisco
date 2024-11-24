@@ -28,7 +28,7 @@ PO_EXT = .po
 MO_EXT = .mo
 
 $(PACKAGE)$(POT_EXT):
-    export ARGPARSE_MODULE=$$(python3 -c "import argparse; print(argparse.__file__)") && \
+	export ARGPARSE_MODULE=$$(python3 -c "import argparse; print(argparse.__file__)") && \
 	for file in $$($(FIND) $(srccode_dir) -name "*$(PYTHON_EXT)"); do \
 		export files="$$files $$file"; \
 	done && \

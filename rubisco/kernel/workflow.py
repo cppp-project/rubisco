@@ -853,7 +853,7 @@ def register_step_type(name: str, cls: type, contributes: list[str]) -> None:
             message=format_str(
                 _(
                     "Step type '${{name}}' registered multiple times. "
-                    "This may cause unexpected behavior. It's unsafe",
+                    "This may cause unexpected behavior. It's unsafe.",
                 ),
                 fmt={"name": make_pretty(name)},
             ),

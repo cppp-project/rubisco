@@ -261,7 +261,7 @@ def sqlite_strerror(  # noqa: C901 PLR0912 PLR0915 PLR0911 E501 RUF100 # pylint:
             " bytes as was requested.",
         )
     if errcode == SQLITE_CORRUPT_SEQUENCE:
-        return _("the schema of the sqlite_sequence table is corrupt.")
+        return _("The schema of the sqlite_sequence table is corrupt.")
     if errcode == SQLITE_CANTOPEN_ISDIR:
         return _(
             "A file failed to open because the file is really a directory.",
@@ -329,7 +329,7 @@ def sqlite_strerror(  # noqa: C901 PLR0912 PLR0915 PLR0911 E501 RUF100 # pylint:
         )
     if errcode == SQLITE_IOERR_TRUNCATE:
         return _(
-            "an I/O error in the VFS layer while trying to truncate a"
+            "I/O error in the VFS layer while trying to truncate a"
             " file to a smaller size.",
         )
     if errcode == SQLITE_CANTOPEN_SYMLINK:
@@ -358,7 +358,7 @@ def sqlite_strerror(  # noqa: C901 PLR0912 PLR0915 PLR0911 E501 RUF100 # pylint:
         return _("A UNIQUE constraint failed.")
     if errcode == SQLITE_IOERR_RDLOCK:
         return _(
-            "an I/O error within xLock method on the sqlite3_io_methods"
+            "I/O error within xLock method on the sqlite3_io_methods"
             " object while trying to obtain a read lock.",
         )
     if errcode == SQLITE_IOERR_DELETE:
@@ -464,7 +464,7 @@ def sqlite_strerror(  # noqa: C901 PLR0912 PLR0915 PLR0911 E501 RUF100 # pylint:
         return _("The checksum on a page of the database file is incorrect.")
     if errcode == SQLITE_IOERR_CORRUPTFS:
         return _(
-            "a seek or read failure was due to the request not falling"
+            "A seek or read failure was due to the request not falling"
             " within the file's boundary rather than an ordinary device"
             " failure.",
         )

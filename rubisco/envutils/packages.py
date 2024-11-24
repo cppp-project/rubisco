@@ -198,7 +198,7 @@ def get_extension_package_info(pkg_file: Path) -> ExtensionPackageInfo:
         raise RUValueError(
             format_str(
                 _(
-                    "[underline]'${{path}}'[/underline] is not a valid Rubisco"
+                    "[underline]${{path}}[/underline] is not a valid Rubisco"
                     " extension package. (Zip file)",
                 ),
                 fmt={"path": str(pkg_file)},
@@ -208,7 +208,7 @@ def get_extension_package_info(pkg_file: Path) -> ExtensionPackageInfo:
         raise RUValueError(
             format_str(
                 _(
-                    "[underline]'${{path}}'[/underline] package configuration "
+                    "[underline]${{path}}[/underline] package configuration "
                     "file is not a valid JSON5 file.",
                 ),
                 fmt={"path": str(pkg_file)},
@@ -220,7 +220,7 @@ def get_extension_package_info(pkg_file: Path) -> ExtensionPackageInfo:
             raise RUValueError(
                 format_str(
                     _(
-                        "[underline]'${{path}}'[/underline] Error when opening"
+                        "[underline]${{path}}[/underline] Error when opening"
                         " 'rubisco.json': '${{msg}}'.",
                     ),
                     fmt={"path": str(pkg_file), "msg": exc.args[0]},
@@ -229,7 +229,7 @@ def get_extension_package_info(pkg_file: Path) -> ExtensionPackageInfo:
         raise RUValueError(
             format_str(
                 _(
-                    "[underline]'${{path}}'[/underline] package configuration "
+                    "[underline]${{path}}[/underline] package configuration "
                     "file is missing a required key: '${{key}}'.",
                 ),
                 fmt={"path": str(pkg_file), "key": exc.args[0]},
@@ -327,7 +327,8 @@ def _install_extension(
         raise RUValueError(
             format_str(
                 _(
-                    "${{path}} already exists in the filesystem.",
+                    "[underline]${{path}}[/underline] already"  # Should crash.
+                    " exists in the filesystem.",
                 ),
                 fmt={"path": str(dest.path / EXTENSIONS_DIR / info.name)},
             ),
