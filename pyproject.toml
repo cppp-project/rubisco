@@ -48,5 +48,5 @@ exclude = [".github"]
 
 [project.scripts]
 
-rubisco = "rubisco.cli.main:main"
-ru = "rubisco.cli.main:main"
+rubisco = "rubisco.cli.main.main:main"
+ru = "rubisco.cli.main.main:main"
