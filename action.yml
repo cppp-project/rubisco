@@ -107,8 +107,8 @@ runs:
     - name: 📁 Setup Rubisco.
       run: |
         Set-Location "$env:GITHUB_ACTION_PATH"
+        pip install -r requirements.txt -r requirements-dev.txt
         python -m rubisco build
         pip install --upgrade pip
-        pip install -r requirements.txt -r requirements-dev.txt
         pip install dist/*.whl
       shell: pwsh
