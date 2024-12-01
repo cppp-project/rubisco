@@ -28,26 +28,6 @@ outputs:
 runs:
   using: composite
   steps:
-    # Setup compress utilities: p7zip, gzip, tar, xz, zip.
-    - name: 📁 Setup compress utilities. (Ubuntu)
-      if: runner.os == 'Linux'
-      run: |
-        sudo apt-get update
-        sudo apt-get install p7zip-full gzip tar xz-utils zip -y
-      shell: pwsh
-
-    - name: 📁 Setup compress utilities. (Windows)
-      if: runner.os == 'Windows'
-      run: |
-        choco install 7zip.portable gzip zip --yes
-      shell: pwsh
-
-    - name: 📁 Setup compress utilities. (macOS)
-      if: runner.os == 'macOS'
-      run: |
-        brew install p7zip gzip xz zip
-      shell: pwsh
-
     # Setup other utilities: curl, wget.
     - name: 📁 Setup other utilities. (Ubuntu)
       if: runner.os == 'Linux'
@@ -71,10 +51,10 @@ runs:
     - name: 📁 Setup Python.
       uses: actions/setup-python@v5
       with:
-        python-version: "3.12"
+        python-version: "3.13"
 
     # Setup original C/C++ toolchain: llvm, clang, cmake, ninja.
-    - name: 📁 Setup C/C++ toolchain. (Ubuntu)
+    - name: 📁 Setup C/C++ toolchain. (Linux)
       if: runner.os == 'Linux'
       run: |
         sudo apt-get install llvm clang cmake ninja-build -y
@@ -94,7 +74,7 @@ runs:
 
     - name: 🧳 Setup MSVC. (Windows)
       if: runner.os == 'Windows'
-      uses: microsoft/setup-msbuild@v1
+      uses: microsoft/setup-msbuild@v2
 
     - name: 🧳 Setup XCode. (macOS)
       if: runner.os == 'macOS'
@@ -127,6 +107,7 @@ runs:
     - name: 📁 Setup Rubisco.
       run: |
         Set-Location "$env:GITHUB_ACTION_PATH"
-        pwsh -File "$env:GITHUB_ACTION_PATH/dist-tools/build.ps1"
-        Write-Output "$env:GITHUB_ACTION_PATH/dist/bin" >> $env:GITHUB_PATH
+        python -m rubisco build
+        pip install --upgrade pip
+        pip install dist/*.whl
       shell: pwsh
