@@ -115,6 +115,7 @@ if __name__ == "__main__":
 
         def on_new_task(
             self,
+            *,
             task_name: str,
             task_type: str,
             total: float,
@@ -127,9 +128,10 @@ if __name__ == "__main__":
 
         def on_progress(
             self,
+            *,
             task_name: str,  # noqa: ARG002
             current: float,
-            delta: bool = False,  # noqa: FBT001 FBT002
+            delta: bool = False,
             more_data: dict[str, Any] | None = None,  # noqa: ARG002
         ) -> None:
             if delta:
@@ -139,7 +141,7 @@ if __name__ == "__main__":
             rich.print(self._progress_bar)
             rich.get_console().file.write("\r")
 
-        def on_finish_task(self, task_name: str) -> None:
+        def on_finish_task(self, *, task_name: str) -> None:
             rich.print("\non_finish_task():", task_name)
 
     kt = _TestKTrigger()

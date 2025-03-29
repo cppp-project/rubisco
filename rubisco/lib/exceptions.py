@@ -33,6 +33,7 @@ from rubisco.lib.variable import format_str
 
 __all__ = [
     "RUError",
+    "RUNotRubiscoProjectError",
     "RUOSError",
     "RUShellExecutionError",
     "RUValueError",
@@ -68,6 +69,10 @@ class RUError(RuntimeError):
 
 class RUValueError(RUError, ValueError):
     """Rubisco value exception."""
+
+
+class RUNotRubiscoProjectError(RUError):
+    """Not a Rubisco project exception."""
 
 
 class RUOSError(RUError, OSError):

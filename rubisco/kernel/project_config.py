@@ -28,9 +28,10 @@ import json5 as json
 
 from rubisco.config import APP_VERSION, USER_REPO_CONFIG
 from rubisco.kernel.workflow import run_inline_workflow, run_workflow
-from rubisco.lib.exceptions import RUValueError
+from rubisco.lib.exceptions import RUNotRubiscoProjectError, RUValueError
 from rubisco.lib.fileutil import glob_path, resolve_path
 from rubisco.lib.l10n import _
+from rubisco.lib.log import logger
 from rubisco.lib.process import Process
 from rubisco.lib.variable import (
     AutoFormatDict,
@@ -41,6 +42,7 @@ from rubisco.lib.variable import (
     push_variables,
 )
 from rubisco.lib.version import Version
+from rubisco.shared.ktrigger import IKernelTrigger, call_ktrigger
 
 __all__ = [
     "ProjectConfigration",
@@ -136,8 +138,13 @@ class ProjectConfigration:  # pylint: disable=too-many-instance-attributes
         self._load()
 
     def _load(self) -> None:
-        with self.config_file.open() as file:
-            self.config = AutoFormatDict(json.load(file))
+        if not self.config_file.is_file():
+            logger.warning(
+                "The project configuration file '%s' is not found.",
+                self.config_file,
+            )
+            raise RUNotRubiscoProjectError
+        self.config = _load_config(self.config_file, [])
 
         self.name = self.config.get("name", valtype=str)
         self.version = Version(self.config.get("version", valtype=str))
@@ -248,7 +255,7 @@ class ProjectConfigration:  # pylint: disable=too-many-instance-attributes
         for val in self.pushed_variables:
             pop_variables(val)
 
-# TODO(ChenPi11): What the fuck? This function is NEVER called!!!
+
 def _load_config(config_file: Path, loaded_list: list[Path]) -> AutoFormatDict:
     config_file = config_file.resolve()
     with config_file.open() as file:
@@ -278,12 +285,28 @@ def _load_config(config_file: Path, loaded_list: list[Path]) -> AutoFormatDict:
             if include_file.is_dir():
                 include_file = include_file / USER_REPO_CONFIG
             include_file = resolve_path(include_file)
+            loaded_list.append(config_file)
             for one_file in glob_path(include_file):
                 if one_file in loaded_list:  # Avoid circular dependencies.
-                    continue  # Skip already loaded files.
+                    logger.warning(
+                        "Circular dependency detected: %s",
+                        one_file,
+                    )
+                    call_ktrigger(
+                        IKernelTrigger.on_warning,
+                        message=format_str(
+                            _(
+                                "Circular dependency detected: "
+                                "[underline]${{path}}[/underline].",
+                            ),
+                            fmt={
+                                "path": make_pretty(one_file),
+                            },
+                        ),
+                    )
+                    continue  # Skip loaded file.
                 loaded_list.append(one_file)
-
-            config.merge(_load_config(include_file, loaded_list))
+                config.merge(_load_config(one_file, loaded_list))
 
     return config
 

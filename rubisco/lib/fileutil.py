@@ -610,7 +610,10 @@ def glob_path(
         list[Path]: List of resolved paths.
 
     """
-    return list(resolve_path(path, absolute_only).glob("*"))
+    path = resolve_path(path, absolute_only)
+    if not path.is_dir():
+        return [path]
+    return list(path.glob("*"))
 
 
 def human_readable_size(size: float) -> str:

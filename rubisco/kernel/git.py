@@ -236,6 +236,7 @@ if __name__ == "__main__":
     class _GitTestKTrigger(IKernelTrigger):
         def on_update_git_repo(
             self,
+            *,
             path: Path,
             branch: str,
         ) -> None:
@@ -246,6 +247,7 @@ if __name__ == "__main__":
 
         def on_clone_git_repo(
             self,
+            *,
             url: str,
             path: Path,
             branch: str,
@@ -256,17 +258,17 @@ if __name__ == "__main__":
                 f"'[underline]{path}[/underline]'({branch}) ...",
             )
 
-        def pre_speedtest(self, host: str) -> None:
+        def pre_speedtest(self, *, host: str) -> None:
             rich.print(
                 f"[blue]=>[/blue] Testing speed for {host} ...",
                 end="\n",
             )
 
-        def post_speedtest(self, host: str, speed: int) -> None:
+        def post_speedtest(self, *, host: str, speed: int) -> None:
             speed_str = f"{speed} us" if speed != -1 else " - CANCELED"
             rich.print(f"[blue]::[/blue] Speed: {host} {speed_str}", end="\n")
 
-        def pre_exec_process(self, proc: Process) -> None:
+        def pre_exec_process(self, *, proc: Process) -> None:
             rich.print(
                 f"[blue]=>[/blue] Executing: [cyan]{proc.origin_cmd}[/cyan]",
             )
@@ -275,9 +277,10 @@ if __name__ == "__main__":
 
         def post_exec_process(
             self,
+            *,
             proc: Process,  # noqa: ARG002
             retcode: int,
-            raise_exc: bool,  # noqa: ARG002 FBT001
+            raise_exc: bool,  # noqa: ARG002
         ) -> None:
             sys.stdout.write(colorama.Fore.RESET)
             sys.stdout.flush()

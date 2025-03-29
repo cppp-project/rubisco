@@ -872,7 +872,7 @@ class AutoFormatDict(dict):
             AutoFormatDict: The new dict.
 
         """
-        return cls({key: value for key in keys})
+        return cls(dict.fromkeys(keys, value))
 
 
 def merge_object(obj: AutoFormatDict, src: dict | AutoFormatDict) -> None:

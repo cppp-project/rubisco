@@ -24,15 +24,17 @@ from __future__ import annotations
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from rubisco.cli.main.arg_parser import commands_parser, hook_arg_parser, hook_command_parser
+from rubisco.cli.main.arg_parser import commands_parser
 from rubisco.config import USER_REPO_CONFIG
 from rubisco.kernel.project_config import load_project_config
-from rubisco.lib.exceptions import RUValueError
+from rubisco.lib.exceptions import RUNotRubiscoProjectError, RUValueError
 from rubisco.lib.l10n import _
 from rubisco.lib.log import logger
 from rubisco.lib.variable import format_str, make_pretty
 
 if TYPE_CHECKING:
+    import argparse
+
     from rubisco.kernel.project_config import ProjectConfigration
 
 __all__ = [
@@ -66,6 +68,16 @@ def get_project_config() -> ProjectConfigration | None:
         ProjectConfigration | None: The project config.
 
     """
+    if _project_config is None:
+        raise RUNotRubiscoProjectError(
+            format_str(
+                _(
+                    "Working directory '[underline]${{path}}[/underline]'"
+                    " not a rubisco project.",
+                ),
+                fmt={"path": make_pretty(Path.cwd().absolute())},
+            ),
+        )
     return _project_config
 
 
@@ -81,14 +93,18 @@ def bind_hook(name: str) -> None:
         if name not in _hooks:
             _hooks[name] = []
         _hooks[name].append(_project_config.hooks[name])
-        hook_parser = hook_command_parser.add_parser(
+        hook_parser = commands_parser.add_parser(
             name,
             help=format_str(
                 _("(${{num}} hooks)"),
                 fmt={"num": str(len(_hooks[name]))},
             ),
         )
-        hook_parser.set_defaults(func=call_hook)
+
+        def _call_this_hook(_args: argparse.Namespace) -> None:
+            call_hook(name)
+
+        hook_parser.set_defaults(func=_call_this_hook)
 
 
 def call_hook(name: str) -> None:
@@ -117,15 +133,8 @@ def load_project() -> None:
         _project_config = load_project_config(Path.cwd())
         for hook_name in _project_config.hooks:  # Bind all hooks.
             bind_hook(hook_name)
-            commands_parser.add_parser(
-                hook_name,
-                help=format_str(
-                    _("(${{num}} hooks)"),
-                    fmt={"num": str(len(_hooks[hook_name]))},
-                ),
-            )
-    except FileNotFoundError as exc:
-        raise RUValueError(
+    except RUNotRubiscoProjectError as exc:
+        raise RUNotRubiscoProjectError(
             format_str(
                 _(
                     "Working directory '[underline]${{path}}[/underline]'"

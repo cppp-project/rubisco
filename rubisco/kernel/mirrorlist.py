@@ -271,10 +271,10 @@ if __name__ == "__main__":
     )
 
     class _TestKTrigger(IKernelTrigger):
-        def pre_speedtest(self, host: str) -> None:
+        def pre_speedtest(self, *, host: str) -> None:
             rich.print(f"[blue]=>[/blue] Testing {host} ...", end="\n")
 
-        def post_speedtest(self, host: str, speed: int) -> None:
+        def post_speedtest(self, *, host: str, speed: int) -> None:
             speed_str = f"{speed} us" if speed != -1 else " - CANCELED"
             rich.print(f"[blue]::[/blue] Testing {host} {speed_str}", end="\n")
 

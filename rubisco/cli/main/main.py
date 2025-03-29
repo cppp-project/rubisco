@@ -25,20 +25,20 @@ import atexit
 import os
 import sys
 from pathlib import Path
-from typing import TYPE_CHECKING
 
 import colorama
 
-from rubisco.cli.main.arg_parser import arg_parser
+from rubisco.cli.main.arg_parser import arg_parser, early_arg_parser
 from rubisco.cli.main.builtin_cmds import register_builtin_cmds
 from rubisco.cli.main.extman_cmds import register_extman_cmds
 from rubisco.cli.main.ktrigger import RubiscoKTrigger
 from rubisco.cli.main.log_cleaner import clean_logfile
-from rubisco.cli.main.project_config import get_project_config, load_project
+from rubisco.cli.main.project_config import load_project
 from rubisco.cli.output import output_step, set_available_color, show_exception
 from rubisco.config import (
     APP_VERSION,
 )
+from rubisco.lib.exceptions import RUNotRubiscoProjectError
 from rubisco.lib.l10n import _
 from rubisco.lib.log import logger
 from rubisco.lib.variable import format_str, make_pretty
@@ -46,9 +46,6 @@ from rubisco.shared.extension import load_all_extensions
 from rubisco.shared.ktrigger import (
     bind_ktrigger_interface,
 )
-
-if TYPE_CHECKING:
-    import argparse
 
 __all__ = ["main"]
 
@@ -62,14 +59,13 @@ def on_exit() -> None:
 atexit.register(on_exit)
 
 
-def parse_root_argument(args: argparse.Namespace) -> None:
-    """Parse '--root' argument.
+def parse_early_arguments() -> None:
+    """Parse early arguments."""
+    early_args = early_arg_parser.parse_known_args()[0]
 
-    Args:
-        args (argparse.ArgumentParser): Argparse arguments.
+    set_available_color(early_args.used_prompt_colors)
 
-    """
-    root_directory: str = args.root_directory
+    root_directory: str = early_args.root_directory
     if root_directory is not None:
         rootdir = Path(root_directory).absolute()
         output_step(
@@ -94,14 +90,18 @@ def main() -> None:
         register_builtin_cmds()
         register_extman_cmds()
 
-        args = arg_parser.parse_args()
+        parse_early_arguments()
 
-        set_available_color(args.used_prompt_colors)
-        parse_root_argument(args)
+        try:
+            load_project()
+            no_project_mode = False
+        except RUNotRubiscoProjectError:
+            no_project_mode = True
 
-        load_project()
+        if no_project_mode:
+            logger.debug("Running in no project mode.")
 
-        print(get_project_config().hooks)
+        args = arg_parser.parse_known_args()[0]
 
         op_command = args.command
         if op_command is None:

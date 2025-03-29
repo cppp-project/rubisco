@@ -60,7 +60,7 @@ VALUES
 def _execute_sql(
     db: sqlite3.Connection,
     sql: str,
-    args: tuple | EllipsisType = ...,
+    args: tuple | EllipsisType = ...,  # type: ignore[annotation-type-mismatch]
 ) -> sqlite3.Cursor:
     logger.info(
         'Executing SQL query in database "%s" with args: %s',

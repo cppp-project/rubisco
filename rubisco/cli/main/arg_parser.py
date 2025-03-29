@@ -28,11 +28,34 @@ from rubisco.lib.l10n import _
 __all__ = [
     "arg_parser",
     "commands_parser",
+    "early_arg_parser",
     "extman_command_parser",
     "extman_parser",
-    "hook_arg_parser",
-    "hook_command_parser",
 ]
+
+# Early argument parser.
+early_arg_parser = argparse.ArgumentParser(
+    description="Rubisco CLI",
+    formatter_class=RUHelpFormatter,
+)
+
+early_arg_parser.add_argument(
+    "--root",
+    type=str,
+    help=_("Project root directory."),
+    action="store",
+    dest="root_directory",
+)
+
+# For "rubisco --used-colors=COLORS"
+early_arg_parser.add_argument(
+    "--used-prompt-colors",
+    type=set,
+    help=_("Prompt colors used by rubisco parent process."),
+    action="store",
+    default=set(),
+    dest="used_prompt_colors",
+)
 
 # Root argument parser.
 arg_parser = argparse.ArgumentParser(
@@ -48,16 +71,6 @@ arg_parser.add_argument(
     "--version",
     action="version",
     version="",
-)
-
-# For "rubisco --used-colors=COLORS"
-arg_parser.add_argument(
-    "--used-prompt-colors",
-    type=set,
-    help=_("Prompt colors used by rubisco parent process."),
-    action="store",
-    default=set(),
-    dest="used_prompt_colors",
 )
 
 # For "rubisco --root=DIRECTORY".
@@ -110,16 +123,4 @@ extman_command_parser = extman_parser.add_subparsers(
     dest="command",
     required=True,
     help=_("Extension commands."),
-)
-
-# Hook argument parser.
-hook_arg_parser = argparse.ArgumentParser(
-    description="Rubisco CLI Hooks",
-    formatter_class=RUHelpFormatter,
-)
-
-hook_command_parser = hook_arg_parser.add_subparsers(
-    dest="command",
-    required=True,
-    help=_("Hook commands."),
 )
