@@ -17,32 +17,18 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-"""Extended path utilities."""
+"""Exetension env type enum list."""
+
+import enum
+
+__all__ = ["EnvType"]
 
 
-import os
-import pathlib
-import sys
-from typing import TYPE_CHECKING
+class EnvType(enum.Enum):
+    """Environment type."""
 
-__all__ = ["Path"]
-
-
-class Path(pathlib.Path):
-    """Path class with additional methods."""
-
-    def normpath(self) -> "Path":
-        """Normalize the path but don't resolve it.
-
-        Returns:
-            Path: The normalized path.
-
-        """
-        return Path(os.path.normpath(str(self)))  # type: ignore[return-value]
-
-
-# In Python 3.11, parent's @classmethod will catch children.
-if sys.version_info < (3, 12) and not TYPE_CHECKING:
-    # "Inject" the extended methods into the built-in pathlib.Path class.
-    pathlib.Path.normpath = Path.normpath  # type: ignore[method-required]
-    Path = pathlib.Path  # type: ignore[assignment]
+    WORKSPACE = "workspace"  # Workspace environment.
+    USER = "user"  # User environment.
+    GLOBAL = "global"  # Global environment.
+    UNKNOWN = "unknown"  # Unknown environment.
+    FOREIGN = "foreign"  # Foreign package. For get_extension_info().

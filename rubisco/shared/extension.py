@@ -42,13 +42,14 @@ from rubisco.shared.ktrigger import (
 )
 
 if TYPE_CHECKING:
-    from rubisco.lib.pathlib import Path
+    from pathlib import Path
+
     from rubisco.lib.version import Version
 
-__all__ = ["IRUExtention", "load_extension"]
+__all__ = ["IRUExtension", "load_extension"]
 
 
-class IRUExtention:
+class IRUExtension:
     """Rubisco extension interface."""
 
     name: str
@@ -125,7 +126,7 @@ invalid_ext_names = ["rubisco"]  # Avoid logger's name conflict.
 # A basic extension contains these modules or variables:
 #   - extension/        directory    ---- The extension directory.
 #       - __init__.py   file         ---- The extension module.
-#           - instance  IRUExtention ---- The extension instance
+#           - instance  IRUExtension ---- The extension instance
 def load_extension(  # pylint: disable=too-many-branches # noqa: C901 PLR0912
     path: Path | str,
     strict: bool = False,  # noqa: FBT001 FBT002
@@ -218,7 +219,7 @@ def load_extension(  # pylint: disable=too-many-branches # noqa: C901 PLR0912
                     ),
                 ),
             )
-        instance: IRUExtention = module.instance
+        instance: IRUExtension = module.instance
 
         # Security check.
         if instance.name in invalid_ext_names:

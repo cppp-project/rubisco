@@ -21,14 +21,15 @@
 
 import re
 import sqlite3
-from types import TracebackType
+from pathlib import Path
+from types import EllipsisType, TracebackType
 from typing import NoReturn
 
+from rubisco.envutils.env_type import EnvType
 from rubisco.envutils.packages import ExtensionPackageInfo
 from rubisco.lib.exceptions import RUError, RUValueError
 from rubisco.lib.l10n import _
 from rubisco.lib.log import logger
-from rubisco.lib.pathlib import Path
 from rubisco.lib.sqlite_strerror import sqlite_strerror
 from rubisco.lib.variable import format_str
 from rubisco.lib.version import Version
@@ -56,21 +57,40 @@ VALUES
 """
 
 
+def _execute_sql(
+    db: sqlite3.Connection,
+    sql: str,
+    args: tuple | EllipsisType = ...,
+) -> sqlite3.Cursor:
+    logger.info(
+        'Executing SQL query in database "%s" with args: %s',
+        str(db),
+        args if args else "...",
+    )
+    logger.info("%s", sql)
+    if args == ...:  # Avoid type warnings.
+        return db.execute(sql)
+    return db.execute(sql, args)
+
+
 class RUEnvDB:
     """Database for extension environment."""
 
     db: sqlite3.Connection | None
     __path: Path
+    env_type: EnvType
 
-    def __init__(self, path: Path) -> None:
+    def __init__(self, path: Path, env_type: EnvType) -> None:
         """Initialize the database.
 
         Args:
             path (Path): The path to the database.
+            env_type (EnvType): The environment type.
 
         """
         self.__path = path
         self.db = None
+        self.env_type = env_type
 
     def __enter__(self) -> "RUEnvDB":
         """Enter the context manager.
@@ -81,6 +101,11 @@ class RUEnvDB:
         """
         if self.db is None:
             try:
+                logger.info(
+                    "Opening database '%s' for environment type '%s'.",
+                    self.__path,
+                    self.env_type,
+                )
                 self.db = sqlite3.connect(self.__path)
                 self.db.create_function("REGEXP", 2, _regexp)
             except sqlite3.OperationalError as exc:
@@ -122,7 +147,7 @@ class RUEnvDB:
         )
 
     def _rethrow_sqlite_error(self, exc: sqlite3.Error) -> NoReturn:
-        logger.info("Rethrowing SQLite3 error.")
+        logger.debug("Rethrowing SQLite3 error %s.", exc)
         raise RUError(
             format_str(
                 _(
@@ -146,7 +171,8 @@ class RUEnvDB:
         with self:
             try:
                 for package in packages:
-                    self.db.execute(  # type: ignore[union-attr]
+                    _execute_sql(
+                        self.db,  # type: ignore[union-attr]
                         _ADD_PACKAGE_SQL,
                         (
                             package.name,
@@ -173,7 +199,8 @@ class RUEnvDB:
         with self:
             try:
                 for package in packages:
-                    self.db.execute(  # type: ignore[union-attr]
+                    _execute_sql(
+                        self.db,  # type: ignore[union-attr]
                         "DELETE FROM extensions WHERE name = ?",
                         (package.name,),
                     )
@@ -185,6 +212,7 @@ class RUEnvDB:
         """Rollback the database."""
         with self:
             try:
+                logger.info("Rolling back database ...")
                 self.db.rollback()  # type: ignore[union-attr]
             except sqlite3.Error as exc:
                 self._rethrow_sqlite_error(exc)
@@ -201,26 +229,28 @@ class RUEnvDB:
         """
         with self:
             try:
-                cursor = self.db.execute(  # type: ignore[union-attr]
+                cursor = _execute_sql(
+                    self.db,  # type: ignore[union-attr]
                     "SELECT * FROM extensions WHERE name = ?",
                     (name,),
                 )
                 row = cursor.fetchone()
 
                 return ExtensionPackageInfo(
-                    name=row[0],
-                    version=row[1],
-                    description=row[2],
-                    homepage=row[3],
-                    maintainers=row[4].split(","),
-                    pkg_license=row[5],
-                    tags=row[6].split(","),
-                    requirements=row[7],
+                    name=str(row[0]),
+                    version=Version(row[1]),
+                    description=str(row[2]),
+                    homepage=str(row[3]),
+                    maintainers=str(row[4]).split(","),
+                    pkg_license=str(row[5]),
+                    tags=str(row[6]).split(","),
+                    requirements=str(row[7]),
+                    env_type=self.env_type,
                 )
             except sqlite3.Error as exc:
                 self._rethrow_sqlite_error(exc)
 
-    def get_all_packages(self) -> list[ExtensionPackageInfo]:
+    def get_all_packages(self) -> set[ExtensionPackageInfo]:
         """Get all packages from the database.
 
         Returns:
@@ -229,65 +259,83 @@ class RUEnvDB:
         """
         with self:
             try:
-                cursor = self.db.execute(  # type: ignore[union-attr]
+                cursor = _execute_sql(
+                    self.db,  # type: ignore[union-attr]
                     "SELECT * FROM extensions",
                 )
 
-                return [
+                return {
                     ExtensionPackageInfo(
-                        name=row[0],
-                        version=row[1],
-                        description=row[2],
-                        homepage=row[3],
-                        maintainers=row[4].split(","),
-                        pkg_license=row[5],
-                        tags=row[6].split(","),
-                        requirements=row[7],
+                        name=str(row[0]),
+                        version=Version(row[1]),
+                        description=str(row[2]),
+                        homepage=str(row[3]),
+                        maintainers=str(row[4]).split(","),
+                        pkg_license=str(row[5]),
+                        tags=str(row[6]).split(","),
+                        requirements=str(row[7]),
+                        env_type=self.env_type,
                     )
                     for row in cursor.fetchall()
-                ]
+                }
             except sqlite3.Error as exc:
                 self._rethrow_sqlite_error(exc)
 
-    def query_packages(self, pattern: str) -> set[ExtensionPackageInfo]:
+    def _assert_valid_regex(self, pattern: str) -> None:
+        try:
+            re.compile(pattern)
+        except re.error as exc:
+            raise RUValueError(
+                format_str(
+                    _("Invalid regex pattern: '${{pattern}}'."),
+                    fmt={"pattern": pattern},
+                ),
+            ) from exc
+
+    def _query_pkgs_with_one_pattern(
+        self,
+        pattern: str,
+    ) -> set[ExtensionPackageInfo]:
+        if pattern in ["*", ".*"]:
+            return self.get_all_packages()
+        # Check if the pattern is valid.
+        self._assert_valid_regex(pattern)
+        cursor = _execute_sql(
+            self.db,  # type: ignore[union-attr]
+            "SELECT * FROM extensions WHERE name REGEXP ?",
+            (pattern,),
+        )
+
+        return {
+            ExtensionPackageInfo(
+                name=row[0],
+                version=Version(row[1]),
+                description=row[2],
+                homepage=row[3],
+                maintainers=row[4].split(","),
+                pkg_license=row[5],
+                tags=row[6].split(","),
+                requirements=row[7],
+                env_type=self.env_type,
+            )
+            for row in cursor.fetchall()
+        }
+
+    def query_packages(self, patterns: list[str]) -> set[ExtensionPackageInfo]:
         """Query packages from the database.
 
         Args:
-            pattern (str): The regex pattern.
+            patterns (str): The regex patterns.
 
         Returns:
             list[ExtensionPackageInfo]: The package infos.
 
         """
         with self:
+            res = set()
             try:
-                # Check if the pattern is valid.
-                try:
-                    re.compile(pattern)
-                except re.error as exc:
-                    raise RUValueError(
-                        format_str(
-                            _("Invalid regex pattern: '${{pattern}}'."),
-                            fmt={"pattern": pattern},
-                        ),
-                    ) from exc
-                cursor = self.db.cursor().execute(  # type: ignore[union-attr]
-                    "SELECT * FROM extensions WHERE name REGEXP ?",
-                    (pattern,),
-                )
-
-                return {
-                        ExtensionPackageInfo(
-                            name=row[0],
-                            version=Version(row[1]),
-                            description=row[2],
-                            homepage=row[3],
-                            maintainers=row[4].split(","),
-                            pkg_license=row[5],
-                            tags=row[6].split(","),
-                            requirements=row[7],
-                        )
-                        for row in cursor.fetchall()
-                }
+                for pattern in patterns:
+                    res |= self._query_pkgs_with_one_pattern(pattern)
             except sqlite3.Error as exc:
                 self._rethrow_sqlite_error(exc)
+            return res

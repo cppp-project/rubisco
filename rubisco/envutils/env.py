@@ -19,13 +19,13 @@
 
 """Package management utils for environment."""
 
-import enum
 import os
 import sqlite3
 import sys
 import threading
 import time
 import venv
+from pathlib import Path
 
 from rubisco.config import (
     DB_FILENAME,
@@ -37,11 +37,11 @@ from rubisco.config import (
     WORKSPACE_EXTENSIONS_VENV_DIR,
 )
 from rubisco.envutils.env_db import RUEnvDB
+from rubisco.envutils.env_type import EnvType
 from rubisco.envutils.utils import add_venv_to_syspath, is_venv
 from rubisco.lib.exceptions import RUError, RUOSError
 from rubisco.lib.l10n import _
 from rubisco.lib.log import logger
-from rubisco.lib.pathlib import Path
 from rubisco.lib.process import is_valid_pid
 from rubisco.lib.variable import format_str, make_pretty
 from rubisco.shared.ktrigger import IKernelTrigger, call_ktrigger
@@ -53,14 +53,6 @@ __all__ = [
     "EnvType",
     "RUEnvironment",
 ]
-
-
-class EnvType(enum.Enum):
-    """Environment type."""
-
-    WORKSPACE = "workspace"
-    USER = "user"
-    GLOBAL = "global"
 
 
 _CREATE_DB_SQL = """
@@ -104,7 +96,11 @@ class RUEnvironment:
         self._type = env_type
         self._lockfile = self.path / VENV_LOCK_FILENAME
         self.db_file = self.path / DB_FILENAME
-        self.db_handle = RUEnvDB(self.db_file)
+        self.db_handle = RUEnvDB(self.db_file, env_type)
+
+    def __str__(self) -> str:
+        """Get the string representation of the environment."""
+        return f"RUEnvironment({self.path}, {self.type})"
 
     def create(self) -> None:
         """Create the environment if not exists. Check it if exists.
@@ -114,7 +110,7 @@ class RUEnvironment:
             RUOSError: If OS error occurred.
 
         """
-        if self.db_file.exists() and not self.db_is_valid():
+        if self.exists() and not self.db_is_valid():
             call_ktrigger(
                 IKernelTrigger.on_warning,
                 message=format_str(
@@ -434,6 +430,10 @@ class RUEnvironment:
         """Add the environment to the system path."""
         add_venv_to_syspath(self.path)
 
+    def exists(self) -> bool:
+        """Check if the database exists."""
+        return is_venv(self.path) and self.db_file.exists()
+
     def db_is_valid(self) -> bool:
         """Check if the database is valid."""
         return _check_vaild_db(self.db_file)
@@ -457,7 +457,7 @@ if __name__ == "__main__":
     import rubisco.shared.ktrigger
 
     class _InstallTrigger(IKernelTrigger):
-        def on_create_venv(self, path: Path) -> None:
+        def on_create_venv(self, *, path: Path) -> None:
             rubisco.cli.output.output_step(
                 format_str(
                     _("Creating venv: '[underline]${{path}}[/underline]' ..."),

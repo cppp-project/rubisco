@@ -21,15 +21,15 @@
 
 from __future__ import annotations
 
+from pathlib import Path
 from typing import TYPE_CHECKING
 
-from rubisco.cli.main.arg_parser import hook_commands
+from rubisco.cli.main.arg_parser import commands_parser, hook_arg_parser, hook_command_parser
 from rubisco.config import USER_REPO_CONFIG
 from rubisco.kernel.project_config import load_project_config
 from rubisco.lib.exceptions import RUValueError
 from rubisco.lib.l10n import _
 from rubisco.lib.log import logger
-from rubisco.lib.pathlib import Path
 from rubisco.lib.variable import format_str, make_pretty
 
 if TYPE_CHECKING:
@@ -81,6 +81,14 @@ def bind_hook(name: str) -> None:
         if name not in _hooks:
             _hooks[name] = []
         _hooks[name].append(_project_config.hooks[name])
+        hook_parser = hook_command_parser.add_parser(
+            name,
+            help=format_str(
+                _("(${{num}} hooks)"),
+                fmt={"num": str(len(_hooks[name]))},
+            ),
+        )
+        hook_parser.set_defaults(func=call_hook)
 
 
 def call_hook(name: str) -> None:
@@ -109,7 +117,7 @@ def load_project() -> None:
         _project_config = load_project_config(Path.cwd())
         for hook_name in _project_config.hooks:  # Bind all hooks.
             bind_hook(hook_name)
-            hook_commands.add_parser(
+            commands_parser.add_parser(
                 hook_name,
                 help=format_str(
                     _("(${{num}} hooks)"),

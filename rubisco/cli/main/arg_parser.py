@@ -20,19 +20,21 @@
 """Argument for CLI."""
 
 import argparse
-import os
-import sys
 
 from rubisco.cli.main.help_formatter import RUHelpFormatter
-from rubisco.cli.main.version_action import CLIVersionAction, show_version
-from rubisco.cli.output import output_step
-from rubisco.lib.exceptions import RUError
+from rubisco.cli.main.version_action import CLIVersionAction
 from rubisco.lib.l10n import _
-from rubisco.lib.pathlib import Path
-from rubisco.lib.variable import format_str, make_pretty
 
-__all__ = ["arg_parser", "early_arg_parse", "hook_commands"]
+__all__ = [
+    "arg_parser",
+    "commands_parser",
+    "extman_command_parser",
+    "extman_parser",
+    "hook_arg_parser",
+    "hook_command_parser",
+]
 
+# Root argument parser.
 arg_parser = argparse.ArgumentParser(
     description="Rubisco CLI",
     formatter_class=RUHelpFormatter,
@@ -40,6 +42,7 @@ arg_parser = argparse.ArgumentParser(
 
 arg_parser.register("action", "version", CLIVersionAction)
 
+# For "rubisco --version".
 arg_parser.add_argument(
     "-v",
     "--version",
@@ -47,84 +50,76 @@ arg_parser.add_argument(
     version="",
 )
 
-arg_parser.add_argument("--root", type=str, help=_("Project root directory."))
+# For "rubisco --used-colors=COLORS"
+arg_parser.add_argument(
+    "--used-prompt-colors",
+    type=set,
+    help=_("Prompt colors used by rubisco parent process."),
+    action="store",
+    default=set(),
+    dest="used_prompt_colors",
+)
 
+# For "rubisco --root=DIRECTORY".
+arg_parser.add_argument(
+    "--root",
+    type=str,
+    help=_("Project root directory."),
+    action="store",
+    dest="root_directory",
+)
+
+# For "rubisco --log=LOGFILE".
 arg_parser.add_argument(
     "--log",
     action="store_true",
     help=_("Save log to the log file."),
 )
 
+# For "rubisco --debug". This argument will be parsed in "lib/log.py".
 arg_parser.add_argument(
     "--debug",
     action="store_true",
     help=_("Run rubisco in debug mode."),
 )
 
+# For "rubisco --usage".
 arg_parser.add_argument(
     "--usage",
     action="store_true",
     help=_("Show usage."),
 )
 
-arg_parser.add_argument(
-    "command",
-    action="store",
-    nargs="?",
-    help=_("Command to run."),
-    default=["info"],
-)
-
-hook_commands = arg_parser.add_subparsers(
+# Rubsisco built-in command line parser.
+commands_parser = arg_parser.add_subparsers(
     title=_("Available commands"),
     dest="command",
     metavar="",
     required=False,
 )
 
-hook_commands.add_parser(
-    "info",
-    help=_("Show project information."),
+# Rubisco extension manager command line parser.
+extman_parser = commands_parser.add_parser(
+    "ext",
+    help=_("Manage extensions."),
+    formatter_class=RUHelpFormatter,
 )
 
+# Extension manager command line parser.
+extman_command_parser = extman_parser.add_subparsers(
+    dest="command",
+    required=True,
+    help=_("Extension commands."),
+)
 
-def early_arg_parse() -> None:
-    """Parse arguments without argparse.
+# Hook argument parser.
+hook_arg_parser = argparse.ArgumentParser(
+    description="Rubisco CLI Hooks",
+    formatter_class=RUHelpFormatter,
+)
 
-    Some arguments will be added to argparse later (like hooks).
-    If we use argparse here, they will inoperative.
-    """
-    if "-h" in sys.argv or "--help" in sys.argv:
-        arg_parser.print_help()
-        sys.exit(0)
-    if "-v" in sys.argv or "--version" in sys.argv:
-        show_version()
-        sys.exit(0)
-    if "--usage" in sys.argv:
-        arg_parser.print_usage()
-        sys.exit(0)
-    for idx, arg in enumerate(sys.argv):
-        if arg.startswith("--root"):
-            if "=" in arg:
-                root = arg.split("=")[1].strip()
-            else:
-                if idx + 1 >= len(sys.argv):
-                    arg_parser.print_usage()
-                    raise RUError(
-                        _("Missing argument for '--root' option."),
-                    )
-                root = sys.argv[idx + 1].strip()
-                if root.startswith("-"):
-                    arg_parser.print_usage()
-                    raise RUError(
-                        _("Missing argument for '--root' option."),
-                    )
-            if root:
-                root = Path(root).absolute().normpath()
-                output_step(
-                    format_str(
-                        _("Entering directory '${{path}}'"),
-                        fmt={"path": make_pretty(str(root))},
-                    ),
-                )
-                os.chdir(root)
+hook_command_parser = hook_arg_parser.add_subparsers(
+    dest="command",
+    required=True,
+    help=_("Hook commands."),
+)

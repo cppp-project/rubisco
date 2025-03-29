@@ -24,6 +24,7 @@ from __future__ import annotations
 import os
 import re
 import sys
+from pathlib import Path
 from platform import uname
 from queue import Empty, LifoQueue
 from time import monotonic as time
@@ -31,7 +32,6 @@ from typing import TYPE_CHECKING, Any, Self, overload
 
 from rubisco.config import APP_VERSION, RUBISCO_COMMAND
 from rubisco.lib.l10n import _
-from rubisco.lib.pathlib import Path
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Generator, Iterable, Iterator

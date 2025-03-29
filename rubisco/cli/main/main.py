@@ -22,29 +22,33 @@
 from __future__ import annotations
 
 import atexit
+import os
 import sys
+from pathlib import Path
+from typing import TYPE_CHECKING
 
 import colorama
 
-from rubisco.cli.main.arg_parser import arg_parser, early_arg_parse
+from rubisco.cli.main.arg_parser import arg_parser
+from rubisco.cli.main.builtin_cmds import register_builtin_cmds
+from rubisco.cli.main.extman_cmds import register_extman_cmds
 from rubisco.cli.main.ktrigger import RubiscoKTrigger
-from rubisco.cli.main.log_cleaner import clean_log
-from rubisco.cli.main.project_config import (
-    call_hook,
-    get_project_config,
-    load_project,
-)
-from rubisco.cli.output import show_exception
+from rubisco.cli.main.log_cleaner import clean_logfile
+from rubisco.cli.main.project_config import get_project_config, load_project
+from rubisco.cli.output import output_step, set_available_color, show_exception
 from rubisco.config import (
     APP_VERSION,
 )
+from rubisco.lib.l10n import _
 from rubisco.lib.log import logger
+from rubisco.lib.variable import format_str, make_pretty
 from rubisco.shared.extension import load_all_extensions
 from rubisco.shared.ktrigger import (
-    IKernelTrigger,
     bind_ktrigger_interface,
-    call_ktrigger,
 )
+
+if TYPE_CHECKING:
+    import argparse
 
 __all__ = ["main"]
 
@@ -58,31 +62,53 @@ def on_exit() -> None:
 atexit.register(on_exit)
 
 
+def parse_root_argument(args: argparse.Namespace) -> None:
+    """Parse '--root' argument.
+
+    Args:
+        args (argparse.ArgumentParser): Argparse arguments.
+
+    """
+    root_directory: str = args.root_directory
+    if root_directory is not None:
+        rootdir = Path(root_directory).absolute()
+        output_step(
+            format_str(
+                _("Entering directory '${{path}}' ..."),
+                fmt={"path": make_pretty(str(rootdir))},
+            ),
+        )
+        os.chdir(rootdir)
+
+
 def main() -> None:
     """Rubisco main entry point."""
     try:
-        clean_log()
+        clean_logfile()
         logger.info("Rubisco CLI version %s started.", str(APP_VERSION))
         colorama.init()
         bind_ktrigger_interface("rubisco", RubiscoKTrigger())
         load_all_extensions()
-        early_arg_parse()
 
-        try:
-            load_project()
-        finally:
-            args = arg_parser.parse_args()
+        # Register built-in command lines.
+        register_builtin_cmds()
+        register_extman_cmds()
+
+        args = arg_parser.parse_args()
+
+        set_available_color(args.used_prompt_colors)
+        parse_root_argument(args)
+
+        load_project()
+
+        print(get_project_config().hooks)
 
         op_command = args.command
-        if isinstance(op_command, list):  # This is not a good idea.
-            op_command = op_command[0]
-        if op_command == "info":
-            call_ktrigger(
-                IKernelTrigger.on_show_project_info,
-                project=get_project_config(),
-            )
-        else:
-            call_hook(op_command)
+        if op_command is None:
+            op_command = "info"
+
+        args.func(args)
+        sys.exit(0)
 
     except SystemExit as exc:
         raise exc from None  # Do not show traceback.

@@ -21,6 +21,7 @@
 
 from __future__ import annotations
 
+from pathlib import Path
 from typing import Any
 
 import json5 as json
@@ -30,7 +31,6 @@ from rubisco.kernel.workflow import run_inline_workflow, run_workflow
 from rubisco.lib.exceptions import RUValueError
 from rubisco.lib.fileutil import glob_path, resolve_path
 from rubisco.lib.l10n import _
-from rubisco.lib.pathlib import Path
 from rubisco.lib.process import Process
 from rubisco.lib.variable import (
     AutoFormatDict,
@@ -248,7 +248,7 @@ class ProjectConfigration:  # pylint: disable=too-many-instance-attributes
         for val in self.pushed_variables:
             pop_variables(val)
 
-
+# TODO(ChenPi11): What the fuck? This function is NEVER called!!!
 def _load_config(config_file: Path, loaded_list: list[Path]) -> AutoFormatDict:
     config_file = config_file.resolve()
     with config_file.open() as file:

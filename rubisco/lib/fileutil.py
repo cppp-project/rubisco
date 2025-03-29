@@ -26,6 +26,7 @@ import fnmatch
 import shutil
 import sys
 import tempfile
+from pathlib import Path
 from typing import TYPE_CHECKING, Self
 
 from rubisco.config import APP_NAME
@@ -36,7 +37,6 @@ from rubisco.lib.exceptions import (
 )
 from rubisco.lib.l10n import _
 from rubisco.lib.log import logger
-from rubisco.lib.pathlib import Path
 from rubisco.lib.variable import format_str
 from rubisco.shared.ktrigger import IKernelTrigger, call_ktrigger
 
@@ -139,7 +139,7 @@ def rm_recursive(
 
     try:
         if path.is_dir() and not path.is_symlink():
-            if sys.version_info <= (3, 12):
+            if sys.version_info < (3, 13):
                 shutil.rmtree(  # pylint: disable=deprecated-argument
                     path,
                     ignore_errors=not strict,

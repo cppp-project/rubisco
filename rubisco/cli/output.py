@@ -21,6 +21,9 @@
 
 from __future__ import annotations
 
+import os
+import random
+
 import json5 as json
 import rich
 
@@ -42,8 +45,45 @@ __all__ = [
     "sum_level_indent",
 ]
 
+AVAILABLE_STYLES = {
+    "b": "blue",
+    "g": "green",
+    "r": "red",
+    "y": "yellow",
+    "c": "cyan",
+    "m": "magenta",
+}
+
+random.seed(os.urandom(1024))
 
 step_level: int = 0  # pylint: disable=invalid-name
+
+cur_color = "blue"  # pylint: disable=invalid-name
+
+
+def set_available_color(used_colors: set[str]) -> tuple[str, str]:
+    """Set the available color.
+
+    Args:
+        used_colors (set[str]): Used prompt colors set of parent process.
+
+    Returns:
+        tuple[str, str]: Available color id and color name.
+            Returns ("full", "blue") if all colors are used.
+
+    """
+    global cur_color  # pylint: disable=W0603 # noqa: PLW0603
+    used = set(used_colors)
+    unused = list(set(AVAILABLE_STYLES.keys()) - used)
+    if not unused:
+        cur_color = "blue"
+        return "full", "blue"
+    if not used:
+        cur_color = "blue"
+        return "b", "blue"
+    choise = random.choice(unused)  # noqa: S311
+    cur_color = AVAILABLE_STYLES[choise]
+    return choise, AVAILABLE_STYLES[choise]
 
 
 def push_level() -> None:
@@ -102,7 +142,11 @@ def get_prompt(level: int, style1: str = "=>", style2: str = "::") -> str:
     """
     if level <= -1:
         level = step_level - level - 1
-    return f"[blue]{style1}[/blue]" if level == 0 else f"[blue]{style2}[/blue]"
+    return (
+        f"[{cur_color}]{style1}[/{cur_color}]"
+        if level == 0
+        else f"[{cur_color}]{style2}[/{cur_color}]"
+    )
 
 
 def output_step(message: str, level: int = -1, end: str = "\n") -> None:

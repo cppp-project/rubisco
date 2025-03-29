@@ -54,13 +54,15 @@ from rubisco.shared.ktrigger import (
 )
 
 if TYPE_CHECKING:
+    from pathlib import Path
+
     from rubisco.envutils.env import RUEnvironment
+    from rubisco.envutils.packages import ExtensionPackageInfo
     from rubisco.kernel.project_config import ProjectConfigration
     from rubisco.kernel.workflow import Step, Workflow
-    from rubisco.lib.pathlib import Path
     from rubisco.lib.process import Process
     from rubisco.lib.version import Version
-    from rubisco.shared.extension import IRUExtention
+    from rubisco.shared.extension import IRUExtension
 
 
 # ruff: noqa: D102 D107
@@ -91,7 +93,7 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
         self.live = None
         self._speedtest_hosts = {}
 
-    def pre_exec_process(self, proc: Process) -> None:
+    def pre_exec_process(self, *, proc: Process) -> None:
         output_step(
             format_str(
                 _("Executing: [cyan]${{cmd}}[/cyan] ..."),
@@ -103,14 +105,15 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
 
     def post_exec_process(
         self,
+        *,
         proc: Process,  # noqa: ARG002
         retcode: int,  # noqa: ARG002
-        raise_exc: bool,  # noqa: ARG002 FBT001
+        raise_exc: bool,  # noqa: ARG002
     ) -> None:
         sys.stdout.write(colorama.Fore.RESET)
         sys.stdout.flush()
 
-    def file_exists(self, path: Path) -> None:
+    def file_exists(self, *, path: Path) -> None:
         if not ask_yesno(
             format_str(
                 _(
@@ -125,6 +128,7 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
 
     def on_new_task(
         self,
+        *,
         task_name: str,
         task_type: str,
         total: float,
@@ -156,9 +160,10 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
 
     def on_progress(
         self,
+        *,
         task_name: str,
         current: float,
-        delta: bool = False,  # noqa: FBT001 FBT002
+        delta: bool = False,
         more_data: dict[str, Any] | None = None,
     ) -> None:
         if more_data is None:
@@ -184,13 +189,13 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
         else:
             self.cur_progress.update(self.tasks[task_name], completed=current)
 
-    def set_progress_total(self, task_name: str, total: float) -> None:
+    def set_progress_total(self, *, task_name: str, total: float) -> None:
         if self.cur_progress is None:
             logger.warning("Progress not started.")
             return
         self.cur_progress.update(self.tasks[task_name], total=total)
 
-    def on_finish_task(self, task_name: str) -> None:
+    def on_finish_task(self, *, task_name: str) -> None:
         if self.task_types[task_name] == IKernelTrigger.TASK_WAIT:
             del self.task_types[task_name]
             return
@@ -208,6 +213,7 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
 
     def on_syspkg_installation_skip(
         self,
+        *,
         packages: list[str],
         message: str,
     ) -> None:
@@ -225,7 +231,7 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
         if not ask_yesno(_("Continue anyway?"), default=False):
             raise KeyboardInterrupt
 
-    def on_update_git_repo(self, path: Path, branch: str) -> None:
+    def on_update_git_repo(self, *, path: Path, branch: str) -> None:
         output_step(
             format_str(
                 _(
@@ -238,6 +244,7 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
 
     def on_clone_git_repo(
         self,
+        *,
         url: str,
         path: Path,
         branch: str,
@@ -252,13 +259,13 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
             ),
         )
 
-    def on_hint(self, message: str) -> None:
+    def on_hint(self, *, message: str) -> None:
         output_hint(message)
 
-    def on_warning(self, message: str) -> None:
+    def on_warning(self, *, message: str) -> None:
         output_warning(message)
 
-    def on_error(self, message: str) -> None:
+    def on_error(self, *, message: str) -> None:
         output_error(message)
 
     def _update_live(self) -> None:
@@ -279,7 +286,7 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
             )
         self.live.update(msg)
 
-    def pre_speedtest(self, host: str) -> None:
+    def pre_speedtest(self, *, host: str) -> None:
         if self.live is None:
             output_step(_("Performing websites speed test ..."))
             self.live = rich.live.Live()
@@ -288,7 +295,7 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
         self._speedtest_hosts[host] = _("[yellow]Testing[/yellow] ...")
         self._update_live()
 
-    def post_speedtest(self, host: str, speed: int) -> None:
+    def post_speedtest(self, *, host: str, speed: int) -> None:
         if self.live is None:
             msg = "RubiscoKTrigger.live is None."
             raise ValueError(msg)
@@ -314,7 +321,7 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
             self.live.stop()
             self.live = None
 
-    def stop_speedtest(self, choise: str | None) -> None:
+    def stop_speedtest(self, *, choise: str | None) -> None:
         if self.live is None:
             return
         self.live.stop()
@@ -327,7 +334,7 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
                 ),
             )
 
-    def pre_run_workflow_step(self, step: Step) -> None:
+    def pre_run_workflow_step(self, *, step: Step) -> None:
         if step.name.strip():
             output_step(
                 format_str(
@@ -342,11 +349,12 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
 
     def post_run_workflow_step(
         self,
+        *,
         step: Step,  # noqa: ARG002
     ) -> None:
         pop_level()
 
-    def pre_run_workflow(self, workflow: Workflow) -> None:
+    def pre_run_workflow(self, *, workflow: Workflow) -> None:
         output_step(
             format_str(
                 _(
@@ -358,7 +366,7 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
         )
         push_level()
 
-    def post_run_workflow(self, workflow: Workflow) -> None:
+    def post_run_workflow(self, *, workflow: Workflow) -> None:
         pop_level()
         output_step(
             format_str(
@@ -367,7 +375,7 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
             ),
         )
 
-    def on_mkdir(self, path: Path) -> None:
+    def on_mkdir(self, *, path: Path) -> None:
         output_step(
             format_str(
                 _("Creating directory: [underline]${{path}}[/underline] ..."),
@@ -375,10 +383,10 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
             ),
         )
 
-    def on_output(self, msg: str) -> None:
-        rich.print(msg)
+    def on_output(self, *, message: str) -> None:
+        rich.print(message)
 
-    def on_move_file(self, src: Path, dst: Path) -> None:
+    def on_move_file(self, *, src: Path, dst: Path) -> None:
         output_step(
             format_str(
                 _(
@@ -392,7 +400,7 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
             ),
         )
 
-    def on_copy(self, src: Path, dst: Path) -> None:
+    def on_copy(self, *, src: Path, dst: Path) -> None:
         output_step(
             format_str(
                 _(
@@ -406,7 +414,7 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
             ),
         )
 
-    def on_remove(self, path: Path) -> None:
+    def on_remove(self, *, path: Path) -> None:
         output_step(
             format_str(
                 _("Removing '[underline]${{path}}[/underline]' ..."),
@@ -414,7 +422,7 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
             ),
         )
 
-    def on_extension_loaded(self, instance: IRUExtention) -> None:
+    def on_extension_loaded(self, *, instance: IRUExtension) -> None:
         output_step(
             format_str(
                 _("Extension '${{name}}' loaded."),
@@ -422,7 +430,7 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
             ),
         )
 
-    def on_show_project_info(self, project: ProjectConfigration) -> None:
+    def on_show_project_info(self, *, project: ProjectConfigration) -> None:
         rich.print(
             format_str(
                 _(
@@ -500,9 +508,10 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
 
     def on_mklink(
         self,
+        *,
         src: Path,
         dst: Path,
-        symlink: bool,  # noqa: FBT001
+        symlink: bool,
     ) -> None:
         if symlink:
             output_step(
@@ -531,7 +540,7 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
                 ),
             )
 
-    def on_create_venv(self, path: Path) -> None:
+    def on_create_venv(self, *, path: Path) -> None:
         output_step(
             format_str(
                 _("Creating venv: '[underline]${{path}}[/underline]' ..."),
@@ -541,6 +550,7 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
 
     def on_install_extension(
         self,
+        *,
         dest: RUEnvironment,
         ext_name: str,
         ext_version: Version,
@@ -594,6 +604,7 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
 
     def on_extension_installed(
         self,
+        *,
         dest: RUEnvironment,  # noqa: ARG002
         ext_name: str,
         ext_version: Version,
@@ -611,6 +622,7 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
 
     def on_uninstall_extension(
         self,
+        *,
         dest: RUEnvironment,
         ext_name: str,
         ext_version: Version,
@@ -664,6 +676,7 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
 
     def on_extension_uninstalled(
         self,
+        *,
         dest: RUEnvironment,  # noqa: ARG002 # pylint: disable=unused-argument
         ext_name: str,
         ext_version: Version,
@@ -681,6 +694,7 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
 
     def on_upgrade_extension(
         self,
+        *,
         dest: RUEnvironment,
         ext_name: str,
         ext_version: Version,
@@ -734,6 +748,7 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
 
     def on_extension_upgraded(
         self,
+        *,
         dest: RUEnvironment,  # noqa: ARG002 # pylint: disable=unused-argument
         ext_name: str,
         ext_version: Version,
@@ -748,3 +763,49 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
                 fmt={"name": ext_name, "version": str(ext_version)},
             ),
         )
+
+    def on_verify_uninstall_extension(
+        self,
+        *,
+        dest: RUEnvironment,
+        query: set[ExtensionPackageInfo],
+    ) -> None:
+        if dest.is_global():
+            msg = format_str(
+                _(
+                    "The following extensions will be uninstalled from global "
+                    "([underline]${{path}}[/underline]):",
+                ),
+                fmt={"path": make_pretty(dest.path)},
+            )
+        elif dest.is_user():
+            msg = format_str(
+                _(
+                    "The following extensions will be uninstalled from user "
+                    "([underline]${{path}}[/underline]):",
+                ),
+                fmt={"path": make_pretty(dest.path)},
+            )
+        else:
+            msg = format_str(
+                _(
+                    "The following extensions will be uninstalled from "
+                    "workspace ([underline]${{path}}[/underline]):",
+                ),
+                fmt={"path": make_pretty(dest.path)},
+            )
+
+        rich.print(msg)
+        for ext in query:
+            rich.print(
+                format_str(
+                    "\t[green]${{name}}[/green]:[cyan]${{version}}[/cyan]",
+                    fmt={"name": ext.name, "version": str(ext.version)},
+                ),
+            )
+
+        if not ask_yesno(
+            _("Continue?"),
+            default=True,
+        ):
+            raise KeyboardInterrupt

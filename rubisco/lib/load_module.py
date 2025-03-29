@@ -23,9 +23,8 @@ To perfect fking Python import system.
 """
 
 import importlib.util
+from pathlib import Path
 from types import ModuleType
-
-from rubisco.lib.pathlib import Path
 
 __all__ = ["import_module_from_path"]
 

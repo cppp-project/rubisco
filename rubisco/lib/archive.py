@@ -29,6 +29,7 @@ import os
 import tarfile
 import time
 import zipfile
+from pathlib import Path
 
 import py7zr
 import py7zr.callbacks
@@ -39,7 +40,6 @@ from rubisco.lib.exceptions import RUValueError
 from rubisco.lib.fileutil import check_file_exists, rm_recursive
 from rubisco.lib.l10n import _
 from rubisco.lib.log import logger
-from rubisco.lib.pathlib import Path
 from rubisco.lib.variable import format_str
 from rubisco.shared.ktrigger import IKernelTrigger, call_ktrigger
 
@@ -75,7 +75,7 @@ def extract_tarball(
 
     with tarfile.open(
         tarball,
-        f"r:{compress_type}" if compress_type else "r",
+        f"r:{compress_type}" if compress_type else "r",  # type: ignore[arg-type]
     ) as fp:
         memembers = fp.getmembers()
         if not overwrite:
@@ -557,13 +557,13 @@ def compress_tarball(  # pylint: disable=R0913, R0917 # noqa: C901 PLR0913
         compress_level = compress_level if compress_level else 9
         fp = tarfile.open(  # noqa: SIM115
             dest,
-            f"w:{compress_type}" if compress_type else "w",
+            f"w:{compress_type}" if compress_type else "w",  # type: ignore[arg-type]
             compresslevel=compress_level,
         )
     else:
         fp = tarfile.open(  # noqa: SIM115
             dest,
-            f"w:{compress_type}" if compress_type else "w",
+            f"w:{compress_type}" if compress_type else "w",  # type: ignore[arg-type]
         )
 
     _includes = src.rglob("*") if src.is_dir() else [src]

@@ -30,6 +30,7 @@ import os
 import shutil
 import uuid
 from abc import abstractmethod
+from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 import json5 as json
@@ -45,7 +46,6 @@ from rubisco.lib.fileutil import (
 )
 from rubisco.lib.l10n import _
 from rubisco.lib.log import logger
-from rubisco.lib.pathlib import Path
 from rubisco.lib.process import Process
 from rubisco.lib.variable import (
     AutoFormatDict,
@@ -64,7 +64,7 @@ __all__ = [
     "CompressStep",
     "CopyFileStep",
     "EchoStep",
-    "ExtentionLoadStep",
+    "ExtensionLoadStep",
     "ExtractStep",
     "MkdirStep",
     "MklinkStep",
@@ -309,7 +309,7 @@ class OutputStep(Step):
 
     def run(self) -> None:
         """Run the step."""
-        call_ktrigger(IKernelTrigger.on_output, msg=self.msg)
+        call_ktrigger(IKernelTrigger.on_output, message=self.msg)
 
 
 EchoStep = OutputStep
@@ -355,6 +355,7 @@ class CopyFileStep(Step):
                 str,
                 RUValueError(_("The copy item must be a string.")),
             )
+            self.srcs = srcs
 
         self.overwrite = self.raw_data.get("overwrite", True, valtype=bool)
         self.keep_symlinks = self.raw_data.get(
@@ -437,7 +438,7 @@ class RemoveStep(Step):
                 rm_recursive(path, strict=True)
 
 
-class ExtentionLoadStep(Step):
+class ExtensionLoadStep(Step):
     """Load a Rubisco Excention manually."""
 
     path: Path
@@ -622,7 +623,7 @@ step_types = {
     "move": MoveFileStep,
     "copy": CopyFileStep,
     "remove": RemoveStep,
-    "load-extension": ExtentionLoadStep,
+    "load-extension": ExtensionLoadStep,
     "run-workflow": WorkflowRunStep,
     "mklink": MklinkStep,
     "compress": CompressStep,
@@ -639,7 +640,7 @@ step_contribute = {
     MoveFileStep: ["move", "to"],
     CopyFileStep: ["copy", "to"],
     RemoveStep: ["remove"],
-    ExtentionLoadStep: ["extension"],
+    ExtensionLoadStep: ["extension"],
     WorkflowRunStep: ["workflow"],
     MklinkStep: ["mklink", "to"],
     CompressStep: ["compress", "to"],

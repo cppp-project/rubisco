@@ -26,18 +26,19 @@ import re
 import shutil
 import zipfile
 from dataclasses import dataclass
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 import json5
 
 from rubisco.config import DEFAULT_CHARSET, EXTENSIONS_DIR
+from rubisco.envutils.env_type import EnvType
 from rubisco.envutils.pip import install_requirements
 from rubisco.lib.archive import extract_zip
 from rubisco.lib.exceptions import RUValueError
 from rubisco.lib.fileutil import TemporaryObject, rm_recursive
 from rubisco.lib.l10n import _
 from rubisco.lib.log import logger
-from rubisco.lib.pathlib import Path
 from rubisco.lib.variable import (
     AutoFormatDict,
     assert_iter_types,
@@ -53,6 +54,16 @@ if TYPE_CHECKING:
     from rubisco.envutils.env import RUEnvironment
 
 
+__all__ = [
+    "ExtensionPackageInfo",
+    "get_extension_package_info",
+    "install_extension",
+    "query_packages",
+    "uninstall_extension",
+    "upgrade_extension",
+]
+
+
 @dataclass
 class ExtensionPackageInfo:  # pylint: disable=too-many-instance-attributes
     """Extension package info."""
@@ -65,6 +76,7 @@ class ExtensionPackageInfo:  # pylint: disable=too-many-instance-attributes
     pkg_license: str
     tags: list[str]
     requirements: str | None
+    env_type: EnvType
 
     def __hash__(self) -> int:
         """Return the hash of the package name."""
@@ -193,6 +205,7 @@ def get_extension_package_info(pkg_file: Path) -> ExtensionPackageInfo:
                 pkg_config.get("license", valtype=str),
                 tags,
                 requirements,
+                EnvType.FOREIGN,
             )
     except zipfile.error as exc:
         raise RUValueError(
@@ -253,7 +266,7 @@ def _ext_is_installed(
     Return 0 if the extension is not installed, 1 if lower version, 2 if
     same version and 3 if higher version.
     """
-    installed_exts = dest.db_handle.query_packages(name)
+    installed_exts = dest.db_handle.query_packages([name])
     if len(installed_exts) > 1:
         logger.warning("Multiple instances of '%s' extension found.", name)
         call_ktrigger(
@@ -335,32 +348,62 @@ def _install_extension(
         )
 
     def _callback(
-        dest_dir: TemporaryObject,  # noqa: ARG001 # pylint: disable=W0613
-        temp_dir: TemporaryObject,  # noqa: ARG001 # pylint: disable=W0613
+        _dest_dir: TemporaryObject,
+        _temp_dir: TemporaryObject,
     ) -> None:
         dest.db_handle.add_packages([info])
 
     _extract_extension(info, pkg_file, dest, _callback)
 
 
-def _query_pkgs(
+def query_packages(
     pkg_names: list[str],
-    dest: RUEnvironment,
-) -> set[ExtensionPackageInfo] | None:
+    dest: RUEnvironment | list[RUEnvironment],
+) -> set[ExtensionPackageInfo]:
+    """Query the extension package.
+
+    Args:
+        pkg_names (list[str]): The package names or match patterns.
+        dest (RUEnvironment | list[RUEnvironment]): The destination environment.
+            Pass a list of environments to query multiple environments.
+
+    Returns:
+        set[ExtensionPackageInfo]: The extension package info.
+
+    """
     query = set()
+    logger.info(
+        "Querying extension packages %s ... in %s",
+        pkg_names,
+        str(dest),
+    )
+
+    # Don't use RUEnvrionment avoid recursive import.
+    if not isinstance(dest, list):
+        dest = [dest]
+
     for pattern in pkg_names:
-        query |= dest.db_handle.query_packages(pattern)
+        for env in dest:
+            query |= env.db_handle.query_packages([pattern])
     if not query:
-        call_ktrigger(
-            IKernelTrigger.on_warning,
-            message=format_str(
-                _(
-                    "No extension found matching '${{pattern}}'.",
+        if pkg_names == [".*"]:
+            call_ktrigger(
+                IKernelTrigger.on_warning,
+                message=_(
+                    "No extension installed.",
                 ),
-                fmt={"pattern": ", ".join(pkg_names)},
-            ),
-        )
-        return None
+            )
+        else:
+            call_ktrigger(
+                IKernelTrigger.on_warning,
+                message=format_str(
+                    _(
+                        "No extension found matching '${{pattern}}'.",
+                    ),
+                    fmt={"pattern": ", ".join(pkg_names)},
+                ),
+            )
+        return set()
     if len(query) > 1:
         for package in query:
             call_ktrigger(
@@ -409,14 +452,35 @@ def uninstall_extension(pkg_names: list[str], dest: RUEnvironment) -> None:
     """Uninstall the extension package.
 
     Args:
-        pkg_names (list[str]): The package names or match patterns.
+        pkg_names (list[str]): The package names.
         dest (RUEnvironment): The destination environment.
 
     """
     with dest:
-        query = _query_pkgs(pkg_names, dest)
-        if query is None:
+        query = query_packages(pkg_names, dest)
+        if not query:
             return
+
+        logger.info(
+            "Uninstalling extension packages '%s'... in %s",
+            query,
+            str(dest),
+        )
+
+        try:
+            call_ktrigger(
+                IKernelTrigger.on_verify_uninstall_extension,
+                dest=dest,
+                query=query,
+            )
+        except KeyboardInterrupt:
+            logger.info("User interrupted the uninstallation.")
+            call_ktrigger(
+                IKernelTrigger.on_error,
+                message=_("Interrupted by user."),
+            )
+            return
+
         for package in query:
             call_ktrigger(
                 IKernelTrigger.on_uninstall_extension,

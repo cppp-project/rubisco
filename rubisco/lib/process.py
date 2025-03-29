@@ -23,6 +23,7 @@ from __future__ import annotations
 
 import os
 import sys
+from pathlib import Path
 from subprocess import PIPE, STDOUT, Popen
 
 import psutil
@@ -33,7 +34,6 @@ from rubisco.lib.exceptions import RUShellExecutionError
 from rubisco.lib.fileutil import TemporaryObject
 from rubisco.lib.l10n import _
 from rubisco.lib.log import logger
-from rubisco.lib.pathlib import Path
 from rubisco.shared.ktrigger import IKernelTrigger, call_ktrigger
 
 __all__ = ["Process", "is_valid_pid"]

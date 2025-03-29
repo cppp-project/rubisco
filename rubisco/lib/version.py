@@ -113,6 +113,18 @@ class Version:
             verstr += f"+{self.build}"
         return verstr
 
+    def __format__(self, format_spec: str) -> str:
+        """Format the version string.
+
+        Args:
+            format_spec (str): The format spec.
+
+        Returns:
+            str: The formatted version string.
+
+        """
+        return self.__str__()
+
     def __repr__(self) -> str:
         """Get the instance representation.
 

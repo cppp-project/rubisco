@@ -31,8 +31,9 @@ from rubisco.lib.process import Process
 from rubisco.shared.ktrigger import IKernelTrigger, call_ktrigger
 
 if TYPE_CHECKING:
+    from pathlib import Path
+
     from rubisco.envutils.env import RUEnvironment
-    from rubisco.lib.pathlib import Path
 
 __all__ = ["install_pip_package", "install_requirements"]
 

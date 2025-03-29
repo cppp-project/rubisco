@@ -23,9 +23,9 @@ from __future__ import annotations
 
 import os
 import sys
+from pathlib import Path
 
 from rubisco.lib.command import command
-from rubisco.lib.pathlib import Path
 from rubisco.lib.version import Version
 
 # Application basic configurations.
