@@ -61,7 +61,8 @@ class Stack(LifoQueue):
 
     def top(
         self,
-        block: bool = True,  # noqa: FBT001 FBT002
+        *,
+        block: bool = True,
         timeout: int | None = None,
     ) -> Any:  # noqa: ANN401
         """Get the top value of the stack.
@@ -258,6 +259,7 @@ def iter_assert(
             e: Any,  # noqa: ARG001 ANN401 # pylint: disable=unused-argument
         ) -> Exception:
             return exc_
+
         exc = _exc
 
     for obj in iterable:

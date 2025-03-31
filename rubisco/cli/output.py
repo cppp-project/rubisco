@@ -228,7 +228,8 @@ def output_hint(message: str) -> None:
 
 def show_exception(
     exc: Exception | KeyboardInterrupt,
-    as_warn: bool = False,  # noqa: FBT001 FBT002
+    *,
+    as_warn: bool = False,
 ) -> None:
     """Show an exception. If it has docurl or hint, show it also.
 

@@ -97,7 +97,8 @@ def assert_rel_path(path: Path) -> None:
 
 def rm_recursive(
     path: Path,
-    strict: bool = True,  # noqa: FBT001 FBT002
+    *,
+    strict: bool = True,
 ) -> None:
     """Remove a file or directory recursively.
 
@@ -196,10 +197,11 @@ def _ignore_patterns(
 def copy_recursive(  # pylint: disable=R0913, R0917 # noqa: PLR0913
     src: Path,
     dst: Path,
-    strict: bool = False,  # noqa: FBT001 FBT002
-    symlinks: bool = False,  # noqa: FBT001 FBT002
-    exists_ok: bool = False,  # noqa: FBT001 FBT002
     ignore: list[str] | None = None,
+    *,
+    strict: bool = False,
+    symlinks: bool = False,
+    exists_ok: bool = False,
 ) -> None:
     """Copy a file or directory recursively.
 
@@ -207,9 +209,9 @@ def copy_recursive(  # pylint: disable=R0913, R0917 # noqa: PLR0913
         src (Path): The source path to copy.
         dst (Path): The destination path.
         strict (bool): Raise an exception if error occurs.
+        ignore (list[str] | None): The list of files to ignore.
         symlinks (bool): Copy symlinks as symlinks.
         exists_ok (bool): Do not raise an exception if the destination exists.
-        ignore (list[str] | None): The list of files to ignore.
 
     Raises:
         OSError: If strict is True and an error occurs.
@@ -576,7 +578,8 @@ class TemporaryObject:
 
 def resolve_path(
     path: Path,
-    absolute_only: bool = True,  # noqa: FBT001 FBT002
+    *,
+    absolute_only: bool = True,
 ) -> Path:
     """Resolve a path with globbing support.
 
@@ -597,7 +600,8 @@ def resolve_path(
 
 def glob_path(
     path: Path,
-    absolute_only: bool = True,  # noqa: FBT001 FBT002
+    *,
+    absolute_only: bool = True,
 ) -> list[Path]:
     """Resolve a path and globbing it.
 
@@ -610,7 +614,7 @@ def glob_path(
         list[Path]: List of resolved paths.
 
     """
-    path = resolve_path(path, absolute_only)
+    path = resolve_path(path, absolute_only=absolute_only)
     if not path.is_dir():
         return [path]
     return list(path.glob("*"))
@@ -637,7 +641,8 @@ def human_readable_size(size: float) -> str:
 
 def find_command(
     cmd: str,
-    strict: bool = True,  # noqa: FBT001 FBT002
+    *,
+    strict: bool = True,
 ) -> str | None:
     """Find the command in the system.
 
@@ -650,8 +655,6 @@ def find_command(
         str: The command path.
 
     """
-    logger.debug("Checking for command '%s' ...", cmd)
-
     res = shutil.which(cmd)
 
     logger.info(

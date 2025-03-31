@@ -21,16 +21,18 @@
 
 from __future__ import annotations
 
+import abc
 from typing import TYPE_CHECKING
 
 from rubisco.config import (
+    EXTENSIONS_DIR,
     GLOBAL_EXTENSIONS_VENV_DIR,
     USER_EXTENSIONS_VENV_DIR,
     WORKSPACE_EXTENSIONS_VENV_DIR,
 )
 from rubisco.kernel.config_file import config_file
 from rubisco.kernel.workflow import Step, _set_extloader, register_step_type
-from rubisco.lib.exceptions import RUValueError
+from rubisco.lib.exceptions import RUNotRubiscoExtensionError, RUValueError
 from rubisco.lib.l10n import _
 from rubisco.lib.load_module import import_module_from_path
 from rubisco.lib.log import logger
@@ -49,7 +51,7 @@ if TYPE_CHECKING:
 __all__ = ["IRUExtension", "load_extension"]
 
 
-class IRUExtension:
+class IRUExtension(abc.ABC):
     """Rubisco extension interface."""
 
     name: str
@@ -67,6 +69,7 @@ class IRUExtension:
         self.workflow_steps = {}
         self.steps_contributions = {}
 
+    @abc.abstractmethod
     def extension_can_load_now(self) -> bool:
         """Check if the extension can load now.
 
@@ -82,8 +85,8 @@ class IRUExtension:
             bool: True if the extension can load now, otherwise False.
 
         """
-        raise NotImplementedError
 
+    @abc.abstractmethod
     def on_load(self) -> None:
         """Load the extension.
 
@@ -93,6 +96,7 @@ class IRUExtension:
         """
         raise NotImplementedError
 
+    @abc.abstractmethod
     def reqs_is_sloved(self) -> bool:
         """Check if the system requirements are solved.
 
@@ -108,16 +112,15 @@ class IRUExtension:
             bool: True if the system requirements are solved, otherwise False.
 
         """
-        raise NotImplementedError
 
-    def reqs_solve(self) -> None:
+    @abc.abstractmethod
+    def solve_reqs(self) -> None:
         """Solve the system requirements.
 
         This method MUST be implemented by the subclass.
         If the slution is not possible, please raise an exception here.
         It is recommended to use RUError if you have hint, docurl, etc.
         """
-        raise NotImplementedError
 
 
 invalid_ext_names = ["rubisco"]  # Avoid logger's name conflict.
@@ -129,7 +132,8 @@ invalid_ext_names = ["rubisco"]  # Avoid logger's name conflict.
 #           - instance  IRUExtension ---- The extension instance
 def load_extension(  # pylint: disable=too-many-branches # noqa: C901 PLR0912
     path: Path | str,
-    strict: bool = False,  # noqa: FBT001 FBT002
+    *,
+    strict: bool = False,
 ) -> None:
     """Load the extension.
 
@@ -175,10 +179,10 @@ def load_extension(  # pylint: disable=too-many-branches # noqa: C901 PLR0912
             )
 
         # Load the extension.
-
         try:
+            path = path / path.name
             module = import_module_from_path(path)
-        except FileNotFoundError as exc:
+        except RUNotRubiscoExtensionError as exc:
             raise RUValueError(
                 format_str(
                     _(
@@ -248,7 +252,7 @@ def load_extension(  # pylint: disable=too-many-branches # noqa: C901 PLR0912
                 "Solving system requirements for extension '%s'...",
                 instance.name,
             )
-            instance.reqs_solve()
+            instance.solve_reqs()
             if not instance.reqs_is_sloved():
                 logger.error(
                     "Failed to solve system requirements for extension '%s'.",
@@ -292,7 +296,8 @@ def load_all_extensions() -> None:
 
     # Load the workspace extensions.
     try:
-        for path in WORKSPACE_EXTENSIONS_VENV_DIR.iterdir():
+        extdir = WORKSPACE_EXTENSIONS_VENV_DIR / EXTENSIONS_DIR
+        for path in extdir.iterdir():
             if path.is_dir() and path.name in autoruns:
                 load_extension(path)
     except OSError as exc:
@@ -300,7 +305,8 @@ def load_all_extensions() -> None:
 
     # Load the user extensions.
     try:
-        for path in USER_EXTENSIONS_VENV_DIR.iterdir():
+        extdir = USER_EXTENSIONS_VENV_DIR / EXTENSIONS_DIR
+        for path in extdir.iterdir():
             if path.is_dir() and path.name in autoruns:
                 load_extension(path)
     except OSError as exc:
@@ -308,7 +314,8 @@ def load_all_extensions() -> None:
 
     # Load the global extensions.
     try:
-        for path in GLOBAL_EXTENSIONS_VENV_DIR.iterdir():
+        extdir = GLOBAL_EXTENSIONS_VENV_DIR / EXTENSIONS_DIR
+        for path in extdir.iterdir():
             if path.is_dir() and path.name in autoruns:
                 load_extension(path)
     except OSError as exc:

@@ -434,8 +434,8 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
         rich.print(
             format_str(
                 _(
-                    "Rubisco CLI language: '${{locale}}' "
-                    "'${{charset}}' '${{language_name}}'",
+                    "[dark_orange]Rubisco CLI Language:[/dark_orange] "
+                    "'${{locale}}' '${{charset}}' '${{language_name}}'",
                 ),
                 fmt={
                     "locale": locale_language(),

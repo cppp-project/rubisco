@@ -91,9 +91,10 @@ def git_clone(  # pylint: disable=R0913, R0917 # noqa: PLR0913
     url: str,
     path: Path,
     branch: str = "main",
-    shallow: bool = True,  # noqa: FBT001 FBT002
-    strict: bool = False,  # noqa: FBT001 FBT002
-    use_fastest: bool = True,  # noqa: FBT001 FBT002
+    *,
+    shallow: bool = True,
+    strict: bool = False,
+    use_fastest: bool = True,
 ) -> None:
     """Clone a git repository.
 

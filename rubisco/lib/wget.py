@@ -39,7 +39,8 @@ __all__ = ["wget"]
 def wget(
     url: str,
     save_to: Path,
-    overwrite: bool = True,  # noqa: FBT001 FBT002
+    *,
+    overwrite: bool = True,
 ) -> None:
     """Download a file from the Internet.
 

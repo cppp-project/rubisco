@@ -26,6 +26,8 @@ import importlib.util
 from pathlib import Path
 from types import ModuleType
 
+from rubisco.lib.exceptions import RUNotRubiscoExtensionError
+
 __all__ = ["import_module_from_path"]
 
 
@@ -48,7 +50,7 @@ def import_module_from_path(path: Path) -> ModuleType:
         path = path / "__init__.py"
 
     if not path.exists():
-        raise FileNotFoundError(path)
+        raise RUNotRubiscoExtensionError(str(path))
 
     spec = importlib.util.spec_from_file_location(path.stem, path)
     if spec:

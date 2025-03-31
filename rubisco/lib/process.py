@@ -90,7 +90,8 @@ class Process:
 
     def run(
         self,
-        fail_on_error: bool = True,  # noqa: FBT001 FBT002
+        *,
+        fail_on_error: bool = True,
     ) -> int:
         """Run the process.
 
@@ -134,10 +135,11 @@ class Process:
 
     def popen(
         self,
-        stdout: bool = True,  # noqa: FBT001 FBT002
+        *,
+        stdout: bool = True,
         stderr: int = 1,
-        fail_on_error: bool = True,  # noqa: FBT001 FBT002
-        show_step: bool = True,  # noqa: FBT001 FBT002
+        fail_on_error: bool = True,
+        show_step: bool = True,
     ) -> tuple[str, str, int]:
         """Run the command and return the stdout and stderr.
 

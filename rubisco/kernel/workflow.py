@@ -220,7 +220,9 @@ class ShellExecStep(Step):
 
     def run(self) -> None:
         """Run the step."""
-        retcode = Process(self.cmd, self.cwd).run(self.fail_on_error)
+        retcode = Process(self.cmd, self.cwd).run(
+            fail_on_error=self.fail_on_error,
+        )
         push_variables(f"{self.global_id}.retcode", retcode)
 
 
@@ -284,9 +286,9 @@ class PopenStep(Step):
     def run(self) -> None:
         """Run the step."""
         stdout, stderr, retcode = Process(self.cmd, cwd=self.cwd).popen(
-            self.stdout,
-            self.stderr,
-            self.fail_on_error,
+            stdout=self.stdout,
+            stderr=self.stderr,
+            fail_on_error=self.fail_on_error,
             show_step=True,
         )
         push_variables(f"{self.global_id}.stdout", stdout)
@@ -387,10 +389,10 @@ class CopyFileStep(Step):
                 copy_recursive(
                     src_path,
                     self.dst,
-                    not self.overwrite,
-                    self.keep_symlinks,
-                    self.overwrite,
                     self.excludes,
+                    strict=not self.overwrite,
+                    symlinks=self.keep_symlinks,
+                    exists_ok=self.overwrite,
                 )
 
 
@@ -466,7 +468,7 @@ class WorkflowRunStep(Step):
 
     def run(self) -> None:
         """Run the step."""
-        exc = run_workflow(self.path, self.fail_fast)
+        exc = run_workflow(self.path, fail_fast=self.fail_fast)
         if exc:
             push_variables(f"{self.global_id}.exception", exc)
 
@@ -568,7 +570,7 @@ class CompressStep(Step):
                     self.excludes,
                     fmt,
                     self.compress_level,
-                    self.overwrite,
+                    overwrite=self.overwrite,
                 )
         else:
             compress(
@@ -578,7 +580,7 @@ class CompressStep(Step):
                 self.excludes,
                 self.compress_format,
                 self.compress_level,
-                self.overwrite,
+                overwrite=self.overwrite,
             )
 
 
@@ -609,8 +611,8 @@ class ExtractStep(Step):
             self.src,
             self.dst,
             self.compress_format,
-            self.overwrite,
             self.password,
+            overwrite=self.overwrite,
         )
 
 
@@ -871,7 +873,8 @@ def register_step_type(name: str, cls: type, contributes: list[str]) -> None:
 
 def run_inline_workflow(
     data: AutoFormatDict | list[AutoFormatDict],
-    fail_fast: bool = True,  # noqa: FBT001 FBT002
+    *,
+    fail_fast: bool = True,
 ) -> Exception | None:
     """Run a inline workflow.
 
@@ -909,7 +912,8 @@ def run_inline_workflow(
 
 def run_workflow(
     file: Path,
-    fail_fast: bool = True,  # noqa: FBT001 FBT002
+    *,
+    fail_fast: bool = True,
 ) -> Exception | None:
     """Run a workflow file.
 
@@ -942,7 +946,10 @@ def run_workflow(
                 hint=_("We only support '.json', '.json5', '.yaml', '.yml'."),
             )
 
-        return run_inline_workflow(AutoFormatDict(workflow), fail_fast)
+        return run_inline_workflow(
+            AutoFormatDict(workflow),
+            fail_fast=fail_fast,
+        )
 
 
 if __name__ == "__main__":

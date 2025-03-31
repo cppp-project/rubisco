@@ -214,7 +214,8 @@ async def find_fastest_mirror(
 def get_url(
     remote: str,
     protocol: str = "http",
-    use_fastest: bool = True,  # noqa: FBT001 FBT002
+    *,
+    use_fastest: bool = True,
 ) -> str:
     """Get the mirror URL of a remote Git repository.
 
