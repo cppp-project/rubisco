@@ -32,6 +32,8 @@ from rubisco.lib.l10n import _
 from rubisco.lib.variable import format_str
 from rubisco.shared.ktrigger import IKernelTrigger, call_ktrigger
 
+# pylint: disable=R0801
+
 __all__ = ["compress_7z", "extract_7z"]
 
 

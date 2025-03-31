@@ -80,11 +80,11 @@ def assert_rel_path(path: Path) -> None:
         path (Path): The path to assert.
 
     Raises:
-        AssertionError: If the path is not a relative path.
+        RUValueError: If the path is not a relative path.
 
     """
     if path.is_absolute():
-        raise AssertionError(
+        raise RUValueError(
             format_str(
                 _(
                     "Absolute path '[underline]${{path}}[/underline]'"

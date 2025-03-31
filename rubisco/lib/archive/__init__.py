@@ -38,7 +38,11 @@ from rubisco.lib.archive.sevenzip import compress_7z, extract_7z
 from rubisco.lib.archive.tar import compress_tarball, extract_tarball
 from rubisco.lib.archive.zip import compress_zip, extract_zip
 from rubisco.lib.exceptions import RUValueError
-from rubisco.lib.fileutil import check_file_exists, rm_recursive
+from rubisco.lib.fileutil import (
+    assert_rel_path,
+    check_file_exists,
+    rm_recursive,
+)
 from rubisco.lib.l10n import _
 from rubisco.lib.log import logger
 from rubisco.lib.variable import format_str
@@ -48,6 +52,13 @@ if TYPE_CHECKING:
     from pathlib import Path
 
 __all__ = ["compress", "extract"]
+
+
+class UnsupportedArchiveTypeError(AssertionError):
+    """Raise it if archive type is unsupported.
+
+    It will not be catched outside.
+    """
 
 
 def extract_file(  # pylint: disable=too-many-branches # noqa: C901 PLR0912
@@ -69,7 +80,7 @@ def extract_file(  # pylint: disable=too-many-branches # noqa: C901 PLR0912
         overwrite (bool): Overwrite destination directory if it exists.
 
     Raises:
-        AssertionError: If compress is not in ["gz", "bz2", "xz"]
+        UnsupportedArchiveTypeError: If compress is not in ["gz", "bz2", "xz"]
 
     """
     compress_type = compress_type.lower().strip()
@@ -78,7 +89,7 @@ def extract_file(  # pylint: disable=too-many-branches # noqa: C901 PLR0912
     elif compress_type == "bzip2":
         compress_type = "bz2"
     if compress_type not in ["gz", "bz2", "xz"]:
-        raise AssertionError
+        raise UnsupportedArchiveTypeError
 
     if compress_type == "gz":
         fsrc = gzip.open(file, "rb")  # noqa: SIM115
@@ -87,7 +98,7 @@ def extract_file(  # pylint: disable=too-many-branches # noqa: C901 PLR0912
     elif compress_type == "xz":
         fsrc = lzma.open(file, "rb")  # noqa: SIM115
     else:
-        raise AssertionError
+        raise UnsupportedArchiveTypeError
 
     with fsrc:
         fsrc.seek(0, os.SEEK_END)
@@ -134,7 +145,46 @@ def extract_file(  # pylint: disable=too-many-branches # noqa: C901 PLR0912
                     fdst.write(buf)
 
 
-def extract(  # pylint: disable=too-many-branches # noqa: C901 PLR0912
+def _extract(
+    compress_type: str,
+    file: Path,
+    dest: Path,
+    password: str | None,
+    *,
+    overwrite: bool,
+) -> None:
+    if compress_type in ["gz", "gzip"]:
+        logger.info("Extracting '%s' to '%s' as 'gz' ...", file, dest)
+        extract_file(file, dest, "gz", overwrite=overwrite)
+    elif compress_type in ["bz2", "bzip2"]:
+        logger.info("Extracting '%s' to '%s' as 'bz2' ...", file, dest)
+        extract_file(file, dest, "bz2", overwrite=overwrite)
+    elif compress_type in ["xz", "lzma"]:
+        logger.info("Extracting '%s' to '%s' as 'xz' ...", file, dest)
+        extract_file(file, dest, "xz", overwrite=overwrite)
+    elif compress_type == "zip":
+        logger.info("Extracting '%s' to '%s' as 'zip' ...", file, dest)
+        extract_zip(file, dest, password, overwrite=overwrite)
+    elif compress_type == "7z":
+        logger.info("Extracting '%s' to '%s' as '7z' ...", file, dest)
+        extract_7z(file, dest, password)
+    elif compress_type in ["tar.gz", "tgz"]:
+        logger.info("Extracting '%s' to '%s' as 'tar.gz' ...", file, dest)
+        extract_tarball(file, dest, "gz", overwrite=overwrite)
+    elif compress_type in ["tar.bz2", "tbz2"]:
+        logger.info("Extracting '%s' to '%s' as 'tar.bz2' ...", file, dest)
+        extract_tarball(file, dest, "bz2", overwrite=overwrite)
+    elif compress_type in ["tar.xz", "txz"]:
+        logger.info("Extracting '%s' to '%s' as 'tar.xz' ...", file, dest)
+        extract_tarball(file, dest, "xz", overwrite=overwrite)
+    elif compress_type == "tar":
+        logger.info("Extracting '%s' to '%s' as 'tar' ...", file, dest)
+        extract_tarball(file, dest, None, overwrite=overwrite)
+    else:
+        raise UnsupportedArchiveTypeError
+
+
+def extract(  # pylint: disable=too-many-branches
     file: Path,
     dest: Path,
     compress_type: str | None = None,
@@ -157,6 +207,7 @@ def extract(  # pylint: disable=too-many-branches # noqa: C901 PLR0912
 
     """
     compress_type = compress_type.lower().strip() if compress_type else None
+    assert_rel_path(dest)
     try:
         if compress_type is None:
             suffix1 = file.suffix
@@ -178,36 +229,14 @@ def extract(  # pylint: disable=too-many-branches # noqa: C901 PLR0912
                     ),
                     hint=_("Please specify the compression type explicitly."),
                 )
-        if compress_type in ["gz", "gzip"]:
-            logger.info("Extracting '%s' to '%s' as 'gz' ...", file, dest)
-            extract_file(file, dest, "gz", overwrite=overwrite)
-        elif compress_type in ["bz2", "bzip2"]:
-            logger.info("Extracting '%s' to '%s' as 'bz2' ...", file, dest)
-            extract_file(file, dest, "bz2", overwrite=overwrite)
-        elif compress_type in ["xz", "lzma"]:
-            logger.info("Extracting '%s' to '%s' as 'xz' ...", file, dest)
-            extract_file(file, dest, "xz", overwrite=overwrite)
-        elif compress_type == "zip":
-            logger.info("Extracting '%s' to '%s' as 'zip' ...", file, dest)
-            extract_zip(file, dest, password, overwrite=overwrite)
-        elif compress_type == "7z":
-            logger.info("Extracting '%s' to '%s' as '7z' ...", file, dest)
-            extract_7z(file, dest, password)
-        elif compress_type in ["tar.gz", "tgz"]:
-            logger.info("Extracting '%s' to '%s' as 'tar.gz' ...", file, dest)
-            extract_tarball(file, dest, "gz", overwrite=overwrite)
-        elif compress_type in ["tar.bz2", "tbz2"]:
-            logger.info("Extracting '%s' to '%s' as 'tar.bz2' ...", file, dest)
-            extract_tarball(file, dest, "bz2", overwrite=overwrite)
-        elif compress_type in ["tar.xz", "txz"]:
-            logger.info("Extracting '%s' to '%s' as 'tar.xz' ...", file, dest)
-            extract_tarball(file, dest, "xz", overwrite=overwrite)
-        elif compress_type == "tar":
-            logger.info("Extracting '%s' to '%s' as 'tar' ...", file, dest)
-            extract_tarball(file, dest, None, overwrite=overwrite)
-        else:
-            raise AssertionError  # noqa: TRY301
-    except AssertionError:
+            _extract(
+                compress_type,
+                file,
+                dest,
+                password,
+                overwrite=overwrite,
+            )
+    except UnsupportedArchiveTypeError:
         logger.error(
             "Unsupported compression type: '%s'",
             compress_type,
@@ -271,7 +300,7 @@ def compress_file(  # pylint: disable=R0912 # noqa: C901 PLR0912
     elif compress_type == "bzip2":
         compress_type = "bz2"
     if compress_type not in ["gz", "bz2", "xz"]:
-        raise AssertionError
+        raise UnsupportedArchiveTypeError
 
     if not overwrite:
         check_file_exists(dest)
@@ -288,7 +317,7 @@ def compress_file(  # pylint: disable=R0912 # noqa: C901 PLR0912
     elif compress_type == "xz":
         fsrc = lzma.open(src, "rb")  # noqa: SIM115
     else:
-        raise AssertionError
+        raise UnsupportedArchiveTypeError
 
     with fsrc:
         fsrc.seek(0, os.SEEK_END)
@@ -331,8 +360,88 @@ def compress_file(  # pylint: disable=R0912 # noqa: C901 PLR0912
                     fdst.write(buf)
 
 
+def _compress(  # pylint: disable=R0913, R0917 # noqa: PLR0913
+    src: Path,
+    dest: Path,
+    start: Path | None = None,
+    excludes: list[str] | None = None,
+    compress_type: str | None = None,
+    compress_level: int | None = None,
+    *,
+    overwrite: bool = False,
+) -> None:
+    if compress_type in ["gz", "gzip"]:
+        logger.info("Compressing '%s' to '%s' as 'gz' ...", src, dest)
+        compress_file(src, dest, "gz", compress_level, overwrite=overwrite)
+    elif compress_type in ["bz2", "bzip2"]:
+        logger.info("Compressing '%s' to '%s' as 'bz2' ...", src, dest)
+        compress_file(src, dest, "bz2", compress_level, overwrite=overwrite)
+    elif compress_type in ["xz", "lzma"]:
+        logger.info("Compressing '%s' to '%s' as 'xz' ...", src, dest)
+        compress_file(src, dest, "xz", compress_level, overwrite=overwrite)
+    elif compress_type == "zip":
+        logger.info("Compressing '%s' to '%s' as 'zip' ...", src, dest)
+        compress_zip(
+            src,
+            dest,
+            start,
+            excludes,
+            compress_level,
+            overwrite=overwrite,
+        )
+    elif compress_type == "7z":
+        logger.info("Compressing '%s' to '%s' as '7z' ...", src, dest)
+        compress_7z(src, dest, start, excludes, overwrite=overwrite)
+    elif compress_type in ["tar.gz", "tgz"]:
+        logger.info("Compressing '%s' to '%s' as 'tar.gz' ...", src, dest)
+        compress_tarball(
+            src,
+            dest,
+            start,
+            excludes,
+            "gz",
+            compress_level,
+            overwrite=overwrite,
+        )
+    elif compress_type in ["tar.bz2", "tbz2"]:
+        logger.info("Compressing '%s' to '%s' as 'tar.bz2' ...", src, dest)
+        compress_tarball(
+            src,
+            dest,
+            start,
+            excludes,
+            "bz2",
+            compress_level,
+            overwrite=overwrite,
+        )
+    elif compress_type in ["tar.xz", "txz"]:
+        logger.info("Compressing '%s' to '%s' as 'tar.xz' ...", src, dest)
+        compress_tarball(
+            src,
+            dest,
+            start,
+            excludes,
+            "xz",
+            compress_level,
+            overwrite=overwrite,
+        )
+    elif compress_type == "tar":
+        logger.info("Compressing '%s' to '%s' as 'tar' ...", src, dest)
+        compress_tarball(
+            src,
+            dest,
+            start,
+            excludes,
+            None,
+            None,
+            overwrite=overwrite,
+        )
+    else:
+        raise UnsupportedArchiveTypeError
+
+
 # We should rewrite this ugly function later.
-def compress(  # pylint: disable=R0912, R0913, R0917 # noqa: C901 PLR0912 PLR0913 E501 RUF100
+def compress(  # pylint: disable=R0913, R0917 # noqa: PLR0913
     src: Path,
     dest: Path,
     start: Path | None = None,
@@ -361,6 +470,7 @@ def compress(  # pylint: disable=R0912, R0913, R0917 # noqa: C901 PLR0912 PLR091
 
     """
     compress_type = compress_type.lower().strip() if compress_type else None
+    assert_rel_path(dest)
     try:
         if compress_type is None:
             suffix1 = dest.suffix
@@ -380,75 +490,16 @@ def compress(  # pylint: disable=R0912, R0913, R0917 # noqa: C901 PLR0912 PLR091
                     ),
                     hint=_("Please specify the compression type explicitly."),
                 )
-        if compress_type in ["gz", "gzip"]:
-            logger.info("Compressing '%s' to '%s' as 'gz' ...", src, dest)
-            compress_file(src, dest, "gz", compress_level, overwrite=overwrite)
-        elif compress_type in ["bz2", "bzip2"]:
-            logger.info("Compressing '%s' to '%s' as 'bz2' ...", src, dest)
-            compress_file(src, dest, "bz2", compress_level, overwrite=overwrite)
-        elif compress_type in ["xz", "lzma"]:
-            logger.info("Compressing '%s' to '%s' as 'xz' ...", src, dest)
-            compress_file(src, dest, "xz", compress_level, overwrite=overwrite)
-        elif compress_type == "zip":
-            logger.info("Compressing '%s' to '%s' as 'zip' ...", src, dest)
-            compress_zip(
-                src,
-                dest,
-                start,
-                excludes,
-                compress_level,
-                overwrite=overwrite,
-            )
-        elif compress_type == "7z":
-            logger.info("Compressing '%s' to '%s' as '7z' ...", src, dest)
-            compress_7z(src, dest, start, excludes, overwrite=overwrite)
-        elif compress_type in ["tar.gz", "tgz"]:
-            logger.info("Compressing '%s' to '%s' as 'tar.gz' ...", src, dest)
-            compress_tarball(
-                src,
-                dest,
-                start,
-                excludes,
-                "gz",
-                compress_level,
-                overwrite=overwrite,
-            )
-        elif compress_type in ["tar.bz2", "tbz2"]:
-            logger.info("Compressing '%s' to '%s' as 'tar.bz2' ...", src, dest)
-            compress_tarball(
-                src,
-                dest,
-                start,
-                excludes,
-                "bz2",
-                compress_level,
-                overwrite=overwrite,
-            )
-        elif compress_type in ["tar.xz", "txz"]:
-            logger.info("Compressing '%s' to '%s' as 'tar.xz' ...", src, dest)
-            compress_tarball(
-                src,
-                dest,
-                start,
-                excludes,
-                "xz",
-                compress_level,
-                overwrite=overwrite,
-            )
-        elif compress_type == "tar":
-            logger.info("Compressing '%s' to '%s' as 'tar' ...", src, dest)
-            compress_tarball(
-                src,
-                dest,
-                start,
-                excludes,
-                None,
-                None,
-                overwrite=overwrite,
-            )
-        else:
-            raise AssertionError  # noqa: TRY301
-    except AssertionError:
+        _compress(
+            src,
+            dest,
+            start,
+            excludes,
+            compress_type,
+            compress_level,
+            overwrite=overwrite,
+        )
+    except UnsupportedArchiveTypeError:
         logger.error(
             "Unsupported compression type: '%s'",
             compress_type,

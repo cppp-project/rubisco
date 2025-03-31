@@ -40,6 +40,7 @@ from rubisco.config import DEFAULT_CHARSET
 from rubisco.lib.archive import compress, extract
 from rubisco.lib.exceptions import RUValueError
 from rubisco.lib.fileutil import (
+    assert_rel_path,
     check_file_exists,
     copy_recursive,
     rm_recursive,
@@ -252,6 +253,7 @@ class MkdirStep(Step):
         """Run the step."""
         for path in self.paths:
             call_ktrigger(IKernelTrigger.on_mkdir, path=path)
+            assert_rel_path(path)
             path.mkdir(exist_ok=True)
 
 
@@ -332,6 +334,7 @@ class MoveFileStep(Step):
         """Run the step."""
         call_ktrigger(IKernelTrigger.on_move_file, src=self.src, dst=self.dst)
         check_file_exists(self.dst)
+        assert_rel_path(self.dst)
         shutil.move(self.src, self.dst)
 
 
@@ -377,6 +380,7 @@ class CopyFileStep(Step):
             rm_recursive(self.dst, strict=True)
         if self.dst.is_dir():
             check_file_exists(self.dst)
+        assert_rel_path(self.dst)
 
         for src_glob in self.srcs:
             for src in glob.glob(src_glob):  # noqa: PTH207
@@ -495,6 +499,8 @@ class MklinkStep(Step):
             dst=self.dst,
             symlink=self.symlink,
         )
+
+        assert_rel_path(self.dst)
 
         if self.symlink:
             os.symlink(self.src, self.dst)
