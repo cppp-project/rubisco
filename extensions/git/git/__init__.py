@@ -19,13 +19,19 @@
 
 """C++ Plus Rubisco Git extension."""
 
+from pathlib import Path
 from typing import ClassVar
 
+from git.exc import GitError
+from git.repo import Repo
 from rubisco.kernel.workflow import Step
+from rubisco.lib.exceptions import RUValueError
+from rubisco.lib.fileutil import find_command
+from rubisco.lib.l10n import _
+from rubisco.lib.variable import format_str, push_variables
 from rubisco.lib.version import Version
 from rubisco.shared.extension import IRUExtension
 from rubisco.shared.ktrigger import IKernelTrigger
-from rubisco.lib.fileutil import find_command
 
 __all__ = ["GitExtension"]
 
@@ -38,10 +44,11 @@ class GitExtension(IRUExtension):
     ktrigger = IKernelTrigger()
     workflow_steps: ClassVar[dict[str, type[Step]]] = {}
     steps_contributions: ClassVar[dict[type[Step], list[str]]] = {}
+    cur_repo: Repo
 
     def extension_can_load_now(self) -> bool:
         """Load git extension."""
-        return True
+        return not (find_command("git") is None or not Path(".git").is_dir())
 
     def reqs_is_sloved(self) -> bool:
         """Check for requirements are solved."""
@@ -49,9 +56,24 @@ class GitExtension(IRUExtension):
 
     def on_load(self) -> None:
         """Load git extension."""
-        print("=== GIT LOADING ===")
+        try:
+            self.cur_repo = Repo(Path.cwd())
+        except GitError as exc:
+            raise RUValueError(
+                format_str(
+                    _(
+                        "Failed to load git repository [underline]${{path}}"
+                        "[/underline]: ${{exc}}",
+                    ),
+                    fmt={
+                        "path": str(Path.cwd()),
+                        "exc": f"{type(exc).__name__}: {exc}",
+                    },
+                ),
+            ) from exc
 
     def solve_reqs(self) -> None:
         """Solve requirements."""
+
 
 instance = GitExtension()

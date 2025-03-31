@@ -125,6 +125,8 @@ class IRUExtension(abc.ABC):
 
 invalid_ext_names = ["rubisco"]  # Avoid logger's name conflict.
 
+loaded_extensions: list[str] = []
+
 
 # A basic extension contains these modules or variables:
 #   - extension/        directory    ---- The extension directory.
@@ -181,6 +183,9 @@ def load_extension(  # pylint: disable=too-many-branches # noqa: C901 PLR0912
         # Load the extension.
         try:
             path = path / path.name
+            if path.name in loaded_extensions:
+                logger.debug("Extension '%s' is already loaded.", path.name)
+                return
             module = import_module_from_path(path)
         except RUNotRubiscoExtensionError as exc:
             raise RUValueError(
@@ -273,7 +278,8 @@ def load_extension(  # pylint: disable=too-many-branches # noqa: C901 PLR0912
             instance.ktrigger,
         )
         call_ktrigger(IKernelTrigger.on_extension_loaded, instance=instance)
-        logger.info("Loaded extension '%s'.", instance.name)
+        loaded_extensions.append(instance.name)
+        logger.info("Extension loaded '%s'.", instance.name)
     except Exception as exc:  # pylint: disable=broad-except # noqa: BLE001
         if strict:
             raise exc from None
