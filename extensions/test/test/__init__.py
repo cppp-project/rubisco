@@ -17,34 +17,29 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-"""C++ Plus Rubisco Git extension."""
+"""C++ Plus Rubisco test extension."""
 
 from pathlib import Path
 from typing import ClassVar
 
-from git.exc import GitError
-from git.repo import Repo
 from rubisco.kernel.workflow import Step
-from rubisco.lib.exceptions import RUValueError
 from rubisco.lib.fileutil import find_command
-from rubisco.lib.l10n import _
-from rubisco.lib.variable import format_str, push_variables
+from rubisco.lib.variable import push_variables
 from rubisco.lib.version import Version
 from rubisco.shared.extension import IRUExtension
 from rubisco.shared.ktrigger import IKernelTrigger
 
-__all__ = ["GitExtension"]
+__all__ = ["instance"]
 
 
-class GitExtension(IRUExtension):
-    """Git extension."""
+class TestExtension(IRUExtension):
+    """Test extension."""
 
-    name = "git"
+    name = "test"
     version = Version((0, 1, 0))
     ktrigger = IKernelTrigger()
     workflow_steps: ClassVar[dict[str, type[Step]]] = {}
     steps_contributions: ClassVar[dict[type[Step], list[str]]] = {}
-    cur_repo: Repo
 
     def extension_can_load_now(self) -> bool:
         """Load git extension."""
@@ -56,24 +51,10 @@ class GitExtension(IRUExtension):
 
     def on_load(self) -> None:
         """Load git extension."""
-        try:
-            self.cur_repo = Repo(Path.cwd())
-        except GitError as exc:
-            raise RUValueError(
-                format_str(
-                    _(
-                        "Failed to load git repository [underline]${{path}}"
-                        "[/underline]: ${{exc}}",
-                    ),
-                    fmt={
-                        "path": str(Path.cwd()),
-                        "exc": f"{type(exc).__name__}: {exc}",
-                    },
-                ),
-            ) from exc
+        push_variables("test", "TEST")
 
     def solve_reqs(self) -> None:
         """Solve requirements."""
 
 
-instance = GitExtension()
+instance = TestExtension()
