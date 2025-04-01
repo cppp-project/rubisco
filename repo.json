@@ -4,40 +4,5 @@
   "description": "C+++ Repository Utilities.",
   "maintainer": "ChenPi11 <wushengwuxi-msctinoulk@outlook.com>",
   "license": "GPL-3.0",
-  "hooks": {
-    "lint": {
-      "run": ".rubisco/lint.yaml"
-    },
-    "update-po": {
-      "exec": "cd po && make update-po -B"
-    },
-    "build": {
-      "run": ".rubisco/build.yaml"
-    },
-    "format": {
-      "exec": "python -m ruff format rubisco"
-    },
-    "test": {
-      "run": ".rubisco/test.yaml"
-    },
-    "clean": {
-      "workflow": [
-        {
-          "name": "Clean workflow",
-          "remove": [
-            "build",
-            "dist",
-            "*/**/__pycache__",
-            ".rubisco/*.log",
-            "*.7z",
-            "*.gz",
-            "*.xz",
-            "*.zip",
-            "rubisco-*"
-          ],
-          "strict": false
-        }
-      ]
-    }
-  }
+  "includes": ["hooks.json"]
 }
