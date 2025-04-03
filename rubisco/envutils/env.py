@@ -43,7 +43,7 @@ from rubisco.lib.exceptions import RUError, RUOSError
 from rubisco.lib.l10n import _
 from rubisco.lib.log import logger
 from rubisco.lib.process import is_valid_pid
-from rubisco.lib.variable import format_str, make_pretty
+from rubisco.lib.variable import format_str
 from rubisco.shared.ktrigger import IKernelTrigger, call_ktrigger
 
 __all__ = [
@@ -464,13 +464,8 @@ if __name__ == "__main__":
     class _InstallTrigger(IKernelTrigger):
         def on_create_venv(self, *, path: Path) -> None:
             rubisco.cli.output.output_step(
-                format_str(
-                    _(
-                        "Creating Rubisco extension environment:"
-                        " '[underline]${{path}}[/underline]' ...",
-                    ),
-                    fmt={"path": make_pretty(path.absolute())},
-                ),
+                "Creating Rubisco extension environment:"
+                f" '[underline]{path.absolute()}[/underline]' ...",
             )
 
     rubisco.shared.ktrigger.bind_ktrigger_interface(
