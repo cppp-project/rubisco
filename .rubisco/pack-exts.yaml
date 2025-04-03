@@ -1,0 +1,7 @@
+name: 📦 Pack built-in extensions.
+
+steps:
+  - name: 📦 Packing the source distribution
+    compress: extensions/test
+    start: extensions/test
+    to: extensions/test.zip

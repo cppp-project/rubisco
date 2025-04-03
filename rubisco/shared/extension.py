@@ -22,15 +22,24 @@
 from __future__ import annotations
 
 import abc
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 from rubisco.config import (
-    EXTENSIONS_DIR,
+    DEFAULT_CHARSET,
     GLOBAL_EXTENSIONS_VENV_DIR,
     USER_EXTENSIONS_VENV_DIR,
     WORKSPACE_EXTENSIONS_VENV_DIR,
 )
+from rubisco.envutils.env import (
+    GLOBAL_ENV,
+    USER_ENV,
+    WORKSPACE_ENV,
+    RUEnvironment,
+)
+from rubisco.envutils.packages import ExtensionPackageInfo, parse_extension_info
 from rubisco.kernel.config_file import config_file
+from rubisco.kernel.ext_name_check import is_valid_extension_name
 from rubisco.kernel.workflow import Step, _set_extloader, register_step_type
 from rubisco.lib.exceptions import RUNotRubiscoExtensionError, RUValueError
 from rubisco.lib.l10n import _
@@ -44,11 +53,14 @@ from rubisco.shared.ktrigger import (
 )
 
 if TYPE_CHECKING:
-    from pathlib import Path
 
     from rubisco.lib.version import Version
 
-__all__ = ["IRUExtension", "load_extension"]
+__all__ = [
+    "IRUExtension",
+    "find_extension",
+    "load_extension",
+]
 
 
 class IRUExtension(abc.ABC):
@@ -123,7 +135,131 @@ class IRUExtension(abc.ABC):
         """
 
 
-invalid_ext_names = ["rubisco"]  # Avoid logger's name conflict.
+def find_extension(name: str) -> Path:
+    """Find the extension by name.
+
+    Args:
+        name (str): Find the extension by name.
+
+    Raises:
+        RUValueError: Raise if the extension is not found.
+
+    """
+    if (WORKSPACE_EXTENSIONS_VENV_DIR / name).is_dir():
+        path = GLOBAL_EXTENSIONS_VENV_DIR / name
+    elif (USER_EXTENSIONS_VENV_DIR / name).is_dir():
+        path = USER_EXTENSIONS_VENV_DIR / name
+    elif (GLOBAL_EXTENSIONS_VENV_DIR / name).is_dir():
+        path = WORKSPACE_EXTENSIONS_VENV_DIR / name
+    else:
+        raise RUValueError(
+            format_str(
+                _(
+                    "The extension '${{name}}' does not exist in"
+                    " workspace, user, or global extension directory.",
+                ),
+                fmt={"name": name},
+            ),
+            hint=format_str(
+                _("Try to load the extension as a path."),
+            ),
+        )
+    return path
+
+
+INVALID_EXT_NAMES = ["rubisco"]  # Avoid logger's name conflict.
+
+
+def _get_extension_instance(path: Path) -> IRUExtension:
+    try:
+        module = import_module_from_path(path)
+    except RUNotRubiscoExtensionError as exc:
+        raise RUValueError(
+            format_str(
+                _(
+                    "The extension path '[underline]${{path}}[/underline]'"
+                    " does not exist.",
+                ),
+                fmt={"path": make_pretty(Path(exc.args[0]).absolute())},
+            ),
+        ) from exc
+    except ImportError as exc:
+        msg = format_str(
+            _(
+                "Failed to load extension '[underline]${{path}}[/underline]'.",
+            ),
+            fmt={"path": make_pretty(path.absolute())},
+        )
+        raise RUValueError(
+            msg,
+            hint=format_str(
+                _(
+                    "Please make sure this extension is valid.",
+                ),
+            ),
+        ) from exc
+
+    if not hasattr(module, "instance"):
+        raise RUValueError(
+            format_str(
+                _(
+                    "The extension '[underline]${{path}}[/underline]' does"
+                    " not have an instance.",
+                ),
+                fmt={"path": make_pretty(path.absolute())},
+            ),
+            hint=format_str(
+                _(
+                    "Please make sure this extension is valid.",
+                ),
+            ),
+        )
+    instance: IRUExtension = module.instance
+
+    return instance
+
+
+def _solve_extension_reqs(instance: IRUExtension, ext_name: str) -> None:
+    if not instance.reqs_is_sloved():
+        logger.info(
+            "Solving requirements for extension '%s'...",
+            ext_name,
+        )
+        instance.solve_reqs()
+        if not instance.reqs_is_sloved():
+            logger.error(
+                "Failed to solve requirements for extension '%s'.",
+                ext_name,
+            )
+
+
+def _get_ext_info(
+    ext: Path | str | ExtensionPackageInfo,
+    env: RUEnvironment,
+) -> tuple[Path, ExtensionPackageInfo]:
+    if isinstance(ext, Path):
+        # If it's a standalone extension, we need to load the
+        # `rubisco.json` file to get the extension info.
+        with (ext / "rubisco.json").open(
+            "r",
+            encoding=DEFAULT_CHARSET,
+        ) as file:
+            ext_info = parse_extension_info(file, str(config_file))
+        return ext, ext_info
+
+    if isinstance(ext, str):
+        # If path is str, treat it as the name of the extension.
+        ext = find_extension(ext)
+        ext_info = env.db_handle.get_package(ext.name)
+        return ext, ext_info
+
+    if isinstance(ext, ExtensionPackageInfo):
+        ext_info = ext
+        return env.extensions_venv_path / ext_info.name, ext_info
+
+    msg = "Invalid extension type."
+    raise TypeError(msg)
+
 
 loaded_extensions: list[str] = []
 
@@ -132,138 +268,62 @@ loaded_extensions: list[str] = []
 #   - extension/        directory    ---- The extension directory.
 #       - __init__.py   file         ---- The extension module.
 #           - instance  IRUExtension ---- The extension instance
-def load_extension(  # pylint: disable=too-many-branches # noqa: C901 PLR0912
-    path: Path | str,
+def load_extension(
+    ext: Path | str | ExtensionPackageInfo,
+    env: RUEnvironment,
     *,
     strict: bool = False,
 ) -> None:
     """Load the extension.
 
     Args:
-        path (Path | str): The path of the extension or it's name.
-            If the path is a name, the extension will be loaded from the
-            default extension directory.
+        ext (Path | str | ExtensionPackageInfo):If it is a str, it will be
+            treat as extension's name, the extension will be loaded from the
+            default extension directory. If the path is a path, the extension
+            will be loaded from the path. If the path is ExtensionPackageInfo
+            type, the extension will be loaded from the package info.
+        env (RUEnvironment): The environment of the extension.
+            It will be used only if the extension is a installed extension.
+            If the extension is a standalone extension, it will be ignored.
+            We will get the extension's info from the `rubisco.json` file.
         strict (bool, optional): If True, raise an exception if the extension
             loading failed.
 
     """
     try:
-        if isinstance(path, str):
-            if (WORKSPACE_EXTENSIONS_VENV_DIR / path).is_dir():
-                path = GLOBAL_EXTENSIONS_VENV_DIR / path
-            elif (USER_EXTENSIONS_VENV_DIR / path).is_dir():
-                path = USER_EXTENSIONS_VENV_DIR / path
-            elif (GLOBAL_EXTENSIONS_VENV_DIR / path).is_dir():
-                path = WORKSPACE_EXTENSIONS_VENV_DIR / path
-            else:
-                raise RUValueError(  # noqa: TRY301
-                    format_str(
-                        _(
-                            "The extension '${{name}}' does not exist in"
-                            " workspace, user, or global extension directory.",
-                        ),
-                        fmt={"name": path},
-                    ),
-                    hint=format_str(
-                        _("Try to load the extension as a path."),
-                    ),
-                )
+        path, ext_info = _get_ext_info(ext, env)
 
-        if not path.is_dir():
-            raise RUValueError(  # noqa: TRY301
-                format_str(
-                    _(
-                        "The extension path '[underline]${{path}}[/underline]'"
-                        " is not a directory.",
-                    ),
-                    fmt={"path": make_pretty(path.absolute())},
-                ),
-            )
-
-        # Load the extension.
-        try:
-            path = path / path.name
-            if path.name in loaded_extensions:
-                logger.debug("Extension '%s' is already loaded.", path.name)
-                return
-            module = import_module_from_path(path)
-        except RUNotRubiscoExtensionError as exc:
-            raise RUValueError(
-                format_str(
-                    _(
-                        "The extension path '[underline]${{path}}[/underline]'"
-                        " does not exist.",
-                    ),
-                    fmt={"path": make_pretty(path.absolute())},
-                ),
-            ) from exc
-        except ImportError as exc:
-            raise RUValueError(
-                format_str(
-                    _(
-                        "Failed to load extension '[underline]${{path}}"
-                        "[/underline]'.",
-                    ),
-                    fmt={"path": make_pretty(path.absolute())},
-                ),
-                hint=format_str(
-                    _(
-                        "Please make sure this extension is valid.",
-                    ),
-                ),
-            ) from exc
-
-        if not hasattr(module, "instance"):
-            raise RUValueError(  # noqa: TRY301
-                format_str(
-                    _(
-                        "The extension '[underline]${{path}}[/underline]' does"
-                        " not have an instance.",
-                    ),
-                    fmt={"path": make_pretty(path.absolute())},
-                ),
-                hint=format_str(
-                    _(
-                        "Please make sure this extension is valid.",
-                    ),
-                ),
-            )
-        instance: IRUExtension = module.instance
+        if ext_info.name in loaded_extensions:
+            logger.info("Extension '%s' already loaded.", ext_info.name)
+            return
 
         # Security check.
-        if instance.name in invalid_ext_names:
+        if not is_valid_extension_name(ext_info.name):
             raise RUValueError(  # noqa: TRY301
                 format_str(
-                    _("Invalid extension name: '${{name}}' ."),
-                    fmt={"name": instance.name},
-                ),
-                hint=format_str(
                     _(
-                        "Please use a different name for the extension.",
+                        "Extension name '${{name}}' invalid.",
                     ),
+                    fmt={"name": ext_info.name},
+                ),
+                hint=_(
+                    "Extension name must be lowercase and only contain "
+                    "0-9, a-z, A-Z, '_', '.' and '-'.",
                 ),
             )
 
-        logger.info("Loading extension '%s'...", instance.name)
+        logger.info("Loading extension '%s'...", ext_info.name)
+
+        # Get the extension instance.
+        instance = _get_extension_instance(path / ext_info.name)
 
         # Check if the extension can load now.
         if not instance.extension_can_load_now():
-            logger.info("Skipping extension '%s'...", instance.name)
+            logger.info("Skipping extension '%s'...", ext_info.name)
             return
 
         # Load the extension.
-        if not instance.reqs_is_sloved():
-            logger.info(
-                "Solving system requirements for extension '%s'...",
-                instance.name,
-            )
-            instance.solve_reqs()
-            if not instance.reqs_is_sloved():
-                logger.error(
-                    "Failed to solve system requirements for extension '%s'.",
-                    instance.name,
-                )
-                return
+        _solve_extension_reqs(instance, ext_info.name)
 
         # Register the workflow steps.
         for step_name, step in instance.workflow_steps.items():
@@ -272,25 +332,47 @@ def load_extension(  # pylint: disable=too-many-branches # noqa: C901 PLR0912
                 contributions = instance.steps_contributions[step]
             register_step_type(step_name, step, contributions)
 
+        # Load the extension.
         instance.on_load()
+
+        # Bind the extension's ktrigger.
         bind_ktrigger_interface(
-            instance.name,
+            ext_info.name,
             instance.ktrigger,
         )
         call_ktrigger(IKernelTrigger.on_extension_loaded, instance=instance)
-        loaded_extensions.append(instance.name)
-        logger.info("Extension loaded '%s'.", instance.name)
+
+        loaded_extensions.append(ext_info.name)
+        logger.info("Loaded extension: %s", ext_info.name)
     except Exception as exc:  # pylint: disable=broad-except # noqa: BLE001
         if strict:
             raise exc from None
-        logger.exception("Failed to load extension '%s': %s", path, exc)
+        logger.exception("Failed to load extension '%s': %s", ext, exc)
+        # Report the error as error but don't raise it.
+        strext = (
+            str(ext.name)
+            if isinstance(
+                ext,
+                ExtensionPackageInfo,
+            )
+            else str(ext)
+        )
         call_ktrigger(
             IKernelTrigger.on_error,
             message=format_str(
-                _("Failed to load extension '${{name}}': ${{exc}}."),
-                fmt={"name": make_pretty(path), "exc": str(exc)},
+                _("Failed to load extension '${{name}}': ${{exc}}"),
+                fmt={"name": make_pretty(strext), "exc": str(exc)},
             ),
         )
+
+
+def _load_exts(env: RUEnvironment, autoruns: list[str]) -> None:
+    try:
+        for ext in env.db_handle.get_all_packages():
+            if ext.name in autoruns:
+                load_extension(ext, env)
+    except OSError as exc:
+        logger.warning("Failed to load extensions from '%s': %s", env, exc)
 
 
 def load_all_extensions() -> None:
@@ -300,32 +382,12 @@ def load_all_extensions() -> None:
 
     logger.info("Trying to load all extensions: %s ...", autoruns)
 
-    # Load the workspace extensions.
-    try:
-        extdir = WORKSPACE_EXTENSIONS_VENV_DIR / EXTENSIONS_DIR
-        for path in extdir.iterdir():
-            if path.is_dir() and path.name in autoruns:
-                load_extension(path)
-    except OSError as exc:
-        logger.warning("Failed to load workspace extensions: %s", exc)
-
-    # Load the user extensions.
-    try:
-        extdir = USER_EXTENSIONS_VENV_DIR / EXTENSIONS_DIR
-        for path in extdir.iterdir():
-            if path.is_dir() and path.name in autoruns:
-                load_extension(path)
-    except OSError as exc:
-        logger.warning("Failed to load user extensions: %s", exc)
-
-    # Load the global extensions.
-    try:
-        extdir = GLOBAL_EXTENSIONS_VENV_DIR / EXTENSIONS_DIR
-        for path in extdir.iterdir():
-            if path.is_dir() and path.name in autoruns:
-                load_extension(path)
-    except OSError as exc:
-        logger.warning("Failed to load global extensions: %s", exc)
+    if WORKSPACE_ENV.exists():
+        _load_exts(WORKSPACE_ENV, autoruns)
+    if USER_ENV.exists():
+        _load_exts(USER_ENV, autoruns)
+    if GLOBAL_ENV.exists():
+        _load_exts(GLOBAL_ENV, autoruns)
 
 
 _set_extloader(load_extension)  # Avoid circular import.

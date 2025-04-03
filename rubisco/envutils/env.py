@@ -163,6 +163,11 @@ class RUEnvironment:
         return self._path
 
     @property
+    def extensions_venv_path(self) -> Path:
+        """Get the path of the extensions venv."""
+        return self.path / EXTENSIONS_DIR
+
+    @property
     def type(self) -> EnvType:
         """Get the type of the environment."""
         return self._type
@@ -460,7 +465,10 @@ if __name__ == "__main__":
         def on_create_venv(self, *, path: Path) -> None:
             rubisco.cli.output.output_step(
                 format_str(
-                    _("Creating venv: '[underline]${{path}}[/underline]' ..."),
+                    _(
+                        "Creating Rubisco extension environment:"
+                        " '[underline]${{path}}[/underline]' ...",
+                    ),
                     fmt={"path": make_pretty(path.absolute())},
                 ),
             )

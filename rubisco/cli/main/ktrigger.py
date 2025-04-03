@@ -543,7 +543,10 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
     def on_create_venv(self, *, path: Path) -> None:
         output_step(
             format_str(
-                _("Creating venv: '[underline]${{path}}[/underline]' ..."),
+                _(
+                    "Creating Rubisco extension environment:"
+                    " '[underline]${{path}}[/underline]' ...",
+                ),
                 fmt={"path": make_pretty(path.absolute())},
             ),
         )

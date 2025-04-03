@@ -100,6 +100,8 @@ else:
 
 PROGRAM_DIR: Path = PROGRAM_PATH.parent.absolute()
 
+VALID_EXTENSION_NAME = r"^[A-Za-z0-9_\-.]+$"
+
 if os.name == "nt":  # On Windows.
     GLOBAL_LIB_DIR = PROGRAM_DIR
     GLOBAL_CONFIG_DIR = PROGRAM_DIR / "config"

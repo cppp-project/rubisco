@@ -15,6 +15,9 @@
     "test": {
       "run": ".rubisco/test.yaml"
     },
+    "pack-exts": {
+      "run": ".rubisco/pack-exts.yaml"
+    },
     "clean": {
       "workflow": [
         {

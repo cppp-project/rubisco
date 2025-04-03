@@ -27,13 +27,14 @@ import shutil
 import zipfile
 from dataclasses import dataclass
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import IO, TYPE_CHECKING
 
 import json5
 
 from rubisco.config import DEFAULT_CHARSET, EXTENSIONS_DIR
 from rubisco.envutils.env_type import EnvType
 from rubisco.envutils.pip import install_requirements
+from rubisco.kernel.ext_name_check import is_valid_extension_name
 from rubisco.lib.archive import extract_zip
 from rubisco.lib.exceptions import RUValueError
 from rubisco.lib.fileutil import TemporaryObject, rm_recursive
@@ -122,6 +123,109 @@ def _pkg_check(zip_file: zipfile.ZipFile, pkg_name: str) -> None:
         )
 
 
+def parse_extension_info(
+    config_file: IO,
+    file_name: str = "rubisco.json",
+) -> ExtensionPackageInfo:
+    """Parse the extension package info from the config file.
+
+    Args:
+        config_file (IO): The config file.
+        file_name (str, optional): The file name. For error message.
+            Defaults to "rubisco.json".
+
+    Returns:
+        ExtensionPackageInfo: The extension package info.
+            The `requirements` field will be None always.
+
+    Raises:
+        RUValueError: If the config file is not a valid JSON5 file.
+            Or some mandatory fields are missing (KeyError).
+
+    """
+    _file_text = config_file.read()
+    if isinstance(_file_text, bytes):
+        file_text = _file_text.decode(DEFAULT_CHARSET)
+    else:
+        file_text = str(_file_text)
+    try:
+        json_data = json5.loads(file_text)
+        pkg_config = AutoFormatDict(json_data)
+        pkg_name = pkg_config.get("name", valtype=str)
+        if not is_valid_extension_name(pkg_name):
+            raise RUValueError(
+                format_str(
+                    _(
+                        "Package name '${{name}}' invalid.",
+                    ),
+                    fmt={"name": pkg_name},
+                ),
+                hint=_(
+                    "Package name must be lowercase and only contain "
+                    "0-9, a-z, A-Z, '_', '.' and '-'.",
+                ),
+            )
+        maintianers = pkg_config.get("maintainers", valtype=list)
+        assert_iter_types(
+            maintianers,
+            str,
+            RUValueError(_("Maintainers must be a list of strings.")),
+        )
+        iter_assert(
+            maintianers,
+            lambda x: "," not in x,
+            RUValueError(_("Maintainers must not contain ','.")),
+        )
+        tags = pkg_config.get("tags", valtype=list)
+        assert_iter_types(
+            tags,
+            str,
+            RUValueError(_("Tags must be a list of strings.")),
+        )
+        iter_assert(
+            tags,
+            lambda x: re.match(r"^[a-z0-9_-]+$", x) is not None,
+            RUValueError(
+                _(
+                    "Tags must be lowercase and only contain 0-9, a-z, A-Z"
+                    ", '_' and '-'.",
+                ),
+            ),
+        )
+
+        return ExtensionPackageInfo(
+            pkg_name,
+            Version(pkg_config.get("version", valtype=str)),
+            pkg_config.get("description", valtype=str),
+            pkg_config.get("homepage", valtype=str),
+            maintianers,
+            pkg_config.get("license", valtype=str),
+            tags,
+            None,
+            EnvType.FOREIGN,
+        )
+    except json5.JSON5DecodeError as exc:
+        raise RUValueError(
+            format_str(
+                _(
+                    "[underline]${{path}}[/underline] package configuration "
+                    "file is not a valid JSON5 file.",
+                ),
+                fmt={"path": file_name},
+            ),
+        ) from exc
+    except KeyError as exc:
+        raise RUValueError(
+            format_str(
+                _(
+                    "[underline]${{path}}[/underline] package configuration "
+                    "file is missing a required key: '${{key}}'.",
+                ),
+                fmt={"path": file_name, "key": exc.args[0]},
+            ),
+        ) from exc
+
+
 def get_extension_package_info(pkg_file: Path) -> ExtensionPackageInfo:
     """Get the extension package info.
 
@@ -139,56 +243,9 @@ def get_extension_package_info(pkg_file: Path) -> ExtensionPackageInfo:
             zip_file.open("rubisco.json") as package_file,
         ):
             json_opened = True
-            json_data = json5.loads(
-                package_file.read().decode(DEFAULT_CHARSET),
-            )
-            pkg_config = AutoFormatDict(json_data)
-            pkg_name = pkg_config.get("name", valtype=str)
-            if not re.match(r"^[A-Za-z0-9_\-.]+$", pkg_name):
-                raise RUValueError(
-                    format_str(
-                        _(
-                            "Package name '${{name}}' invalid.",
-                        ),
-                        fmt={"name": pkg_name},
-                    ),
-                    hint=_(
-                        "Package name must be lowercase and only contain "
-                        "0-9, a-z, A-Z, '_', '.' and '-'.",
-                    ),
-                )
-            _pkg_check(zip_file, pkg_name)
-            maintianers = pkg_config.get("maintainers", valtype=list)
-            assert_iter_types(
-                maintianers,
-                str,
-                RUValueError(_("Maintainers must be a list of strings.")),
-            )
-            iter_assert(
-                maintianers,
-                lambda x: "," not in x,
-                RUValueError(_("Maintainers must not contain ','.")),
-            )
-            tags = pkg_config.get("tags", valtype=list)
-            assert_iter_types(
-                tags,
-                str,
-                RUValueError(_("Tags must be a list of strings.")),
-            )
+            ext_info = parse_extension_info(package_file)
 
-            def _check(x: str) -> bool:
-                return re.match(r"^[a-z0-9_-]+$", x) is not None
-
-            iter_assert(
-                tags,
-                _check,
-                RUValueError(
-                    _(
-                        "Tags must be lowercase and only contain 0-9, a-z, A-Z"
-                        ", '_' and '-'.",
-                    ),
-                ),
-            )
+            _pkg_check(zip_file, ext_info.name)
 
             try:
                 with zip_file.open("requirements.txt") as req_file:
@@ -196,33 +253,15 @@ def get_extension_package_info(pkg_file: Path) -> ExtensionPackageInfo:
             except KeyError:
                 requirements = None
 
-            return ExtensionPackageInfo(
-                pkg_name,
-                Version(pkg_config.get("version", valtype=str)),
-                pkg_config.get("description", valtype=str),
-                pkg_config.get("homepage", valtype=str),
-                maintianers,
-                pkg_config.get("license", valtype=str),
-                tags,
-                requirements,
-                EnvType.FOREIGN,
-            )
+            ext_info.requirements = requirements
+
+            return ext_info
     except zipfile.error as exc:
         raise RUValueError(
             format_str(
                 _(
                     "[underline]${{path}}[/underline] is not a valid Rubisco"
                     " extension package. (Zip file)",
-                ),
-                fmt={"path": str(pkg_file)},
-            ),
-        ) from exc
-    except json5.JSON5DecodeError as exc:
-        raise RUValueError(
-            format_str(
-                _(
-                    "[underline]${{path}}[/underline] package configuration "
-                    "file is not a valid JSON5 file.",
                 ),
                 fmt={"path": str(pkg_file)},
             ),

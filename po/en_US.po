@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Rubisco 0.1.0\n"
 "Report-Msgid-Bugs-To: cpppteam@email.cn\n"
-"POT-Creation-Date: 2025-03-31 23:07+0800\n"
-"PO-Revision-Date: 2025-03-31 23:14+0800\n"
+"POT-Creation-Date: 2025-04-03 23:46+0800\n"
+"PO-Revision-Date: 2025-04-03 23:47+0800\n"
 "Last-Translator:  <wushengwuxi-msctinoulk@outlook.com>\n"
 "Language-Team: English\n"
 "Language: en_US\n"
@@ -41,42 +41,42 @@ msgstr "Failed to create venv. Consider to check thepermissions of the path."
 msgid "Failed to create the database for the environment."
 msgstr "Failed to create the database for the environment."
 
-#: ../rubisco/envutils/env.py:204
+#: ../rubisco/envutils/env.py:209
 msgid "Waiting for the environment to be unlocked ('${{lock_file}}'): ${{seconds}} seconds."
 msgstr "Waiting for the environment to be unlocked ('${{lock_file}}'): ${{seconds}} seconds."
 
-#: ../rubisco/envutils/env.py:256 ../rubisco/kernel/mirrorlist.py:203
+#: ../rubisco/envutils/env.py:261 ../rubisco/kernel/mirrorlist.py:203
 #: ../rubisco/lib/l10n.py:71
 msgid "Unknown"
 msgstr "Unknown"
 
-#: ../rubisco/envutils/env.py:261
+#: ../rubisco/envutils/env.py:266
 msgid "The environment '[underline]${{path}}[/underline]' is already locked by PID ${{pid}}. If you want to force unlock it, please remove the lock file '[underline]${{lockfile}}[/underline]' manually."
 msgstr "The environment '[underline]${{path}}[/underline]' is already locked by PID ${{pid}}. If you want to force unlock it, please remove the lock file '[underline]${{lockfile}}[/underline]' manually."
 
-#: ../rubisco/envutils/env.py:279
+#: ../rubisco/envutils/env.py:284
 msgid "The PID '${{pid}}' is not valid. Maybe the process has already exited. Remove the lock file if you believe the process has already exited."
 msgstr "The PID '${{pid}}' is not valid. Maybe the process has already exited. Remove the lock file if you believe the process has already exited."
 
-#: ../rubisco/envutils/env.py:311
+#: ../rubisco/envutils/env.py:316
 msgid "The lock file '[underline]${{lockfile}}[/underline]' is broken."
 msgstr "The lock file '[underline]${{lockfile}}[/underline]' is broken."
 
-#: ../rubisco/envutils/env.py:326
+#: ../rubisco/envutils/env.py:331
 msgid "Failed to read the lock file '[underline]${{path}}[/underline]': ${{msg}}"
 msgstr "Failed to read the lock file '[underline]${{path}}[/underline]': ${{msg}}"
 
-#: ../rubisco/envutils/env.py:385
+#: ../rubisco/envutils/env.py:390
 msgid "The environment '[underline]${{path}}[/underline]' is locked by another thread (PID '${{pid}}', Thread '${{thread}}').Unlock request is ignored."
 msgstr "The environment '[underline]${{path}}[/underline]' is locked by another thread (PID '${{pid}}', Thread '${{thread}}').Unlock request is ignored."
 
-#: ../rubisco/envutils/env.py:406
+#: ../rubisco/envutils/env.py:411
 msgid "Failed to unlock the extension environment '${{path}}': ${{msg}}"
 msgstr "Failed to unlock the extension environment '${{path}}': ${{msg}}"
 
-#: ../rubisco/envutils/env.py:463 ../rubisco/cli/main/ktrigger.py:546
-msgid "Creating venv: '[underline]${{path}}[/underline]' ..."
-msgstr "Creating venv: '[underline]${{path}}[/underline]' ..."
+#: ../rubisco/envutils/env.py:469 ../rubisco/cli/main/ktrigger.py:547
+msgid "Creating Rubisco extension environment: '[underline]${{path}}[/underline]' ..."
+msgstr "Creating Rubisco extension environment: '[underline]${{path}}[/underline]' ..."
 
 #: ../rubisco/envutils/env_db.py:141
 msgid "[SQLite3 Errorcode ${{codename}}(${{code}})]: ${{msg}}"
@@ -94,87 +94,87 @@ msgstr "Invalid regex pattern: '${{pattern}}'."
 msgid "You are installing a extension to the global environment. Please make sure that you have the right permissions."
 msgstr "You are installing a extension to the global environment. Please make sure that you have the right permissions."
 
-#: ../rubisco/envutils/packages.py:100
+#: ../rubisco/envutils/packages.py:101
 msgid "'${{name}}' package must contain a directory with the same name as the package name and a 'rubisco.json' file."
 msgstr "'${{name}}' package must contain a directory with the same name as the package name and a 'rubisco.json' file."
 
-#: ../rubisco/envutils/packages.py:117
+#: ../rubisco/envutils/packages.py:118
 msgid "'${{name}}' package contains files that not allowed in the root directory."
 msgstr "'${{name}}' package contains files that not allowed in the root directory."
 
-#: ../rubisco/envutils/packages.py:151
+#: ../rubisco/envutils/packages.py:159
 msgid "Package name '${{name}}' invalid."
 msgstr "Package name '${{name}}' invalid."
 
-#: ../rubisco/envutils/packages.py:156
+#: ../rubisco/envutils/packages.py:164
 msgid "Package name must be lowercase and only contain 0-9, a-z, A-Z, '_', '.' and '-'."
 msgstr "Package name must be lowercase and only contain 0-9, a-z, A-Z, '_', '.' and '-'."
 
-#: ../rubisco/envutils/packages.py:165
+#: ../rubisco/envutils/packages.py:172
 msgid "Maintainers must be a list of strings."
 msgstr "Maintainers must be a list of strings."
 
-#: ../rubisco/envutils/packages.py:170
+#: ../rubisco/envutils/packages.py:177
 msgid "Maintainers must not contain ','."
 msgstr "Maintainers must not contain ','."
 
-#: ../rubisco/envutils/packages.py:176
+#: ../rubisco/envutils/packages.py:183
 msgid "Tags must be a list of strings."
 msgstr "Tags must be a list of strings."
 
-#: ../rubisco/envutils/packages.py:187
+#: ../rubisco/envutils/packages.py:190
 msgid "Tags must be lowercase and only contain 0-9, a-z, A-Z, '_' and '-'."
 msgstr "Tags must be lowercase and only contain 0-9, a-z, A-Z, '_' and '-'."
 
-#: ../rubisco/envutils/packages.py:214
-msgid "[underline]${{path}}[/underline] is not a valid Rubisco extension package. (Zip file)"
-msgstr "[underline]${{path}}[/underline] is not a valid Rubisco extension package. (Zip file)"
-
-#: ../rubisco/envutils/packages.py:224
+#: ../rubisco/envutils/packages.py:211
 msgid "[underline]${{path}}[/underline] package configuration file is not a valid JSON5 file."
 msgstr "[underline]${{path}}[/underline] package configuration file is not a valid JSON5 file."
 
-#: ../rubisco/envutils/packages.py:236
-msgid "[underline]${{path}}[/underline] Error when opening 'rubisco.json': '${{msg}}'."
-msgstr "[underline]${{path}}[/underline] Error when opening 'rubisco.json': '${{msg}}'."
-
-#: ../rubisco/envutils/packages.py:245
+#: ../rubisco/envutils/packages.py:221 ../rubisco/envutils/packages.py:284
 msgid "[underline]${{path}}[/underline] package configuration file is missing a required key: '${{key}}'."
 msgstr "[underline]${{path}}[/underline] package configuration file is missing a required key: '${{key}}'."
 
-#: ../rubisco/envutils/packages.py:276
+#: ../rubisco/envutils/packages.py:263
+msgid "[underline]${{path}}[/underline] is not a valid Rubisco extension package. (Zip file)"
+msgstr "[underline]${{path}}[/underline] is not a valid Rubisco extension package. (Zip file)"
+
+#: ../rubisco/envutils/packages.py:275
+msgid "[underline]${{path}}[/underline] Error when opening 'rubisco.json': '${{msg}}'."
+msgstr "[underline]${{path}}[/underline] Error when opening 'rubisco.json': '${{msg}}'."
+
+#: ../rubisco/envutils/packages.py:315
 msgid "Multiple instances of '${{name}}' extension found in the database. Selecting the last one."
 msgstr "Multiple instances of '${{name}}' extension found in the database. Selecting the last one."
 
-#: ../rubisco/envutils/packages.py:343
+#: ../rubisco/envutils/packages.py:382
 msgid "[underline]${{path}}[/underline] already exists in the filesystem."
 msgstr "[underline]${{path}}[/underline] already exists in the filesystem."
 
-#: ../rubisco/envutils/packages.py:393
+#: ../rubisco/envutils/packages.py:432
 msgid "No extension installed."
 msgstr "No extension installed."
 
-#: ../rubisco/envutils/packages.py:401
+#: ../rubisco/envutils/packages.py:440
 msgid "No extension found matching '${{pattern}}'."
 msgstr "No extension found matching '${{pattern}}'."
 
-#: ../rubisco/envutils/packages.py:412
+#: ../rubisco/envutils/packages.py:451
 msgid "Selected '${{name}}'."
 msgstr "Selected '${{name}}'."
 
-#: ../rubisco/envutils/packages.py:435
+#: ../rubisco/envutils/packages.py:474
 msgid "Extension '${{name}}'([underline]${{path}}[/underline]) not found in the filesystem."
 msgstr "Extension '${{name}}'([underline]${{path}}[/underline]) not found in the filesystem."
 
-#: ../rubisco/envutils/packages.py:480 ../rubisco/cli/output.py:254
+#: ../rubisco/envutils/packages.py:519 ../rubisco/cli/output.py:254
 msgid "Interrupted by user."
 msgstr "Interrupted by user."
 
-#: ../rubisco/envutils/packages.py:519 ../rubisco/envutils/packages.py:576
+#: ../rubisco/envutils/packages.py:558 ../rubisco/envutils/packages.py:615
 msgid "The same version of '${{name}}' extension is already installed."
 msgstr "The same version of '${{name}}' extension is already installed."
 
-#: ../rubisco/envutils/packages.py:531 ../rubisco/envutils/packages.py:588
+#: ../rubisco/envutils/packages.py:570 ../rubisco/envutils/packages.py:627
 msgid "The higher version of '${{name}}' extension is already installed."
 msgstr "The higher version of '${{name}}' extension is already installed."
 
@@ -324,45 +324,41 @@ msgstr "'${{name}}' is not a IKernelTrigger instance."
 msgid "Kernel trigger id '${{name}}' is already exists."
 msgstr "Kernel trigger id '${{name}}' is already exists."
 
-#: ../rubisco/shared/extension.py:162
+#: ../rubisco/shared/extension.py:158
 msgid "The extension '${{name}}' does not exist in workspace, user, or global extension directory."
 msgstr "The extension '${{name}}' does not exist in workspace, user, or global extension directory."
 
-#: ../rubisco/shared/extension.py:168
+#: ../rubisco/shared/extension.py:164
 msgid "Try to load the extension as a path."
 msgstr "Try to load the extension as a path."
 
-#: ../rubisco/shared/extension.py:176
-msgid "The extension path '[underline]${{path}}[/underline]' is not a directory."
-msgstr "The extension path '[underline]${{path}}[/underline]' is not a directory."
-
-#: ../rubisco/shared/extension.py:194
+#: ../rubisco/shared/extension.py:180
 msgid "The extension path '[underline]${{path}}[/underline]' does not exist."
 msgstr "The extension path '[underline]${{path}}[/underline]' does not exist."
 
-#: ../rubisco/shared/extension.py:204
+#: ../rubisco/shared/extension.py:189
 msgid "Failed to load extension '[underline]${{path}}[/underline]'."
 msgstr "Failed to load extension '[underline]${{path}}[/underline]'."
 
-#: ../rubisco/shared/extension.py:211 ../rubisco/shared/extension.py:227
+#: ../rubisco/shared/extension.py:197 ../rubisco/shared/extension.py:213
 msgid "Please make sure this extension is valid."
 msgstr "Please make sure this extension is valid."
 
-#: ../rubisco/shared/extension.py:220
+#: ../rubisco/shared/extension.py:206
 msgid "The extension '[underline]${{path}}[/underline]' does not have an instance."
 msgstr "The extension '[underline]${{path}}[/underline]' does not have an instance."
 
-#: ../rubisco/shared/extension.py:237
-msgid "Invalid extension name: '${{name}}' ."
-msgstr "Invalid extension name: '${{name}}' ."
+#: ../rubisco/shared/extension.py:305
+msgid "Extension name '${{name}}' invalid."
+msgstr "Extension name '${{name}}' invalid."
 
-#: ../rubisco/shared/extension.py:242
-msgid "Please use a different name for the extension."
-msgstr "Please use a different name for the extension."
+#: ../rubisco/shared/extension.py:310
+msgid "Extension name must be lowercase and only contain 0-9, a-z, A-Z, '_', '.' and '-'."
+msgstr "Extension name must be lowercase and only contain 0-9, a-z, A-Z, '_', '.' and '-'."
 
-#: ../rubisco/shared/extension.py:290
-msgid "Failed to load extension '${{name}}': ${{exc}}."
-msgstr "Failed to load extension '${{name}}': ${{exc}}."
+#: ../rubisco/shared/extension.py:363
+msgid "Failed to load extension '${{name}}': ${{exc}}"
+msgstr "Failed to load extension '${{name}}': ${{exc}}"
 
 #: ../rubisco/cli/output.py:195
 msgid "[red]Error: ${{msg}}[/red]"
@@ -573,67 +569,67 @@ msgstr "Creating symbolic link: [underline]${{src}}[/underline] -> '[underline]$
 msgid "Creating hard link: [underline]${{src}}[/underline] -> '[underline]${{dst}}[/underline]'..."
 msgstr "Creating hard link: [underline]${{src}}[/underline] -> '[underline]${{dst}}[/underline]'..."
 
-#: ../rubisco/cli/main/ktrigger.py:562
+#: ../rubisco/cli/main/ktrigger.py:565
 msgid "Installing extension [green]${{name}}[/green]:[cyan]${{version}}[/cyan] to global ([underline]${{path}}[/underline]) ..."
 msgstr "Installing extension [green]${{name}}[/green]:[cyan]${{version}}[/cyan] to global ([underline]${{path}}[/underline]) ..."
 
-#: ../rubisco/cli/main/ktrigger.py:577
+#: ../rubisco/cli/main/ktrigger.py:580
 msgid "Installing extension [green]${{name}}[/green]:[cyan]${{version}}[/cyan] to user ([underline]${{path}}[/underline]) ..."
 msgstr "Installing extension [green]${{name}}[/green]:[cyan]${{version}}[/cyan] to user ([underline]${{path}}[/underline]) ..."
 
-#: ../rubisco/cli/main/ktrigger.py:592
+#: ../rubisco/cli/main/ktrigger.py:595
 msgid "Installing extension [green]${{name}}[/green]:[cyan]${{version}}[/cyan] to workspace ([underline]${{path}}[/underline]) ..."
 msgstr "Installing extension [green]${{name}}[/green]:[cyan]${{version}}[/cyan] to workspace ([underline]${{path}}[/underline]) ..."
 
-#: ../rubisco/cli/main/ktrigger.py:616
+#: ../rubisco/cli/main/ktrigger.py:619
 msgid "Extension [green]${{name}}[/green]:[cyan]${{version}}[/cyan] was successfully installed."
 msgstr "Extension [green]${{name}}[/green]:[cyan]${{version}}[/cyan] was successfully installed."
 
-#: ../rubisco/cli/main/ktrigger.py:634
+#: ../rubisco/cli/main/ktrigger.py:637
 msgid "Uninstalling extension [green]${{name}}[/green]:[cyan]${{version}}[/cyan] from global ([underline]${{path}}[/underline]) ..."
 msgstr "Uninstalling extension [green]${{name}}[/green]:[cyan]${{version}}[/cyan] from global ([underline]${{path}}[/underline]) ..."
 
-#: ../rubisco/cli/main/ktrigger.py:649
+#: ../rubisco/cli/main/ktrigger.py:652
 msgid "Uninstalling extension [green]${{name}}[/green]:[cyan]${{version}}[/cyan] from user ([underline]${{path}}[/underline]) ..."
 msgstr "Uninstalling extension [green]${{name}}[/green]:[cyan]${{version}}[/cyan] from user ([underline]${{path}}[/underline]) ..."
 
-#: ../rubisco/cli/main/ktrigger.py:664
+#: ../rubisco/cli/main/ktrigger.py:667
 msgid "Uninstalling extension [green]${{name}}[/green]:[cyan]${{version}}[/cyan] from workspace ([underline]${{path}}[/underline]) ..."
 msgstr "Uninstalling extension [green]${{name}}[/green]:[cyan]${{version}}[/cyan] from workspace ([underline]${{path}}[/underline]) ..."
 
-#: ../rubisco/cli/main/ktrigger.py:688
+#: ../rubisco/cli/main/ktrigger.py:691
 msgid "Extension [green]${{name}}[/green]:[cyan]${{version}}[/cyan] was successfully uninstalled."
 msgstr "Extension [green]${{name}}[/green]:[cyan]${{version}}[/cyan] was successfully uninstalled."
 
-#: ../rubisco/cli/main/ktrigger.py:706
+#: ../rubisco/cli/main/ktrigger.py:709
 msgid "Upgrading extension [green]${{name}}[/green]:[cyan]${{version}}[/cyan] from global ([underline]${{path}}[/underline]) ..."
 msgstr "Upgrading extension [green]${{name}}[/green]:[cyan]${{version}}[/cyan] from global ([underline]${{path}}[/underline]) ..."
 
-#: ../rubisco/cli/main/ktrigger.py:721
+#: ../rubisco/cli/main/ktrigger.py:724
 msgid "Upgrading extension [green]${{name}}[/green]:[cyan]${{version}}[/cyan] from user ([underline]${{path}}[/underline]) ..."
 msgstr "Upgrading extension [green]${{name}}[/green]:[cyan]${{version}}[/cyan] from user ([underline]${{path}}[/underline]) ..."
 
-#: ../rubisco/cli/main/ktrigger.py:736
+#: ../rubisco/cli/main/ktrigger.py:739
 msgid "Upgrading extension [green]${{name}}[/green]:[cyan]${{version}}[/cyan] from workspace ([underline]${{path}}[/underline]) ..."
 msgstr "Upgrading extension [green]${{name}}[/green]:[cyan]${{version}}[/cyan] from workspace ([underline]${{path}}[/underline]) ..."
 
-#: ../rubisco/cli/main/ktrigger.py:760
+#: ../rubisco/cli/main/ktrigger.py:763
 msgid "Extension [green]${{name}}[/green]:[cyan]${{version}}[/cyan] was successfully upgraded."
 msgstr "Extension [green]${{name}}[/green]:[cyan]${{version}}[/cyan] was successfully upgraded."
 
-#: ../rubisco/cli/main/ktrigger.py:776
+#: ../rubisco/cli/main/ktrigger.py:779
 msgid "The following extensions will be uninstalled from global ([underline]${{path}}[/underline]):"
 msgstr "The following extensions will be uninstalled from global ([underline]${{path}}[/underline]):"
 
-#: ../rubisco/cli/main/ktrigger.py:784
+#: ../rubisco/cli/main/ktrigger.py:787
 msgid "The following extensions will be uninstalled from user ([underline]${{path}}[/underline]):"
 msgstr "The following extensions will be uninstalled from user ([underline]${{path}}[/underline]):"
 
-#: ../rubisco/cli/main/ktrigger.py:792
+#: ../rubisco/cli/main/ktrigger.py:795
 msgid "The following extensions will be uninstalled from workspace ([underline]${{path}}[/underline]):"
 msgstr "The following extensions will be uninstalled from workspace ([underline]${{path}}[/underline]):"
 
-#: ../rubisco/cli/main/ktrigger.py:808
+#: ../rubisco/cli/main/ktrigger.py:811
 msgid "Continue?"
 msgstr "Continue?"
 
