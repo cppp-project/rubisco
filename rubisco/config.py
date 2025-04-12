@@ -41,7 +41,7 @@ DEFAULT_CHARSET = "UTF-8"
 TIMEOUT = 15
 COPY_BUFSIZE = 1024 * 1024 if os.name == "nt" else 64 * 1024
 
-# Lib onfigurations.
+# Lib configurations.
 WORKSPACE_LIB_DIR = Path(f".{APP_NAME}")
 WORKSPACE_CONFIG_DIR = WORKSPACE_LIB_DIR
 WORKSPACE_CONFIG_FILE = WORKSPACE_LIB_DIR / "config.json"

@@ -48,8 +48,15 @@ def command(args: list[str] | str) -> str:
     return res_command.strip()
 
 
+def test_command_generator() -> None:
+    """Test command generator."""
+    if command(["echo", "Hello, world!"]) != 'echo "Hello, world!"':
+        raise AssertionError
+    if command("echo Hello, world!") != "echo Hello, world!":
+        raise AssertionError
+
+
 if __name__ == "__main__":
-    _CMD = command(["echo", "Hello, world!"])
-    assert _CMD == 'echo "Hello, world!"'  # noqa: S101
-    _CMD = command("echo Hello, world!")
-    assert _CMD == "echo Hello, world!"  # noqa: S101
+    import pytest
+
+    pytest.main([__file__])

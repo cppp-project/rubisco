@@ -23,12 +23,13 @@ To perfect fking Python import system.
 """
 
 import importlib.util
+import sys
 from pathlib import Path
 from types import ModuleType
 
-from rubisco.lib.exceptions import RUNotRubiscoExtensionError
+import pytest
 
-__all__ = ["import_module_from_path"]
+from rubisco.lib.exceptions import RUNotRubiscoExtensionError
 
 
 def import_module_from_path(path: Path) -> ModuleType:
@@ -52,11 +53,47 @@ def import_module_from_path(path: Path) -> ModuleType:
     if not path.exists():
         raise RUNotRubiscoExtensionError(str(path))
 
-    spec = importlib.util.spec_from_file_location(path.stem, path)
+    paths = [
+        str(path.parent.absolute()),
+        str(path.parent.parent.absolute()),
+    ]
+    spec = importlib.util.spec_from_file_location(
+        path.stem,
+        path,
+        submodule_search_locations=paths,
+    )
     if spec:
-        module = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(module)  # type: ignore[union-attr]
+        old_path = sys.path
+        try:
+            sys.path.extend(paths)
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)  # type: ignore[union-attr]
+        finally:
+            sys.path = old_path
     else:
         raise ImportError(path)
 
     return module
+
+
+def test_import_file_module() -> None:
+    """Test import a single-file module."""
+    module = import_module_from_path(Path("tests/test_module.py"))
+    if module.TEST != "test":
+        raise AssertionError
+
+
+def test_import_package_module() -> None:
+    """Test import a package module."""
+    module = import_module_from_path(Path("tests/test_pkg_module"))
+    if module.TEST != "test" or module.TEST2 != "test":
+        raise AssertionError
+
+
+def test_import_not_found() -> None:
+    """Test import a not found module."""
+    pytest.raises(
+        RUNotRubiscoExtensionError,
+        import_module_from_path,
+        Path("/_Not_Found_"),
+    )

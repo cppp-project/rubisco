@@ -130,56 +130,56 @@ def _show_pkgs(pkg: ExtensionPackageInfo) -> None:
         IKernelTrigger.on_output,
         message=format_str(
             _("Package: [green]${{name}}[/green]"),
-            {"name": pkg.name},
+            fmt={"name": pkg.name},
         ),
     )
     call_ktrigger(
         IKernelTrigger.on_output,
         message=format_str(
             _("Version: [cyan]${{ver}}[/cyan]"),
-            {"ver": str(pkg.version)},
+            fmt={"ver": str(pkg.version)},
         ),
     )
     call_ktrigger(
         IKernelTrigger.on_output,
         message=format_str(
             _("Installation Location: ${{loc}}"),
-            {"loc": _get_envtype_str(pkg.env_type)},
+            fmt={"loc": _get_envtype_str(pkg.env_type)},
         ),
     )
     call_ktrigger(
         IKernelTrigger.on_output,
         message=format_str(
             _("Maintainers: ${{maintainers}}"),
-            {"maintainers": ", ".join(pkg.maintainers)},
+            fmt={"maintainers": ", ".join(pkg.maintainers)},
         ),
     )
     call_ktrigger(
         IKernelTrigger.on_output,
         message=format_str(
             _("Homepage: ${{homepage}}"),
-            {"homepage": pkg.homepage},
+            fmt={"homepage": pkg.homepage},
         ),
     )
     call_ktrigger(
         IKernelTrigger.on_output,
         message=format_str(
             _("License: ${{license}}"),
-            {"license": pkg.pkg_license},
+            fmt={"license": pkg.pkg_license},
         ),
     )
     call_ktrigger(
         IKernelTrigger.on_output,
         message=format_str(
             _("Tags: ${{tags}}"),
-            {"tags": ", ".join(pkg.tags)},
+            fmt={"tags": ", ".join(pkg.tags)},
         ),
     )
     call_ktrigger(
         IKernelTrigger.on_output,
         message=format_str(
             _("Description: ${{desc}}"),
-            {"desc": pkg.description},
+            fmt={"desc": pkg.description},
         ),
     )
 

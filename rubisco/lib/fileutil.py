@@ -29,6 +29,8 @@ import tempfile
 from pathlib import Path
 from typing import TYPE_CHECKING, Self
 
+import pytest
+
 from rubisco.config import APP_NAME
 from rubisco.lib.exceptions import (
     RUOSError,
@@ -675,79 +677,137 @@ def find_command(
 # Register cleanup function.
 atexit.register(TemporaryObject.cleanup)
 
+
+class TestFileUtil:
+    """Test file util."""
+
+    def test_new_tempfile(self) -> None:
+        """Test new_tempfile."""
+        temp = TemporaryObject.new_file()
+        if not temp.is_file():
+            raise AssertionError
+        if not temp.temp_type == TemporaryObject.TYPE_FILE:
+            raise AssertionError
+        temp.remove()
+        if temp.path.exists():
+            raise AssertionError
+
+    def test_new_tempdir(self) -> None:
+        """Test new_tempdir."""
+        temp = TemporaryObject.new_directory()
+        if not temp.is_dir():
+            raise AssertionError
+        if not temp.temp_type == TemporaryObject.TYPE_DIRECTORY:
+            raise AssertionError
+        temp.remove()
+        if temp.path.exists():
+            raise AssertionError
+
+    def test_temp_object_context_manager(self) -> None:
+        """Test temp object context manager."""
+        temp_file_path = "/"
+        with TemporaryObject.new_file() as temp:
+            temp_file_path = temp.path
+            if not temp.is_file():
+                raise AssertionError
+            if not temp.temp_type == TemporaryObject.TYPE_FILE:
+                raise AssertionError
+        if temp_file_path.exists():
+            raise AssertionError
+
+        with TemporaryObject.new_directory() as temp:
+            temp_file_path = temp.path
+            if not temp.is_dir():
+                raise AssertionError
+            if not temp.temp_type == TemporaryObject.TYPE_DIRECTORY:
+                raise AssertionError
+        if temp_file_path.exists():
+            raise AssertionError
+
+    def test_temp_object_cleanup(self) -> None:
+        """Test temp object cleanup."""
+        temp1 = TemporaryObject.new_file()
+        temp2 = TemporaryObject.new_directory()
+        temp3 = TemporaryObject.new_file("PREFIX-", "-SUFFIX")
+        temp4 = TemporaryObject.new_directory("PREFIX-", "-SUFFIX")
+        if (
+            not temp1.is_file()
+            or not temp2.is_dir()
+            or not temp3.is_file()
+            or not temp4.is_dir()
+        ):
+            raise AssertionError
+        TemporaryObject.cleanup()
+        if (
+            temp1.path.exists()
+            or temp2.path.exists()
+            or temp3.path.exists()
+            or temp4.path.exists()
+        ):
+            raise AssertionError
+
+    def test_temp_object_register_tempobject(self) -> None:
+        """Test temp object register_tempobject."""
+        Path("test_tempfile").touch()
+        Path("test_tempdir").mkdir(parents=True, exist_ok=True)
+        temp1 = TemporaryObject.register_tempobject(Path("test_tempfile"))
+        temp2 = TemporaryObject.register_tempobject(Path("test_tempdir"))
+        TemporaryObject.cleanup()
+        if (
+            temp1.is_file()
+            or temp2.is_dir()
+            or temp1.path.exists()
+            or temp2.path.exists()
+        ):
+            raise AssertionError
+
+    def test_temp_object_move(self) -> None:
+        """Test temp object's ownership transfer."""
+        temp = TemporaryObject.new_file()
+        temp_path = temp.move()
+        if temp_path != temp.path:
+            raise AssertionError
+        TemporaryObject.cleanup()
+        if not temp_path.exists():
+            raise AssertionError
+
+    def test_temp_object_remove(self) -> None:
+        """Test temp object's removal."""
+        temp = TemporaryObject.new_file()
+        temp.remove()
+        if temp.path.exists():
+            raise AssertionError
+        TemporaryObject.cleanup()
+
+    def test_human_readable_size(self) -> None:
+        """Test human_readable_size."""
+        if (
+            human_readable_size(1023) != "1023.00B"  # pylint: disable=R0916
+            or human_readable_size(1024) != "1.00KiB"
+            or human_readable_size(1024**2) != "1.00MiB"
+            or human_readable_size(1024**3) != "1.00GiB"
+            or human_readable_size(1024**4) != "1.00TiB"
+            or human_readable_size(1024**5) != "1.00PiB"
+            or human_readable_size(1024**6) != "1.00EiB"
+            or human_readable_size(0) != "0.00B"
+        ):
+            raise AssertionError
+
+    def test_find_command(self) -> None:
+        """Test find_command."""
+        if find_command("whoami") != shutil.which("whoami"):
+            raise AssertionError
+
+        pytest.raises(
+            RUShellExecutionError,
+            find_command,
+            "_Not_Exist_Command_",
+            strict=True,
+        )
+
+        if find_command("_Not_Exist_Command_", strict=False) is not None:
+            raise AssertionError
+
+
 if __name__ == "__main__":
-    import pytest
-    import rich
-
-    # Test1: Basic usage.
-    temp = TemporaryObject.new_file()
-    rich.print("Created temporary file:", repr(temp))
-    rich.print("tempdirs:", tempdirs)
-    assert temp.is_file()  # noqa: S101
-    assert not temp.is_dir()  # noqa: S101
-    assert temp.temp_type == TemporaryObject.TYPE_FILE  # noqa: S101
-    temp.remove()
-    rich.print("Removed temporary file:", repr(temp))
-    rich.print("tempdirs:", tempdirs)
-
-    temp = TemporaryObject.new_directory()
-    rich.print("Created temporary directory:", repr(temp))
-    rich.print("tempdirs:", tempdirs)
-    assert not temp.is_file()  # noqa: S101
-    assert temp.is_dir()  # noqa: S101
-    assert temp.temp_type == TemporaryObject.TYPE_DIRECTORY  # noqa: S101
-    temp.remove()
-    rich.print("Removed temporary directory:", repr(temp))
-    rich.print("tempdirs:", tempdirs)
-
-    # Test2: Context manager.
-    with TemporaryObject.new_file() as temp:
-        rich.print("Created temporary file:", repr(temp))
-        rich.print("tempdirs:", tempdirs)
-        assert temp.is_file()  # noqa: S101
-        assert not temp.is_dir()  # noqa: S101
-        assert temp.temp_type == TemporaryObject.TYPE_FILE  # noqa: S101
-    rich.print("Removed temporary file:", repr(temp))
-    rich.print("tempdirs:", tempdirs)
-
-    with TemporaryObject.new_directory() as temp:
-        rich.print("Created temporary directory:", repr(temp))
-        rich.print("tempdirs:", tempdirs)
-        assert not temp.is_file()  # noqa: S101
-        assert temp.is_dir()  # noqa: S101
-        assert temp.temp_type == TemporaryObject.TYPE_DIRECTORY  # noqa: S101
-    rich.print("Removed temporary directory:", repr(temp))
-    rich.print("tempdirs:", tempdirs)
-
-    # Test3: Cleanup.
-    temp1 = TemporaryObject.new_file()
-    temp2 = TemporaryObject.new_directory()
-    temp3 = TemporaryObject.new_file("-PREFIX-", "-SUFFIX-")
-    temp4 = TemporaryObject.new_directory("-PREFIX-", "-SUFFIX-")
-    rich.print("tempdirs:", tempdirs)
-    TemporaryObject.cleanup()
-    rich.print("Cleaned up temporary directories.")
-    rich.print("tempdirs:", tempdirs)
-    assert not temp1.path.exists()  # noqa: S101
-    assert not temp2.path.exists()  # noqa: S101
-    assert not temp3.path.exists()  # noqa: S101
-    assert not temp4.path.exists()  # noqa: S101
-
-    # Test4: Human readable size.
-    assert human_readable_size(1023) == "1023.00B"  # noqa: S101
-    assert human_readable_size(1024) == "1.00KiB"  # noqa: S101
-    assert human_readable_size(1024**2) == "1.00MiB"  # noqa: S101
-    assert human_readable_size(1024**3) == "1.00GiB"  # noqa: S101
-    assert human_readable_size(1024**4) == "1.00TiB"  # noqa: S101
-    assert human_readable_size(1024**5) == "1.00PiB"  # noqa: S101
-    assert human_readable_size(1024**6) == "1.00EiB"  # noqa: S101
-    assert human_readable_size(0) == "0.00B"  # noqa: S101
-
-    # Test5: Find command.
-    assert find_command("whoami") == shutil.which("whoami")  # noqa: S101
-
-    with pytest.raises(RUShellExecutionError) as exc_:
-        find_command("_Not_Exist_Command_", strict=True)
-    assert (  # noqa: S101
-        exc_.value.retcode == RUShellExecutionError.RETCODE_COMMAND_NOT_FOUND
-    )
+    pytest.main([__file__])

@@ -29,7 +29,6 @@ import os
 from typing import Any
 
 from rubisco.lib.l10n import _
-from rubisco.lib.variable import format_str
 
 __all__ = [
     "RUError",
@@ -75,12 +74,17 @@ class RUValueError(RUError, ValueError):
 class RUNotRubiscoProjectError(RUError, FileNotFoundError):
     """Not a Rubisco project exception."""
 
+
 class RUNotRubiscoExtensionError(RUError, FileNotFoundError):
     """Not a Rubisco extension exception."""
 
 
 class RUOSError(RUError, OSError):
     """OS Exception."""
+
+
+# We don't use `format_str` or `fast_format_str` here to avoid circular
+# dependency.
 
 
 class RUShellExecutionError(RUError):
@@ -104,19 +108,17 @@ class RUShellExecutionError(RUError):
             **kwargs: Keyword arguments.
 
         """
-        hint = format_str(
-            _("Subprocess return code is ${{retcode}}."),
-            fmt={
-                "retcode": str(retcode),
-            },
+        hint = _("Subprocess return code is ${{retcode}}.").replace(
+            "${{retcode}}",
+            str(retcode),
         )
         if retcode == self.RETCODE_COMMAND_NOT_FOUND:
-            hint = format_str(
-                _(
-                    "Subprocess return code is ${{retcode}}. "
-                    "It may be caused by command not found.",
-                ),
-                fmt={"retcode": str(retcode)},
+            hint = _(
+                "Subprocess return code is ${{retcode}}. "
+                "It may be caused by command not found.",
+            ).replace(
+                "${{retcode}}",
+                str(retcode),
             )
 
         super().__init__(

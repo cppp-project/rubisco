@@ -19,6 +19,8 @@
 
 """Test the speed of the given host."""
 
+import asyncio
+import sys
 import time
 
 import aiohttp
@@ -64,11 +66,13 @@ async def url_speedtest(url: str) -> int:
         return delta
 
 
+def test_speedtest() -> None:
+    """Test the speedtest module."""
+    speed = asyncio.run(url_speedtest("https://example.com"))
+    sys.stdout.write(f"Speed of https://example.com: {speed} us.\n")
+
+
 if __name__ == "__main__":
-    import asyncio
+    import pytest
 
-    import rich
-
-    # Test: Test the speed of the given URL.
-    speed = asyncio.run(url_speedtest("https://www.gnu.org"))
-    rich.print(f"Speed of https://www.gnu.org : {speed} us.")
+    pytest.main([__file__])

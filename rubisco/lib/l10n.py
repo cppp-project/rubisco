@@ -23,6 +23,7 @@ from __future__ import annotations
 
 import gettext
 import locale
+import os
 import sys
 from pathlib import Path
 
@@ -186,10 +187,16 @@ if len(translations_path) >= 1:
     gettext.bindtextdomain(TEXT_DOMAIN, translations_path[0])
     gettext.textdomain(TEXT_DOMAIN)
 
-if __name__ == "__main__":
-    import os
 
+def test_l10n() -> None:
+    """Test l10n."""
     sys.stdout.write(f"locale_language(): {locale_language()}\n")
     sys.stdout.write(f"locale_language_name(): {locale_language_name()}\n")
     sys.stdout.write(f"os.strerror(2): {os.strerror(2)}\n")
     sys.stdout.flush()
+
+
+if __name__ == "__main__":
+    import pytest
+
+    pytest.main([__file__])

@@ -23,7 +23,7 @@ from __future__ import annotations
 
 import abc
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, ClassVar
 
 from rubisco.config import (
     DEFAULT_CHARSET,
@@ -70,8 +70,8 @@ class IRUExtension(abc.ABC):
     description: str
     version: Version
     ktrigger: IKernelTrigger
-    workflow_steps: dict[str, type[Step]]
-    steps_contributions: dict[type[Step], list[str]]
+    workflow_steps: ClassVar[dict[str, type[Step]]]
+    steps_contributions: ClassVar[dict[type[Step], list[str]]]
 
     def __init__(self) -> None:
         """Construct the instance.

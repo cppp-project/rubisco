@@ -91,7 +91,7 @@ def extract_tarball(
         )
 
         for member in memembers:
-            fp.extract(member, dest)
+            fp.extract(member, dest, filter=tarfile.tar_filter)
             call_ktrigger(
                 IKernelTrigger.on_progress,
                 task_name=task_name,

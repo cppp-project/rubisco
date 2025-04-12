@@ -23,6 +23,8 @@ import logging
 import sys
 from pathlib import Path
 
+import pytest
+
 from rubisco.config import (
     APP_NAME,
     DEFAULT_CHARSET,
@@ -65,19 +67,26 @@ if "--debug" in sys.argv:  # Don't use argparse here.
     logger_formatter = logging.Formatter(LOG_FORMAT)
     logger.addHandler(logger_handler)
 
-if __name__ == "__main__":
-    sys.stdout.write("hint: Run with '--debug' to output logs.\n")
 
-    # Test.
+def test_log() -> None:
+    """Test the logging system."""
+    logger.debug("Debug message.")
+    logger.info("Info message.")
     logger.debug("Debug message.")
     logger.info("Info message.")
     logger.warning("Warning message.")
     logger.error("Error message.")
     logger.critical("Critical message.")
     try:
-        _MSG = "Test exception."
-        raise RuntimeError(_MSG)  # noqa: TRY301
+        msg = "Test exception."
+        raise RuntimeError(msg)  # noqa: TRY301
     except RuntimeError:
         logger.exception("Exception message.")
         logger.warning("Warning with exception.", exc_info=True)
     logger.info("Done.")
+
+
+if __name__ == "__main__":
+    sys.stdout.write("hint: Run with '--debug' to output logs.\n")
+
+    pytest.main([__file__])

@@ -126,6 +126,9 @@ dmypy.json
 # VizTracer
 result.json
 
+# Test data
+!tests/*
+
 # Patterns for all subdirectories: all kinds of automatic backup files.
 *.orig
 *.rej
