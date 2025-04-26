@@ -21,6 +21,7 @@
 
 import argparse
 from collections.abc import Iterable
+from typing import Any
 
 from rich_argparse import RichHelpFormatter
 
@@ -39,7 +40,7 @@ class RUHelpFormatter(RichHelpFormatter):
         self,
         usage: str | None,
         actions: Iterable[argparse.Action],
-        groups: Iterable[argparse._MutuallyExclusiveGroup],
+        groups: Iterable[Any],
         prefix: str | None = None,
     ) -> None:
         for action in actions:

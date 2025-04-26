@@ -5,5 +5,6 @@ Nuitka
 pickleshare
 pylint
 pyright
+pytest
 ruff
 urllib3[socks]  # Avoid urllib3's warning in pytype's check.

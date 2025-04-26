@@ -36,9 +36,12 @@ __all__ = [
 # Early argument parser.
 early_arg_parser = argparse.ArgumentParser(
     description="Rubisco CLI",
+    add_help=False,
+    allow_abbrev=False,
     formatter_class=RUHelpFormatter,
 )
 
+# For "rubisco --version".
 early_arg_parser.add_argument(
     "--root",
     type=str,
@@ -61,6 +64,7 @@ early_arg_parser.add_argument(
 arg_parser = argparse.ArgumentParser(
     description="Rubisco CLI",
     formatter_class=RUHelpFormatter,
+    allow_abbrev=True,
 )
 
 arg_parser.register("action", "version", CLIVersionAction)
@@ -73,13 +77,25 @@ arg_parser.add_argument(
     version="",
 )
 
-# For "rubisco --root=DIRECTORY".
+# For "rubisco --root=DIRECTORY". This argument will be parsed in
+# early_arg_parser.
 arg_parser.add_argument(
     "--root",
     type=str,
     help=_("Project root directory."),
     action="store",
     dest="root_directory",
+)
+
+# For "rubisco --used-colors=COLORS" This argument will be parsed in
+# early_arg_parser.
+arg_parser.add_argument(
+    "--used-prompt-colors",
+    type=set,
+    help=_("Prompt colors used by rubisco parent process."),
+    action="store",
+    default=set(),
+    dest="used_prompt_colors",
 )
 
 # For "rubisco --log=LOGFILE".

@@ -21,6 +21,8 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from rubisco.cli.main.arg_parser import arg_parser, commands_parser
 from rubisco.cli.main.help_formatter import RUHelpFormatter
 from rubisco.cli.main.project_config import get_project_config
@@ -28,14 +30,23 @@ from rubisco.cli.main.version_action import show_version
 from rubisco.lib.l10n import _
 from rubisco.shared.ktrigger import IKernelTrigger, call_ktrigger
 
+if TYPE_CHECKING:
+    from argparse import Namespace
+
 __all__ = ["register_builtin_cmds"]
 
-def show_project_info(_: object) -> None:
+
+def show_project_info(_: Namespace) -> None:
     """For 'rubisco info' command."""
     call_ktrigger(
         IKernelTrigger.on_show_project_info,
         project=get_project_config(),
     )
+
+
+def _show_version(_: Namespace) -> None:
+    show_version()
+
 
 def register_builtin_cmds() -> None:
     """Register built-in commands."""
@@ -54,4 +65,4 @@ def register_builtin_cmds() -> None:
         "version",
         help=_("Show Rubisco version."),
         formatter_class=RUHelpFormatter,
-    ).set_defaults(func=lambda _: show_version())
+    ).set_defaults(func=_show_version)

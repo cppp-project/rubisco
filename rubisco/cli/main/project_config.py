@@ -22,11 +22,11 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 from rubisco.cli.main.arg_parser import commands_parser
 from rubisco.config import USER_REPO_CONFIG
-from rubisco.kernel.project_config import load_project_config
+from rubisco.kernel.project_config import ProjectHook, load_project_config
 from rubisco.lib.exceptions import RUNotRubiscoProjectError, RUValueError
 from rubisco.lib.l10n import _
 from rubisco.lib.log import logger
@@ -46,12 +46,12 @@ __all__ = [
 ]
 
 
-_hooks: dict[str, list] = {}
+_hooks: dict[str, list[ProjectHook]] = {}
 
 _project_config: ProjectConfigration | None = None
 
 
-def get_hooks() -> dict[str, list]:
+def get_hooks() -> dict[str, list[ProjectHook]]:
     """Get all hooks.
 
     Returns:
@@ -92,7 +92,7 @@ def bind_hook(name: str) -> None:
     if _project_config and name in _project_config.hooks:
         if name not in _hooks:
             _hooks[name] = []
-        _hooks[name].append(_project_config.hooks[name])
+        _hooks[name].append(cast("ProjectHook", _project_config.hooks[name]))
         hook_parser = commands_parser.add_parser(
             name,
             help=format_str(

@@ -74,7 +74,7 @@ def _list_pkgs(
     if not patterns:
         patterns = [".*"]
 
-    envs = []
+    envs: list[RUEnvironment] = []
 
     if GLOBAL_ENV.exists() and show_global:
         envs.append(GLOBAL_ENV)
@@ -221,7 +221,7 @@ def install_packages(args: argparse.Namespace) -> None:
     """
     files_glob: list[str] = args.files
     install_dest_type: EnvType = args.install_dest
-    files_list = []
+    files_list: list[Path] = []
 
     install_dest: RUEnvironment
     match install_dest_type:

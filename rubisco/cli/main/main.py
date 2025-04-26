@@ -65,7 +65,7 @@ def parse_early_arguments() -> None:
 
     set_available_color(early_args.used_prompt_colors)
 
-    root_directory: str = early_args.root_directory
+    root_directory: str | None = early_args.root_directory
     if root_directory is not None:
         rootdir = Path(root_directory).absolute()
         output_step(
