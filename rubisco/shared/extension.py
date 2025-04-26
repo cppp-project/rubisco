@@ -25,6 +25,8 @@ import abc
 from pathlib import Path
 from typing import TYPE_CHECKING, ClassVar
 
+import beartype
+
 from rubisco.config import (
     DEFAULT_CHARSET,
     GLOBAL_EXTENSIONS_VENV_DIR,
@@ -40,7 +42,8 @@ from rubisco.envutils.env import (
 from rubisco.envutils.packages import ExtensionPackageInfo, parse_extension_info
 from rubisco.kernel.config_file import config_file
 from rubisco.kernel.ext_name_check import is_valid_extension_name
-from rubisco.kernel.workflow import Step, _set_extloader, register_step_type
+from rubisco.kernel.workflow import register_step_type
+from rubisco.kernel.workflow._interfaces import workflow_set_extloader
 from rubisco.lib.exceptions import RUNotRubiscoExtensionError, RUValueError
 from rubisco.lib.l10n import _
 from rubisco.lib.load_module import import_module_from_path
@@ -54,6 +57,7 @@ from rubisco.shared.ktrigger import (
 
 if TYPE_CHECKING:
 
+    from rubisco.kernel.workflow.step import Step
     from rubisco.lib.version import Version
 
 __all__ = [
@@ -72,14 +76,6 @@ class IRUExtension(abc.ABC):
     ktrigger: IKernelTrigger
     workflow_steps: ClassVar[dict[str, type[Step]]]
     steps_contributions: ClassVar[dict[type[Step], list[str]]]
-
-    def __init__(self) -> None:
-        """Construct the instance.
-
-        Please DO NOT initialize the extension here.
-        """
-        self.workflow_steps = {}
-        self.steps_contributions = {}
 
     @abc.abstractmethod
     def extension_can_load_now(self) -> bool:
@@ -135,6 +131,7 @@ class IRUExtension(abc.ABC):
         """
 
 
+@beartype.beartype
 def find_extension(name: str) -> Path:
     """Find the extension by name.
 
@@ -253,12 +250,8 @@ def _get_ext_info(
         ext_info = env.db_handle.get_package(ext.name)
         return ext, ext_info
 
-    if isinstance(ext, ExtensionPackageInfo):
-        ext_info = ext
-        return env.extensions_venv_path / ext_info.name, ext_info
-
-    msg = "Invalid extension type."
-    raise TypeError(msg)
+    ext_info = ext
+    return env.extensions_venv_path / ext_info.name, ext_info
 
 
 loaded_extensions: list[str] = []
@@ -268,6 +261,7 @@ loaded_extensions: list[str] = []
 #   - extension/        directory    ---- The extension directory.
 #       - __init__.py   file         ---- The extension module.
 #           - instance  IRUExtension ---- The extension instance
+@beartype.beartype
 def load_extension(
     ext: Path | str | ExtensionPackageInfo,
     env: RUEnvironment,
@@ -390,4 +384,4 @@ def load_all_extensions() -> None:
         _load_exts(GLOBAL_ENV, autoruns)
 
 
-_set_extloader(load_extension)  # Avoid circular import.
+workflow_set_extloader(load_extension)  # Avoid circular import.

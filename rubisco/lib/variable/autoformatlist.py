@@ -21,7 +21,7 @@
 
 import sys
 from collections.abc import Generator, Iterable
-from typing import Any, Generic, Self, SupportsIndex, TypeVar, overload
+from typing import Any, Generic, Self, SupportsIndex, TypeVar, cast
 
 from rubisco.lib.variable.format import format_str
 from rubisco.lib.variable.to_autotype import to_autotype
@@ -48,11 +48,11 @@ class AutoFormatList(list[T], Generic[T]):
         """
         super().__init__([to_autotype()(item) for item in iterable])
 
-    def append(self, value: Any) -> None:  # noqa: ANN401
+    def append(self, value: T) -> None:
         """Append the value to the list.
 
         Args:
-            value (Any): The value to append.
+            value (T): The value to append.
 
         """
         super().append(to_autotype()(value))
@@ -92,14 +92,14 @@ class AutoFormatList(list[T], Generic[T]):
 
     def index(
         self,
-        value: Any,  # noqa: ANN401
+        value: T,
         start: SupportsIndex = 0,
         stop: SupportsIndex = sys.maxsize,
     ) -> int:
         """Get the index of the value in the list.
 
         Args:
-            value (Any): The value to get index.
+            value (T): The value to get index.
             start (SupportsIndex, optional): The start index. Defaults to 0.
             stop (SupportsIndex, optional): The stop index.
                 Defaults to sys.maxsize.
@@ -111,7 +111,7 @@ class AutoFormatList(list[T], Generic[T]):
             ValueError: If the value is not in the list.
 
         """
-        for index, item in enumerate(self[start:stop]):
+        for index, item in enumerate(cast("list[T]", self[start:stop])):
             if format_str(item) == format_str(value):
                 return index
 
@@ -144,33 +144,38 @@ class AutoFormatList(list[T], Generic[T]):
         """
         return format_str(super().pop(index))
 
-    def __setitem__(self, index: SupportsIndex, value: Any) -> None:  # noqa: ANN401
+    def __setitem__(
+        self,
+        index: SupportsIndex | slice,
+        value: T | Iterable[T],
+    ) -> None:
         """Set the value of the given index.
 
         Args:
-            index (SupportsIndex): The index to set value.
-            value (Any): The value to set.
+            index (SupportsIndex | slice): The index to set value.
+            value (T | Iterable[T]): The value to set.
 
         """
+        if isinstance(index, slice):
+            value = [to_autotype()(item) for item in cast("Iterable[T]", value)]
+            for i in range(index.start, index.stop, index.step):
+                self[i] = value[i]
+            return
         super().__setitem__(index, to_autotype()(value))
 
-    orig_getitem = list.__getitem__
+    orig_getitem = list[T].__getitem__
 
-    @overload
-    def __getitem__(self, index: int) -> Any:  # noqa: ANN401
-        ...
-
-    @overload
-    def __getitem__(self, index: slice) -> Self: ...
-
-    def __getitem__(self, index: int | slice) -> Any:
+    def __getitem__(  # type: ignore[valid-type]
+        self,
+        index: int | slice,
+    ) -> "T | AutoFormatList[T]":
         """Get the value of the given index.
 
         Args:
             index (int | slice): The index to get value.
 
         Returns:
-            Any: The value of the given index.
+            T | AutoFormatList[T]: The value of the given index.
 
         """
         if isinstance(index, int):
@@ -189,25 +194,25 @@ class AutoFormatList(list[T], Generic[T]):
         """
         return any(format_str(item) == format_str(value) for item in self)
 
-    def __add__(self, other: Iterable) -> "AutoFormatList":
+    def __add__(self, other: Iterable[Any]) -> "AutoFormatList[Any]":
         """Add the other iterable to the list.
 
         Args:
-            other (Iterable): The iterable to add.
+            other (Iterable[Any]): The iterable to add.
 
         Returns:
-            AutoFormatList: The new list.
+            AutoFormatList[Any]: The new list.
 
         """
         res = AutoFormatList(self)
         res.extend(other)
         return res
 
-    def __iadd__(self, other: Iterable) -> Self:
+    def __iadd__(self, other: Iterable[Any]) -> Self:
         """Add the other iterable to the list.
 
         Args:
-            other (Iterable): The iterable to add.
+            other (Iterable[Any]): The iterable to add.
 
         Returns:
             Self: The new list.
@@ -218,12 +223,13 @@ class AutoFormatList(list[T], Generic[T]):
 
     def __eq__(
         self,
-        other: "list | AutoFormatList | Any",  # noqa: ANN401
+        other: object,
     ) -> bool:
         """Check if the list is equal to the other iterable.
 
         Args:
-            other (Sized): The iterable to check.
+            other (object): The iterable
+                to check.
 
         Returns:
             bool: True if the list is equal to the other iterable, False
@@ -233,15 +239,15 @@ class AutoFormatList(list[T], Generic[T]):
         if not isinstance(other, list | AutoFormatList):
             return False
 
-        if len(self) != len(other):
+        if len(self) != len(cast("list[Any]", other)):
             return False
 
-        for item1, item2 in zip(self, other, strict=False):
+        for item1, item2 in zip(self, cast("list[Any]", other), strict=False):
             if format_str(item1) != format_str(item2):
                 return False
         return True
 
-    orig_iter = list.__iter__
+    orig_iter = list[T].__iter__
 
     def __iter__(
         self,
@@ -250,7 +256,7 @@ class AutoFormatList(list[T], Generic[T]):
         for item in super().__iter__():
             yield format_str(item)
 
-    orig_repr = list.__repr__
+    orig_repr = list[T].__repr__
 
     def __repr__(self) -> str:
         """Get the string representation of the list.

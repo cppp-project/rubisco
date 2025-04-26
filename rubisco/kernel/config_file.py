@@ -19,6 +19,8 @@
 
 """Rubisco config file loader."""
 
+from pathlib import Path
+
 import json5 as json
 
 from rubisco.config import (
@@ -32,43 +34,25 @@ from rubisco.lib.variable import AutoFormatDict
 
 __all__ = ["config_file"]
 
+
 config_file = AutoFormatDict()
 
-try:
-    logger.info("Loading global configuration %s ...", GLOBAL_CONFIG_FILE)
-    if GLOBAL_CONFIG_FILE.exists():
-        with GLOBAL_CONFIG_FILE.open("r", encoding=DEFAULT_CHARSET) as f:
-            config_file.merge(AutoFormatDict(json.load(f)))
-except:  # pylint: disable=bare-except  # noqa: E722
-    logger.warning(
-        "Failed to load global configuration: %s",
-        GLOBAL_CONFIG_FILE,
-        exc_info=True,
-    )
 
-try:
-    logger.info("Loading user configuration %s ...", USER_CONFIG_FILE)
-    if USER_CONFIG_FILE.exists():
-        with USER_CONFIG_FILE.open("r", encoding=DEFAULT_CHARSET) as f:
-            config_file.merge(AutoFormatDict(json.load(f)))
-except:  # pylint: disable=bare-except  # noqa: E722
-    logger.warning(
-        "Failed to load user configuration: %s",
-        USER_CONFIG_FILE,
-        exc_info=True,
-    )
+def _load_json(file: Path, envname: str) -> None:
+    try:
+        logger.info("Loading global configuration %s ...", file)
+        if file.exists():
+            with file.open("r", encoding=DEFAULT_CHARSET) as f:
+                config_file.merge(AutoFormatDict(json.load(f)))
+    except:  # pylint: disable=bare-except  # noqa: E722
+        logger.warning(
+            "Failed to load %s configuration: %s",
+            envname,
+            file,
+            exc_info=True,
+        )
 
-try:
-    logger.info(
-        "Loading workspace configuration %s ...",
-        WORKSPACE_CONFIG_FILE,
-    )
-    if WORKSPACE_CONFIG_FILE.exists():
-        with WORKSPACE_CONFIG_FILE.open("r", encoding=DEFAULT_CHARSET) as f:
-            config_file.merge(AutoFormatDict(json.load(f)))
-except:  # pylint: disable=bare-except  # noqa: E722
-    logger.warning(
-        "Failed to load workspace configuration: %s",
-        WORKSPACE_CONFIG_FILE,
-        exc_info=True,
-    )
+
+_load_json(GLOBAL_CONFIG_FILE, "global")
+_load_json(USER_CONFIG_FILE, "user")
+_load_json(WORKSPACE_CONFIG_FILE, "workspace")

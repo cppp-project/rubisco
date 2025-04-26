@@ -22,7 +22,7 @@
 from pathlib import Path
 from typing import ClassVar
 
-from rubisco.kernel.workflow import Step
+from rubisco.kernel.workflow.step import Step
 from rubisco.lib.fileutil import find_command
 from rubisco.lib.variable import push_variables
 from rubisco.lib.version import Version

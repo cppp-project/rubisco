@@ -21,10 +21,7 @@
 
 import warnings
 from types import EllipsisType, GenericAlias, NoneType, UnionType
-from typing import Any, cast, get_args, get_origin
-
-from rubisco.lib.variable.autoformatdict import AutoFormatDict
-from rubisco.lib.variable.autoformatlist import AutoFormatList
+from typing import Any, Generic, TypeVar, cast, get_args, get_origin
 
 __all__ = ["is_instance"]
 
@@ -42,14 +39,15 @@ def rubisco_isinstance(obj: Any, objtype: type | UnionType) -> bool:  # noqa: AN
         bool: True if obj is an instance of objtype, False otherwise.
 
     """
-    if objtype is AutoFormatList:
+    # Avoid circular import.
+    if getattr(objtype, "__name__", None) == "AutoFormatList":
         objtype = list
-    elif objtype is AutoFormatDict:
+    elif getattr(objtype, "__name__", None) == "AutoFormatDict":
         objtype = dict
 
-    if isinstance(obj, AutoFormatList) and objtype is list:
+    if type(obj).__name__ == "AutoFormatList" and objtype is list:
         return True
-    if isinstance(obj, AutoFormatDict) and objtype is dict:
+    if type(obj).__name__ == "AutoFormatDict" and objtype is dict:
         return True
 
     return isinstance(obj, objtype)
@@ -113,7 +111,7 @@ def _is_instance_generic_alias(  # pylint: disable=R0911  # noqa: PLR0911
         argtype = args[0]
         argtype: type | GenericAlias | UnionType | None
         return all(is_instance(item, argtype) for item in obj)
-    if orig in (dict, AutoFormatDict):
+    if orig is dict or orig.__name__ == "AutoFormatDict":
         return _is_instance_generic_alias_dict(obj, args)
     if orig is tuple:
         return _is_instance_generic_alias_tuple(obj, args)
@@ -135,6 +133,8 @@ def is_instance(
 ) -> bool:
     """Check if an object is an instance of a type or a union of types.
 
+    If objtype is None, return True if obj is None.
+
     Args:
         obj (Any): Object to check.
         objtype (type | GenericAlias | UnionType | None): Type or union of types
@@ -152,6 +152,18 @@ def is_instance(
         return _is_instance_generic_alias(obj, ot)
 
     return rubisco_isinstance(obj, cast("type", objtype))
+
+
+KT = TypeVar("KT")
+VT = TypeVar("VT")
+
+
+class AutoFormatDict(dict[KT, VT], Generic[KT, VT]):
+    """AutoFormatDict type for testing."""
+
+
+class AutoFormatList(list[VT], Generic[VT]):
+    """AutoFormatList type for testing."""
 
 
 class TestIsInstance:
@@ -256,4 +268,17 @@ class TestIsInstance:
             {"a": {"b": [(1, 2, 3), None]}, "c": 1},
             dict[str, dict[str, list[tuple[int, str] | None]] | int],
         ):
+            raise AssertionError
+
+    def test_any(self) -> None:
+        """Test objtype is object."""
+        if not is_instance(1, object):
+            raise AssertionError
+        if not is_instance("test", object):
+            raise AssertionError
+        if not is_instance(None, object):
+            raise AssertionError
+        if not is_instance(..., object):
+            raise AssertionError
+        if not is_instance(Any, object):
             raise AssertionError

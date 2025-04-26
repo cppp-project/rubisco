@@ -26,6 +26,7 @@ Interface can do something before or after kernel operations.
 from __future__ import annotations
 
 from collections.abc import Callable
+from contextlib import suppress
 from functools import partial
 from typing import TYPE_CHECKING, Any
 
@@ -42,7 +43,7 @@ if TYPE_CHECKING:
     from rubisco.envutils.env import RUEnvironment
     from rubisco.envutils.packages import ExtensionPackageInfo
     from rubisco.kernel.project_config import ProjectConfigration
-    from rubisco.kernel.workflow import Step, Workflow
+    from rubisco.kernel.workflow.step import Step, Workflow
     from rubisco.lib.process import Process
     from rubisco.lib.version import Version
     from rubisco.shared.extension import IRUExtension
@@ -596,14 +597,6 @@ def bind_ktrigger_interface(kid: str, instance: IKernelTrigger) -> None:
         TypeError: If instance is not a IKernelTrigger instance.
 
     """
-    if not isinstance(instance, IKernelTrigger):
-        raise TypeError(
-            format_str(
-                _("'${{name}}' is not a IKernelTrigger instance."),
-                fmt={"name": make_pretty(instance)},
-            ),
-        )
-
     if kid in ktriggers:
         raise RUValueError(
             format_str(
@@ -617,7 +610,7 @@ def bind_ktrigger_interface(kid: str, instance: IKernelTrigger) -> None:
 
 
 def call_ktrigger(
-    name: str | Callable,
+    name: str | Callable[..., None],
     **kwargs: Any,  # noqa: ANN401
 ) -> None:
     """Call a KTrigger.
@@ -643,59 +636,59 @@ def call_ktrigger(
         getattr(instance, name, partial(_null_trigger, name))(**kwargs)
 
 
-if __name__ == "__main__":
-    from contextlib import suppress
+class TestKrigger:
+    """Test KTrigger."""
 
-    import rich
-
-    # Test: Bind a KTrigger.
     class _TestKTrigger(IKernelTrigger):
         _prog_total: int | float
         _prog_current: int | float
 
         def on_test0(self) -> None:
             """Test0: KTrigger without arguments."""
-            rich.print("on_test0()")
 
         def on_test1(self, arg1: str, arg2: str) -> None:
             """Test1: KTrigger with two arguments."""
-            rich.print("on_test1():", arg1, arg2)
             if arg1 != "Linus" or arg2 != "Torvalds":
-                raise ValueError
+                raise AssertionError
 
-        def on_test2(self, **kwargs: Any) -> None:  # noqa: ANN401
+        def on_test2(self, **kwargs: dict[str, Any]) -> None:
             """Test2: KTrigger with *args and **kwargs."""
-            rich.print("on_test2():", kwargs)
             if kwargs != {
                 "gnu": "Stallman",
                 "nividia": "F**k",
             }:
-                raise ValueError
+                raise AssertionError
 
         def on_test3(self) -> None:
             """Test3: KTrigger raises an exception."""
             msg = "Test3 exception."
             raise ValueError(msg)
 
-    kt = _TestKTrigger()
-    bind_ktrigger_interface("test", kt)
+    @classmethod
+    def setup_class(cls) -> None:
+        """Init test suites."""
+        cls.kt = cls._TestKTrigger()
+        bind_ktrigger_interface("test", cls.kt)
 
-    # Test: Bind a KTrigger with the same sign.
-    pytest.raises(RUValueError, bind_ktrigger_interface, "test", kt)
+    def test_same_name_ktrigger(self) -> None:
+        """Test binding a KTrigger with the same sign."""
+        pytest.raises(RUValueError, bind_ktrigger_interface, "test", self.kt)
 
-    # Test: Call a KTrigger.
-    call_ktrigger("on_test0")
-    call_ktrigger("on_test1", arg1="Linus", arg2="Torvalds")
-    call_ktrigger(
-        "on_test2",
-        gnu="Stallman",
-        nividia="F**k",
-    )
-    with suppress(ValueError):
-        call_ktrigger("on_test3")
+    def test_call_ktrigger(self) -> None:
+        """Test calling a KTrigger."""
+        call_ktrigger("on_test0")
+        call_ktrigger("on_test1", arg1="Linus", arg2="Torvalds")
+        call_ktrigger(
+            "on_test2",
+            gnu="Stallman",
+            nividia="F**k",
+        )
+        with suppress(ValueError):
+            call_ktrigger("on_test3")
 
-    # Test: Call a non-exists KTrigger.
-    call_ktrigger("non_exists")
+    def test_non_exists_krigger(self) -> None:
+        """Test calling a non-exists KTrigger."""
+        call_ktrigger("non_exists")
 
 
 # Death is a form of liberation.

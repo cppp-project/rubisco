@@ -334,8 +334,8 @@ if __name__ == "__main__":
     # Test: Update a non-existing repository.
     try:
         git_update(Path("libiconv"), branch="master")
-        _MSG = "Should raise a FileNotFoundError."
-        raise AssertionError(_MSG)
+        _MSG_ = "Should raise a FileNotFoundError."
+        raise AssertionError(_MSG_)
     except FileNotFoundError:
         pass
 

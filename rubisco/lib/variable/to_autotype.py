@@ -41,7 +41,7 @@ def to_autotype() -> Callable[[Any], Any]:
     return to_autotype_func
 
 
-def set_to_autotype_func(func: Callable) -> None:
+def set_to_autotype_func(func: Callable[[Any], Any]) -> None:
     """Set the to_autotype function.
 
     Args:

@@ -112,9 +112,13 @@ def rm_recursive(
         OSError: If strict is True and an error occurs.
 
     """
-    assert_rel_path(path)
-
     path = path.absolute()
+    if path == Path("/").absolute():
+        raise RUValueError(
+            format_str(
+                _("Cannot remove root directory."),
+            ),
+        )
 
     def _onexc(  # pylint: disable=unused-argument
         func: FunctionType | None,  # noqa: ARG001
@@ -183,7 +187,7 @@ def _ignore_patterns(
     def __ignore_patterns(strpath: str, strnames: list[str]) -> set[str]:
         path = Path(strpath).relative_to(start_dir)  # Always noexcept.
         names = [(path / Path(name)).as_posix() for name in strnames]
-        ignored_names = []
+        ignored_names: list[str] = []
 
         for pattern in patterns:
             if _match_path_only(pattern):
@@ -632,8 +636,8 @@ def human_readable_size(size: float) -> str:
         str: The human readable size.
 
     """
-    unit: str
-    for unit_ in ["B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB"]:
+    unit = "B"
+    for unit_ in ("B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB"):
         unit = unit_
         if size < 1024.0:  # noqa: PLR2004
             break
@@ -808,6 +812,5 @@ class TestFileUtil:
         if find_command("_Not_Exist_Command_", strict=False) is not None:
             raise AssertionError
 
-
-if __name__ == "__main__":
-    pytest.main([__file__])
+    def test_rm_tree(self) -> None:
+        """Test rm_tree."""

@@ -22,13 +22,17 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 import json5 as json
 
 from rubisco.config import APP_VERSION, USER_REPO_CONFIG
 from rubisco.kernel.workflow import run_inline_workflow, run_workflow
-from rubisco.lib.exceptions import RUNotRubiscoProjectError, RUValueError
+from rubisco.lib.exceptions import (
+    RUNotRubiscoProjectError,
+    RUTypeError,
+    RUValueError,
+)
 from rubisco.lib.fileutil import glob_path, resolve_path
 from rubisco.lib.l10n import _
 from rubisco.lib.log import logger
@@ -41,6 +45,7 @@ from rubisco.lib.variable import (
     pop_variables,
     push_variables,
 )
+from rubisco.lib.variable.typecheck import is_instance
 from rubisco.lib.version import Version
 from rubisco.shared.ktrigger import IKernelTrigger, call_ktrigger
 
@@ -206,7 +211,7 @@ class ProjectConfigration:  # pylint: disable=too-many-instance-attributes
 
         # Serialize configuration to variables.
         def _push_vars(
-            obj: AutoFormatDict | list | Any,  # noqa: ANN401
+            obj: AutoFormatDict | list[Any] | Any,  # noqa: ANN401
             prefix: str,
         ) -> None:
             if isinstance(obj, AutoFormatDict):
@@ -214,8 +219,8 @@ class ProjectConfigration:  # pylint: disable=too-many-instance-attributes
                     _push_vars(value, f"{prefix}.{key}")
             elif isinstance(obj, list):
                 self.pushed_variables.append(f"{prefix}.length")
-                push_variables(f"{prefix}.length", len(obj))
-                for idx, val in enumerate(obj):
+                push_variables(f"{prefix}.length", len(obj))  # type: ignore[arg-type]
+                for idx, val in enumerate(obj):  # type: ignore[arg-type]
                     _push_vars(val, f"{prefix}.{idx}")
             else:
                 self.pushed_variables.append(prefix)
@@ -248,7 +253,7 @@ class ProjectConfigration:  # pylint: disable=too-many-instance-attributes
             name (str): The hook name.
 
         """
-        self.hooks[name].run()
+        cast("ProjectHook", self.hooks[name]).run()
 
     def __del__(self) -> None:
         """Remove all pushed variables."""
@@ -259,18 +264,12 @@ class ProjectConfigration:  # pylint: disable=too-many-instance-attributes
 def _load_config(config_file: Path, loaded_list: list[Path]) -> AutoFormatDict:
     config_file = config_file.resolve()
     with config_file.open() as file:
-        config = AutoFormatDict(json.load(file))
-        if not isinstance(config, AutoFormatDict):
-            raise RUValueError(
-                format_str(
-                    _(
-                        "Invalid configuration in file "
-                        "'[underline]${{path}}[/underline]'.",
-                    ),
-                    fmt={"path": make_pretty(config_file.absolute())},
-                ),
-                hint=_("Configuration must be a JSON5 object. (dict)"),
+        json_data = json.load(file)
+        if not is_instance(json_data, dict[str, object]):
+            raise RUTypeError(
+                _("The configuration file must be a JSON5 object."),
             )
+        config = AutoFormatDict(json_data)
         for include in config.get("includes", [], valtype=list):
             if not isinstance(include, str):
                 raise RUValueError(

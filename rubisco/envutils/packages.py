@@ -86,7 +86,7 @@ class ExtensionPackageInfo:  # pylint: disable=too-many-instance-attributes
 
 def _pkg_check(zip_file: zipfile.ZipFile, pkg_name: str) -> None:
     files = zip_file.namelist()
-    root_list = set()
+    root_list: set[str] = set()
     for file in files:
         if Path(file).parts:
             root_list.add(str(Path(file).parts[0]))
@@ -124,13 +124,13 @@ def _pkg_check(zip_file: zipfile.ZipFile, pkg_name: str) -> None:
 
 
 def parse_extension_info(
-    config_file: IO,
+    config_file: IO[str] | IO[bytes],
     file_name: str = "rubisco.json",
 ) -> ExtensionPackageInfo:
     """Parse the extension package info from the config file.
 
     Args:
-        config_file (IO): The config file.
+        config_file (IO[str] | IO[bytes]): The config file.
         file_name (str, optional): The file name. For error message.
             Defaults to "rubisco.json".
 
@@ -165,7 +165,7 @@ def parse_extension_info(
                     "0-9, a-z, A-Z, '_', '.' and '-'.",
                 ),
             )
-        maintianers = pkg_config.get("maintainers", valtype=list)
+        maintianers = pkg_config.get("maintainers", valtype=list[str])
         assert_iter_types(
             maintianers,
             str,
@@ -410,7 +410,7 @@ def query_packages(
         set[ExtensionPackageInfo]: The extension package info.
 
     """
-    query = set()
+    query: set[ExtensionPackageInfo] = set()
     logger.info(
         "Querying extension packages %s ... in %s",
         pkg_names,
@@ -462,10 +462,7 @@ def _uninstall_extension(
     # Remove it from the database first.
     dest.db_handle.remove_packages([epi])
     try:
-        rm_recursive(
-            dest.path / EXTENSIONS_DIR / epi.name,
-            strict=True,
-        )
+        rm_recursive(dest.path / EXTENSIONS_DIR / epi.name)
     except FileNotFoundError:
         call_ktrigger(
             IKernelTrigger.on_warning,

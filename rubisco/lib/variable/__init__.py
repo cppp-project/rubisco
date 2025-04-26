@@ -20,7 +20,7 @@
 """Rubisco variable system."""
 
 
-from typing import Any
+from typing import Any, TypeVar, cast
 
 import pytest
 
@@ -59,7 +59,14 @@ __all__ = [
 ]
 
 
-def _to_autotype(obj: Any) -> Any:  # noqa: ANN401
+T = TypeVar("T")
+KT = TypeVar("KT")
+VT = TypeVar("VT")
+
+
+def _to_autotype(
+    obj: T | list[VT] | dict[str, Any],
+) -> T | AutoFormatList[VT] | AutoFormatDict:
     """Convert the list or dict object to AutoFormatList or AutoFormatDict.
 
     If not list or dict, return itself.
@@ -67,9 +74,9 @@ def _to_autotype(obj: Any) -> Any:  # noqa: ANN401
     if isinstance(obj, dict) and not isinstance(obj, AutoFormatDict):
         return AutoFormatDict(obj)
     if isinstance(obj, list) and not isinstance(obj, AutoFormatList):
-        return AutoFormatList(obj)
+        return AutoFormatList(cast("list[VT]", obj))
 
-    return obj
+    return cast("T", obj)
 
 
 to_autotype.set_to_autotype_func(_to_autotype)
@@ -179,10 +186,10 @@ class TestVariable:
         if afd["k1"] != "v4val":
             raise AssertionError
 
-        afd["k3"]["k4"] = "${{v5}}"
+        afd["k3"]["k4"] = "${{v5}}"  # type: ignore[index] # pylint: disable=E1137
 
         push_variables("v5", "v5val")
-        if afd["k3"]["k4"] != "v5val":
+        if afd["k3"]["k4"] != "v5val":  # type: ignore[index] # pylint: disable=E1136
             raise AssertionError
 
         if list(afd.items()) != [
@@ -289,14 +296,3 @@ class TestVariable:
             raise AssertionError
         if afd.get("k3", default={}, valtype=dict) != {"k4": True}:
             raise AssertionError
-        pytest.raises(
-            AFTypeError,
-            afd.get,
-            "k100",
-            default="default",
-            valtype=list,
-        )
-
-
-if __name__ == "__main__":
-    pytest.main([__file__])

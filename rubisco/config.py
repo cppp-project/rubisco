@@ -86,7 +86,7 @@ DEFAULT_LOG_KEEP_LINES = 5000
 STDOUT_IS_TTY = sys.stdout.isatty()
 PROGRAM_PATH: Path = Path(sys.argv[0]).resolve()
 if not sys.argv[0]:
-    PROGRAM_PATH = Path(__file__).resolve().parent
+    PROGRAM_PATH = Path(__file__).resolve().parent  # type: ignore[arg-type]
 
 PYTHON_PATH: Path | None = Path(sys.executable).resolve()
 # If the program is running in a packed environment. (e.g. PyInstaller)
@@ -94,9 +94,9 @@ IS_PACKED = getattr(sys, "frozen", False) or hasattr(sys, "_MEIPASS")
 
 if IS_PACKED:
     RUBISCO_COMMAND = command(str(PROGRAM_PATH))
-    PYTHON_PATH = None
+    PYTHON_PATH = None  # type: ignore[assignment]
 else:
-    RUBISCO_COMMAND = command([str(PYTHON_PATH), str(PROGRAM_PATH)])
+    RUBISCO_COMMAND = command([str(PYTHON_PATH), str(PROGRAM_PATH)])  # type: ignore[arg-type]
 
 PROGRAM_DIR: Path = PROGRAM_PATH.parent.absolute()
 

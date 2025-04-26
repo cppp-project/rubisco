@@ -23,8 +23,6 @@ import logging
 import sys
 from pathlib import Path
 
-import pytest
-
 from rubisco.config import (
     APP_NAME,
     DEFAULT_CHARSET,
@@ -84,9 +82,3 @@ def test_log() -> None:
         logger.exception("Exception message.")
         logger.warning("Warning with exception.", exc_info=True)
     logger.info("Done.")
-
-
-if __name__ == "__main__":
-    sys.stdout.write("hint: Run with '--debug' to output logs.\n")
-
-    pytest.main([__file__])

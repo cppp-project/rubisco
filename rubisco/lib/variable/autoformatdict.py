@@ -19,27 +19,26 @@
 
 """AutoFormatDict implementation."""
 
-from collections.abc import Generator, Iterable, Iterator
+from collections.abc import Generator, Iterator
 from types import GenericAlias, UnionType
-from typing import Any, Generic, Self, TypeVar, overload
+from typing import Any, cast
 
+from rubisco.lib.exceptions import RUError
 from rubisco.lib.l10n import _
 from rubisco.lib.variable.autoformatlist import AutoFormatList
+from rubisco.lib.variable.fast_format_str import fast_format_str
 from rubisco.lib.variable.format import format_str
 from rubisco.lib.variable.to_autotype import to_autotype
+from rubisco.lib.variable.typecheck import is_instance
 
 __all__ = ["AFTypeError", "AutoFormatDict"]
 
 
-class AFTypeError(TypeError):
+class AFTypeError(RUError, TypeError):
     """AutoFormatDict valtype error."""
 
 
-KT = TypeVar("KT")
-VT = TypeVar("VT")
-
-
-class AutoFormatDict(dict[KT, VT], Generic[KT, VT]):
+class AutoFormatDict(dict[str, Any]):
     """A dictionary that can format value automatically with variables.
 
     We will replace all the elements which are lists or dicts to
@@ -59,86 +58,65 @@ class AutoFormatDict(dict[KT, VT], Generic[KT, VT]):
         super().__init__(*args, **kwargs)
         # Use orig_items to avoid undefined variable error.
         # Cauclate the variable expression later.
-        for key, value in self.orig_items():
+        for key, value in super().items():
             # Replace the value with AutoFormatList or AutoFormatDict.
             self[key] = value
 
-    orig_get = dict[KT, VT].get
+    orig_get = dict[str, Any].get
 
-    @overload  # type: ignore[override]
-    def get(self, key: KT, default: None = None, /) -> VT | None: ...
-    @overload
-    def get(self, key: KT, default: VT, /) -> VT: ...
-
-    @overload
-    def get(self, key: KT) -> VT: ...
-
-    @overload
-    def get(
+    def get(  # pylint: disable=R0913
         self,
-        key: KT,
-        valtype: type | GenericAlias | UnionType | None,
-    ) -> VT: ...
-
-    @overload
-    def get(self, key: KT, default: VT) -> VT: ...
-
-    @overload
-    def get(
-        self,
-        key: KT,
-        default: VT,
-        valtype: type | GenericAlias | UnionType | None,
-    ) -> VT: ...
-
-    def get(  # type: ignore[signature-mismatch]
-        self,
-        key: KT,
-        *args: VT | object,
-        **kwargs: Any,
-    ) -> VT | None:
+        key: str,
+        default: Any = None,  # noqa: ANN401
+        *,
+        valtype: type | GenericAlias | UnionType | None = object,
+        strict: bool = False,
+        fmt: dict[str, Any] | None = None,
+    ) -> Any:  # noqa: ANN401
         """Get the value of the given key.
 
         Args:
             key (str): The key to get value.
-            *args: The arguments to get value.
-            **kwargs: The keyword arguments to get value.
+            default (Any): The default value to return.
+                If `strict` is `False`, it will be returned.
+                If `strict` is `True`, KeyError will be raised.
+            valtype (type | GenericAlias | UnionType | None): The type of the
+                value of existing key's value. If the value is not the same as
+                the given type, AFTypeError will be raised. But we will not
+                check the value if default value will be returned.
+            strict (bool): If `strict` is `False`, KeyError will be raised.
+                If `strict` is `True`, the default value will be returned.
+                Defaults to `False`.
+            fmt (dict[str, Any] | None): The variable context.
+
+        Returns:
+            Any: The value of the given key. If the key is not found,
+                the default value will be returned. But raise KeyError if
+                `strict` is `True`.
 
         Raises:
             KeyError: If the key is not found.
             AFTypeError: If the value is not the same as the given type.
 
-        Returns:
-            Any: The value of the given key.
-
         """
-        valtype = kwargs.pop("valtype", object)
-        if valtype == AutoFormatDict:
-            valtype = dict
-        elif valtype == AutoFormatList:
-            valtype = list
-        if len(args) == 1:
-            res = format_str(self.orig_get(format_str(key), args[0]))
-        elif "default" in kwargs:
-            res = format_str(
-                self.orig_get(format_str(key), kwargs["default"]),
-            )
-        else:
-            key = format_str(key)
-            if key not in self:
+        key = format_str(key, fmt=fmt)
+        _raise_if_not_found = object()
+        res = _raise_if_not_found
+        for k in self.orig_keys():
+            if format_str(k) == key:
+                res = format_str(self.orig_get(k, _raise_if_not_found))
+                break
+
+        if res is _raise_if_not_found:
+            if strict:
                 raise KeyError(repr(key))
-            res = None
-            for key2, val in self.items():
-                if format_str(key2) == key:
-                    res = val
-                    break
-        if not isinstance(res, valtype):
-            if hasattr(valtype, "__name__"):
-                valtype_name = valtype.__name__
-            else:
-                valtype_name = f"'{valtype}'"
+
+            return default
+
+        if not is_instance(res, valtype):
+            valtype_name = getattr(valtype, "__name__", repr(valtype))
             raise AFTypeError(
-                format_str(
+                fast_format_str(
                     _(
                         "The value of key ${{key}} needs to be ${{type}}"
                         " instead of ${{value_type}}.",
@@ -150,35 +128,42 @@ class AutoFormatDict(dict[KT, VT], Generic[KT, VT]):
                     },
                 ),
             )
+
         return res
 
-    orig_keys = dict.keys
+    orig_keys = dict[str, Any].keys
 
-    def keys(
-        self,
-    ) -> Generator[str, None, None]:  # type: ignore[signature-mismatch]
-        """Get the keys of the dict."""
-        for key in super().keys():  # noqa: SIM118
+    def keys(self) -> Generator[str, None, None]:  # type: ignore[signature-mismatch]
+        """Get the keys of the dict.
+
+        Returns:
+            Generator[str, None, None]: The keys of the dict.
+
+        """
+        for key in self.orig_keys():
             yield format_str(key)
 
-    orig_values = dict.values
+    orig_values = dict[str, Any].values
 
-    def values(
+    def values(  # type: ignore[signature-mismatch]
         self,
-    ) -> Generator[Any, None, None]:  # type: ignore[signature-mismatch]
+    ) -> Generator[Any, None, None]:
         """Get the values of the dict."""
         for value in super().values():
             yield format_str(value)
 
-    orig_items = dict.items
+    orig_items = dict[str, Any].items
 
-    def items(
+    def items(  # type: ignore[signature-mismatch]
         self,
-    ) -> list[tuple[str, VT]]:  # type: ignore[signature-mismatch]
+    ) -> list[tuple[str, Any]]:  # type: ignore[signature-mismatch]
         """Get the items of the dict."""
         return list(zip(list(self.keys()), list(self.values()), strict=False))
 
-    def update(self, src: "dict | AutoFormatDict | None" = None) -> None:
+    def update(  # type: ignore[signature-mismatch]
+        self,
+        src: "dict[Any, Any] | AutoFormatDict | None" = None,
+    ) -> None:
         """Update the dict with the given mapping.
 
         Args:
@@ -188,41 +173,58 @@ class AutoFormatDict(dict[KT, VT], Generic[KT, VT]):
         if src is None:
             return
 
-        if isinstance(src, dict) and not isinstance(src, AutoFormatDict):
+        if isinstance(src, dict) and not isinstance(src, AutoFormatDict):  # type: ignore[arg-type]
             src = AutoFormatDict(src)
 
         for key, value in src.items():
             self[key] = value
 
-    orig_pop = dict.pop
+    orig_pop = dict[str, Any].pop
 
-    @overload
-    def pop(self, key: str) -> Any: ...  # noqa: ANN401
-
-    @overload
-    def pop(self, key: str, default: Any) -> Any:  # noqa: ANN401
-        ...
-
-    def pop(self, key: str, *args: Any, **kwargs: Any) -> Any:
+    def pop(  # pylint: disable=R0913
+        self,
+        key: str,
+        default: Any = None,  # noqa: ANN401
+        *,
+        valtype: type | GenericAlias | UnionType | None = object,
+        strict: bool = False,
+        fmt: dict[str, Any] | None = None,
+    ) -> Any:  # noqa: ANN401
         """Pop the value of the given key.
 
         Args:
             key (str): The key to pop value.
-            *args: The arguments to pop value.
-            **kwargs: The keyword arguments to pop value.
+            default (Any): The default value to return.
+                If `strict` is `False`, it will be returned.
+                If `strict` is `True`, KeyError will be raised.
+            valtype (type | GenericAlias | UnionType | None): The type of the
+                value of existing key's value. If the value is not the same as
+                the given type, AFTypeError will be raised. But we will not
+                check the value if default value will be returned.
+            strict (bool): If `strict` is `False`, KeyError will be raised.
+                If `strict` is `True`, the default value will be returned.
+                Defaults to `False`.
+            fmt (dict[str, Any] | None): The variable context.
 
         Returns:
             Any: The value of the given key.
+                If the key is not found, the default value will be returned.
+                But raise KeyError if `strict` is `True`.
+
+        Raises:
+            KeyError: If the key is not found.
+            AFTypeError: If the value is not the same as the given type.
 
         """
-        if len(args) == 1:
-            res = format_str(super().pop(format_str(key), args[0]))
-        elif "default" in kwargs:
-            res = format_str(
-                super().pop(format_str(key), kwargs["default"]),
-            )
-        else:
-            res = format_str(super().pop(format_str(key)))
+        res = self.get(
+            key,
+            default,
+            valtype=valtype,
+            strict=strict,
+            fmt=fmt,
+        )
+        if key in self:
+            del self[key]
         return res
 
     def copy(self) -> "AutoFormatDict":
@@ -244,14 +246,18 @@ class AutoFormatDict(dict[KT, VT], Generic[KT, VT]):
         key, value = super().popitem()
         return format_str(key), format_str(value)
 
-    def merge(self, mapping: dict[KT, VT] | Self) -> None:
+    def merge(
+        self,
+        mapping: "dict[str, Any] | AutoFormatDict",
+    ) -> None:
         """Merge the dict with the given mapping.
 
         Merge is a recursive operation. It can update all the values
         in the dict, including the nested dicts and lists.
 
         Args:
-            mapping (dict | AutoFormatDict): The mapping to merge.
+            mapping (dict[str, Any] | AutoFormatDict): The mapping to
+                merge.
 
         """
         mapping = to_autotype()(mapping)
@@ -265,33 +271,41 @@ class AutoFormatDict(dict[KT, VT], Generic[KT, VT]):
             elif isinstance(value, AutoFormatDict):
                 if not isinstance(self[key], AutoFormatDict):
                     self[key] = AutoFormatDict()
-                self[key].merge(value)
-            else:  # AutoFormatList
+                cast("AutoFormatDict", self[key]).merge(value)
+            else:
                 if not isinstance(self[key], AutoFormatList):
                     self[key] = AutoFormatList()
-                self[key].extend(value)
+                cast("AutoFormatList[Any]", self[key]).extend(
+                    cast(
+                        "AutoFormatList[Any]",
+                        value,
+                    ),
+                )
 
-    def __setitem__(self, key: KT, value: VT) -> None:
+    def __setitem__(self, key: str, value: Any) -> None:  # noqa: ANN401
         """Set the value of the given key.
 
         Args:
-            key (KT): The key to set value.
-            value (VT): The value to set.
+            key (str): The key to set value.
+            value (Any): The value to set.
 
         """
         super().__setitem__(key, to_autotype()(value))
 
-    def __getitem__(self, key: str) -> Any:  # noqa: ANN401
+    def __getitem__(
+        self,
+        key: str,
+    ) -> "Any | AutoFormatDict | AutoFormatList[Any]":  # noqa: ANN401
         """Get the value of the given key.
 
         Args:
             key (str): The key to get value.
 
         Returns:
-            Any: The value of the given key.
+            Any | AutoFormatDict: The value of the given key.
 
         """
-        return format_str(self.get(format_str(key)))
+        return format_str(self.get(format_str(key), strict=True))
 
     def __iter__(self) -> Iterator[str]:
         """Get the keys iterator of the dict."""
@@ -350,22 +364,3 @@ class AutoFormatDict(dict[KT, VT], Generic[KT, VT]):
 
         """
         return any(k == format_str(key) for k in self.keys())
-
-    @classmethod
-    def fromkeys(
-        cls,
-        keys: Iterable,
-        value: Any = None,  # noqa: ANN401
-    ) -> "AutoFormatDict":
-        """Create a new dict with the given keys and value.
-
-        Args:
-            keys (Iterable): The keys to create the dict.
-            value (Any, optional): The value to create the dict. Defaults to
-                None.
-
-        Returns:
-            AutoFormatDict: The new dict.
-
-        """
-        return cls(dict.fromkeys(keys, value))

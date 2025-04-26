@@ -36,6 +36,7 @@ __all__ = [
     "RUNotRubiscoProjectError",
     "RUOSError",
     "RUShellExecutionError",
+    "RUTypeError",
     "RUValueError",
 ]
 
@@ -70,6 +71,9 @@ class RUError(RuntimeError):
 class RUValueError(RUError, ValueError):
     """Rubisco value exception."""
 
+
+class RUTypeError(RUError, TypeError):
+    """Rubisco type exception."""
 
 class RUNotRubiscoProjectError(RUError, FileNotFoundError):
     """Not a Rubisco project exception."""

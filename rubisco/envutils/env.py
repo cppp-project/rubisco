@@ -26,6 +26,7 @@ import threading
 import time
 import venv
 from pathlib import Path
+from types import TracebackType
 
 from rubisco.config import (
     DB_FILENAME,
@@ -100,7 +101,7 @@ class RUEnvironment:
 
     def __str__(self) -> str:
         """Get the string representation of the environment."""
-        return f"RUEnvironment({self.path}, {self.type})"
+        return f"RUEnvironment({self.path}, {self.env_type})"
 
     def create(self) -> None:
         """Create the environment if not exists. Check it if exists.
@@ -168,21 +169,21 @@ class RUEnvironment:
         return self.path / EXTENSIONS_DIR
 
     @property
-    def type(self) -> EnvType:
+    def env_type(self) -> EnvType:
         """Get the type of the environment."""
         return self._type
 
     def is_global(self) -> bool:
         """Check if the environment is global."""
-        return self.type == EnvType.GLOBAL
+        return self.env_type == EnvType.GLOBAL
 
     def is_user(self) -> bool:
         """Check if the environment is user."""
-        return self.type == EnvType.USER
+        return self.env_type == EnvType.USER
 
     def is_workspace(self) -> bool:
         """Check if the environment is workspace."""
-        return self.type == EnvType.WORKSPACE
+        return self.env_type == EnvType.WORKSPACE
 
     def is_locked(self) -> bool:
         """Check if the environment is locked."""
@@ -424,9 +425,9 @@ class RUEnvironment:
 
     def __exit__(
         self,
-        exc_type,  # noqa: ANN001
-        exc_value,  # noqa: ANN001
-        traceback,  # noqa: ANN001
+        exc_type: type[BaseException] | None,
+        exc_value: BaseException | None,
+        traceback: TracebackType | None,
     ) -> None:
         """Unlock the environment."""
         self.unlock()

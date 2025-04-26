@@ -54,9 +54,3 @@ def test_command_generator() -> None:
         raise AssertionError
     if command("echo Hello, world!") != "echo Hello, world!":
         raise AssertionError
-
-
-if __name__ == "__main__":
-    import pytest
-
-    pytest.main([__file__])

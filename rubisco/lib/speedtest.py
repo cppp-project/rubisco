@@ -70,9 +70,3 @@ def test_speedtest() -> None:
     """Test the speedtest module."""
     speed = asyncio.run(url_speedtest("https://example.com"))
     sys.stdout.write(f"Speed of https://example.com: {speed} us.\n")
-
-
-if __name__ == "__main__":
-    import pytest
-
-    pytest.main([__file__])

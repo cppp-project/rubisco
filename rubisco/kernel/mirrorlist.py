@@ -26,6 +26,7 @@ e.g:
 import asyncio
 import re
 
+import beartype
 import json5 as json
 from urllib3.util import parse_url
 
@@ -48,7 +49,7 @@ WORKSPACE_MIRRORLIST_FILE = WORKSPACE_CONFIG_DIR / "mirrorlist.json"
 USER_MIRRORLIST_FILE = USER_CONFIG_DIR / "mirrorlist.json"
 GLOBAL_MIRRORLIST_FILE = GLOBAL_CONFIG_DIR / "mirrorlist.json"
 
-mirrorlist: AutoFormatDict = AutoFormatDict()
+mirrorlist = AutoFormatDict()
 
 for mirrorlist_file in [
     GLOBAL_MIRRORLIST_FILE,
@@ -58,11 +59,8 @@ for mirrorlist_file in [
     if mirrorlist_file.exists():
         try:
             with mirrorlist_file.open("r", encoding=DEFAULT_CHARSET) as f:
-                file_data: dict = json.load(f)
-                lower_data = {
-                    k.lower() if isinstance(k, str) else k: v
-                    for k, v in file_data.items()
-                }
+                file_data = AutoFormatDict(json.load(f))
+                lower_data = {k.lower(): v for k, v in file_data.items()}
                 mirrorlist.merge(lower_data)
         except (OSError, json.JSON5DecodeError) as exc_:
             logger.warning(
@@ -73,8 +71,8 @@ for mirrorlist_file in [
 
 
 async def _speedtest_daemon(
-    future: asyncio.Future,
-    tasks: list[asyncio.Task],
+    future: asyncio.Future[str | None],
+    tasks: list[asyncio.Task[None]],
 ) -> None:
     """If all tasks are done but the future is not set, set it to None."""
     try:
@@ -93,7 +91,11 @@ async def _speedtest_daemon(
         pass
 
 
-async def _speedtest(future: asyncio.Future, mirror: str, url: str) -> None:
+async def _speedtest(
+    future: asyncio.Future[str | None],
+    mirror: str,
+    url: str,
+) -> None:
     try:
         parsed_url = parse_url(url)
         url = f"{parsed_url.scheme}://{parsed_url.host}"  # Host only.
@@ -120,7 +122,7 @@ def get_mirrorlist(
             We only support HTTP(s) for now.
 
     Returns:
-        dict: The mirrorlist.
+        AutoFormatDict: The mirrorlist.
 
     """
     host = host.lower()
@@ -169,7 +171,7 @@ async def find_fastest_mirror(
     try:
         mlist: AutoFormatDict = get_mirrorlist(host, protocol)
         future = asyncio.get_event_loop().create_future()
-        tasks: list[asyncio.Task] = []
+        tasks: list[asyncio.Task[None]] = []
         for mirror, murl in mlist.items():
             task = asyncio.ensure_future(_speedtest(future, mirror, murl))
             tasks.append(task)
@@ -211,6 +213,7 @@ async def find_fastest_mirror(
         return "official"
 
 
+@beartype.beartype
 def get_url(
     remote: str,
     protocol: str = "http",

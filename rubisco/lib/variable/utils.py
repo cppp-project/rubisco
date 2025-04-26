@@ -21,10 +21,11 @@
 
 from collections.abc import Callable, Iterable
 from types import UnionType
-from typing import Any
+from typing import Any, cast
 
 from rubisco.lib.variable.autoformatdict import AutoFormatDict
 from rubisco.lib.variable.autoformatlist import AutoFormatList
+from rubisco.lib.variable.typecheck import is_instance
 
 __all__ = [
     "assert_iter_types",
@@ -61,6 +62,10 @@ def assert_iter_types(
 ) -> None:
     """Assert the types of the elements in the iterable.
 
+    Although AutoFormatDict/List.get's valtype argument supports UnionType
+    and GenericAlias, this function is useful for raising exceptions
+    with specific message.
+
     Args:
         iterable (Iterable): The iterable to assert.
         objtype (type | UnionType): The type to assert.
@@ -71,12 +76,12 @@ def assert_iter_types(
 
     """
     if objtype in [dict, AutoFormatDict]:
-        objtype = dict | AutoFormatDict
+        objtype = dict[object, object] | AutoFormatDict
     if objtype in [list, AutoFormatList]:
-        objtype = list | AutoFormatList
+        objtype = list[object] | AutoFormatList[object]
 
     for obj in iterable:
-        if not isinstance(obj, objtype):
+        if not is_instance(obj, objtype):
             raise exc
 
 
@@ -99,8 +104,8 @@ def iter_assert(
         Exception: If the element does not pass the checker.
 
     """
-    if isinstance(exc, Exception):
-        exc_ = exc
+    if is_instance(exc, Exception):
+        exc_ = cast("Exception", exc)
 
         def _exc(
             e: Any,  # noqa: ARG001 ANN401 # pylint: disable=unused-argument
@@ -111,4 +116,4 @@ def iter_assert(
 
     for obj in iterable:
         if not checker(obj):
-            raise exc(obj)
+            raise cast("Callable[[Any], Exception]", exc)(obj)

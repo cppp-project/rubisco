@@ -19,7 +19,7 @@
 
 """Rubisco string formatter with variable."""
 
-from typing import TypeVar
+from typing import Any, TypeVar
 
 from rubisco.lib.variable.execute import execute_expression
 from rubisco.lib.variable.lexer import get_token
@@ -31,20 +31,21 @@ __all__ = ["format_str"]
 
 T = TypeVar("T")
 
+
 def format_str(
-    string: str | T,
+    string: T,
     *,
-    fmt: dict[str, str] | None = None,
-) -> str | T:
+    fmt: dict[str, Any] | None = None,
+) -> T | Any:  # noqa: ANN401
     """Format the string with variables.
 
     Args:
-        string (str | T): The string to format.
-        fmt (dict[str, str] | None): The format dictionary.
+        string (T): The string to format.
+        fmt (dict[str, Any] | None): The format dictionary.
             Defaults to None.
 
     Returns:
-        str | T: The formatted string. If the input is not a string,
+        T | Any: The formatted string. If the input is not a string,
             return itself.
 
     """
@@ -80,5 +81,5 @@ class TestFormatStr:
 
     def test_var_with_pyexpr(self) -> None:
         """Test variable with python expression."""
-        if format_str("hello ${{var:$&{{1+1}}}}}}")!= "hello 2}}":
+        if format_str("hello ${{var:$&{{1+1}}}}}}") != "hello 2}}":
             raise AssertionError

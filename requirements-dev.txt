@@ -4,7 +4,6 @@ IPython  # For developer.
 Nuitka
 pickleshare
 pylint
-pytest
-pytype
+pyright
 ruff
 urllib3[socks]  # Avoid urllib3's warning in pytype's check.

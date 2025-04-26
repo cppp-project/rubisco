@@ -22,7 +22,10 @@
 from __future__ import annotations
 
 import re
-from typing import Self, overload
+from typing import TYPE_CHECKING, Self, overload
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 __all__ = ["Version"]
 
@@ -43,16 +46,31 @@ class Version:
     def __init__(self, version: Self) -> None: ...
 
     @overload
-    def __init__(self, version: tuple) -> None: ...
+    def __init__(self, version: tuple[int, int, int]) -> None: ...
 
-    def __init__(self, version: str | Self | tuple) -> None:
+    @overload
+    def __init__(self, version: tuple[int, int, int, str]) -> None: ...
+
+    @overload
+    def __init__(self, version: tuple[int, int, int, str, str]) -> None: ...
+
+    def __init__(
+        self,
+        version: (
+            str
+            | Self
+            | tuple[int, int, int]
+            | tuple[int, int, int, str]
+            | tuple[int, int, int, str, str]
+            | Sequence[int | str]
+        ),
+    ) -> None:
         """Initialize the version analyzer.
 
         Args:
-            version (str | Version | tuple): The version string.
-
-        Raises:
-            ValueError: Invalid version type.
+            version (str | Version | tuple | Iterable[int | str]): The version
+                string or tuple. If a tuple, it should be in the form of
+                (major, minor, patch, pre-release[optional], build[optional]).
 
         """
         self.major = 0
@@ -69,17 +87,12 @@ class Version:
             self.patch = version.patch
             self.pre = version.pre
             self.build = version.build
-        elif isinstance(version, tuple):
+        else:
             self.major = int(version[0])
             self.minor = int(version[1])
             self.patch = int(version[2])
-            if len(version) > 3:  # noqa: PLR2004
-                self.pre = str(version[3])
-            if len(version) > 4:  # noqa: PLR2004
-                self.build = str(version[4])
-        else:
-            msg = "Invalid version type."
-            raise ValueError(msg)  # noqa: TRY004
+            self.pre = str(version[3]) if len(version) > 3 else ""  # noqa: PLR2004
+            self.build = str(version[4]) if len(version) > 4 else ""  # noqa: PLR2004
 
     def _analyze(self, version: str) -> None:
         """Analyze the version string.
@@ -208,40 +221,70 @@ class Version:
         return False
 
 
-if __name__ == "__main__":
-    # Test: Version.
-    ver1 = Version("1.2.3")
-    assert str(ver1) == "1.2.3"  # noqa: S101
-    assert ver1.major == 1  # noqa: S101
-    assert ver1.minor == 2  # noqa: S101 PLR2004
-    assert ver1.patch == 3  # noqa: S101 PLR2004
-    assert ver1.pre == ""  # noqa: S101
-    assert ver1.build == ""  # noqa: S101
+class TestVersion:
+    """Test the Version class."""
 
-    # Test: Version with pre-release and build
-    ver2 = Version("1.2.3-alpha+build")
-    assert str(ver2) == "1.2.3-alpha+build"  # noqa: S101
-    assert ver2.major == 1  # noqa: S101
-    assert ver2.minor == 2  # noqa: S101 PLR2004
-    assert ver2.patch == 3  # noqa: S101 PLR2004
-    assert ver2.pre == "alpha"  # noqa: S101
-    assert ver2.build == "build"  # noqa: S101
+    def test_version(self) -> None:
+        """Test the Version class basic usage."""
+        ver = Version("1.2.3")
+        if str(ver) != "1.2.3":
+            raise AssertionError
+        if ver.major != 1 or ver.minor != 2 or ver.patch != 3:  # noqa: PLR2004
+            raise AssertionError
+        if ver.pre != "" or ver.build != "":
+            raise AssertionError
 
-    # Test: Version comparison
-    assert (ver1 == ver2) is False  # noqa: S101
-    assert (ver1 != ver2) is True  # noqa: S101
-    assert (ver1 > ver2) is True  # noqa: S101
-    assert (ver1 < ver2) is False  # noqa: S101
+    def test_version_with_pre_release(self) -> None:
+        """Test the Version class with pre-release."""
+        ver = Version("1.2.3-alpha")
+        if str(ver) != "1.2.3-alpha":
+            raise AssertionError
+        if ver.major != 1 or ver.minor != 2 or ver.patch != 3:  # noqa: PLR2004
+            raise AssertionError
+        if ver.pre != "alpha" or ver.build != "":
+            raise AssertionError
 
-    # Test: Version copy
-    ver3 = Version(ver1)
-    assert (ver1 == ver3) is True  # noqa: S101
+        ver = Version("1.2.3-alpha+build")
+        if str(ver) != "1.2.3-alpha+build":
+            raise AssertionError
+        if ver.major != 1 or ver.minor != 2 or ver.patch != 3:  # noqa: PLR2004
+            raise AssertionError
+        if ver.pre != "alpha" or ver.build != "build":
+            raise AssertionError
+        ver = Version("1.2.3+build")
+        if str(ver) != "1.2.3+build":
+            raise AssertionError
+        if ver.major != 1 or ver.minor != 2 or ver.patch != 3:  # noqa: PLR2004
+            raise AssertionError
+        if ver.pre != "" or ver.build != "build":
+            raise AssertionError
 
-    # Test: Version tuple
-    ver4 = Version((1, 2, 3, "alpha", "build"))
-    assert str(ver4) == "1.2.3-alpha+build"  # noqa: S101
-    assert ver4.major == 1  # noqa: S101
-    assert ver4.minor == 2  # noqa: S101 PLR2004
-    assert ver4.patch == 3  # noqa: S101 PLR2004
-    assert ver4.pre == "alpha"  # noqa: S101
-    assert ver4.build == "build"  # noqa: S101
+    def test_version_comparison(self) -> None:
+        """Test the Version class comparison."""
+        ver1 = Version("1.2.3")
+        ver2 = Version("1.2.3-alpha+build")
+        if (ver1 == ver2) is True:
+            raise AssertionError
+        if (ver1 != ver2) is False:
+            raise AssertionError
+        if (ver1 > ver2) is False:
+            raise AssertionError
+        if (ver1 < ver2) is True:
+            raise AssertionError
+
+    def test_version_copy(self) -> None:
+        """Test the Version class copy."""
+        ver1 = Version("1.2.3-alpha+build")
+        ver2 = Version(ver1)
+        if ver1 != ver2:
+            raise AssertionError
+
+    def test_version_tuple(self) -> None:
+        """Test the Version class with tuple."""
+        ver = Version((1, 2, 3, "alpha", "build"))
+        if str(ver) != "1.2.3-alpha+build":
+            raise AssertionError
+        if ver.major != 1 or ver.minor != 2 or ver.patch != 3:  # noqa: PLR2004
+            raise AssertionError
+        if ver.pre != "alpha" or ver.build != "build":
+            raise AssertionError

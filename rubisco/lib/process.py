@@ -62,7 +62,7 @@ class Process:
     origin_cmd: str  # For UCI's output.
     cmd: str
     cwd: Path
-    process: Popen
+    process: Popen[bytes]
     _tempfile: TemporaryObject | None
 
     def __init__(
