@@ -21,14 +21,22 @@
 
 from __future__ import annotations
 
-__all__ = ["command"]
+from collections.abc import Iterable
+from typing import Any
+
+import beartype
+
+__all__ = ["command", "expand_cmdlist"]
 
 
-def command(args: list[str] | str) -> str:
+_T = Iterable  # Make Ruff happy.
+
+@beartype.beartype
+def command(args: Iterable[str | Iterable[Any]] | str) -> str:
     """Generate shell command from a list of arguments.
 
     Args:
-        args (list[str] | str): The list of arguments.
+        args (Iterable[str | Iterable[Any]] | str): The list of arguments.
 
     Returns:
         str: The shell command.
@@ -36,6 +44,7 @@ def command(args: list[str] | str) -> str:
     """
     if isinstance(args, str):
         return args
+    args = expand_cmdlist(args)
 
     res_command = ""
     for arg in args:
@@ -48,9 +57,39 @@ def command(args: list[str] | str) -> str:
     return res_command.strip()
 
 
+def expand_cmdlist(args: Iterable[str | Iterable[Any]]) -> list[str]:
+    """Expand recursive command list to flat list.
+
+    Args:
+        args (Iterable[str | Iterable[Any]]): The list of arguments.
+
+    Returns:
+        list[str]: The flat list of arguments.
+
+    """
+    res_args: list[str] = []
+    for arg in args:
+        if isinstance(arg, list):
+            res_args.extend(expand_cmdlist(arg))
+        else:
+            res_args.append(str(arg))
+    return res_args
+
+
 def test_command_generator() -> None:
     """Test command generator."""
     if command(["echo", "Hello, world!"]) != 'echo "Hello, world!"':
         raise AssertionError
     if command("echo Hello, world!") != "echo Hello, world!":
+        raise AssertionError
+
+
+def test_recursive_command_generator() -> None:
+    """Test recursive command generator."""
+    if command(["echo", ["Hello, world!"]]) != 'echo "Hello, world!"':
+        raise AssertionError
+    if (
+        command(["echo", ["Hello, world!", "Goodbye, world!"]])
+        != 'echo "Hello, world!" "Goodbye, world!"'
+    ):
         raise AssertionError

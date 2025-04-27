@@ -21,7 +21,7 @@
 
 from collections.abc import Generator, Iterator
 from types import GenericAlias, UnionType
-from typing import Any, cast
+from typing import Any, ClassVar, cast
 
 from rubisco.lib.exceptions import RUError
 from rubisco.lib.l10n import _
@@ -47,6 +47,8 @@ class AutoFormatDict(dict[str, Any]):
     Python's built-in list and dict will NEVER appear here.
     """
 
+    raise_if_not_found: ClassVar[object] = object()
+
     def __init__(self, *args: Any, **kwargs: Any) -> None:  # noqa: ANN401
         """Initialize the AutoFormatDict.
 
@@ -67,32 +69,27 @@ class AutoFormatDict(dict[str, Any]):
     def get(  # pylint: disable=R0913
         self,
         key: str,
-        default: Any = None,  # noqa: ANN401
+        default: Any = raise_if_not_found,  # noqa: ANN401
         *,
         valtype: type | GenericAlias | UnionType | None = object,
-        strict: bool = False,
         fmt: dict[str, Any] | None = None,
     ) -> Any:  # noqa: ANN401
         """Get the value of the given key.
 
         Args:
             key (str): The key to get value.
-            default (Any): The default value to return.
-                If `strict` is `False`, it will be returned.
-                If `strict` is `True`, KeyError will be raised.
-            valtype (type | GenericAlias | UnionType | None): The type of the
-                value of existing key's value. If the value is not the same as
-                the given type, AFTypeError will be raised. But we will not
-                check the value if default value will be returned.
-            strict (bool): If `strict` is `False`, KeyError will be raised.
-                If `strict` is `True`, the default value will be returned.
-                Defaults to `False`.
-            fmt (dict[str, Any] | None): The variable context.
+            default (Any, optional): The default value to return.
+                Defaults to `raise_if_not_found`.
+            valtype (type | GenericAlias | UnionType | None, optional): The
+                type of the value of existing key's value. If the value is not
+                the same as the given type, AFTypeError will be raised. But we
+                will not check the value if default value will be returned.
+            fmt (dict[str, Any] | None, optional): The variable context.
+                Defaults to `None`.
 
         Returns:
             Any: The value of the given key. If the key is not found,
-                the default value will be returned. But raise KeyError if
-                `strict` is `True`.
+                the default value will be returned.
 
         Raises:
             KeyError: If the key is not found.
@@ -100,18 +97,14 @@ class AutoFormatDict(dict[str, Any]):
 
         """
         key = format_str(key, fmt=fmt)
-        _raise_if_not_found = object()
-        res = _raise_if_not_found
+        res = default
         for k in self.orig_keys():
             if format_str(k) == key:
-                res = format_str(self.orig_get(k, _raise_if_not_found))
+                res = format_str(self.orig_get(k, self.raise_if_not_found))
                 break
 
-        if res is _raise_if_not_found:
-            if strict:
-                raise KeyError(repr(key))
-
-            return default
+        if res is self.raise_if_not_found:
+            raise KeyError(repr(key))
 
         if not is_instance(res, valtype):
             valtype_name = getattr(valtype, "__name__", repr(valtype))
@@ -187,7 +180,6 @@ class AutoFormatDict(dict[str, Any]):
         default: Any = None,  # noqa: ANN401
         *,
         valtype: type | GenericAlias | UnionType | None = object,
-        strict: bool = False,
         fmt: dict[str, Any] | None = None,
     ) -> Any:  # noqa: ANN401
         """Pop the value of the given key.
@@ -195,21 +187,15 @@ class AutoFormatDict(dict[str, Any]):
         Args:
             key (str): The key to pop value.
             default (Any): The default value to return.
-                If `strict` is `False`, it will be returned.
-                If `strict` is `True`, KeyError will be raised.
             valtype (type | GenericAlias | UnionType | None): The type of the
                 value of existing key's value. If the value is not the same as
                 the given type, AFTypeError will be raised. But we will not
                 check the value if default value will be returned.
-            strict (bool): If `strict` is `False`, KeyError will be raised.
-                If `strict` is `True`, the default value will be returned.
-                Defaults to `False`.
             fmt (dict[str, Any] | None): The variable context.
 
         Returns:
             Any: The value of the given key.
                 If the key is not found, the default value will be returned.
-                But raise KeyError if `strict` is `True`.
 
         Raises:
             KeyError: If the key is not found.
@@ -220,7 +206,6 @@ class AutoFormatDict(dict[str, Any]):
             key,
             default,
             valtype=valtype,
-            strict=strict,
             fmt=fmt,
         )
         if key in self:
@@ -305,7 +290,7 @@ class AutoFormatDict(dict[str, Any]):
             Any | AutoFormatDict: The value of the given key.
 
         """
-        return format_str(self.get(format_str(key), strict=True))
+        return format_str(self.get(format_str(key)))
 
     def __iter__(self) -> Iterator[str]:
         """Get the keys iterator of the dict."""

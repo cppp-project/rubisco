@@ -25,6 +25,18 @@ from typing import Any, Generic, TypeVar, cast, get_args, get_origin
 
 __all__ = ["is_instance"]
 
+T = TypeVar("T")
+
+
+class AutoFormatDict(dict[str, Any]):
+    """AutoFormatDict type for TESTING."""
+
+    orig_items = dict[str, Any].items
+
+
+class AutoFormatList(list[T], Generic[T]):
+    """AutoFormatList type for TESTING."""
+
 
 def rubisco_isinstance(obj: Any, objtype: type | UnionType) -> bool:  # noqa: ANN401
     """Check if an object is an instance of a type.
@@ -63,6 +75,11 @@ def _is_instance_generic_alias_dict(
     keytype, valtype = args
     keytype: type | GenericAlias | UnionType | None
     valtype: type | GenericAlias | UnionType | None
+    if type(obj).__name__ == "AutoFormatDict":
+        return all(
+            is_instance(key, keytype) and is_instance(val, valtype)
+            for key, val in cast("AutoFormatDict", obj).orig_items()
+        )
     return all(
         is_instance(key, keytype) and is_instance(val, valtype)
         for key, val in obj.items()
@@ -154,18 +171,6 @@ def is_instance(
     return rubisco_isinstance(obj, cast("type", objtype))
 
 
-KT = TypeVar("KT")
-VT = TypeVar("VT")
-
-
-class AutoFormatDict(dict[KT, VT], Generic[KT, VT]):
-    """AutoFormatDict type for testing."""
-
-
-class AutoFormatList(list[VT], Generic[VT]):
-    """AutoFormatList type for testing."""
-
-
 class TestIsInstance:
     """Test is_instance."""
 
@@ -243,7 +248,7 @@ class TestIsInstance:
             raise AssertionError
         if not is_instance(
             {"a": 1, "b": None},
-            AutoFormatDict[str, int | None],
+            AutoFormatDict,
         ):
             raise AssertionError
 

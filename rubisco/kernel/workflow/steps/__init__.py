@@ -25,6 +25,7 @@ from rubisco.kernel.workflow.steps.copyfile import CopyFileStep
 from rubisco.kernel.workflow.steps.echo import EchoStep, OutputStep
 from rubisco.kernel.workflow.steps.extensionload import ExtensionLoadStep
 from rubisco.kernel.workflow.steps.extract import ExtractStep
+from rubisco.kernel.workflow.steps.glob import GlobFileStep
 from rubisco.kernel.workflow.steps.mkdir import MkdirStep
 from rubisco.kernel.workflow.steps.mklink import MklinkStep
 from rubisco.kernel.workflow.steps.movefile import MoveFileStep
@@ -50,6 +51,7 @@ step_types: dict[str, type[Step]] = {
     "mklink": MklinkStep,
     "compress": CompressStep,
     "extract": ExtractStep,
+    "glob": GlobFileStep,
 }
 
 # Type is optional. If not provided, it will be inferred from the step data.
@@ -67,4 +69,5 @@ step_contributes: dict[type[Step], list[str]] = {
     MklinkStep: ["mklink", "to"],
     CompressStep: ["compress", "to"],
     ExtractStep: ["extract", "to"],
+    GlobFileStep: ["glob"],
 }

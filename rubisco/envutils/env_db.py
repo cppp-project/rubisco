@@ -23,7 +23,7 @@ import re
 import sqlite3
 from pathlib import Path
 from types import EllipsisType, TracebackType
-from typing import NoReturn
+from typing import Any, NoReturn
 
 from rubisco.envutils.env_type import EnvType
 from rubisco.envutils.packages import ExtensionPackageInfo
@@ -60,7 +60,7 @@ VALUES
 def _execute_sql(
     db: sqlite3.Connection,
     sql: str,
-    args: tuple | EllipsisType = ...,  # type: ignore[annotation-type-mismatch]
+    args: tuple[Any, ...] | EllipsisType = ...,  # type: ignore[annotation-type-mismatch]
 ) -> sqlite3.Cursor:
     logger.info(
         'Executing SQL query in database "%s" with args: %s',
@@ -332,7 +332,7 @@ class RUEnvDB:
 
         """
         with self:
-            res = set()
+            res: set[ExtensionPackageInfo] = set()
             try:
                 for pattern in patterns:
                     res |= self._query_pkgs_with_one_pattern(pattern)

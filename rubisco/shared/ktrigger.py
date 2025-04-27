@@ -343,6 +343,15 @@ class IKernelTrigger:  # pylint: disable=too-many-public-methods
         """
         _null_trigger("on_mkdir", path=path)
 
+    def on_file_selected(self, *, path: Path) -> None:
+        """On a file selected.
+
+        Args:
+            path (Path): File path.
+
+        """
+        _null_trigger("on_file_selected", path=path)
+
     def on_output(self, *, message: str) -> None:
         """Output a message.
 
