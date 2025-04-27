@@ -23,10 +23,7 @@ from pathlib import Path
 from typing import Any
 
 from rubisco.kernel.workflow.step import Step
-from rubisco.lib.exceptions import RUValueError
-from rubisco.lib.l10n import _
 from rubisco.lib.process import Process
-from rubisco.lib.variable.utils import assert_iter_types
 from rubisco.lib.variable.variable import push_variables
 
 __all__ = ["ShellExecStep"]
@@ -42,15 +39,6 @@ class ShellExecStep(Step):
     def init(self) -> None:
         """Initialize the step."""
         self.cmd = self.raw_data.get("run", valtype=str | list)
-        if isinstance(self.cmd, list):
-            assert_iter_types(
-                self.cmd,
-                str | list,
-                RUValueError(
-                    _("The shell command list must be a list of strings."),
-                ),
-            )
-
         self.cwd = Path(self.raw_data.get("cwd", "", valtype=str))
         self.fail_on_error = self.raw_data.get(
             "fail-on-error",

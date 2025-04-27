@@ -3,8 +3,9 @@ name: ✔️ Lint
 id: lint
 
 steps:
-  - popen: git ls-files \*.py
-    id: files
+  - glob: "rubisco/**/*.py"
+    save-to: src-files
+    recursive: True
 
   - name: 🛠️ Analysing the code with ruff
     run:
@@ -22,7 +23,8 @@ steps:
       ]
 
   - name: 🛠️ Analysing the code with pylint
-    run: python -m pylint -j ${{ nproc }} $(git ls-files \*.py)
+    run: [python, -m, pylint, -j, "${{ nproc }}", "${{ src-files }}"]
 
   - name: 🛠️ Running type check
-    run: python -m pyright --verbose --threads ${{ nproc }} --level=warning rubisco
+    run:
+      python -m pyright --verbose --threads ${{ nproc }} --level=warning rubisco
