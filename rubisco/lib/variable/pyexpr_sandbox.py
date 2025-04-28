@@ -29,7 +29,7 @@ import pytest
 from rubisco.lib.exceptions import RUError
 from rubisco.lib.l10n import _
 from rubisco.lib.log import logger
-from rubisco.lib.variable.variable import variables
+from rubisco.lib.variable.variable import get_variable, has_variable, variables
 
 __all__ = [
     "RUEvalError",
@@ -85,8 +85,26 @@ def eval_pyexpr(expr: str) -> Any:  # noqa: ANN401
     Returns:
         Any: The result of the python expression.
 
+    Warnings:
+        This function is not 100% safe. We trust users because
+        Rubisco is a tool for cppp developer(s).
+
     """
     builtins_ = _copy_builtins()
+
+    # Variables functions.
+    builtins_.get_variable = get_variable  # type: ignore[attr-defined]
+    builtins_.get = get_variable  # type: ignore[attr-defined]
+    builtins_.g = get_variable  # type: ignore[attr-defined]
+    builtins_.has_variable = has_variable  # type: ignore[attr-defined]
+    builtins_.has = has_variable  # type: ignore[attr-defined]
+    builtins_.h = has_variable  # type: ignore[attr-defined]
+
+    # Variables.
+    for name, val in variables.items():
+        setattr(builtins_, name, val.top())
+
+    # Disable some built-in functions.
     builtins_.__import__ = get_disabled_function("__import__")  # type: ignore[attr-defined]
     builtins_.open = get_disabled_function("open")  # type: ignore[attr-defined]
     builtins_.exec = get_disabled_function("exec")  # type: ignore[attr-defined]

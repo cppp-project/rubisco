@@ -32,11 +32,11 @@ __all__ = ["command", "expand_cmdlist"]
 _T = Iterable  # Make Ruff happy.
 
 @beartype.beartype
-def command(args: Iterable[str | Iterable[Any]] | str) -> str:
+def command(args: Iterable[Any] | str) -> str:
     """Generate shell command from a list of arguments.
 
     Args:
-        args (Iterable[str | Iterable[Any]] | str): The list of arguments.
+        args (Iterable[Any] | str): The list of arguments.
 
     Returns:
         str: The shell command.

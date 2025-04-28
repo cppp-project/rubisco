@@ -77,7 +77,7 @@ def get_token(  # pylint: disable=R0912, R0915 # noqa: C901, PLR0912, PLR0915
         list[Token]: The token list of the expression.
 
     """
-    current_state: Stack = Stack()
+    current_state: Stack[TS] = Stack()
     current_state.put(TS.CONSTANT)
     cur_token_value = ""
     cur_ignored_token_value = ""

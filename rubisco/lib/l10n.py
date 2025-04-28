@@ -53,6 +53,13 @@ def locale_language() -> str:
         str: Locale language.
 
     """
+    if os.name == "nt":
+        return (
+            _locale_language(locale.LC_ALL)
+            or _locale_language(locale.LC_CTYPE)
+            or _locale_language(locale.LC_NUMERIC)
+            or "C"
+        )
     return (
         _locale_language(locale.LC_ALL)
         or _locale_language(locale.LC_MESSAGES)
