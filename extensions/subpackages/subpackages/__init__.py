@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-"""C++ Plus Rubisco test extension."""
+"""Rubisco subpackage manager."""
 
 from pathlib import Path
 from typing import ClassVar
@@ -25,18 +25,15 @@ from typing import ClassVar
 from rubisco.kernel.workflow.step import Step
 from rubisco.lib.fileutil import find_command
 from rubisco.lib.variable import push_variables
-from rubisco.lib.version import Version
 from rubisco.shared.extension import IRUExtension
 from rubisco.shared.ktrigger import IKernelTrigger
 
 __all__ = ["instance"]
 
 
-class TestExtension(IRUExtension):
-    """Test extension."""
+class SubpackagesExtension(IRUExtension):
+    """Rubisco subpackage manager."""
 
-    name = "test"
-    version = Version((0, 1, 0))
     ktrigger = IKernelTrigger()
     workflow_steps: ClassVar[dict[str, type[Step]]] = {}
     steps_contributions: ClassVar[dict[type[Step], list[str]]] = {}
@@ -57,4 +54,4 @@ class TestExtension(IRUExtension):
         """Solve requirements."""
 
 
-instance = TestExtension()
+instance = SubpackagesExtension()

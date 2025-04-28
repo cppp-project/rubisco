@@ -433,11 +433,16 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
             ),
         )
 
-    def on_extension_loaded(self, *, instance: IRUExtension) -> None:
+    def on_extension_loaded(
+        self,
+        *,
+        instance: IRUExtension,  # noqa: ARG002
+        ext_info: ExtensionPackageInfo,
+    ) -> None:
         output_step(
             fast_format_str(
                 _("Extension '${{name}}' loaded."),
-                fmt={"name": instance.name},
+                fmt={"name": ext_info.name},
             ),
         )
 

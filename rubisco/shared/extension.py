@@ -58,7 +58,6 @@ from rubisco.shared.ktrigger import (
 if TYPE_CHECKING:
 
     from rubisco.kernel.workflow.step import Step
-    from rubisco.lib.version import Version
 
 __all__ = [
     "IRUExtension",
@@ -70,9 +69,6 @@ __all__ = [
 class IRUExtension(abc.ABC):
     """Rubisco extension interface."""
 
-    name: str
-    description: str
-    version: Version
     ktrigger: IKernelTrigger
     workflow_steps: ClassVar[dict[str, type[Step]]]
     steps_contributions: ClassVar[dict[type[Step], list[str]]]
@@ -105,7 +101,7 @@ class IRUExtension(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def reqs_is_sloved(self) -> bool:
+    def reqs_is_solved(self) -> bool:
         """Check if the system requirements are solved.
 
         This method should return True if the system requirements are solved,
@@ -217,13 +213,13 @@ def _get_extension_instance(path: Path) -> IRUExtension:
 
 
 def _solve_extension_reqs(instance: IRUExtension, ext_name: str) -> None:
-    if not instance.reqs_is_sloved():
+    if not instance.reqs_is_solved():
         logger.info(
             "Solving requirements for extension '%s'...",
             ext_name,
         )
         instance.solve_reqs()
-        if not instance.reqs_is_sloved():
+        if not instance.reqs_is_solved():
             logger.error(
                 "Failed to solve requirements for extension '%s'.",
                 ext_name,
@@ -334,7 +330,11 @@ def load_extension(
             ext_info.name,
             instance.ktrigger,
         )
-        call_ktrigger(IKernelTrigger.on_extension_loaded, instance=instance)
+        call_ktrigger(
+            IKernelTrigger.on_extension_loaded,
+            instance=instance,
+            ext_info=ext_info,
+        )
 
         loaded_extensions.append(ext_info.name)
         logger.info("Loaded extension: %s", ext_info.name)

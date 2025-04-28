@@ -390,14 +390,24 @@ class IKernelTrigger:  # pylint: disable=too-many-public-methods
         """
         _null_trigger("on_remove", path=path)
 
-    def on_extension_loaded(self, *, instance: IRUExtension) -> None:
+    def on_extension_loaded(
+        self,
+        *,
+        instance: IRUExtension,
+        ext_info: ExtensionPackageInfo,
+    ) -> None:
         """On a extension loaded.
 
         Args:
             instance (IRUExtension): Extension instance.
+            ext_info (ExtensionPackageInfo): Extension information.
 
         """
-        _null_trigger("on_extension_loaded", instance=instance)
+        _null_trigger(
+            "on_extension_loaded",
+            instance=instance,
+            ext_info=ext_info,
+        )
 
     def on_show_project_info(self, *, project: ProjectConfigration) -> None:
         """On show project information.
