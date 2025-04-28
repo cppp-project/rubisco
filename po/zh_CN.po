@@ -20,7 +20,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Rubisco 0.1.0\n"
 "Report-Msgid-Bugs-To: cpppteam@email.cn\n"
-"POT-Creation-Date: 2025-04-03 23:46+0800\n"
+"POT-Creation-Date: 2025-04-28 15:55+0800\n"
 "PO-Revision-Date: 2024-06-25 11:07+0800\n"
 "Last-Translator:  <wushengwuxi-msctinoulk@outlook.com>\n"
 "Language-Team: Chinese (simplified) <i18n-zh@googlegroups.com>\n"
@@ -30,33 +30,38 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: /usr/lib/python3.12/argparse.py:736
+#: /usr/lib/python3.13/argparse.py:687
 #, python-format
 msgid " (default: %(default)s)"
 msgstr " （默认值：%(default)s）"
 
-#: ../rubisco/cli/main/ktrigger.py:308
+#: ../rubisco/lib/variable/pyexpr_sandbox.py:72
+msgid "${{func}} is disallowed in Rubisco variable expression."
+msgstr "${{func}} 在 Rubisco 变量表达式中不允许。"
+
+#: ../rubisco/cli/main/ktrigger.py:309
 msgid "${{speed}} us"
 msgstr "${{speed}} 微秒"
 
-#: /usr/lib/python3.12/argparse.py:242
+#: /usr/lib/python3.13/argparse.py:240
 #, python-format
 msgid "%(heading)s:"
 msgstr "%(heading)s:"
 
-#: /usr/lib/python3.12/argparse.py:2664
+#: /usr/lib/python3.13/argparse.py:2659
 #, python-format
 msgid "%(prog)s: error: %(message)s\n"
 msgstr "%(prog)s: 错误: %(message)s\n"
 
-#: /usr/lib/python3.12/argparse.py:2555
+#: /usr/lib/python3.13/argparse.py:2663
+#, python-format
+msgid "%(prog)s: warning: %(message)s\n"
+msgstr "%(prog)s: 警告: %(message)s\n"
+
+#: /usr/lib/python3.13/argparse.py:2550
 #, python-format
 msgid "%r is not callable"
 msgstr "%r 不是可调用的"
-
-#: ../rubisco/shared/ktrigger.py:602
-msgid "'${{name}}' is not a IKernelTrigger instance."
-msgstr "'${{name}}' 不是 IKernelTrigger 实例。"
 
 #: ../rubisco/envutils/packages.py:118
 msgid "'${{name}}' package contains files that not allowed in the root directory."
@@ -74,15 +79,15 @@ msgstr "未找到 '[underline]${{path}}[/underline]'。"
 msgid "'[underline]${{path}}[/underline]' is not in the subpath of '[underline]${{start}}[/underline]'"
 msgstr "'[underline]${{path}}[/underline]' 不在 '[underline]${{start}}[/underline]' 的子路径中"
 
-#: /usr/lib/python3.12/argparse.py:1597
+#: /usr/lib/python3.13/argparse.py:1582
 msgid "'required' is an invalid argument for positionals"
 msgstr "'required' 是位置参数的无效参数"
 
-#: ../rubisco/cli/main/project_config.py:99 ../rubisco/cli/main/ktrigger.py:503
+#: ../rubisco/cli/main/project_config.py:99 ../rubisco/cli/main/ktrigger.py:514
 msgid "(${{num}} hooks)"
 msgstr "(${{num}} 个钩子)"
 
-#: /usr/lib/python3.12/argparse.py:904
+#: /usr/lib/python3.13/argparse.py:858
 msgid ".__call__() not defined"
 msgstr ".__call__() 未定义"
 
@@ -90,14 +95,21 @@ msgstr ".__call__() 未定义"
 msgid "2nd parameter to sqlite3_bind out of range."
 msgstr "第二个参数超出范围。"
 
-#: ../rubisco/kernel/workflow.py:898
+#: ../rubisco/kernel/workflow/__init__.py:295
 msgid "<Inline Workflow>"
 msgstr "<内联工作流>"
 
-#: ../rubisco/kernel/project_config.py:170 ../rubisco/kernel/workflow.py:160
-#: ../rubisco/kernel/workflow.py:776 ../rubisco/kernel/workflow.py:777
+#: ../rubisco/kernel/project_config.py:175
+#: ../rubisco/kernel/workflow/__init__.py:173
+#: ../rubisco/kernel/workflow/__init__.py:174
+#: ../rubisco/kernel/workflow/step.py:91
 msgid "<Unnamed>"
 msgstr "<未命名>"
+
+#: ../rubisco/lib/variable/pyexpr_sandbox.py:50
+#: ../rubisco/lib/variable/pyexpr_sandbox.py:114
+msgid "<rubisco inline python expression>"
+msgstr "<rubisco 内联 python 表达式>"
 
 #: ../rubisco/lib/sqlite_strerror.py:227
 msgid "A CHECK constraint failed."
@@ -179,19 +191,15 @@ msgstr "寻找或读取失败是由于请求不在文件的边界内，而不是
 msgid "A table in the database is locked."
 msgstr "数据库中的一个表被锁定。"
 
-#: ../rubisco/kernel/project_config.py:91
+#: ../rubisco/kernel/project_config.py:96
 msgid "A workflow [yellow]SHOULD[/yellow] contain at least 'exec', 'run' and 'workflow'."
 msgstr "工作流 [yellow]应该[/yellow]至少包含 'exec'， 'run' 和 'workflow' 选项。"
-
-#: ../rubisco/kernel/workflow.py:718
-msgid "A workflow step must be a dict."
-msgstr "工作流步骤必须是一个字典。"
 
 #: ../rubisco/lib/sqlite_strerror.py:174
 msgid "Abort due to constraint violation."
 msgstr "由于约束违规而中止。"
 
-#: ../rubisco/lib/fileutil.py:90
+#: ../rubisco/lib/fileutil.py:92
 msgid "Absolute path '[underline]${{path}}[/underline]' is not allowed."
 msgstr "不允许使用绝对路径 '[underline]${{path}}[/underline]'。"
 
@@ -203,7 +211,7 @@ msgstr "访问权限被拒绝。"
 msgid "Access to an SQLite data record is blocked by another database connection that is using the same record in shared cache mode."
 msgstr "另一个数据库连接正在使用共享缓存模式中的相同记录，阻止对 SQLite 数据记录的访问。"
 
-#: ../rubisco/kernel/mirrorlist.py:194
+#: ../rubisco/kernel/mirrorlist.py:196
 msgid "All mirrors are unreachable or canceled. Switching to official [underline][blue]${{url}}[/blue][/underline] ..."
 msgstr "所有镜像都无法访问或已取消。切换到 official [underline][blue]${{url}}[/blue][/underline] ..."
 
@@ -255,7 +263,7 @@ msgstr "另一行输出可用。"
 msgid "Attempt to write a readonly database."
 msgstr "尝试写入只读数据库。"
 
-#: ../rubisco/cli/main/arg_parser.py:108
+#: ../rubisco/cli/main/arg_parser.py:124
 msgid "Available commands"
 msgstr "可用命令"
 
@@ -263,32 +271,32 @@ msgstr "可用命令"
 msgid "Callback routine requested an abort."
 msgstr "回调例程请求中止。"
 
-#: ../rubisco/kernel/project_config.py:299
+#: ../rubisco/lib/fileutil.py:119
+msgid "Cannot remove root directory."
+msgstr "无法删除根目录。"
+
+#: ../rubisco/kernel/project_config.py:298
 msgid "Circular dependency detected: [underline]${{path}}[/underline]."
 msgstr "检测到循环依赖：[underline]${{path}}[/underline]。"
 
-#: ../rubisco/cli/main/ktrigger.py:255
+#: ../rubisco/cli/main/ktrigger.py:256
 msgid "Cloning Git repository ${{url}} (${{branch}}) into '[underline]${{path}}[/underline]' ..."
 msgstr "正在克隆 Git 仓库 ${{url}} (${{branch}}) 到 '[underline]${{path}}[/underline]' ..."
 
-#: ../rubisco/lib/fileutil.py:668
+#: ../rubisco/lib/fileutil.py:674
 msgid "Command '${{cmd}}' not found."
 msgstr "命令 '${{cmd}}' 未找到。"
 
-#: ../rubisco/kernel/workflow.py:552
+#: ../rubisco/kernel/workflow/steps/compress.py:74
 msgid "Compress format must be a list of string or a string."
 msgstr "压缩格式必须是字符串或字符串列表。"
 
-#: ../rubisco/lib/archive/zip.py:129 ../rubisco/lib/archive/__init__.py:330
+#: ../rubisco/lib/archive/zip.py:129 ../rubisco/lib/archive/__init__.py:333
 #: ../rubisco/lib/archive/tar.py:156 ../rubisco/lib/archive/sevenzip.py:193
 msgid "Compressing '[underline]${{path}}[/underline]' to '[underline]${{file}}[/underline]' as '${{type}}' ..."
 msgstr "正在以 '${{type}}' 格式压缩 '[underline]${{path}}[/underline]' 到 '[underline]${{file}}[/underline]' ..."
 
-#: ../rubisco/kernel/project_config.py:272
-msgid "Configuration must be a JSON5 object. (dict)"
-msgstr "配置必须是 JSON5 对象。 (dict)"
-
-#: ../rubisco/kernel/workflow.py:762
+#: ../rubisco/kernel/workflow/__init__.py:159
 msgid "Consider use 'type' attribute manually."
 msgstr "考虑手动指定 'type' 属性。"
 
@@ -296,15 +304,15 @@ msgstr "考虑手动指定 'type' 属性。"
 msgid "Content in the virtual table is corrupt."
 msgstr "虚拟表中的内容损坏。"
 
-#: ../rubisco/cli/main/ktrigger.py:231
+#: ../rubisco/cli/main/ktrigger.py:232
 msgid "Continue anyway?"
 msgstr "仍然继续吗？"
 
-#: ../rubisco/cli/main/ktrigger.py:811
+#: ../rubisco/cli/main/ktrigger.py:822
 msgid "Continue?"
 msgstr "是否继续？"
 
-#: ../rubisco/cli/main/ktrigger.py:407
+#: ../rubisco/cli/main/ktrigger.py:408
 msgid "Copying '[underline]${{src}}[/underline]' to '[underline]${{dst}}[/underline]' ..."
 msgstr "正在复制 '[underline]${{src}}[/underline]' 到 '[underline]${{dst}}[/underline]' ..."
 
@@ -321,19 +329,19 @@ msgstr ""
 "这是自由软件：你可以自由更改和重新发布它。\n"
 "在法律许可的情况下特此明示，本软件[yellow]不提供任何担保[/yellow]。由 [underline]ChenPi11[/underline] 编写。"
 
-#: ../rubisco/envutils/env.py:469 ../rubisco/cli/main/ktrigger.py:547
+#: ../rubisco/cli/main/ktrigger.py:558
 msgid "Creating Rubisco extension environment: '[underline]${{path}}[/underline]' ..."
 msgstr "正在创建 Rubisco 扩展环境： '[underline]${{path}}[/underline]' ..."
 
-#: ../rubisco/cli/main/ktrigger.py:381
+#: ../rubisco/cli/main/ktrigger.py:382
 msgid "Creating directory: [underline]${{path}}[/underline] ..."
 msgstr "创建目录： [underline]${{path}}[/underline] ..."
 
-#: ../rubisco/cli/main/ktrigger.py:533
+#: ../rubisco/cli/main/ktrigger.py:544
 msgid "Creating hard link: [underline]${{src}}[/underline] -> '[underline]${{dst}}[/underline]'..."
 msgstr "正在创建硬链接： [underline]${{src}}[/underline] -> '[underline]${{dst}}[/underline]'..."
 
-#: ../rubisco/cli/main/ktrigger.py:520
+#: ../rubisco/cli/main/ktrigger.py:531
 msgid "Creating symbolic link: [underline]${{src}}[/underline] -> '[underline]${{dst}}[/underline]'..."
 msgstr "正在创建符号链接： [underline]${{src}}[/underline] -> '[underline]${{dst}}[/underline]'..."
 
@@ -357,43 +365,47 @@ msgstr "正在下载 ${{url}} ..."
 msgid "Entering directory '${{path}}' ..."
 msgstr "进入目录 '${{path}}'..."
 
-#: ../rubisco/lib/fileutil.py:127
+#: ../rubisco/lib/fileutil.py:133
 msgid "Error while removing '[underline]${{path}}[/underline]': ${{error}}"
 msgstr "删除 '[underline]${{path}}[/underline]' 时出错： ${{error}}"
 
-#: ../rubisco/cli/main/ktrigger.py:99
+#: ../rubisco/lib/variable/pyexpr_sandbox.py:127
+msgid "Eval python expression failed: ${{expr}}: ${{exc}}"
+msgstr "python 表达式求值失败： ${{expr}}: ${{exc}}"
+
+#: ../rubisco/cli/main/ktrigger.py:100
 msgid "Executing: [cyan]${{cmd}}[/cyan] ..."
 msgstr "正在执行： [cyan]${{cmd}}[/cyan] ..."
 
-#: ../rubisco/cli/main/ktrigger.py:428
+#: ../rubisco/cli/main/ktrigger.py:439
 msgid "Extension '${{name}}' loaded."
 msgstr "扩展 '${{name}}' 已加载。"
 
-#: ../rubisco/envutils/packages.py:474
+#: ../rubisco/envutils/packages.py:471
 msgid "Extension '${{name}}'([underline]${{path}}[/underline]) not found in the filesystem."
 msgstr "扩展 '${{name}}'([underline]${{path}}[/underline]) 未在文件系统中找到。"
 
-#: ../rubisco/cli/main/ktrigger.py:619
+#: ../rubisco/cli/main/ktrigger.py:630
 msgid "Extension [green]${{name}}[/green]:[cyan]${{version}}[/cyan] was successfully installed."
 msgstr "扩展 [green]${{name}}[/green]:[cyan]${{version}}[/cyan] 已成功安装。"
 
-#: ../rubisco/cli/main/ktrigger.py:691
+#: ../rubisco/cli/main/ktrigger.py:702
 msgid "Extension [green]${{name}}[/green]:[cyan]${{version}}[/cyan] was successfully uninstalled."
 msgstr "扩展 [green]${{name}}[/green]:[cyan]${{version}}[/cyan] 已成功卸载。"
 
-#: ../rubisco/cli/main/ktrigger.py:763
+#: ../rubisco/cli/main/ktrigger.py:774
 msgid "Extension [green]${{name}}[/green]:[cyan]${{version}}[/cyan] was successfully upgraded."
 msgstr "扩展 [green]${{name}}[/green]:[cyan]${{version}}[/cyan] 已成功升级。"
 
-#: ../rubisco/cli/main/arg_parser.py:125
+#: ../rubisco/cli/main/arg_parser.py:141
 msgid "Extension commands."
 msgstr "扩展命令。"
 
-#: ../rubisco/shared/extension.py:305
+#: ../rubisco/shared/extension.py:299
 msgid "Extension name '${{name}}' invalid."
 msgstr "扩展名称 '${{name}}' 无效。"
 
-#: ../rubisco/shared/extension.py:310
+#: ../rubisco/shared/extension.py:304
 msgid "Extension name must be lowercase and only contain 0-9, a-z, A-Z, '_', '.' and '-'."
 msgstr "扩展名称必须为小写，且只包含 0-9, a-z, A-Z, '_', '.' 和 '-'。"
 
@@ -401,7 +413,7 @@ msgstr "扩展名称必须为小写，且只包含 0-9, a-z, A-Z, '_', '.' 和 '
 msgid "Extension package files glob patterns."
 msgstr "扩展包文件 glob 模式字符串。"
 
-#: ../rubisco/lib/archive/zip.py:64 ../rubisco/lib/archive/__init__.py:115
+#: ../rubisco/lib/archive/zip.py:64 ../rubisco/lib/archive/__init__.py:114
 #: ../rubisco/lib/archive/tar.py:77 ../rubisco/lib/archive/sevenzip.py:56
 msgid "Extracting '[underline]${{file}}[/underline]' to '[underline]${{path}}[/underline]' as '${{type}}' ..."
 msgstr "正在以 '${{type}}' 格式解压 '[underline]${{file}}[/underline]' 到 '[underline]${{path}}[/underline]' ..."
@@ -410,31 +422,31 @@ msgstr "正在以 '${{type}}' 格式解压 '[underline]${{file}}[/underline]' �
 msgid "Failed to add '${{path}}' to sys.path: ${{exc}}"
 msgstr "将 '${{path}}' 添加到 sys.path 时出错： ${{exc}}"
 
-#: ../rubisco/envutils/env.py:124
+#: ../rubisco/envutils/env.py:125
 msgid "Failed to check the environment."
 msgstr "检查环境时出错。"
 
-#: ../rubisco/lib/archive/__init__.py:533
+#: ../rubisco/lib/archive/__init__.py:539
 msgid "Failed to compress '${{src}}' to '${{dest}}': '${{exc}}'"
 msgstr "压缩 '${{src}}' 到 '${{dest}}' 失败： '${{exc}}'"
 
-#: ../rubisco/envutils/env.py:156
+#: ../rubisco/envutils/env.py:157
 msgid "Failed to create the database for the environment."
 msgstr "创建环境数据库时出错。"
 
-#: ../rubisco/envutils/env.py:148
+#: ../rubisco/envutils/env.py:149
 msgid "Failed to create venv. Consider to check thepermissions of the path."
 msgstr "创建 venv 时出错。请检查路径的权限。"
 
-#: ../rubisco/lib/archive/__init__.py:270
+#: ../rubisco/lib/archive/__init__.py:273
 msgid "Failed to extract '${{file}}' to '${{dest}}': '${{exc}}'"
 msgstr "解压 '${{file}}' 到 '${{dest}}' 失败： '${{exc}}'"
 
-#: ../rubisco/shared/extension.py:363
+#: ../rubisco/shared/extension.py:357
 msgid "Failed to load extension '${{name}}': ${{exc}}"
 msgstr "加载扩展 '${{name}}' 失败： ${{exc}}"
 
-#: ../rubisco/shared/extension.py:189
+#: ../rubisco/shared/extension.py:186
 msgid "Failed to load extension '[underline]${{path}}[/underline]'."
 msgstr "加载扩展 '[underline]${{path}}[/underline]' 失败。"
 
@@ -442,19 +454,19 @@ msgstr "加载扩展 '[underline]${{path}}[/underline]' 失败。"
 msgid "Failed to open or operate on database '[underline]${{path}}[/underline]': ${{exc}}"
 msgstr "打开或操作数据库 '[underline]${{path}}[/underline]' 失败： ${{exc}}"
 
-#: ../rubisco/envutils/env.py:331
+#: ../rubisco/envutils/env.py:332
 msgid "Failed to read the lock file '[underline]${{path}}[/underline]': ${{msg}}"
 msgstr "读取锁文件 '[underline]${{path}}[/underline]' 失败： ${{msg}}"
 
-#: ../rubisco/envutils/env.py:411
+#: ../rubisco/envutils/env.py:412
 msgid "Failed to unlock the extension environment '${{path}}': ${{msg}}"
 msgstr "解锁扩展环境 '${{path}}' 失败： ${{msg}}"
 
-#: ../rubisco/lib/fileutil.py:241
+#: ../rubisco/lib/fileutil.py:247
 msgid "File '[underline]${{path}}[/underline]' already exists."
 msgstr "文件 '[underline]${{path}}[/underline]' 已经存在。"
 
-#: ../rubisco/cli/main/ktrigger.py:120
+#: ../rubisco/cli/main/ktrigger.py:121
 msgid "File '[underline]${{path}}[/underline]' already exists. [yellow]Overwrite[/yellow]?"
 msgstr "文件 '[underline]${{path}}[/underline]' 已经存在。 [yellow]是否覆盖[/yellow]？"
 
@@ -470,11 +482,11 @@ msgstr "硬件故障或文件系统在文件打开时卸载。"
 msgid "Homepage: ${{homepage}}"
 msgstr "主页： ${{homepage}}"
 
-#: ../rubisco/kernel/project_config.py:87
+#: ../rubisco/kernel/project_config.py:92
 msgid "Hook '${{name}}' is invalid."
 msgstr "无效的钩子 '${{name}}' 。"
 
-#: ../rubisco/kernel/project_config.py:198
+#: ../rubisco/kernel/project_config.py:203
 msgid "Hooks must be a dictionary."
 msgstr "钩子必须是一个字典。"
 
@@ -558,19 +570,19 @@ msgstr "使用匹配模式安装扩展。"
 msgid "Installation Location: ${{loc}}"
 msgstr "安装位置： ${{loc}}"
 
-#: ../rubisco/cli/main/ktrigger.py:565
+#: ../rubisco/cli/main/ktrigger.py:576
 msgid "Installing extension [green]${{name}}[/green]:[cyan]${{version}}[/cyan] to global ([underline]${{path}}[/underline]) ..."
 msgstr "正在安装扩展 [green]${{name}}[/green]:[cyan]${{version}}[/cyan] 到全局 ([underline]${{path}}[/underline]) ..."
 
-#: ../rubisco/cli/main/ktrigger.py:580
+#: ../rubisco/cli/main/ktrigger.py:591
 msgid "Installing extension [green]${{name}}[/green]:[cyan]${{version}}[/cyan] to user ([underline]${{path}}[/underline]) ..."
 msgstr "正在安装扩展 [green]${{name}}[/green]:[cyan]${{version}}[/cyan] 到用户 ([underline]${{path}}[/underline]) ..."
 
-#: ../rubisco/cli/main/ktrigger.py:595
+#: ../rubisco/cli/main/ktrigger.py:606
 msgid "Installing extension [green]${{name}}[/green]:[cyan]${{version}}[/cyan] to workspace ([underline]${{path}}[/underline]) ..."
 msgstr "正在安装扩展 [green]${{name}}[/green]:[cyan]${{version}}[/cyan] 到工作区 ([underline]${{path}}[/underline]) ..."
 
-#: ../rubisco/cli/output.py:274
+#: ../rubisco/cli/output.py:278
 msgid "Internal error: ${{type}}: ${{msg}}"
 msgstr "内部错误： ${{type}}： ${{msg}}"
 
@@ -578,19 +590,15 @@ msgstr "内部错误： ${{type}}： ${{msg}}"
 msgid "Internal logic error in SQLite."
 msgstr "SQLite 内部逻辑错误。"
 
-#: ../rubisco/envutils/packages.py:519 ../rubisco/cli/output.py:254
+#: ../rubisco/envutils/packages.py:516 ../rubisco/cli/output.py:258
 msgid "Interrupted by user."
 msgstr "被用户中断。"
-
-#: ../rubisco/kernel/project_config.py:267
-msgid "Invalid configuration in file '[underline]${{path}}[/underline]'."
-msgstr "文件 '[underline]${{path}}[/underline]' 中的配置无效。"
 
 #: ../rubisco/cli/input.py:78
 msgid "Invalid input."
 msgstr "无效的输入。"
 
-#: ../rubisco/kernel/project_config.py:279
+#: ../rubisco/kernel/project_config.py:278
 msgid "Invalid path '[underline]${{path}}[/underline]'."
 msgstr "无效的路径 '[underline]${{path}}[/underline]'。"
 
@@ -598,27 +606,40 @@ msgstr "无效的路径 '[underline]${{path}}[/underline]'。"
 msgid "Invalid regex pattern: '${{pattern}}'."
 msgstr "无效的正则表达式: '${{pattern}}'。"
 
-#: ../rubisco/lib/fileutil.py:558
+#: ../rubisco/lib/fileutil.py:564
 msgid "Invalid type: '${{path}}', expected directory."
 msgstr "'${{path}}' 的类型无效，应为目录。"
 
-#: ../rubisco/lib/fileutil.py:548
+#: ../rubisco/lib/fileutil.py:554
 msgid "Invalid type: '${{path}}', expected file."
 msgstr "'${{path}}' 的类型无效，应为文件。"
 
-#: ../rubisco/cli/output.py:260
+#: ../rubisco/lib/variable/lexer.py:191
+msgid "Invalid variable decorate expression."
+msgstr "不合法的变量装饰表达式。"
+
+#: ../rubisco/lib/variable/lexer.py:125 ../rubisco/lib/variable/lexer.py:164
+#: ../rubisco/lib/variable/lexer.py:208
+msgid "Invalid variable expression."
+msgstr "不合法的变量表达式。"
+
+#: ../rubisco/lib/variable/lexer.py:215
+msgid "Invalid variable name."
+msgstr "不合法的变量名称。"
+
+#: ../rubisco/cli/output.py:264
 msgid "Is may caused by a invalid JSON5 configuration file."
 msgstr "可能是由于无效的 JSON5 配置文件。"
 
-#: ../rubisco/cli/output.py:268
+#: ../rubisco/cli/output.py:272
 msgid "Is may caused by a invalid configuration file."
 msgstr "可能是由于无效的配置文件。"
 
-#: ../rubisco/cli/output.py:258
+#: ../rubisco/cli/output.py:262
 msgid "JSON5 decode error."
 msgstr "JSON5 解码错误。"
 
-#: ../rubisco/shared/ktrigger.py:610
+#: ../rubisco/shared/ktrigger.py:612
 msgid "Kernel trigger id '${{name}}' is already exists."
 msgstr "Kernel trigger ID '${{name}}' 已经存在。"
 
@@ -661,7 +682,7 @@ msgstr "Maintainers 不能包含 ','。"
 msgid "Maintainers: ${{maintainers}}"
 msgstr "维护者： ${{maintainers}}"
 
-#: ../rubisco/cli/main/arg_parser.py:117
+#: ../rubisco/cli/main/arg_parser.py:133
 msgid "Manage extensions."
 msgstr "管理扩展。"
 
@@ -669,11 +690,11 @@ msgstr "管理扩展。"
 msgid "Memory allocation/reallocation failed."
 msgstr "内存分配/重新分配失败。"
 
-#: ../rubisco/cli/output.py:264
+#: ../rubisco/cli/output.py:268
 msgid "Missing key: ${{msg}}"
 msgstr "找不到字典的键： ${{msg}}"
 
-#: ../rubisco/cli/main/ktrigger.py:393
+#: ../rubisco/cli/main/ktrigger.py:394
 msgid "Moving file '[underline]${{src}}[/underline]' to '[underline]${{dst}}[/underline]' ..."
 msgstr "正在移动文件 '[underline]${{src}}[/underline]' 到 '[underline]${{dst}}[/underline]' ..."
 
@@ -713,7 +734,7 @@ msgstr "由于另一个进程正在忙于恢复崩溃后的 WAL 模式数据库�
 msgid "Operation terminated by sqlite3_interrupt()."
 msgstr "操作被 sqlite3_interrupt() 终止。"
 
-#: ../rubisco/cli/main/help_formatter.py:59
+#: ../rubisco/cli/main/help_formatter.py:60
 msgid "Options:"
 msgstr "选项："
 
@@ -735,7 +756,7 @@ msgstr "软件包： [green]${{name}}[/green]"
 msgid "Packages matching patterns."
 msgstr "匹配模式的软件包。"
 
-#: ../rubisco/cli/main/ktrigger.py:291
+#: ../rubisco/cli/main/ktrigger.py:292
 msgid "Performing websites speed test ..."
 msgstr "正在进行网站速度测试 ..."
 
@@ -743,44 +764,44 @@ msgstr "正在进行网站速度测试 ..."
 msgid "Perhaps a typo?"
 msgstr "可能是拼写错误？"
 
-#: ../rubisco/kernel/mirrorlist.py:147
+#: ../rubisco/kernel/mirrorlist.py:149
 msgid "Please check your mirrorlist.json file inworkspace, user or global config directory."
 msgstr "请检查您的工作区、用户或全局配置目录中的 mirrorlist.json 文件。"
 
-#: ../rubisco/cli/main/ktrigger.py:224
+#: ../rubisco/cli/main/ktrigger.py:225
 msgid "Please install the following packages manually: [bold]${{packages}}[/bold]."
 msgstr "请手动安装以下软件包： [bold]${{packages}}[/bold]。"
 
-#: ../rubisco/shared/extension.py:197 ../rubisco/shared/extension.py:213
+#: ../rubisco/shared/extension.py:194 ../rubisco/shared/extension.py:210
 msgid "Please make sure this extension is valid."
 msgstr "请确保这个扩展是有效的。"
 
-#: ../rubisco/lib/archive/__init__.py:230
-#: ../rubisco/lib/archive/__init__.py:491
+#: ../rubisco/lib/archive/__init__.py:233
+#: ../rubisco/lib/archive/__init__.py:497
 msgid "Please specify the compression type explicitly."
 msgstr "请明确指定压缩类型。"
 
-#: ../rubisco/kernel/project_config.py:174
+#: ../rubisco/kernel/project_config.py:179
 msgid "Please upgrade rubisco to the required version."
 msgstr "请升级 rubisco 到所需版本。"
 
-#: ../rubisco/cli/main/help_formatter.py:56
+#: ../rubisco/cli/main/help_formatter.py:57
 msgid "Positional Arguments:"
 msgstr "位置参数："
 
-#: ../rubisco/cli/main/arg_parser.py:45 ../rubisco/cli/main/arg_parser.py:80
+#: ../rubisco/cli/main/arg_parser.py:48 ../rubisco/cli/main/arg_parser.py:85
 msgid "Project root directory."
 msgstr "项目根目录。"
 
-#: ../rubisco/cli/main/arg_parser.py:54
+#: ../rubisco/cli/main/arg_parser.py:57 ../rubisco/cli/main/arg_parser.py:95
 msgid "Prompt colors used by rubisco parent process."
 msgstr "rubisco 父进程使用的提示颜色。"
 
-#: ../rubisco/kernel/mirrorlist.py:143
+#: ../rubisco/kernel/mirrorlist.py:145
 msgid "Recursion detected in mirrorlist: '${{name}}'"
 msgstr "检测到镜像列表中的递归: '${{name}}'"
 
-#: ../rubisco/cli/main/ktrigger.py:420
+#: ../rubisco/cli/main/ktrigger.py:421
 msgid "Removing '[underline]${{path}}[/underline]' ..."
 msgstr "正在删除 '[underline]${{path}}[/underline]' ..."
 
@@ -792,15 +813,15 @@ msgstr "仓库 '[underline]${{path}}[/underline]' 已经存在。"
 msgid "Repository '[underline]${{path}}[/underline]' not found."
 msgstr "仓库 '[underline]${{path}}[/underline]' 未找到。"
 
-#: ../rubisco/cli/main/arg_parser.py:96
+#: ../rubisco/cli/main/arg_parser.py:112
 msgid "Run rubisco in debug mode."
 msgstr "以调试模式运行 rubisco。"
 
-#: ../rubisco/cli/main/ktrigger.py:361
+#: ../rubisco/cli/main/ktrigger.py:362
 msgid "Running workflow: [white]${{name}}[/white] [black](${{id}})[/black]"
 msgstr "正在运行工作流： [white]${{name}}[/white] [black](${{id}})[/black]"
 
-#: ../rubisco/cli/main/ktrigger.py:342
+#: ../rubisco/cli/main/ktrigger.py:343
 msgid "Running: [white]${{name}}[/white] [black](${{id}})[/black]"
 msgstr "正在运行： [white]${{name}}[/white] [black](${{id}})[/black]"
 
@@ -820,11 +841,11 @@ msgstr "SQLite 检测到一个条目在索引中缺失或已缺失。"
 msgid "SQLite is unable to obtain a read lock on a WAL mode database because the shared-memory file associated with that database is read-only."
 msgstr "由于与该数据库关联的共享内存文件是只读的，SQLite 无法在 WAL 模式数据库上获取读锁。"
 
-#: ../rubisco/cli/main/arg_parser.py:89
+#: ../rubisco/cli/main/arg_parser.py:105
 msgid "Save log to the log file."
 msgstr "将日志保存到日志文件。"
 
-#: ../rubisco/cli/output.py:282
+#: ../rubisco/cli/output.py:286
 msgid "See: ${{url}}"
 msgstr "参见： ${{url}}"
 
@@ -832,15 +853,19 @@ msgstr "参见： ${{url}}"
 msgid "Selected '${{name}}'."
 msgstr "已选择 '${{name}}'。"
 
-#: ../rubisco/cli/main/ktrigger.py:332
+#: ../rubisco/cli/main/ktrigger.py:333
 msgid "Selected mirror: ${{url}}"
 msgstr "已选择镜像： ${{url}}"
+
+#: ../rubisco/cli/main/ktrigger.py:429
+msgid "Selected: [underline]${{path}}[/underline]"
+msgstr "选中：[underline]${{path}}[/underline]"
 
 #: ../rubisco/lib/process.py:130 ../rubisco/lib/process.py:189
 msgid "Shell execution error."
 msgstr "Shell 执行错误。"
 
-#: ../rubisco/cli/main/builtin_cmds.py:55
+#: ../rubisco/cli/main/builtin_cmds.py:66
 msgid "Show Rubisco version."
 msgstr "显示 Rubisco 版本。"
 
@@ -852,31 +877,31 @@ msgstr "显示匹配模式的扩展信息。"
 msgid "Show program's version number and exit."
 msgstr "显示程序的版本号并退出。"
 
-#: ../rubisco/cli/main/builtin_cmds.py:48
+#: ../rubisco/cli/main/builtin_cmds.py:59
 msgid "Show project information."
 msgstr "显示项目信息。"
 
-#: ../rubisco/cli/main/help_formatter.py:47
+#: ../rubisco/cli/main/help_formatter.py:48
 msgid "Show this help message and exit."
 msgstr "显示此帮助消息并退出。"
 
-#: ../rubisco/cli/main/arg_parser.py:103
+#: ../rubisco/cli/main/arg_parser.py:119
 msgid "Show usage."
 msgstr "显示用法。"
 
-#: ../rubisco/kernel/mirrorlist.py:256
+#: ../rubisco/kernel/mirrorlist.py:259
 msgid "Source '${{protocol}}/${{website}}/${{name}}' not found."
 msgstr "源 '${{protocol}}/${{website}}/${{name}}' 未找到。"
 
-#: ../rubisco/kernel/workflow.py:158
+#: ../rubisco/kernel/workflow/step.py:89
 msgid "Step '${{step}}' failed: ${{exc}}"
 msgstr "步骤 '${{step}}' 失败： ${{exc}}"
 
-#: ../rubisco/kernel/workflow.py:732
+#: ../rubisco/kernel/workflow/__init__.py:127
 msgid "Step id '${{step_id}}' is duplicated."
 msgstr "步骤 '${{step_id}}' 的 ID 重复。"
 
-#: ../rubisco/kernel/workflow.py:864
+#: ../rubisco/kernel/workflow/__init__.py:261
 msgid "Step type '${{name}}' registered multiple times. This may cause unexpected behavior. It's unsafe."
 msgstr "步骤类型 '${{name}}' 注册了多次。这可能导致意外行为。这是不安全的。"
 
@@ -884,11 +909,11 @@ msgstr "步骤类型 '${{name}}' 注册了多次。这可能导致意外行为�
 msgid "String or BLOB was too large."
 msgstr "字符串或 BLOB 太大。"
 
-#: ../rubisco/lib/exceptions.py:108
+#: ../rubisco/lib/exceptions.py:115
 msgid "Subprocess return code is ${{retcode}}."
 msgstr "子进程返回代码为 ${{retcode}}。"
 
-#: ../rubisco/lib/exceptions.py:116
+#: ../rubisco/lib/exceptions.py:121
 msgid "Subprocess return code is ${{retcode}}. It may be caused by command not found."
 msgstr "子进程返回代码为 ${{retcode}}。可能是由于未找到命令。"
 
@@ -896,8 +921,8 @@ msgstr "子进程返回代码为 ${{retcode}}。可能是由于未找到命令�
 msgid "Success."
 msgstr "成功。"
 
-#: ../rubisco/lib/archive/__init__.py:250
-#: ../rubisco/lib/archive/__init__.py:513
+#: ../rubisco/lib/archive/__init__.py:253
+#: ../rubisco/lib/archive/__init__.py:519
 msgid "Supported types are 'gz', 'bz2', 'xz', 'zip', '7z', 'tar', 'tar.gz', 'tar.bz2', 'tar.xz'. You can also use the 'tgz', 'txz' and 'tbz2'."
 msgstr "我们支持的类型有 'gz', 'bz2', 'xz', 'zip', '7z', 'tar', 'tar.gz', 'tar.bz2', 'tar.xz'。您也可以使用 'tgz', 'txz' 和 'tbz2'。"
 
@@ -913,15 +938,15 @@ msgstr "标签必须是小写的，只能包含 0-9，a-z，A-Z，'_' 和 '-'。
 msgid "Tags: ${{tags}}"
 msgstr "标签： ${{tags}}"
 
-#: ../rubisco/cli/main/ktrigger.py:282
+#: ../rubisco/cli/main/ktrigger.py:283
 msgid "Testing ${{host}} ... ${{status}}"
 msgstr "正在测试 ${{host}} ... ${{status}}"
 
-#: ../rubisco/envutils/env.py:127
+#: ../rubisco/envutils/env.py:128
 msgid "The '${{path}}' is not a valid venv but exists.Please remove it and try again."
 msgstr "'${{path}}' 存在，但不是有效的 venv 。请删除它并重试。"
 
-#: ../rubisco/envutils/env.py:284
+#: ../rubisco/envutils/env.py:285
 msgid "The PID '${{pid}}' is not valid. Maybe the process has already exited. Remove the lock file if you believe the process has already exited."
 msgstr "PID '${{pid}}' 无效。可能进程已经退出。如果您相信进程已经退出，请手动删除锁文件。"
 
@@ -933,7 +958,12 @@ msgstr "VFS 无法确定一个合适的目录来放置临时文件。"
 msgid "The checksum on a page of the database file is incorrect."
 msgstr "数据库文件的页面校验和不正确。"
 
-#: ../rubisco/kernel/workflow.py:361
+#: ../rubisco/kernel/project_config.py:270
+msgid "The configuration file must be a JSON5 object."
+msgstr "配置文件必须是一个 JSON5 对象。"
+
+#: ../rubisco/kernel/workflow/steps/glob.py:54
+#: ../rubisco/kernel/workflow/steps/copyfile.py:60
 msgid "The copy item must be a string."
 msgstr "复制文件名必须是字符串类型。"
 
@@ -941,7 +971,7 @@ msgstr "复制文件名必须是字符串类型。"
 msgid "The cygwin_conv_path() system call failed."
 msgstr "cygwin_conv_path() 系统调用失败。"
 
-#: ../rubisco/envutils/env.py:117
+#: ../rubisco/envutils/env.py:118
 msgid "The database '${{path}}' is broken."
 msgstr "数据库 '${{path}}' 损坏。"
 
@@ -961,39 +991,39 @@ msgstr "数据库是只读的，因为进程没有权限在与数据库相同的
 msgid "The database schema changed."
 msgstr "数据库模式已更改。"
 
-#: ../rubisco/envutils/env.py:266
+#: ../rubisco/envutils/env.py:267
 msgid "The environment '[underline]${{path}}[/underline]' is already locked by PID ${{pid}}. If you want to force unlock it, please remove the lock file '[underline]${{lockfile}}[/underline]' manually."
 msgstr "环境 '[underline]${{path}}[/underline]' 已被 PID ${{pid}} 锁定。如果您想强制解锁，请手动删除锁文件 '[underline]${{lockfile}}[/underline]'。"
 
-#: ../rubisco/envutils/env.py:390
+#: ../rubisco/envutils/env.py:391
 msgid "The environment '[underline]${{path}}[/underline]' is locked by another thread (PID '${{pid}}', Thread '${{thread}}').Unlock request is ignored."
 msgstr "环境 '[underline]${{path}}[/underline]' 被另一个线程锁定（PID '${{pid}}'，线程 '${{thread}}'）。解锁请求被忽略。"
 
-#: ../rubisco/shared/extension.py:158
+#: ../rubisco/shared/extension.py:155
 msgid "The extension '${{name}}' does not exist in workspace, user, or global extension directory."
 msgstr "扩展 '${{name}}' 不存在于工作区、用户或全局扩展目录中。"
 
-#: ../rubisco/shared/extension.py:206
+#: ../rubisco/shared/extension.py:203
 msgid "The extension '[underline]${{path}}[/underline]' does not have an instance."
 msgstr "扩展 '[underline]${{path}}[/underline]' 没有实例。"
 
-#: ../rubisco/shared/extension.py:180
+#: ../rubisco/shared/extension.py:177
 msgid "The extension path '[underline]${{path}}[/underline]' does not exist."
 msgstr "扩展的路径 '[underline]${{path}}[/underline]' 不存在。"
 
-#: ../rubisco/cli/main/ktrigger.py:779
+#: ../rubisco/cli/main/ktrigger.py:790
 msgid "The following extensions will be uninstalled from global ([underline]${{path}}[/underline]):"
 msgstr "以下扩展将从全局 ([underline]${{path}}[/underline]) 卸载："
 
-#: ../rubisco/cli/main/ktrigger.py:787
+#: ../rubisco/cli/main/ktrigger.py:798
 msgid "The following extensions will be uninstalled from user ([underline]${{path}}[/underline]):"
 msgstr "以下扩展将从用户 ([underline]${{path}}[/underline]) 卸载："
 
-#: ../rubisco/cli/main/ktrigger.py:795
+#: ../rubisco/cli/main/ktrigger.py:806
 msgid "The following extensions will be uninstalled from workspace ([underline]${{path}}[/underline]):"
 msgstr "以下扩展将从工作区 ([underline]${{path}}[/underline]) 卸载："
 
-#: ../rubisco/envutils/packages.py:570 ../rubisco/envutils/packages.py:627
+#: ../rubisco/envutils/packages.py:567 ../rubisco/envutils/packages.py:624
 msgid "The higher version of '${{name}}' extension is already installed."
 msgstr "已安装了 '${{name}}' 扩展的更高版本。"
 
@@ -1001,23 +1031,23 @@ msgstr "已安装了 '${{name}}' 扩展的更高版本。"
 msgid "The historical snapshot is no longer available."
 msgstr "历史快照不再可用。"
 
-#: ../rubisco/envutils/env.py:316
+#: ../rubisco/envutils/env.py:317
 msgid "The lock file '[underline]${{lockfile}}[/underline]' is broken."
 msgstr "锁文件 '[underline]${{lockfile}}[/underline]' 损坏。"
 
-#: ../rubisco/kernel/project_config.py:165
+#: ../rubisco/kernel/project_config.py:170
 msgid "The minimum version of rubisco required by the project '[underline]${{name}}[/underline]' is '[underline]${{version}}[/underline]'."
 msgstr "项目 '[underline]${{name}}[/underline]' 所需的 rubisco 最低版本为 '[underline]${{version}}[/underline]'。"
 
-#: ../rubisco/kernel/workflow.py:244
+#: ../rubisco/kernel/workflow/steps/mkdir.py:52
 msgid "The paths must be a list of strings."
 msgstr "多个路径必须是一个字符串列表。"
 
-#: ../rubisco/kernel/workflow.py:422
+#: ../rubisco/kernel/workflow/steps/remove.py:54
 msgid "The remove item must be a string."
 msgstr "删除项必须是一个字符串。"
 
-#: ../rubisco/envutils/packages.py:558 ../rubisco/envutils/packages.py:615
+#: ../rubisco/envutils/packages.py:555 ../rubisco/envutils/packages.py:612
 msgid "The same version of '${{name}}' extension is already installed."
 msgstr "已安装了 '${{name}}' 扩展的相同版本。"
 
@@ -1025,15 +1055,11 @@ msgstr "已安装了 '${{name}}' 扩展的相同版本。"
 msgid "The schema of the sqlite_sequence table is corrupt."
 msgstr "sqlite_sequence 表的模式损坏。"
 
-#: ../rubisco/kernel/workflow.py:211
-msgid "The shell command list must be a list of strings."
-msgstr "shell 命令列表必须是一个字符串列表。"
-
-#: ../rubisco/kernel/workflow.py:947
+#: ../rubisco/kernel/workflow/__init__.py:344
 msgid "The suffix of '[underline]${{path}}[/underline]' is invalid."
 msgstr "文件 '[underline]${{path}}[/underline]' 的后缀无效。"
 
-#: ../rubisco/kernel/workflow.py:770
+#: ../rubisco/kernel/workflow/__init__.py:167
 msgid "The type of step '${{step}}'[black](${{step_id}})[/black] in workflow '${{workflow}}'[black](${{workflow_id}})[/black] is not provided and could not be inferred."
 msgstr "工作流 '${{workflow}}'[black](${{workflow_id}})[/black] 中的步骤 '${{step}}'[black](${{step_id}})[/black] 的类型未被提供，且无法推断。"
 
@@ -1049,7 +1075,7 @@ msgstr "操作系统在 SQLITE_FCNTL_COMMIT_ATOMIC_WRITE 文件控制上报告�
 msgid "The underlying operating system reported and error on the SQLITE_FCNTL_ROLLBACK_ATOMIC_WRITE file-control."
 msgstr "操作系统在 SQLITE_FCNTL_ROLLBACK_ATOMIC_WRITE 文件控制上报告了错误。"
 
-#: ../rubisco/lib/variable.py:661
+#: ../rubisco/lib/variable/autoformatdict.py:114
 msgid "The value of key ${{key}} needs to be ${{type}} instead of ${{value_type}}."
 msgstr "键 ${{key}} 的值需要是 ${{type}} 类型而不是 ${{value_type}} 。"
 
@@ -1057,12 +1083,12 @@ msgstr "键 ${{key}} 的值需要是 ${{type}} 类型而不是 ${{value_type}} �
 msgid "The xDelete method on the sqlite3_vfs object failed because the file being deleted does not exist."
 msgstr "sqlite3_vfs 对象上的 xDelete 方法失败，因为要删除的文件不存在。"
 
-#: ../rubisco/shared/extension.py:164
+#: ../rubisco/shared/extension.py:161
 msgid "Try to load the extension as a path."
 msgstr "尝试将扩展作为路径加载。"
 
-#: ../rubisco/lib/archive/__init__.py:224
-#: ../rubisco/lib/archive/__init__.py:486
+#: ../rubisco/lib/archive/__init__.py:227
+#: ../rubisco/lib/archive/__init__.py:492
 msgid "Unable to determine compression type of '[underline]${{path}}[/underline]'"
 msgstr "无法确定 '[underline]${{path}}[/underline]' 的压缩类型"
 
@@ -1073,6 +1099,10 @@ msgstr "无法打开数据库文件。"
 #: ../rubisco/cli/main/project_config.py:120
 msgid "Undefined command or hook ${{name}}"
 msgstr "未定义的命令或钩子 ${{name}}"
+
+#: ../rubisco/lib/variable/execute.py:58
+msgid "Undefined variable: ${{var}}"
+msgstr "未定义的变量： ${{var}}"
 
 #: ../rubisco/cli/main/extman_cmds.py:447
 msgid "Uninstall extensions in global."
@@ -1090,20 +1120,20 @@ msgstr "卸载工作区扩展。"
 msgid "Uninstall extensions with matching patterns."
 msgstr "卸载匹配模式的扩展。"
 
-#: ../rubisco/cli/main/ktrigger.py:637
+#: ../rubisco/cli/main/ktrigger.py:648
 msgid "Uninstalling extension [green]${{name}}[/green]:[cyan]${{version}}[/cyan] from global ([underline]${{path}}[/underline]) ..."
 msgstr "正在从全局卸载扩展 [green]${{name}}[/green]:[cyan]${{version}}[/cyan] ([underline]${{path}}[/underline]) ..."
 
-#: ../rubisco/cli/main/ktrigger.py:652
+#: ../rubisco/cli/main/ktrigger.py:663
 msgid "Uninstalling extension [green]${{name}}[/green]:[cyan]${{version}}[/cyan] from user ([underline]${{path}}[/underline]) ..."
 msgstr "正在从用户卸载扩展 [green]${{name}}[/green]:[cyan]${{version}}[/cyan] ([underline]${{path}}[/underline]) ..."
 
-#: ../rubisco/cli/main/ktrigger.py:667
+#: ../rubisco/cli/main/ktrigger.py:678
 msgid "Uninstalling extension [green]${{name}}[/green]:[cyan]${{version}}[/cyan] from workspace ([underline]${{path}}[/underline]) ..."
 msgstr "正在从工作区卸载扩展 [green]${{name}}[/green]:[cyan]${{version}}[/cyan] ([underline]${{path}}[/underline]) ..."
 
-#: ../rubisco/envutils/env.py:261 ../rubisco/kernel/mirrorlist.py:203
-#: ../rubisco/lib/l10n.py:71
+#: ../rubisco/envutils/env.py:262 ../rubisco/kernel/mirrorlist.py:205
+#: ../rubisco/lib/l10n.py:79
 msgid "Unknown"
 msgstr "未知"
 
@@ -1111,38 +1141,42 @@ msgstr "未知"
 msgid "Unknown error code."
 msgstr "未知错误代码。"
 
-#: ../rubisco/cli/output.py:251
+#: ../rubisco/cli/output.py:255
 msgid "Unknown error."
 msgstr "未知错误。"
 
-#: ../rubisco/kernel/workflow.py:753
+#: ../rubisco/kernel/workflow/__init__.py:150
 msgid "Unknown step type: '${{step_type}}' of step '${{step_name}}'. Please check the workflow."
 msgstr "未知的步骤类型: '${{step_type}}' 的步骤 '${{step_name}}'。请检查工作流。"
 
-#: ../rubisco/lib/archive/__init__.py:246
-#: ../rubisco/lib/archive/__init__.py:509
+#: ../rubisco/lib/archive/__init__.py:249
+#: ../rubisco/lib/archive/__init__.py:515
 msgid "Unsupported compression type: '${{type}}'"
 msgstr "不支持的压缩类型: '${{type}}'"
 
-#: ../rubisco/cli/main/ktrigger.py:238
+#: ../rubisco/cli/main/ktrigger.py:239
 msgid "Updating Git repository '[underline]${{path}}[/underline]'(${{branch}}) ..."
 msgstr "正在更新 Git 仓库 '[underline]${{path}}[/underline]'(${{branch}}) ..."
 
-#: ../rubisco/cli/main/ktrigger.py:709
+#: ../rubisco/cli/main/ktrigger.py:720
 msgid "Upgrading extension [green]${{name}}[/green]:[cyan]${{version}}[/cyan] from global ([underline]${{path}}[/underline]) ..."
 msgstr "正在升级扩展 [green]${{name}}[/green]:[cyan]${{version}}[/cyan] 从全局 ([underline]${{path}}[/underline]) ..."
 
-#: ../rubisco/cli/main/ktrigger.py:724
+#: ../rubisco/cli/main/ktrigger.py:735
 msgid "Upgrading extension [green]${{name}}[/green]:[cyan]${{version}}[/cyan] from user ([underline]${{path}}[/underline]) ..."
 msgstr "正在升级扩展 [green]${{name}}[/green]:[cyan]${{version}}[/cyan] 从用户 ([underline]${{path}}[/underline]) ..."
 
-#: ../rubisco/cli/main/ktrigger.py:739
+#: ../rubisco/cli/main/ktrigger.py:750
 msgid "Upgrading extension [green]${{name}}[/green]:[cyan]${{version}}[/cyan] from workspace ([underline]${{path}}[/underline]) ..."
 msgstr "正在升级扩展 [green]${{name}}[/green]:[cyan]${{version}}[/cyan] 从工作区 ([underline]${{path}}[/underline]) ..."
 
-#: ../rubisco/cli/main/help_formatter.py:53
+#: ../rubisco/cli/main/help_formatter.py:54
 msgid "Usage:"
 msgstr "用法："
+
+#: ../rubisco/lib/variable/lexer.py:219
+msgid "Variable name must only contain letters, numbers, and '-', '.', '_'."
+msgstr "变量名只能包含字母、数字和 '-', '.', '_'。"
 
 #: ../rubisco/cli/main/extman_cmds.py:139
 msgid "Version: [cyan]${{ver}}[/cyan]"
@@ -1152,23 +1186,23 @@ msgstr "版本： [cyan]${{ver}}[/cyan]"
 msgid "Virtual table implementations cannot complete the current operation because of locks held by other threads or processes."
 msgstr "由于其他线程或进程持有的锁，虚拟表实现无法完成当前操作。"
 
-#: ../rubisco/envutils/env.py:209
+#: ../rubisco/envutils/env.py:210
 msgid "Waiting for the environment to be unlocked ('${{lock_file}}'): ${{seconds}} seconds."
 msgstr "等待 venv 解锁 ('${{lock_file}}'): ${{seconds}} 秒。"
 
-#: ../rubisco/kernel/workflow.py:952
+#: ../rubisco/kernel/workflow/__init__.py:349
 msgid "We only support '.json', '.json5', '.yaml', '.yml'."
 msgstr "我们只支持 '.json', '.json5', '.yaml', '.yml'。"
 
-#: ../rubisco/cli/main/ktrigger.py:373
+#: ../rubisco/cli/main/ktrigger.py:374
 msgid "Workflow '${{name}}' finished."
 msgstr "工作流 '${{name}}' 完成。"
 
-#: ../rubisco/kernel/workflow.py:910
+#: ../rubisco/kernel/workflow/__init__.py:307
 msgid "Workflow running failed: ${{exc}}"
 msgstr "工作流运行失败: ${{exc}}"
 
-#: ../rubisco/kernel/workflow.py:683
+#: ../rubisco/kernel/workflow/__init__.py:80
 msgid "Workflow variables must be a list of name and value."
 msgstr "工作流变量必须是名称和值的列表。"
 
@@ -1185,51 +1219,51 @@ msgstr "您正在安装一个扩展到全局环境。请确保您具有正确的
 msgid "[SQLite3 Errorcode ${{codename}}(${{code}})]: ${{msg}}"
 msgstr "[SQLite3 错误代码 ${{codename}}(${{code}})]: ${{msg}}"
 
-#: ../rubisco/cli/main/ktrigger.py:456
+#: ../rubisco/cli/main/ktrigger.py:467
 msgid "[dark_orange]Configuration:[/dark_orange] [underline]${{path}}[/underline]"
 msgstr "[dark_orange]配置：[/dark_orange] [underline]${{path}}[/underline]"
 
-#: ../rubisco/cli/main/ktrigger.py:490
+#: ../rubisco/cli/main/ktrigger.py:501
 msgid "[dark_orange]Description:[/dark_orange] ${{desc}}"
 msgstr "[dark_orange]描述：[/dark_orange] ${{desc}}"
 
-#: ../rubisco/cli/main/ktrigger.py:495
+#: ../rubisco/cli/main/ktrigger.py:506
 msgid "[dark_orange]Hooks:[/dark_orange]"
 msgstr "[dark_orange]钩子：[/dark_orange]"
 
-#: ../rubisco/cli/main/ktrigger.py:484
+#: ../rubisco/cli/main/ktrigger.py:495
 msgid "[dark_orange]License:[/dark_orange] ${{license}}"
 msgstr "[dark_orange]许可证：[/dark_orange] ${{license}}"
 
-#: ../rubisco/cli/main/ktrigger.py:478
+#: ../rubisco/cli/main/ktrigger.py:489
 msgid "[dark_orange]Maintainer:[/dark_orange] ${{maintainer}}"
 msgstr "[dark_orange]维护者：[/dark_orange] ${{maintainer}}"
 
-#: ../rubisco/cli/main/ktrigger.py:449
+#: ../rubisco/cli/main/ktrigger.py:460
 msgid "[dark_orange]Project:[/dark_orange] ${{name}}"
 msgstr "[dark_orange]项目：[/dark_orange] ${{name}}"
 
-#: ../rubisco/cli/main/ktrigger.py:437
+#: ../rubisco/cli/main/ktrigger.py:448
 msgid "[dark_orange]Rubisco CLI Language:[/dark_orange] '${{locale}}' '${{charset}}' '${{language_name}}'"
 msgstr "[dark_orange]Rubisco CLI 语言：[/dark_orange] '${{locale}}' '${{charset}}' '${{language_name}}'"
 
-#: ../rubisco/cli/main/ktrigger.py:465
+#: ../rubisco/cli/main/ktrigger.py:476
 msgid "[dark_orange]Version:[/dark_orange] v[white]${{version}}[/white]"
 msgstr "[dark_orange]版本：[/dark_orange] v[white]${{version}}[/white]"
 
-#: ../rubisco/cli/output.py:223
+#: ../rubisco/cli/output.py:225
 msgid "[italic][magenta]Hint:[/magenta] ${{msg}}[/italic]"
 msgstr "[italic][magenta]提示：[/magenta] ${{msg}}[/italic]"
 
-#: ../rubisco/cli/main/ktrigger.py:303
+#: ../rubisco/cli/main/ktrigger.py:304
 msgid "[red]Canceled[/red]"
 msgstr "[red]已取消[/red]"
 
-#: ../rubisco/cli/output.py:195
+#: ../rubisco/cli/output.py:197
 msgid "[red]Error: ${{msg}}[/red]"
 msgstr "[red]错误： ${{msg}}[/red]"
 
-#: ../rubisco/cli/main/ktrigger.py:305
+#: ../rubisco/cli/main/ktrigger.py:306
 msgid "[red]Failed[/red]"
 msgstr "[red]失败[/red]"
 
@@ -1253,15 +1287,15 @@ msgstr "[underline]${{path}}[/underline] 软件包配置文件缺少一个必需
 msgid "[underline]${{path}}[/underline] package configuration file is not a valid JSON5 file."
 msgstr "[underline]${{path}}[/underline] 软件包配置文件不是一个有效的 JSON5 文件。"
 
-#: ../rubisco/cli/main/ktrigger.py:147
+#: ../rubisco/cli/main/ktrigger.py:148
 msgid "[yellow]Compressing[/yellow]"
 msgstr "[yellow]压缩中[/yellow]"
 
-#: ../rubisco/cli/main/ktrigger.py:143
+#: ../rubisco/cli/main/ktrigger.py:144
 msgid "[yellow]Downloading[/yellow]"
 msgstr "[yellow]下载中[/yellow]"
 
-#: ../rubisco/cli/main/ktrigger.py:145
+#: ../rubisco/cli/main/ktrigger.py:146
 msgid "[yellow]Extracting[/yellow]"
 msgstr "[yellow]解压中[/yellow]"
 
@@ -1269,65 +1303,75 @@ msgstr "[yellow]解压中[/yellow]"
 msgid "[yellow]Invalid input. Please enter '[green]Y[/green]' or '[red]N[/red]'."
 msgstr "无效的输入。请输入 '[green]Y[/green]' 或 '[red]N[/red]'。"
 
-#: ../rubisco/cli/main/ktrigger.py:149
+#: ../rubisco/cli/main/ktrigger.py:150
 msgid "[yellow]Processing[/yellow]"
 msgstr "[yellow]处理中[/yellow]"
 
-#: ../rubisco/cli/main/ktrigger.py:295 ../rubisco/cli/main/ktrigger.py:317
+#: ../rubisco/cli/main/ktrigger.py:296 ../rubisco/cli/main/ktrigger.py:318
 msgid "[yellow]Testing[/yellow] ..."
 msgstr "[yellow]测试中[/yellow] ..."
 
-#: ../rubisco/kernel/project_config.py:179
-#: ../rubisco/kernel/project_config.py:185
+#: ../rubisco/kernel/project_config.py:184
+#: ../rubisco/kernel/project_config.py:190
 msgid "[yellow]Unknown[/yellow]"
 msgstr "[yellow]未知[/yellow]"
 
-#: ../rubisco/cli/output.py:208
+#: ../rubisco/cli/output.py:210
 msgid "[yellow]Warning: ${{msg}}[/yellow]"
 msgstr "[yellow]警告： ${{msg}}[/yellow]"
 
-#: /usr/lib/python3.12/argparse.py:2044
+#: /usr/lib/python3.13/argparse.py:2030
 #, python-format
 msgid "ambiguous option: %(option)s could match %(matches)s"
 msgstr "不明确的选项: %(option)s 可能匹配 %(matches)s"
 
-#: /usr/lib/python3.12/argparse.py:1337
+#: /usr/lib/python3.13/argparse.py:1320
 #, python-format
 msgid "argument \"-\" with mode %r"
 msgstr "参数 \"-\" 的模式 %r"
 
-#: /usr/lib/python3.12/argparse.py:798
+#: /usr/lib/python3.13/argparse.py:749
 #, python-format
 msgid "argument %(argument_name)s: %(message)s"
 msgstr "参数 %(argument_name)s: %(message)s"
 
-#: /usr/lib/python3.12/argparse.py:1346
+#: /usr/lib/python3.13/argparse.py:2146
+#, python-format
+msgid "argument '%(argument_name)s' is deprecated"
+msgstr "%(argument_name)s 参数已弃用"
+
+#: /usr/lib/python3.13/argparse.py:1329
 #, python-format
 msgid "can't open '%(filename)s': %(error)s"
 msgstr "无法打开 '%(filename)s': %(error)s"
 
-#: /usr/lib/python3.12/argparse.py:1868
+#: /usr/lib/python3.13/argparse.py:1853
 msgid "cannot have multiple subparser arguments"
 msgstr "不能有多个子解析器参数"
 
-#: /usr/lib/python3.12/argparse.py:1555
+#: /usr/lib/python3.13/argparse.py:1540
 #, python-format
 msgid "cannot merge actions - two groups are named %r"
 msgstr "无法合并操作 - 两个组都命名为 %r"
 
-#: /usr/lib/python3.12/argparse.py:1671
+#: /usr/lib/python3.13/argparse.py:1259
+#, python-format
+msgid "command '%(parser_name)s' is deprecated"
+msgstr "命令 '%(parser_name)s' 已弃用"
+
+#: /usr/lib/python3.13/argparse.py:1656
 #, python-format
 msgid "conflicting option string: %s"
 msgid_plural "conflicting option strings: %s"
 msgstr[0] "冲突的选项字符串: %s"
 msgstr[1] "冲突的选项字符串: %s"
 
-#: /usr/lib/python3.12/argparse.py:1241
+#: /usr/lib/python3.13/argparse.py:1216
 #, python-format
 msgid "conflicting subparser alias: %s"
 msgstr "冲突的子解析器别名: %s"
 
-#: /usr/lib/python3.12/argparse.py:1237
+#: /usr/lib/python3.13/argparse.py:1212
 #, python-format
 msgid "conflicting subparser: %s"
 msgstr "冲突的子解析器: %s"
@@ -1336,29 +1380,37 @@ msgstr "冲突的子解析器: %s"
 msgid "cygwin_conv_path() failed."
 msgstr "cygwin_conv_path() 失败。"
 
-#: /usr/lib/python3.12/argparse.py:1636
+#: /usr/lib/python3.13/argparse.py:1621
 #, python-format
 msgid "dest= is required for options like %r"
 msgstr "对于 %r 这样的选项，需要 dest="
 
-#: /usr/lib/python3.12/argparse.py:2309
+#: /usr/lib/python3.13/argparse.py:2304
 #, python-format
 msgid "expected %s argument"
 msgid_plural "expected %s arguments"
 msgstr[0] "预期 %s 个参数"
 msgstr[1] "预期 %s 个参数"
 
-#: /usr/lib/python3.12/argparse.py:2305
+#: /usr/lib/python3.13/argparse.py:2300
 msgid "expected at least one argument"
 msgstr "预期至少一个参数"
 
-#: /usr/lib/python3.12/argparse.py:2304
+#: /usr/lib/python3.13/argparse.py:2299
 msgid "expected at most one argument"
 msgstr "预期最多一个参数"
 
-#: /usr/lib/python3.12/argparse.py:2303
+#: /usr/lib/python3.13/argparse.py:2298
 msgid "expected one argument"
 msgstr "预期一个参数"
+
+#: ../rubisco/lib/variable/fast_format_str.py:75
+msgid "fast_format_str() does not support default value."
+msgstr "fast_format_str() 不支持默认值。"
+
+#: ../rubisco/lib/variable/fast_format_str.py:69
+msgid "fast_format_str() only supports simple variable expressions."
+msgstr "fast_format_str() 仅支持简单的变量表达式。"
 
 #: ../rubisco/cli/main/extman_cmds.py:62
 msgid "foreign-package"
@@ -1368,71 +1420,76 @@ msgstr "外部包"
 msgid "global"
 msgstr "全局"
 
-#: /usr/lib/python3.12/argparse.py:2076 /usr/lib/python3.12/argparse.py:2108
+#: /usr/lib/python3.13/argparse.py:2062 /usr/lib/python3.13/argparse.py:2094
 #, python-format
 msgid "ignored explicit argument %r"
 msgstr "忽略显式参数 %r"
 
-#: /usr/lib/python3.12/argparse.py:2571
+#: /usr/lib/python3.13/argparse.py:2566
 #, python-format
 msgid "invalid %(type)s value: %(value)r"
 msgstr "无效的 %(type)s 值: %(value)r"
 
-#: /usr/lib/python3.12/argparse.py:2586
+#: /usr/lib/python3.13/argparse.py:2581
 #, python-format
 msgid "invalid choice: %(value)r (choose from %(choices)s)"
 msgstr "无效的选择: %(value)r (可选项为 %(choices)s)"
 
-#: /usr/lib/python3.12/argparse.py:1653
+#: /usr/lib/python3.13/argparse.py:1638
 #, python-format
 msgid "invalid conflict_resolution value: %r"
 msgstr "无效的 conflict_resolution 值: %r"
 
-#: /usr/lib/python3.12/argparse.py:1618
+#: /usr/lib/python3.13/argparse.py:1603
 #, python-format
 msgid "invalid option string %(option)r: must start with a character %(prefix_chars)r"
 msgstr "无效的选项字符串 %(option)r: 必须以字符 %(prefix_chars)r 开头"
 
-#: /usr/lib/python3.12/argparse.py:1745
+#: /usr/lib/python3.13/argparse.py:1731
 msgid "mutually exclusive arguments must be optional"
 msgstr "互斥参数必须是可选的"
 
-#: /usr/lib/python3.12/argparse.py:2025
+#: /usr/lib/python3.13/argparse.py:2011
 #, python-format
 msgid "not allowed with argument %s"
 msgstr "不允许与参数 %s 一起使用"
 
-#: /usr/lib/python3.12/argparse.py:2259
+#: /usr/lib/python3.13/argparse.py:2254
 #, python-format
 msgid "one of the arguments %s is required"
 msgstr "需要其中一个参数 %s"
 
-#: /usr/lib/python3.12/argparse.py:1822
+#: /usr/lib/python3.13/argparse.py:2114
+#, python-format
+msgid "option '%(option)s' is deprecated"
+msgstr "选项 '%(option)s' 已弃用"
+
+#: /usr/lib/python3.13/argparse.py:1809
 msgid "options"
 msgstr "选项"
 
-#: /usr/lib/python3.12/argparse.py:1821
+#: /usr/lib/python3.13/argparse.py:1808
 msgid "positional arguments"
 msgstr "位置参数"
 
-#: /usr/lib/python3.12/argparse.py:1175
+#: /usr/lib/python3.13/argparse.py:1149
 msgid "show program's version number and exit"
 msgstr "显示程序的版本号并退出"
 
-#: /usr/lib/python3.12/argparse.py:1837
+#: /usr/lib/python3.13/argparse.py:1824
 msgid "show this help message and exit"
 msgstr "显示此帮助消息并退出"
 
-#: /usr/lib/python3.12/argparse.py:1874
+#: /usr/lib/python3.13/argparse.py:1859
 msgid "subcommands"
 msgstr "子命令"
 
-#: /usr/lib/python3.12/argparse.py:2244
+#: /usr/lib/python3.13/argparse.py:2239
 #, python-format
 msgid "the following arguments are required: %s"
 msgstr "需要以下参数: %s"
 
-#: /usr/lib/python3.12/argparse.py:2419
+#: /usr/lib/python3.13/argparse.py:2414
 #, python-format
 msgid "unexpected option string: %s"
 msgstr "意外的选项字符串: %s"
@@ -1441,17 +1498,17 @@ msgstr "意外的选项字符串: %s"
 msgid "unknown"
 msgstr "未知"
 
-#: /usr/lib/python3.12/argparse.py:1276
+#: /usr/lib/python3.13/argparse.py:1255
 #, python-format
 msgid "unknown parser %(parser_name)r (choices: %(choices)s)"
 msgstr "未知的解析器 %(parser_name)r (可选项: %(choices)s)"
 
-#: /usr/lib/python3.12/argparse.py:1920 /usr/lib/python3.12/argparse.py:2473
+#: /usr/lib/python3.13/argparse.py:1905 /usr/lib/python3.13/argparse.py:2468
 #, python-format
 msgid "unrecognized arguments: %s"
 msgstr "未识别的参数：%s"
 
-#: /usr/lib/python3.12/argparse.py:313
+#: /usr/lib/python3.13/argparse.py:311
 msgid "usage: "
 msgstr "用法："
 

@@ -26,11 +26,13 @@ import random
 
 import json5 as json
 import rich
+from beartype.roar import BeartypeException
 
 from rubisco.lib.exceptions import RUError
 from rubisco.lib.l10n import _
 from rubisco.lib.log import logger
-from rubisco.lib.variable import AFTypeError, format_str
+from rubisco.lib.variable import AFTypeError
+from rubisco.lib.variable.fast_format_str import fast_format_str
 
 __all__ = [
     "get_prompt",
@@ -171,7 +173,7 @@ def output_step(message: str, level: int = -1, end: str = "\n") -> None:
         prompt = get_prompt(level)
 
         rich.print(
-            format_str(
+            fast_format_str(
                 "${{indent}}[blue]${{prompt}}[/blue] [bold]${{msg}}[/bold]",
                 fmt={
                     "indent": indent,
@@ -192,7 +194,7 @@ def output_error(message: str) -> None:
 
     """
     rich.print(
-        format_str(_("[red]Error: ${{msg}}[/red]"), fmt={"msg": message}),
+        fast_format_str(_("[red]Error: ${{msg}}[/red]"), fmt={"msg": message}),
     )
 
 
@@ -204,7 +206,7 @@ def output_warning(message: str) -> None:
 
     """
     rich.print(
-        format_str(
+        fast_format_str(
             _("[yellow]Warning: ${{msg}}[/yellow]"),
             fmt={"msg": message},
         ),
@@ -219,14 +221,14 @@ def output_hint(message: str) -> None:
 
     """
     rich.print(
-        format_str(
+        fast_format_str(
             _("[italic][magenta]Hint:[/magenta] ${{msg}}[/italic]"),
             fmt={"msg": message},
         ),
     )
 
 
-def show_exception(
+def show_exception(  # noqa: C901
     exc: Exception | KeyboardInterrupt,
     *,
     as_warn: bool = False,
@@ -245,6 +247,8 @@ def show_exception(
     typestr = type(exc).__name__
 
     perror = output_warning if as_warn else output_error
+    if isinstance(exc, BeartypeException):
+        perror = output_line
 
     if isinstance(exc, RUError | ValueError | AFTypeError | AssertionError):
         if not message:
@@ -260,7 +264,7 @@ def show_exception(
         output_hint(_("Is may caused by a invalid JSON5 configuration file."))
     elif isinstance(exc, KeyError):
         perror(
-            format_str(
+            fast_format_str(
                 _("Missing key: ${{msg}}"),
                 fmt={"msg": message},
             ),
@@ -270,7 +274,7 @@ def show_exception(
         raise exc
     else:
         perror(
-            format_str(
+            fast_format_str(
                 _("Internal error: ${{type}}: ${{msg}}"),
                 fmt={"type": typestr, "msg": message},
             ),
@@ -279,4 +283,4 @@ def show_exception(
     if hint:
         output_hint(hint)
     if docurl:
-        output_hint(format_str(_("See: ${{url}}"), fmt={"url": docurl}))
+        output_hint(fast_format_str(_("See: ${{url}}"), fmt={"url": docurl}))
