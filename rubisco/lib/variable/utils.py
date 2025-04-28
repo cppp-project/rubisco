@@ -20,6 +20,7 @@
 """Rubisco variable system utilities."""
 
 from collections.abc import Callable, Iterable
+from pathlib import Path
 from types import UnionType
 from typing import Any, cast
 
@@ -34,8 +35,11 @@ __all__ = [
 ]
 
 
-def make_pretty(string: str | Any, empty: str = "") -> str:  # noqa: ANN401
-    """Make the string pretty.
+def make_pretty(  # noqa: C901, PLR0912 # pylint: disable=R0912
+    string: Path | str | Any,  # noqa: ANN401
+    empty: str = "",
+) -> str:
+    """Make the path string pretty.
 
     Args:
         string (str | Any): The string to get representation.
@@ -45,14 +49,39 @@ def make_pretty(string: str | Any, empty: str = "") -> str:  # noqa: ANN401
         str: Result string.
 
     """
-    string = str(string)
+    string_ = str(string)
 
     if not string:
         return empty
-    if string.endswith("\\"):
-        string += "\\"
+    if string_.endswith("\\"):
+        string_ += "\\"
 
-    return string
+    strpath = Path(string)
+    if strpath.exists():
+        string_ = f"[underline]{string_}[/underline]"
+
+    if strpath.is_dir() and not strpath.is_symlink():
+        string_ = f"[magenta]{string_}[/magenta]"
+    elif strpath.is_block_device() and not strpath.is_symlink():
+        string_ = f"[yellow]{string_}[/yellow]"
+    elif strpath.is_char_device() and not strpath.is_symlink():
+        string_ = f"[on black][bright_yellow]{string_}[/][/]"
+    elif strpath.is_socket() and not strpath.is_symlink():
+        string_ = f"[on black][bright_magenta]{string_}[/][/]"
+    elif strpath.is_fifo() and not strpath.is_symlink():
+        string_ = f"[on black][bright_yellow]{string_}[/][/]"
+    else:
+        try:
+            if strpath.is_symlink() and strpath.resolve().exists():
+                string_ = f"[cyan]{string_}[/cyan]"
+            elif strpath.is_symlink():
+                string_ = f"[red]{string_}[/red]"
+            elif strpath.lstat().st_mode & 0o100:
+                string_ = f"[green]{string_}[/green]"
+        except OSError:
+            pass
+
+    return string_
 
 
 def assert_iter_types(

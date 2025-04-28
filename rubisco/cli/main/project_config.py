@@ -30,7 +30,8 @@ from rubisco.kernel.project_config import ProjectHook, load_project_config
 from rubisco.lib.exceptions import RUNotRubiscoProjectError, RUValueError
 from rubisco.lib.l10n import _
 from rubisco.lib.log import logger
-from rubisco.lib.variable import format_str, make_pretty
+from rubisco.lib.variable import make_pretty
+from rubisco.lib.variable.fast_format_str import fast_format_str
 
 if TYPE_CHECKING:
     import argparse
@@ -70,7 +71,7 @@ def get_project_config() -> ProjectConfigration | None:
     """
     if _project_config is None:
         raise RUNotRubiscoProjectError(
-            format_str(
+            fast_format_str(
                 _(
                     "Working directory '[underline]${{path}}[/underline]'"
                     " not a rubisco project.",
@@ -95,7 +96,7 @@ def bind_hook(name: str) -> None:
         _hooks[name].append(cast("ProjectHook", _project_config.hooks[name]))
         hook_parser = commands_parser.add_parser(
             name,
-            help=format_str(
+            help=fast_format_str(
                 _("(${{num}} hooks)"),
                 fmt={"num": str(len(_hooks[name]))},
             ),
@@ -116,7 +117,7 @@ def call_hook(name: str) -> None:
     """
     if name not in _hooks:
         raise RUValueError(
-            format_str(
+            fast_format_str(
                 _("Undefined command or hook ${{name}}"),
                 fmt={"name": make_pretty(name)},
             ),
@@ -135,14 +136,14 @@ def load_project() -> None:
             bind_hook(hook_name)
     except RUNotRubiscoProjectError as exc:
         raise RUNotRubiscoProjectError(
-            format_str(
+            fast_format_str(
                 _(
                     "Working directory '[underline]${{path}}[/underline]'"
                     " not a rubisco project.",
                 ),
                 fmt={"path": make_pretty(Path.cwd().absolute())},
             ),
-            hint=format_str(
+            hint=fast_format_str(
                 _("'[underline]${{path}}[/underline]' is not found."),
                 fmt={"path": make_pretty(USER_REPO_CONFIG.absolute())},
             ),

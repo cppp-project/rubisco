@@ -48,6 +48,11 @@ def fast_format_str(
 ) -> str | Any:  # noqa: ANN401
     """Format the string with variables.
 
+    This function is faster than the full format_str() function.
+    It only supports literal text and simple variables without decoration.
+    It's not recommended to use this function to format a string that from
+    user input. Suggest to use this function when formatting a message.
+
     Args:
         string (str): The string to format.
         fmt (dict[str, Any] | None): The format dictionary.
@@ -60,6 +65,12 @@ def fast_format_str(
     Raises:
         RUValueError: If the string contains a variable expression
             that is not a simple variable expression.
+            Although "${{var:${{var}}}} : ${{var}}" is a expression with
+            decoration, but safety check will not raise an error.
+            This is a bug, but I don't want to fix it. (We need fast instead of
+            100% safety)
+            If someday this project is rewritten in some other faster language
+            (never be Rust), this function will be deprecated.
 
     """
     if not isinstance(string, str):
@@ -71,7 +82,7 @@ def fast_format_str(
             msg,
         )
 
-    if re.search(r"\$\{\{.*\:.*\}\}", string):
+    if re.search(r"\$\{\{([^{}]+?):([^{}]+?)\}\}", string):
         msg = _("fast_format_str() does not support default value.")
         raise RUValueError(
             msg,
@@ -148,11 +159,18 @@ class TestFastFormatStr:
 
     def test_var_with_decoration(self) -> None:
         """Test variable with decoration."""
+        push_variables("var", "world")
         pytest.raises(
             RUValueError,
             fast_format_str,
             "${{var:1}}",
         )
+        if fast_format_str("${{var}} : ${{var}}") != "world : world":
+            raise AssertionError
+        # Although "${{var:${{var}}}} : ${{var}}" is a expression with
+        # decoration, but safety check will not raise an error.
+        # This is a bug, but I don't want to fix it. (We need fast instead of
+        # safety)
 
     def test_var_with_pyexpr(self) -> None:
         """Test variable with python expression."""
