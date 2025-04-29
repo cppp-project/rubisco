@@ -75,6 +75,7 @@ def register_step_type(name: str, cls: type, contributes: list[str]) -> None:
 
 def run_inline_workflow(
     data: AutoFormatDict | list[AutoFormatDict],
+    default_id: str,
     *,
     fail_fast: bool = True,
 ) -> Exception | None:
@@ -82,6 +83,7 @@ def run_inline_workflow(
 
     Args:
         data (AutoFormatDict | list[AutoFormatDict]): Workflow data.
+        default_id (str): Default id of the workflow.
         fail_fast (bool, optional): Raise an exception if run failed.
             Defaults to True.
 
@@ -93,7 +95,7 @@ def run_inline_workflow(
     if isinstance(data, list):
         data = AutoFormatDict({"name": _("<Inline Workflow>"), "steps": data})
 
-    wf = Workflow(data)
+    wf = Workflow(data, default_id)
     try:
         wf.run()
     except Exception as exc:  # pylint: disable=broad-except # noqa: BLE001
@@ -150,6 +152,7 @@ def run_workflow(
         return run_inline_workflow(
             AutoFormatDict(workflow),
             fail_fast=fail_fast,
+            default_id=file.stem,
         )
 
 

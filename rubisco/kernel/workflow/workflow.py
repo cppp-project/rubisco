@@ -19,7 +19,6 @@
 
 """Workflow implementation."""
 
-import uuid
 from collections.abc import Generator
 
 from rubisco.kernel.workflow.step import Step
@@ -45,30 +44,32 @@ class Workflow:
 
     pushed_variables: list[str]
 
-    def __init__(self, data: AutoFormatDict) -> None:
+    def __init__(self, data: AutoFormatDict, default_id: str) -> None:
         """Create a new workflow.
 
         Args:
             data (AutoFormatDict): The workflow json data.
+            default_id (str): The default id of the workflow.
 
         """
         self.pushed_variables = []
         pairs = data.get("vars", [], valtype=list)
+        assert_iter_types(
+            pairs,
+            dict,
+            RUValueError(
+                _("Workflow variables must be a list of name and value."),
+            ),
+        )
         for pair in pairs:
-            assert_iter_types(
-                pairs,
-                dict,
-                RUValueError(
-                    _("Workflow variables must be a list of name and value."),
-                ),
-            )
+            pair: AutoFormatDict
             for key, val in pair.items():
                 self.pushed_variables.append(str(key))
                 push_variables(str(key), val)
 
         self.id = data.get(
             "id",
-            str(uuid.uuid4()),
+            default_id,
             valtype=str,
         )
         self.name = data.get("name", valtype=str)
@@ -78,7 +79,7 @@ class Workflow:
         self,
         steps: list[AutoFormatDict],
     ) -> Step | None:
-        """Parse the steps.
+        """Parse the steps and run them.
 
         Args:
             steps (list[AutoFormatDict]): The steps dict data.
@@ -92,10 +93,10 @@ class Workflow:
 
         step_ids: list[str] = []
 
-        for step_data in steps:
+        for step_idx, step_data in enumerate(steps):
             step_id = step_data.get(
                 "id",
-                str(uuid.uuid4()),
+                f"{self.id}.steps.{step_idx}",
                 valtype=str,
             )
             step_name = step_data.get("name", "", valtype=str)

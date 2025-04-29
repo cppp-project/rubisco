@@ -100,7 +100,7 @@ class ProjectHook:  # pylint: disable=too-few-public-methods
 
             # Then, run inline workflow.
             if inline_wf:
-                run_inline_workflow(inline_wf)
+                run_inline_workflow(inline_wf, self.name)
 
             # Then, run workflow.
             if workflow:
