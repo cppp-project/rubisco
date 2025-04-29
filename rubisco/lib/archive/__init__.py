@@ -30,7 +30,6 @@ import zipfile
 from pathlib import Path
 
 import py7zr
-import py7zr.callbacks
 import py7zr.exceptions
 import pytest
 
@@ -47,7 +46,8 @@ from rubisco.lib.fileutil import (
 )
 from rubisco.lib.l10n import _
 from rubisco.lib.log import logger
-from rubisco.lib.variable import format_str
+from rubisco.lib.variable.fast_format_str import fast_format_str
+from rubisco.lib.variable.utils import make_pretty
 from rubisco.shared.ktrigger import IKernelTrigger, call_ktrigger
 
 __all__ = ["compress", "extract"]
@@ -109,15 +109,13 @@ def extract_file(  # pylint: disable=too-many-branches # noqa: C901 PLR0912
             rm_recursive(dest)
         with dest.open("wb") as fdst:
             if fsize > COPY_BUFSIZE * 50:
-                task_name = format_str(
+                task_name = fast_format_str(
                     _(
-                        "Extracting '[underline]${{file}}[/underline]'"
-                        " to '[underline]${{path}}[/underline]'"
-                        " as '${{type}}' ...",
+                        "Extracting ${{file}} to ${{path}} as '${{type}}' ...",
                     ),
                     fmt={
-                        "file": str(file),
-                        "path": str(dest),
+                        "file": make_pretty(file),
+                        "path": make_pretty(dest),
                         "type": compress_type,
                     },
                 )
@@ -222,12 +220,11 @@ def extract(  # pylint: disable=R0913 # noqa: PLR0913
             else:
                 raise RUValueError(
                     str(
-                        format_str(
+                        fast_format_str(
                             _(
-                                "Unable to determine compression type of "
-                                "'[underline]${{path}}[/underline]'",
+                                "Unable to guess compression type of ${{path}}",
                             ),
-                            fmt={"path": str(file)},
+                            fmt={"path": make_pretty(file)},
                         ),
                     ),
                     hint=_("Please specify the compression type explicitly."),
@@ -245,8 +242,8 @@ def extract(  # pylint: disable=R0913 # noqa: PLR0913
             compress_type,
         )
         raise RUValueError(
-            format_str(
-                _("Unsupported compression type: '${{type}}'"),
+            fast_format_str(
+                _("Unsupported compression type: ${{type}}"),
                 fmt={"type": str(compress_type)},
             ),
             hint=_(
@@ -269,9 +266,13 @@ def extract(  # pylint: disable=R0913 # noqa: PLR0913
             dest,
         )
         raise RUValueError(
-            format_str(
-                _("Failed to extract '${{file}}' to '${{dest}}': '${{exc}}'"),
-                fmt={"file": str(file), "dest": str(dest), "exc": str(exc)},
+            fast_format_str(
+                _("Failed to extract ${{file}} to ${{dest}}: ${{exc}}"),
+                fmt={
+                    "file": make_pretty(file),
+                    "dest": make_pretty(dest),
+                    "exc": str(exc),
+                },
             ),
         ) from exc
 
@@ -328,15 +329,13 @@ def compress_file(  # pylint: disable=R0912 # noqa: C901 PLR0912
         fsrc.seek(0, os.SEEK_SET)
         with dest.open("wb") as fdst:
             if fsize > COPY_BUFSIZE * 50:
-                task_name = format_str(
+                task_name = fast_format_str(
                     _(
-                        "Compressing '[underline]${{path}}[/underline]'"
-                        " to '[underline]${{file}}[/underline]'"
-                        " as '${{type}}' ...",
+                        "Compressing ${{path}} to ${{file}} as '${{type}}' ...",
                     ),
                     fmt={
-                        "path": str(src),
-                        "file": str(dest),
+                        "path": make_pretty(src),
+                        "file": make_pretty(dest),
                         "type": compress_type,
                     },
                 )
@@ -487,12 +486,12 @@ def compress(  # pylint: disable=R0913, R0917 # noqa: PLR0913
                 compress_type = suffix1[1:]
             else:
                 raise RUValueError(
-                    format_str(
+                    fast_format_str(
                         _(
-                            "Unable to determine compression type of "
-                            "'[underline]${{path}}[/underline]'",
+                            "Unable to determine compression type of "  # -
+                            "${{path}}",
                         ),
-                        fmt={"path": str(dest)},
+                        fmt={"path": make_pretty(dest)},
                     ),
                     hint=_("Please specify the compression type explicitly."),
                 )
@@ -511,8 +510,8 @@ def compress(  # pylint: disable=R0913, R0917 # noqa: PLR0913
             compress_type,
         )
         raise RUValueError(
-            format_str(
-                _("Unsupported compression type: '${{type}}'"),
+            fast_format_str(
+                _("Unsupported compression type: ${{type}}"),
                 fmt={"type": str(compress_type)},
             ),
             hint=_(
@@ -535,9 +534,13 @@ def compress(  # pylint: disable=R0913, R0917 # noqa: PLR0913
             dest,
         )
         raise RUValueError(
-            format_str(
-                _("Failed to compress '${{src}}' to '${{dest}}': '${{exc}}'"),
-                fmt={"src": str(src), "dest": str(dest), "exc": str(exc)},
+            fast_format_str(
+                _("Failed to compress ${{src}} to ${{dest}}: ${{exc}}"),
+                fmt={
+                    "src": make_pretty(src),
+                    "dest": make_pretty(dest),
+                    "exc": str(exc),
+                },
             ),
         ) from exc
 

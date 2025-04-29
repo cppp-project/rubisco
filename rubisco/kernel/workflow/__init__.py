@@ -40,11 +40,11 @@ from rubisco.lib.log import logger
 from rubisco.lib.variable import (
     AutoFormatDict,
     assert_iter_types,
-    format_str,
     make_pretty,
     pop_variables,
     push_variables,
 )
+from rubisco.lib.variable.fast_format_str import fast_format_str
 from rubisco.shared.ktrigger import IKernelTrigger, call_ktrigger
 
 if TYPE_CHECKING:
@@ -123,9 +123,9 @@ class Workflow:
             step_data["id"] = step_id
             if step_id in step_ids:
                 raise RUValueError(
-                    format_str(
+                    fast_format_str(
                         _("Step id '${{step_id}}' is duplicated."),
-                        fmt={"step_id": make_pretty(step_id)},
+                        fmt={"step_id": step_id},
                     ),
                 )
             step_ids.append(step_id)
@@ -145,14 +145,14 @@ class Workflow:
                 step_cls = step_types.get(step_type)
                 if step_cls is None:
                     raise RUValueError(
-                        format_str(
+                        fast_format_str(
                             _(
                                 "Unknown step type: '${{step_type}}' of step "
                                 "'${{step_name}}'. Please check the workflow.",
                             ),
                             fmt={
-                                "step_type": make_pretty(step_type),
-                                "step_name": make_pretty(step_name),
+                                "step_type": step_type,
+                                "step_name": step_name,
                             },
                         ),
                         hint=_(
@@ -162,7 +162,7 @@ class Workflow:
 
             if step_cls is None:
                 raise RUValueError(
-                    format_str(
+                    fast_format_str(
                         _(
                             "The type of step '${{step}}'[black](${{step_id}})"
                             "[/black] in workflow '${{workflow}}'[black]("
@@ -256,12 +256,12 @@ def register_step_type(name: str, cls: type, contributes: list[str]) -> None:
     if name in step_types:
         call_ktrigger(
             IKernelTrigger.on_warning,
-            message=format_str(
+            message=fast_format_str(
                 _(
                     "Step type '${{name}}' registered multiple times. "
                     "This may cause unexpected behavior. It's unsafe.",
                 ),
-                fmt={"name": make_pretty(name)},
+                fmt={"name": name},
             ),
         )
     step_types[name] = cls
@@ -302,7 +302,7 @@ def run_inline_workflow(
             raise exc from None
         call_ktrigger(
             IKernelTrigger.on_warning,
-            message=format_str(
+            message=fast_format_str(
                 _(
                     "Workflow running failed: ${{exc}}",
                 ),
@@ -339,10 +339,9 @@ def run_workflow(
             workflow = yaml.safe_load(f)
         else:
             raise RUValueError(
-                format_str(
+                fast_format_str(
                     _(
-                        "The suffix of '[underline]${{path}}[/underline]' "
-                        "is invalid.",
+                        "The suffix of ${{path}} is invalid.",
                     ),
                     fmt={"path": make_pretty(file.absolute())},
                 ),

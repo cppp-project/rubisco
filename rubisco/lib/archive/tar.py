@@ -21,11 +21,13 @@
 
 import tarfile
 from pathlib import Path
+from typing import Literal, cast
 
 from rubisco.lib.archive.utils import get_includes, write_to_archive
 from rubisco.lib.fileutil import check_file_exists, rm_recursive
 from rubisco.lib.l10n import _
-from rubisco.lib.variable import format_str
+from rubisco.lib.variable.fast_format_str import fast_format_str
+from rubisco.lib.variable.utils import make_pretty
 from rubisco.shared.ktrigger import IKernelTrigger, call_ktrigger
 
 # pylint: disable=R0801
@@ -54,16 +56,20 @@ def extract_tarball(
 
     """
     compress_type = compress_type.lower().strip() if compress_type else None
-    if compress_type == "gzip":
-        compress_type = "gz"
-    elif compress_type == "bzip2":
-        compress_type = "bz2"
-    if compress_type not in ["gz", "bz2", "xz", None]:
+    if compress_type in {"gzip", "gz"}:
+        compress_type_ = "r:gz"
+    elif compress_type in {"bzip2", "bz2"}:
+        compress_type_ = "r:bz2"
+    elif compress_type == "xz":
+        compress_type_ = "r:xz"
+    elif compress_type is None:
+        compress_type_ = "r"
+    else:
         raise AssertionError
 
     with tarfile.open(
         tarball,
-        f"r:{compress_type}" if compress_type else "r",  # type: ignore[arg-type]
+        compress_type_,
     ) as fp:
         fp: tarfile.TarFile
         memembers = fp.getmembers()
@@ -72,14 +78,13 @@ def extract_tarball(
         elif dest.exists():
             rm_recursive(dest)
 
-        task_name = format_str(
+        task_name = fast_format_str(
             _(
-                "Extracting '[underline]${{file}}[/underline]' to "
-                "'[underline]${{path}}[/underline]' as '${{type}}' ...",
+                "Extracting ${{file}} to ${{path}} as '${{type}}' ...",
             ),
             fmt={
-                "file": str(tarball),
-                "path": str(dest),
+                "file": make_pretty(tarball),
+                "path": make_pretty(dest),
                 "type": f"tar.{compress_type}" if compress_type else "tar",
             },
         )
@@ -140,25 +145,28 @@ def compress_tarball(  # pylint: disable=R0913, R0917 # noqa: PLR0913
 
     """
     compress_type = compress_type.lower().strip() if compress_type else None
-    if compress_type == "gzip":
-        compress_type = "gz"
-    elif compress_type == "bzip2":
-        compress_type = "bz2"
-    if compress_type not in ["gz", "bz2", "xz", None]:
+    if compress_type in {"gzip", "gz"}:
+        compress_type_ = "w:gz"
+    elif compress_type in {"bzip2", "bz2"}:
+        compress_type_ = "w:bz2"
+    elif compress_type == "xz":
+        compress_type_ = "w:xz"
+    elif compress_type is None:
+        compress_type_ = "w"
+    else:
         raise AssertionError
 
     if not overwrite:
         check_file_exists(dest)
     elif dest.exists():
         rm_recursive(dest)
-    task_name = format_str(
+    task_name = fast_format_str(
         _(
-            "Compressing '[underline]${{path}}[/underline]' to "
-            "'[underline]${{file}}[/underline]' as '${{type}}' ...",
+            "Compressing ${{path}} to ${{file}} as '${{type}}' ...",
         ),
         fmt={
-            "path": str(src),
-            "file": str(dest),
+            "path": make_pretty(src),
+            "file": make_pretty(dest),
             "type": f"tar.{compress_type}" if compress_type else "tar",
         },
     )
@@ -166,30 +174,43 @@ def compress_tarball(  # pylint: disable=R0913, R0917 # noqa: PLR0913
     if not start:
         start = src.parent
 
-    if compress_type in ["gz", "bz2"]:
-        compress_level = compress_level if compress_level else 9
-        fp = tarfile.open(  # noqa: SIM115
-            dest,
-            f"w:{compress_type}" if compress_type else "w",  # type: ignore[arg-type]
-            compresslevel=compress_level,
-        )
-    else:
-        fp = tarfile.open(  # noqa: SIM115
-            dest,
-            f"w:{compress_type}" if compress_type else "w",  # type: ignore[arg-type]
-        )
-
     includes = get_includes(src, excludes)
 
-    with fp:
-        write_to_archive(
-            includes,
+    if compress_type in {"gz", "bz2"}:
+        compress_level = compress_level if compress_level else 9
+        with tarfile.open(
             dest,
-            start,
-            lambda path, arcname: fp.add(
-                path,
-                arcname,
-                recursive=False,
-            ),
-            task_name,
-        )
+            cast("Literal['w:gz', 'w:bz2']", compress_type_),
+            compresslevel=compress_level,
+        ) as fp_:
+            write_to_archive(
+                includes,
+                dest,
+                start,
+                lambda path, arcname: fp_.add(
+                    path,
+                    arcname,
+                    recursive=False,
+                ),
+                task_name,
+            )
+    else:
+        with tarfile.open(
+            dest,
+            cast("Literal['w:gz', 'w:bz2']", compress_type_),
+        ) as fp:
+            write_to_archive(
+                includes,
+                dest,
+                start,
+                lambda path, arcname: fp.add(
+                    path,
+                    arcname,
+                    recursive=False,
+                ),
+                task_name,
+            )
+
+
+# Make Ruff happy.
+_T = Literal

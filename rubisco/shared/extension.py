@@ -48,7 +48,8 @@ from rubisco.lib.exceptions import RUNotRubiscoExtensionError, RUValueError
 from rubisco.lib.l10n import _
 from rubisco.lib.load_module import import_module_from_path
 from rubisco.lib.log import logger
-from rubisco.lib.variable import format_str, make_pretty
+from rubisco.lib.variable import make_pretty
+from rubisco.lib.variable.fast_format_str import fast_format_str
 from rubisco.shared.ktrigger import (
     IKernelTrigger,
     bind_ktrigger_interface,
@@ -146,16 +147,14 @@ def find_extension(name: str) -> Path:
         path = WORKSPACE_EXTENSIONS_VENV_DIR / name
     else:
         raise RUValueError(
-            format_str(
+            fast_format_str(
                 _(
                     "The extension '${{name}}' does not exist in"
                     " workspace, user, or global extension directory.",
                 ),
                 fmt={"name": name},
             ),
-            hint=format_str(
-                _("Try to load the extension as a path."),
-            ),
+            hint=fast_format_str(_("Try to load the extension as a path.")),
         )
     return path
 
@@ -168,24 +167,21 @@ def _get_extension_instance(path: Path) -> IRUExtension:
         module = import_module_from_path(path)
     except RUNotRubiscoExtensionError as exc:
         raise RUValueError(
-            format_str(
+            fast_format_str(
                 _(
-                    "The extension path '[underline]${{path}}[/underline]'"
-                    " does not exist.",
+                    "The extension path ${{path}} does not exist.",
                 ),
                 fmt={"path": make_pretty(Path(exc.args[0]).absolute())},
             ),
         ) from exc
     except ImportError as exc:
-        msg = format_str(
-            _(
-                "Failed to load extension '[underline]${{path}}[/underline]'.",
-            ),
+        msg = fast_format_str(
+            _("Failed to load extension ${{path}}."),
             fmt={"path": make_pretty(path.absolute())},
         )
         raise RUValueError(
             msg,
-            hint=format_str(
+            hint=fast_format_str(
                 _(
                     "Please make sure this extension is valid.",
                 ),
@@ -194,14 +190,13 @@ def _get_extension_instance(path: Path) -> IRUExtension:
 
     if not hasattr(module, "instance"):
         raise RUValueError(
-            format_str(
+            fast_format_str(
                 _(
-                    "The extension '[underline]${{path}}[/underline]' does"
-                    " not have an instance.",
+                    "The extension ${{path}} does not have an instance.",
                 ),
                 fmt={"path": make_pretty(path.absolute())},
             ),
-            hint=format_str(
+            hint=fast_format_str(
                 _(
                     "Please make sure this extension is valid.",
                 ),
@@ -290,7 +285,7 @@ def load_extension(
         # Security check.
         if not is_valid_extension_name(ext_info.name):
             raise RUValueError(  # noqa: TRY301
-                format_str(
+                fast_format_str(
                     _(
                         "Extension name '${{name}}' invalid.",
                     ),
@@ -353,9 +348,9 @@ def load_extension(
         )
         call_ktrigger(
             IKernelTrigger.on_error,
-            message=format_str(
+            message=fast_format_str(
                 _("Failed to load extension '${{name}}': ${{exc}}"),
-                fmt={"name": make_pretty(strext), "exc": str(exc)},
+                fmt={"name": strext, "exc": str(exc)},
             ),
         )
 

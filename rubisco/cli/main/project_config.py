@@ -73,8 +73,7 @@ def get_project_config() -> ProjectConfigration | None:
         raise RUNotRubiscoProjectError(
             fast_format_str(
                 _(
-                    "Working directory '[underline]${{path}}[/underline]'"
-                    " not a rubisco project.",
+                    "Working directory ${{path}} is not a Rubisco project.",
                 ),
                 fmt={"path": make_pretty(Path.cwd().absolute())},
             ),
@@ -119,7 +118,7 @@ def call_hook(name: str) -> None:
         raise RUValueError(
             fast_format_str(
                 _("Undefined command or hook ${{name}}"),
-                fmt={"name": make_pretty(name)},
+                fmt={"name": name},
             ),
             hint=_("Perhaps a typo?"),
         )
@@ -138,13 +137,12 @@ def load_project() -> None:
         raise RUNotRubiscoProjectError(
             fast_format_str(
                 _(
-                    "Working directory '[underline]${{path}}[/underline]'"
-                    " not a rubisco project.",
+                    "Working directory ${{path}} is not a rubisco project.",
                 ),
                 fmt={"path": make_pretty(Path.cwd().absolute())},
             ),
             hint=fast_format_str(
-                _("'[underline]${{path}}[/underline]' is not found."),
+                _("${{path}} is not found."),
                 fmt={"path": make_pretty(USER_REPO_CONFIG.absolute())},
             ),
         ) from exc

@@ -30,7 +30,7 @@ from rubisco.config import COPY_BUFSIZE, TIMEOUT
 from rubisco.lib.fileutil import check_file_exists, rm_recursive
 from rubisco.lib.l10n import _
 from rubisco.lib.log import logger
-from rubisco.lib.variable import format_str
+from rubisco.lib.variable.fast_format_str import fast_format_str
 from rubisco.shared.ktrigger import IKernelTrigger, call_ktrigger
 
 __all__ = ["wget"]
@@ -65,10 +65,8 @@ def wget(
         requests.get(url, stream=True, timeout=TIMEOUT) as response,
     ):
         response.raise_for_status()
-        task_name = format_str(
-            _(
-                "Downloading ${{url}} ...",
-            ),
+        task_name = fast_format_str(
+            _("Downloading ${{url}} ..."),
             fmt={"url": url},
         )
         call_ktrigger(

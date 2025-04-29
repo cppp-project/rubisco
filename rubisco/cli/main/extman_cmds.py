@@ -40,7 +40,7 @@ from rubisco.envutils.packages import (
 )
 from rubisco.lib.l10n import _
 from rubisco.lib.log import logger
-from rubisco.lib.variable import format_str
+from rubisco.lib.variable.fast_format_str import fast_format_str
 from rubisco.shared.ktrigger import IKernelTrigger, call_ktrigger
 
 if TYPE_CHECKING:
@@ -128,56 +128,56 @@ def list_packages(args: argparse.Namespace) -> None:
 def _show_pkgs(pkg: ExtensionPackageInfo) -> None:
     call_ktrigger(
         IKernelTrigger.on_output,
-        message=format_str(
+        message=fast_format_str(
             _("Package: [green]${{name}}[/green]"),
             fmt={"name": pkg.name},
         ),
     )
     call_ktrigger(
         IKernelTrigger.on_output,
-        message=format_str(
+        message=fast_format_str(
             _("Version: [cyan]${{ver}}[/cyan]"),
             fmt={"ver": str(pkg.version)},
         ),
     )
     call_ktrigger(
         IKernelTrigger.on_output,
-        message=format_str(
+        message=fast_format_str(
             _("Installation Location: ${{loc}}"),
             fmt={"loc": _get_envtype_str(pkg.env_type)},
         ),
     )
     call_ktrigger(
         IKernelTrigger.on_output,
-        message=format_str(
+        message=fast_format_str(
             _("Maintainers: ${{maintainers}}"),
             fmt={"maintainers": ", ".join(pkg.maintainers)},
         ),
     )
     call_ktrigger(
         IKernelTrigger.on_output,
-        message=format_str(
+        message=fast_format_str(
             _("Homepage: ${{homepage}}"),
             fmt={"homepage": pkg.homepage},
         ),
     )
     call_ktrigger(
         IKernelTrigger.on_output,
-        message=format_str(
+        message=fast_format_str(
             _("License: ${{license}}"),
             fmt={"license": pkg.pkg_license},
         ),
     )
     call_ktrigger(
         IKernelTrigger.on_output,
-        message=format_str(
+        message=fast_format_str(
             _("Tags: ${{tags}}"),
             fmt={"tags": ", ".join(pkg.tags)},
         ),
     )
     call_ktrigger(
         IKernelTrigger.on_output,
-        message=format_str(
+        message=fast_format_str(
             _("Description: ${{desc}}"),
             fmt={"desc": pkg.description},
         ),

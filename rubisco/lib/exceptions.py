@@ -75,6 +75,7 @@ class RUValueError(RUError, ValueError):
 class RUTypeError(RUError, TypeError):
     """Rubisco type exception."""
 
+
 class RUNotRubiscoProjectError(RUError, FileNotFoundError):
     """Not a Rubisco project exception."""
 
@@ -85,10 +86,6 @@ class RUNotRubiscoExtensionError(RUError, FileNotFoundError):
 
 class RUOSError(RUError, OSError):
     """OS Exception."""
-
-
-# We don't use `format_str` or `fast_format_str` here to avoid circular
-# dependency.
 
 
 class RUShellExecutionError(RUError):

@@ -35,7 +35,7 @@ import pytest
 from rubisco.lib.exceptions import RUValueError
 from rubisco.lib.l10n import _
 from rubisco.lib.log import logger
-from rubisco.lib.variable import format_str, make_pretty
+from rubisco.lib.variable import format_str
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -620,7 +620,7 @@ def bind_ktrigger_interface(kid: str, instance: IKernelTrigger) -> None:
         raise RUValueError(
             format_str(
                 _("Kernel trigger id '${{name}}' is already exists."),
-                fmt={"name": make_pretty(kid)},
+                fmt={"name": kid},
             ),
         )
 

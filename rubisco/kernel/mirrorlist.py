@@ -40,7 +40,8 @@ from rubisco.lib.exceptions import RUValueError
 from rubisco.lib.l10n import _
 from rubisco.lib.log import logger
 from rubisco.lib.speedtest import C_INTMAX, url_speedtest
-from rubisco.lib.variable import AutoFormatDict, format_str
+from rubisco.lib.variable import AutoFormatDict
+from rubisco.lib.variable.fast_format_str import fast_format_str
 from rubisco.shared.ktrigger import IKernelTrigger, call_ktrigger
 
 __all__ = ["get_url"]
@@ -127,27 +128,28 @@ def get_mirrorlist(
     """
     host = host.lower()
 
-    mlist1 = mirrorlist.get(  # type: ignore[no-untyped-call]
+    mlist1 = mirrorlist.get(
         host,
         valtype=dict | str,
     )
     if isinstance(mlist1, str):  # Alias support.
-        mlist1 = mirrorlist.get(  # type: ignore[no-untyped-call]
+        mlist1 = mirrorlist.get(
             mlist1,
             valtype=dict | str,
         )
     if isinstance(mlist1, str):
         try:
             return get_mirrorlist(mlist1, protocol)
+        # If someone see this code, please remind me to refactor it.
         except RecursionError as exc:  # The easiest way to detect recursion :)
             raise RUValueError(
-                format_str(
+                fast_format_str(
                     _("Recursion detected in mirrorlist: '${{name}}'"),
                     fmt={"name": mlist1},
                 ),
                 hint=_(
-                    "Please check your mirrorlist.json file in"
-                    "workspace, user or global config directory.",
+                    "Please check your [underline]mirrorlist.json[/underline]"
+                    " file in workspace, user or global config directory.",
                 ),
             ) from exc
     return mlist1.get(protocol, valtype=dict)
@@ -191,7 +193,7 @@ async def find_fastest_mirror(
         if fastest is None:
             call_ktrigger(
                 IKernelTrigger.on_warning,
-                message=format_str(
+                message=fast_format_str(
                     _(
                         "All mirrors are unreachable or canceled. Switching to"
                         " official [underline][blue]${{url}}"
@@ -252,10 +254,16 @@ def get_url(
                 valtype=str,
             )
             logger.info("Selected mirror: %s ('%s')", mirror, url_template)
-            return format_str(url_template, fmt={"user": user, "repo": repo})
+            return fast_format_str(
+                url_template,
+                fmt={
+                    "user": user,
+                    "repo": repo,
+                },
+            )
         except KeyError:
             logger.critical("Website not found: %s", mirror, exc_info=True)
-            message = format_str(
+            message = fast_format_str(
                 _("Source '${{protocol}}/${{website}}/${{name}}' not found."),
                 fmt={
                     "website": website,

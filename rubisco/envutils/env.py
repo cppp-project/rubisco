@@ -44,7 +44,8 @@ from rubisco.lib.exceptions import RUError, RUOSError
 from rubisco.lib.l10n import _
 from rubisco.lib.log import logger
 from rubisco.lib.process import is_valid_pid
-from rubisco.lib.variable import format_str
+from rubisco.lib.variable.fast_format_str import fast_format_str
+from rubisco.lib.variable.utils import make_pretty
 from rubisco.shared.ktrigger import IKernelTrigger, call_ktrigger
 
 __all__ = [
@@ -114,21 +115,21 @@ class RUEnvironment:
         if self.exists() and not self.db_is_valid():
             call_ktrigger(
                 IKernelTrigger.on_warning,
-                message=format_str(
-                    _("The database '${{path}}' is broken."),
-                    fmt={"path": str(self.db_file)},
+                message=fast_format_str(
+                    _("The database ${{path}} is broken."),
+                    fmt={"path": make_pretty(self.db_file)},
                 ),
             )
         if self.path.exists() and not self.valid():
             logger.error("The environment '%s' is broken.", self.path)
             raise RUError(
                 _("Failed to check the environment."),
-                hint=format_str(
+                hint=fast_format_str(
                     _(
-                        "The '${{path}}' is not a valid venv but exists."
+                        "The ${{path}} is not a valid venv but exists."
                         "Please remove it and try again.",
                     ),
-                    fmt={"path": str(self.path)},
+                    fmt={"path": make_pretty(self.path)},
                 ),
             )
         if not self.path.exists():
@@ -205,13 +206,13 @@ class RUEnvironment:
             "Waiting for the environment to be unlocked ('%s')",
             self._lockfile,
         )
-        task_name = format_str(
+        task_name = fast_format_str(
             _(
                 "Waiting for the environment to be unlocked "
-                "('${{lock_file}}'): ${{seconds}} seconds.",
+                "(${{path}}): ${{seconds}} seconds.",
             ),
             fmt={
-                "lock_file": str(self._lockfile),
+                "path": make_pretty(self._lockfile),
             },
         )
         call_ktrigger(
@@ -262,30 +263,28 @@ class RUEnvironment:
             str_pid = str(_("Unknown") if lock_pid == -1 else lock_pid)
             call_ktrigger(
                 IKernelTrigger.on_warning,
-                message=format_str(
+                message=fast_format_str(
                     _(
-                        "The environment '[underline]${{path}}"
-                        "[/underline]' is already locked by "
-                        "PID ${{pid}}. If you want to force unlock it, "
-                        "please remove the lock file '[underline]"
-                        "${{lockfile}}[/underline]' manually.",
+                        "The environment ${{path}} is already locked by PID "
+                        "${{pid}}. If you want to force unlock it, please "
+                        "remove the lock file ${{lockfile}} manually.",
                     ),
                     fmt={
-                        "path": str(self.path),
+                        "path": make_pretty(self.path),
                         "pid": str_pid,
-                        "lockfile": str(self._lockfile),
+                        "lockfile": make_pretty(self._lockfile),
                     },
                 ),
             )
             if lock_pid != -1 and not is_valid_pid(lock_pid):
                 call_ktrigger(  # If the process has already exited, warn.
                     IKernelTrigger.on_warning,
-                    message=format_str(
+                    message=fast_format_str(
                         _(
                             "The PID '${{pid}}' is not valid. Maybe the "
-                            "process has already exited."
-                            " Remove the lock file if you believe the"
-                            " process has already exited.",
+                            "process has already exited. "
+                            "Remove the lock file if you believe the "
+                            "process has already exited.",
                         ),
                         fmt={
                             "pid": str(lock_pid),
@@ -312,12 +311,11 @@ class RUEnvironment:
             )
             call_ktrigger(
                 IKernelTrigger.on_warning,
-                message=format_str(
+                message=fast_format_str(
                     _(
-                        "The lock file '[underline]${{lockfile}}"
-                        "[/underline]' is broken.",
+                        "The lock file ${{path}} is broken.",
                     ),
-                    fmt={"lockfile": str(self._lockfile)},
+                    fmt={"path": make_pretty(self._lockfile)},
                 ),
             )
         except OSError as exc:
@@ -327,12 +325,11 @@ class RUEnvironment:
             )
             call_ktrigger(
                 IKernelTrigger.on_warning,
-                message=format_str(
+                message=fast_format_str(
                     _(
-                        "Failed to read the lock file '[underline]"
-                        "${{path}}[/underline]': ${{msg}}",
+                        "Failed to read the lock file ${{path}}: ${{msg}}",
                     ),
-                    fmt={"path": str(self._lockfile), "msg": str(exc)},
+                    fmt={"path": make_pretty(self._lockfile), "msg": str(exc)},
                 ),
             )
 
@@ -386,15 +383,14 @@ class RUEnvironment:
                     )
                     call_ktrigger(
                         IKernelTrigger.on_warning,
-                        message=format_str(
+                        message=fast_format_str(
                             _(
-                                "The environment '[underline]${{path}}"
-                                "[/underline]' is locked by another thread "
-                                "(PID '${{pid}}', Thread '${{thread}}')."
-                                "Unlock request is ignored.",
+                                "The environment ${{path}} is locked by "
+                                "another thread (PID ${{pid}}, Thread "
+                                "${{thread}}). Unlock request is ignored.",
                             ),
                             fmt={
-                                "path": str(self.path),
+                                "path": make_pretty(self.path),
                                 "pid": str(pid),
                                 "thread": str(thread_id),
                             },
@@ -407,12 +403,12 @@ class RUEnvironment:
                 )
                 call_ktrigger(
                     IKernelTrigger.on_warning,
-                    message=format_str(
+                    message=fast_format_str(
                         _(
                             "Failed to unlock the extension environment "
-                            "'${{path}}': ${{msg}}",
+                            "${{path}}: ${{msg}}",
                         ),
-                        fmt={"path": str(self.path), "msg": str(exc)},
+                        fmt={"path": make_pretty(self.path), "msg": str(exc)},
                     ),
                 )
         else:
@@ -466,7 +462,7 @@ if __name__ == "__main__":
         def on_create_venv(self, *, path: Path) -> None:
             rubisco.cli.output.output_step(
                 "Creating Rubisco extension environment:"
-                f" '[underline]{path.absolute()}[/underline]' ...",
+                f" '{make_pretty(path.absolute())}' ...",
             )
 
     rubisco.shared.ktrigger.bind_ktrigger_interface(

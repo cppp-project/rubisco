@@ -40,11 +40,11 @@ from rubisco.lib.process import Process
 from rubisco.lib.variable import (
     AutoFormatDict,
     assert_iter_types,
-    format_str,
     make_pretty,
     pop_variables,
     push_variables,
 )
+from rubisco.lib.variable.fast_format_str import fast_format_str
 from rubisco.lib.variable.typecheck import is_instance
 from rubisco.lib.version import Version
 from rubisco.shared.ktrigger import IKernelTrigger, call_ktrigger
@@ -88,9 +88,9 @@ class ProjectHook:  # pylint: disable=too-few-public-methods
 
             if not cmd and not workflow and not inline_wf:
                 raise RUValueError(
-                    format_str(
+                    fast_format_str(
                         _("Hook '${{name}}' is invalid."),
-                        fmt={"name": make_pretty(self.name)},
+                        fmt={"name": self.name},
                     ),
                     hint=_(
                         "A workflow [yellow]SHOULD[/yellow] contain at "
@@ -165,13 +165,15 @@ class ProjectConfigration:  # pylint: disable=too-many-instance-attributes
 
         if self.rubisco_min_version > APP_VERSION:
             raise RUValueError(
-                format_str(
+                fast_format_str(
                     _(
                         "The minimum version of rubisco required by the "
-                        "project '[underline]${{name}}[/underline]' is "
-                        "'[underline]${{version}}[/underline]'.",
+                        "project [underline][link=${{uri}}]${{name}}[/link]"
+                        "[/underline]' is "
+                        "'[cyan]${{version}}[/cyan]'.",
                     ),
                     fmt={
+                        "uri": self.config_file.as_uri(),
                         "name": make_pretty(self.name, _("<Unnamed>")),
                         "version": str(self.rubisco_min_version),
                     },
@@ -273,9 +275,9 @@ def _load_config(config_file: Path, loaded_list: list[Path]) -> AutoFormatDict:
         for include in config.get("includes", [], valtype=list):
             if not isinstance(include, str):
                 raise RUValueError(
-                    format_str(
+                    fast_format_str(
                         _(
-                            "Invalid path '[underline]${{path}}[/underline]'.",
+                            "Invalid path ${{path}}.",
                         ),
                         fmt={"path": make_pretty(config_file.absolute())},
                     ),
@@ -293,10 +295,9 @@ def _load_config(config_file: Path, loaded_list: list[Path]) -> AutoFormatDict:
                     )
                     call_ktrigger(
                         IKernelTrigger.on_warning,
-                        message=format_str(
+                        message=fast_format_str(
                             _(
-                                "Circular dependency detected: "
-                                "[underline]${{path}}[/underline].",
+                                "Circular dependency detected: ${{path}}.",
                             ),
                             fmt={
                                 "path": make_pretty(one_file),

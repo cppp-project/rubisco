@@ -43,9 +43,10 @@ from rubisco.lib.log import logger
 from rubisco.lib.variable import (
     AutoFormatDict,
     assert_iter_types,
-    format_str,
     iter_assert,
 )
+from rubisco.lib.variable.fast_format_str import fast_format_str
+from rubisco.lib.variable.utils import make_pretty
 from rubisco.lib.version import Version
 from rubisco.shared.ktrigger import IKernelTrigger, call_ktrigger
 
@@ -96,7 +97,7 @@ def _pkg_check(zip_file: zipfile.ZipFile, pkg_name: str) -> None:
         root_list.remove("rubisco.json")
     except KeyError as exc:
         raise RUValueError(
-            format_str(
+            fast_format_str(
                 _(
                     "'${{name}}' package must contain a directory with the "
                     "same name as the package name and a 'rubisco.json' file.",
@@ -113,7 +114,7 @@ def _pkg_check(zip_file: zipfile.ZipFile, pkg_name: str) -> None:
 
     if root_list:
         raise RUValueError(
-            format_str(
+            fast_format_str(
                 _(
                     "'${{name}}' package contains files that not allowed in "
                     "the root directory.",
@@ -154,7 +155,7 @@ def parse_extension_info(
         pkg_name = pkg_config.get("name", valtype=str)
         if not is_valid_extension_name(pkg_name):
             raise RUValueError(
-                format_str(
+                fast_format_str(
                     _(
                         "Package name '${{name}}' invalid.",
                     ),
@@ -206,22 +207,22 @@ def parse_extension_info(
         )
     except json5.JSON5DecodeError as exc:
         raise RUValueError(
-            format_str(
+            fast_format_str(
                 _(
-                    "[underline]${{path}}[/underline] package configuration "
+                    "${{path}} package configuration "
                     "file is not a valid JSON5 file.",
                 ),
-                fmt={"path": file_name},
+                fmt={"path": make_pretty(file_name)},
             ),
         ) from exc
     except KeyError as exc:
         raise RUValueError(
-            format_str(
+            fast_format_str(
                 _(
-                    "[underline]${{path}}[/underline] package configuration "
+                    "${{path}} package configuration "
                     "file is missing a required key: '${{key}}'.",
                 ),
-                fmt={"path": file_name, "key": exc.args[0]},
+                fmt={"path": make_pretty(file_name), "key": exc.args[0]},
             ),
         ) from exc
 
@@ -258,33 +259,33 @@ def get_extension_package_info(pkg_file: Path) -> ExtensionPackageInfo:
             return ext_info
     except zipfile.error as exc:
         raise RUValueError(
-            format_str(
+            fast_format_str(
                 _(
-                    "[underline]${{path}}[/underline] is not a valid Rubisco"
-                    " extension package. (Zip file)",
+                    "${{path}} is not a valid Rubisco extension package.",
                 ),
-                fmt={"path": str(pkg_file)},
+                fmt={"path": make_pretty(pkg_file)},
             ),
+            hint=_("Rubisco extension package must be a zip file."),
         ) from exc
     except KeyError as exc:
         # If 'rubisco.json' file not found, ZipFile.open raises KeyError.
         if not json_opened:
             raise RUValueError(
-                format_str(
+                fast_format_str(
                     _(
-                        "[underline]${{path}}[/underline] Error when opening"
-                        " 'rubisco.json': '${{msg}}'.",
+                        "Error while opening [underline]rubisco.json"
+                        "[/underline] in ${{path}}: '${{msg}}'.",
                     ),
-                    fmt={"path": str(pkg_file), "msg": exc.args[0]},
+                    fmt={"path": make_pretty(pkg_file), "msg": exc.args[0]},
                 ),
             ) from exc
         raise RUValueError(
-            format_str(
+            fast_format_str(
                 _(
-                    "[underline]${{path}}[/underline] package configuration "
+                    "${{path}} package configuration "
                     "file is missing a required key: '${{key}}'.",
                 ),
-                fmt={"path": str(pkg_file), "key": exc.args[0]},
+                fmt={"path": make_pretty(pkg_file), "key": exc.args[0]},
             ),
         ) from exc
 
@@ -310,7 +311,7 @@ def _ext_is_installed(
         logger.warning("Multiple instances of '%s' extension found.", name)
         call_ktrigger(
             IKernelTrigger.on_warning,
-            message=format_str(
+            message=fast_format_str(
                 _(
                     "Multiple instances of '${{name}}' extension"
                     " found in the database. Selecting the last one.",
@@ -377,12 +378,13 @@ def _install_extension(
 ) -> None:
     if (dest.path / EXTENSIONS_DIR / info.name).exists():
         raise RUValueError(
-            format_str(
+            fast_format_str(
                 _(
-                    "[underline]${{path}}[/underline] already"  # Should crash.
-                    " exists in the filesystem.",
+                    "${{path}} already exists in the filesystem.",
                 ),
-                fmt={"path": str(dest.path / EXTENSIONS_DIR / info.name)},
+                fmt={
+                    "path": make_pretty(dest.path / EXTENSIONS_DIR / info.name),
+                },
             ),
         )
 
@@ -435,7 +437,7 @@ def query_packages(
         else:
             call_ktrigger(
                 IKernelTrigger.on_warning,
-                message=format_str(
+                message=fast_format_str(
                     _(
                         "No extension found matching '${{pattern}}'.",
                     ),
@@ -447,7 +449,7 @@ def query_packages(
         for package in query:
             call_ktrigger(
                 IKernelTrigger.on_hint,
-                message=format_str(
+                message=fast_format_str(
                     _("Selected '${{name}}'."),
                     fmt={"name": package.name},
                 ),
@@ -466,20 +468,20 @@ def _uninstall_extension(
     except FileNotFoundError:
         call_ktrigger(
             IKernelTrigger.on_warning,
-            message=format_str(
+            message=fast_format_str(
                 _(
-                    "Extension '${{name}}'([underline]${{path}}"
-                    "[/underline]) not found in the filesystem.",
+                    "Extension '${{name}}'(${{path}}) is not found in the "
+                    "filesystem.",
                 ),
                 fmt={
                     "name": epi.name,
-                    "path": str(
+                    "path": make_pretty(
                         dest.path / EXTENSIONS_DIR / epi.name,
                     ),
                 },
             ),
         )
-    except:  # noqa: E722 RUF100
+    except:
         dest.db_handle.rollback()
         raise
 
@@ -550,7 +552,7 @@ def upgrade_extension(pkg_file: Path, dest: RUEnvironment) -> None:
         if eis == _EIS_SAME_VERSION:
             call_ktrigger(
                 IKernelTrigger.on_hint,
-                message=format_str(
+                message=fast_format_str(
                     _(
                         "The same version of '${{name}}' extension is "
                         "already installed.",
@@ -562,7 +564,7 @@ def upgrade_extension(pkg_file: Path, dest: RUEnvironment) -> None:
         if eis == _EIS_HIGHER_VERSION:
             call_ktrigger(
                 IKernelTrigger.on_hint,
-                message=format_str(
+                message=fast_format_str(
                     _(
                         "The higher version of '${{name}}' extension is "
                         "already installed.",
@@ -607,7 +609,7 @@ def install_extension(pkg_file: Path, dest: RUEnvironment) -> None:
         elif eis == _EIS_SAME_VERSION:
             call_ktrigger(
                 IKernelTrigger.on_hint,
-                message=format_str(
+                message=fast_format_str(
                     _(
                         "The same version of '${{name}}' extension is "
                         "already installed.",
@@ -619,7 +621,7 @@ def install_extension(pkg_file: Path, dest: RUEnvironment) -> None:
         elif eis == _EIS_HIGHER_VERSION:
             call_ktrigger(
                 IKernelTrigger.on_hint,
-                message=format_str(
+                message=fast_format_str(
                     _(
                         "The higher version of '${{name}}' extension is "
                         "already installed.",

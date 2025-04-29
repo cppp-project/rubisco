@@ -41,7 +41,8 @@ from rubisco.config import (
 from rubisco.lib.exceptions import RUNotRubiscoProjectError
 from rubisco.lib.l10n import _
 from rubisco.lib.log import logger
-from rubisco.lib.variable import format_str, make_pretty
+from rubisco.lib.variable import make_pretty
+from rubisco.lib.variable.fast_format_str import fast_format_str
 from rubisco.shared.extension import load_all_extensions
 from rubisco.shared.ktrigger import (
     bind_ktrigger_interface,
@@ -69,9 +70,9 @@ def parse_early_arguments() -> None:
     if root_directory is not None:
         rootdir = Path(root_directory).absolute()
         output_step(
-            format_str(
-                _("Entering directory '${{path}}' ..."),
-                fmt={"path": make_pretty(str(rootdir))},
+            fast_format_str(
+                _("Entering directory ${{path}} ..."),
+                fmt={"path": make_pretty(rootdir)},
             ),
         )
         os.chdir(rootdir)

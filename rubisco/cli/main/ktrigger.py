@@ -118,8 +118,7 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
         if not ask_yesno(
             fast_format_str(
                 _(
-                    "File '[underline]${{path}}[/underline]' already exists."
-                    " [yellow]Overwrite[/yellow]?",
+                    "${{path}} already exists. [yellow]Overwrite[/yellow]?",
                 ),
                 fmt={"path": make_pretty(path.absolute())},
             ),
@@ -236,8 +235,7 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
         output_step(
             fast_format_str(
                 _(
-                    "Updating Git repository '[underline]${{path}}[/underline]"
-                    "'(${{branch}}) ...",
+                    "Updating Git repository ${{path}}(${{branch}}) ...",
                 ),
                 fmt={"path": make_pretty(path), "branch": make_pretty(branch)},
             ),
@@ -254,7 +252,7 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
             fast_format_str(
                 _(
                     "Cloning Git repository ${{url}} (${{branch}}) into "
-                    "'[underline]${{path}}[/underline]' ...",
+                    "${{path}} ...",
                 ),
                 fmt={"url": url, " branch": branch, "path": make_pretty(path)},
             ),
@@ -379,7 +377,7 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
     def on_mkdir(self, *, path: Path) -> None:
         output_step(
             fast_format_str(
-                _("Creating directory: [underline]${{path}}[/underline] ..."),
+                _("Creating directory: ${{path}} ..."),
                 fmt={"path": make_pretty(path.absolute())},
             ),
         )
@@ -390,10 +388,7 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
     def on_move_file(self, *, src: Path, dst: Path) -> None:
         output_step(
             fast_format_str(
-                _(
-                    "Moving file '[underline]${{src}}[/underline]' to"
-                    " '[underline]${{dst}}[/underline]' ...",
-                ),
+                _("Moving file ${{src}} to ${{dst}} ..."),
                 fmt={
                     "src": make_pretty(src.absolute()),
                     "dst": make_pretty(dst.absolute()),
@@ -404,10 +399,7 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
     def on_copy(self, *, src: Path, dst: Path) -> None:
         output_step(
             fast_format_str(
-                _(
-                    "Copying '[underline]${{src}}[/underline]' to"
-                    " '[underline]${{dst}}[/underline]' ...",
-                ),
+                _("Copying ${{src}} to ${{dst}} ..."),
                 fmt={
                     "src": make_pretty(src.absolute()),
                     "dst": str(dst.absolute()),
@@ -418,7 +410,7 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
     def on_remove(self, *, path: Path) -> None:
         output_step(
             fast_format_str(
-                _("Removing '[underline]${{path}}[/underline]' ..."),
+                _("Removing ${{path}} ..."),
                 fmt={"path": make_pretty(path.absolute())},
             ),
         )
@@ -426,10 +418,8 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
     def on_file_selected(self, *, path: Path) -> None:
         output_step(
             fast_format_str(
-                _("Selected: [underline]${{path}}[/underline]"),
-                fmt={
-                    "path": make_pretty(path),
-                },
+                _("Selected: ${{path}}"),
+                fmt={"path": make_pretty(path)},
             ),
         )
 
@@ -468,10 +458,7 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
         )
         rich.print(
             fast_format_str(
-                _(
-                    "[dark_orange]Configuration:[/dark_orange] "
-                    "[underline]${{path}}[/underline]",
-                ),
+                _("[dark_orange]Configuration:[/dark_orange] ${{path}}"),
                 fmt={"path": make_pretty(project.config_file)},
             ),
         )
@@ -533,12 +520,11 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
             output_step(
                 fast_format_str(
                     _(
-                        "Creating symbolic link: [underline]${{src}}"
-                        "[/underline] -> '[underline]${{dst}}[/underline]'...",
+                        "Creating symbolic link: ${{src}} -> ${{dst}} ...",
                     ),
                     fmt={
                         "src": make_pretty(src.absolute()),
-                        "dst": make_pretty(dst.absolute()),
+                        "dst": make_pretty(dst),
                     },
                 ),
             )
@@ -546,12 +532,11 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
             output_step(
                 fast_format_str(
                     _(
-                        "Creating hard link: [underline]${{src}}"
-                        "[/underline] -> '[underline]${{dst}}[/underline]'...",
+                        "Creating hard link: ${{src}} -> ${{dst}} ...",
                     ),
                     fmt={
                         "src": make_pretty(src.absolute()),
-                        "dst": make_pretty(dst.absolute()),
+                        "dst": make_pretty(dst),
                     },
                 ),
             )
@@ -560,8 +545,7 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
         output_step(
             fast_format_str(
                 _(
-                    "Creating Rubisco extension environment:"
-                    " '[underline]${{path}}[/underline]' ...",
+                    "Creating Rubisco extension environment: ${{path}} ...",
                 ),
                 fmt={"path": make_pretty(path.absolute())},
             ),
@@ -579,8 +563,7 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
                 fast_format_str(
                     _(
                         "Installing extension [green]${{name}}[/green]:[cyan]"
-                        "${{version}}[/cyan] to global "
-                        "([underline]${{path}}[/underline]) ...",
+                        "${{version}}[/cyan] to global (${{path}}) ...",
                     ),
                     fmt={
                         "name": ext_name,
@@ -594,8 +577,7 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
                 fast_format_str(
                     _(
                         "Installing extension [green]${{name}}[/green]:[cyan]"
-                        "${{version}}[/cyan] to user "
-                        "([underline]${{path}}[/underline]) ...",
+                        "${{version}}[/cyan] to user (${{path}}) ...",
                     ),
                     fmt={
                         "name": ext_name,
@@ -609,8 +591,7 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
                 fast_format_str(
                     _(
                         "Installing extension [green]${{name}}[/green]:[cyan]"
-                        "${{version}}[/cyan] to workspace "
-                        "([underline]${{path}}[/underline]) ...",
+                        "${{version}}[/cyan] to workspace (${{path}}) ...",
                     ),
                     fmt={
                         "name": ext_name,
@@ -651,8 +632,7 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
                 fast_format_str(
                     _(
                         "Uninstalling extension [green]${{name}}[/green]:"
-                        "[cyan]${{version}}[/cyan] from global "
-                        "([underline]${{path}}[/underline]) ...",
+                        "[cyan]${{version}}[/cyan] from global (${{path}}) ...",
                     ),
                     fmt={
                         "name": ext_name,
@@ -666,8 +646,7 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
                 fast_format_str(
                     _(
                         "Uninstalling extension [green]${{name}}[/green]:"
-                        "[cyan]${{version}}[/cyan] from user "
-                        "([underline]${{path}}[/underline]) ...",
+                        "[cyan]${{version}}[/cyan] from user (${{path}}) ...",
                     ),
                     fmt={
                         "name": ext_name,
@@ -682,7 +661,7 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
                     _(
                         "Uninstalling extension [green]${{name}}[/green]:"
                         "[cyan]${{version}}[/cyan] from workspace "
-                        "([underline]${{path}}[/underline]) ...",
+                        "(${{path}}) ...",
                     ),
                     fmt={
                         "name": ext_name,
@@ -723,8 +702,7 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
                 fast_format_str(
                     _(
                         "Upgrading extension [green]${{name}}[/green]:"
-                        "[cyan]${{version}}[/cyan] from global "
-                        "([underline]${{path}}[/underline]) ...",
+                        "[cyan]${{version}}[/cyan] from global (${{path}}) ...",
                     ),
                     fmt={
                         "name": ext_name,
@@ -738,8 +716,7 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
                 fast_format_str(
                     _(
                         "Upgrading extension [green]${{name}}[/green]:"
-                        "[cyan]${{version}}[/cyan] from user "
-                        "([underline]${{path}}[/underline]) ...",
+                        "[cyan]${{version}}[/cyan] from user (${{path}}) ...",
                     ),
                     fmt={
                         "name": ext_name,
@@ -754,7 +731,7 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
                     _(
                         "Upgrading extension [green]${{name}}[/green]:"
                         "[cyan]${{version}}[/cyan] from workspace "
-                        "([underline]${{path}}[/underline]) ...",
+                        "(${{path}}) ...",
                     ),
                     fmt={
                         "name": ext_name,
@@ -793,7 +770,7 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
             msg = fast_format_str(
                 _(
                     "The following extensions will be uninstalled from global "
-                    "([underline]${{path}}[/underline]):",
+                    "(${{path}}):",
                 ),
                 fmt={"path": make_pretty(dest.path)},
             )
@@ -801,7 +778,7 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
             msg = fast_format_str(
                 _(
                     "The following extensions will be uninstalled from user "
-                    "([underline]${{path}}[/underline]):",
+                    "(${{path}}):",
                 ),
                 fmt={"path": make_pretty(dest.path)},
             )
@@ -809,7 +786,7 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
             msg = fast_format_str(
                 _(
                     "The following extensions will be uninstalled from "
-                    "workspace ([underline]${{path}}[/underline]):",
+                    "workspace (${{path}}):",
                 ),
                 fmt={"path": make_pretty(dest.path)},
             )

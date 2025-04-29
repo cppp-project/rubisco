@@ -31,7 +31,7 @@ from rubisco.lib.exceptions import RUError, RUValueError
 from rubisco.lib.l10n import _
 from rubisco.lib.log import logger
 from rubisco.lib.sqlite_strerror import sqlite_strerror
-from rubisco.lib.variable import format_str
+from rubisco.lib.variable.fast_format_str import fast_format_str
 from rubisco.lib.version import Version
 
 
@@ -137,7 +137,7 @@ class RUEnvDB:
             self.db.close()
 
     def _sqlite_errmsg(self, exc: sqlite3.Error) -> str:
-        return format_str(
+        return fast_format_str(
             _("[SQLite3 Errorcode ${{codename}}(${{code}})]: ${{msg}}"),
             fmt={
                 "codename": exc.sqlite_errorname,
@@ -149,10 +149,9 @@ class RUEnvDB:
     def _rethrow_sqlite_error(self, exc: sqlite3.Error) -> NoReturn:
         logger.debug("Rethrowing SQLite3 error %s.", exc)
         raise RUError(
-            format_str(
+            fast_format_str(
                 _(
-                    "Failed to open or operate on database '[underline]"
-                    "${{path}}[/underline]': ${{exc}}",
+                    "Failed to open or operate on database ${{path}}: ${{exc}}",
                 ),
                 fmt={
                     "path": str(self.__path),
@@ -286,7 +285,7 @@ class RUEnvDB:
             re.compile(pattern)
         except re.error as exc:
             raise RUValueError(
-                format_str(
+                fast_format_str(
                     _("Invalid regex pattern: '${{pattern}}'."),
                     fmt={"pattern": pattern},
                 ),

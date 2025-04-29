@@ -27,7 +27,8 @@ from typing import TYPE_CHECKING
 
 from rubisco.lib.l10n import _
 from rubisco.lib.log import logger
-from rubisco.lib.variable import AutoFormatDict, format_str, make_pretty
+from rubisco.lib.variable import AutoFormatDict, make_pretty
+from rubisco.lib.variable.fast_format_str import fast_format_str
 from rubisco.shared.ktrigger import IKernelTrigger, call_ktrigger
 
 if TYPE_CHECKING:
@@ -85,7 +86,7 @@ class Step(abc.ABC):  # pylint: disable=too-many-instance-attributes
             logger.warning("Step %s failed.", self.name, exc_info=True)
             call_ktrigger(
                 IKernelTrigger.on_error,
-                message=format_str(
+                message=fast_format_str(
                     _("Step '${{step}}' failed: ${{exc}}"),
                     fmt={
                         "step": make_pretty(self.name, _("<Unnamed>")),

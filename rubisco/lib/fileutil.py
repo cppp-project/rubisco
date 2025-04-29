@@ -39,7 +39,8 @@ from rubisco.lib.exceptions import (
 )
 from rubisco.lib.l10n import _
 from rubisco.lib.log import logger
-from rubisco.lib.variable import format_str
+from rubisco.lib.variable.fast_format_str import fast_format_str
+from rubisco.lib.variable.utils import make_pretty
 from rubisco.shared.ktrigger import IKernelTrigger, call_ktrigger
 
 if TYPE_CHECKING:
@@ -87,12 +88,11 @@ def assert_rel_path(path: Path) -> None:
     """
     if path.is_absolute():
         raise RUValueError(
-            format_str(
+            fast_format_str(
                 _(
-                    "Absolute path '[underline]${{path}}[/underline]'"
-                    " is not allowed.",
+                    "Absolute path ${{path}} is not allowed.",
                 ),
-                fmt={"path": str(path)},
+                fmt={"path": make_pretty(path)},
             ),
         )
 
@@ -115,7 +115,7 @@ def rm_recursive(
     path = path.absolute()
     if path == Path("/").absolute():
         raise RUValueError(
-            format_str(
+            fast_format_str(
                 _("Cannot remove root directory."),
             ),
         )
@@ -128,12 +128,11 @@ def rm_recursive(
         if not strict:
             call_ktrigger(
                 IKernelTrigger.on_warning,
-                message=format_str(
+                message=fast_format_str(
                     _(
-                        "Error while removing '[underline]${{path}}"
-                        "[/underline]': ${{error}}",
+                        "Error while removing ${{path}}: ${{error}}",
                     ),
-                    fmt={"path": str(path), "error": str(exc)},
+                    fmt={"path": make_pretty(path), "error": str(exc)},
                 ),
             )
 
@@ -242,12 +241,11 @@ def copy_recursive(  # pylint: disable=R0913, R0917 # noqa: PLR0913
                 dst = dst / src.name
             if dst.exists() and not exists_ok:
                 raise FileExistsError(
-                    format_str(
+                    fast_format_str(
                         _(
-                            "File '[underline]${{path}}[/underline]' "
-                            "already exists.",
+                            "File ${{path}} already exists.",
                         ),
-                        fmt={"path": str(dst)},
+                        fmt={"path": make_pretty(dst)},
                     ),
                 )
             dst = Path(shutil.copy2(src, dst, follow_symlinks=not symlinks))
@@ -550,9 +548,9 @@ class TemporaryObject:
                 if not path.exists():
                     path.touch()
                 elif not path.is_file():
-                    msg = format_str(
-                        _("Invalid type: '${{path}}', expected file."),
-                        fmt={"path": str(path)},
+                    msg = fast_format_str(
+                        _("Invalid type: ${{path}}, expected file."),
+                        fmt={"path": make_pretty(path)},
                     )
                     raise RUValueError(msg)
                 return cls(cls.TYPE_FILE, path)
@@ -560,9 +558,9 @@ class TemporaryObject:
                 if not path.exists():
                     path.mkdir(parents=True, exist_ok=True)
                 elif not path.is_dir():
-                    msg = format_str(
-                        _("Invalid type: '${{path}}', expected directory."),
-                        fmt={"path": str(path)},
+                    msg = fast_format_str(
+                        _("Invalid type: ${{path}}, expected directory."),
+                        fmt={"path": make_pretty(path)},
                     )
                     raise RUValueError(msg)
                 return cls(cls.TYPE_DIRECTORY, path)
@@ -671,7 +669,10 @@ def find_command(
 
     if strict and res is None:
         raise RUShellExecutionError(
-            format_str(_("Command '${{cmd}}' not found."), fmt={"cmd": cmd}),
+            fast_format_str(
+                _("Command '${{cmd}}' not found."),
+                fmt={"cmd": cmd},
+            ),
             retcode=RUShellExecutionError.RETCODE_COMMAND_NOT_FOUND,
         )
 

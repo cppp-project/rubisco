@@ -53,8 +53,12 @@ def make_pretty(  # noqa: C901, PLR0912 # pylint: disable=R0912
 
     if not string:
         return empty
+
     if string_.endswith("\\"):
         string_ += "\\"
+
+    if " " in string_:
+        string_ = f"'{string_}'"
 
     strpath = Path(string)
     if strpath.exists():

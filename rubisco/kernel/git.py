@@ -25,7 +25,8 @@ from rubisco.kernel.mirrorlist import get_url
 from rubisco.lib.l10n import _
 from rubisco.lib.log import logger
 from rubisco.lib.process import Process
-from rubisco.lib.variable import format_str, make_pretty
+from rubisco.lib.variable import make_pretty
+from rubisco.lib.variable.fast_format_str import fast_format_str
 from rubisco.shared.ktrigger import IKernelTrigger, call_ktrigger
 
 __all__ = [
@@ -73,9 +74,9 @@ def git_update(path: Path, branch: str = "main") -> None:
     if not path.exists():
         logger.error("Repository '%s' does not exist.", str(path))
         raise FileNotFoundError(
-            format_str(
+            fast_format_str(
                 _(
-                    "Repository '[underline]${{path}}[/underline]' not found.",
+                    "Repository ${{path}} not found.",
                 ),
                 fmt={"path": make_pretty(path.absolute())},
             ),
@@ -113,10 +114,9 @@ def git_clone(  # pylint: disable=R0913, R0917 # noqa: PLR0913
         if strict:
             logger.error("Repository already exists.")
             raise FileExistsError(
-                format_str(
+                fast_format_str(
                     _(
-                        "Repository '[underline]${{path}}[/underline]' already"
-                        " exists.",
+                        "Repository ${{path}} already exists.",
                     ),
                     fmt={"path": str(path)},
                 ),

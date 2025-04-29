@@ -24,7 +24,8 @@ import sys
 from pathlib import Path
 
 from rubisco.lib.l10n import _
-from rubisco.lib.variable import format_str
+from rubisco.lib.variable.fast_format_str import fast_format_str
+from rubisco.lib.variable.utils import make_pretty
 from rubisco.shared.ktrigger import IKernelTrigger, call_ktrigger
 
 __all__ = ["add_venv_to_syspath", "is_venv"]
@@ -74,8 +75,8 @@ def add_venv_to_syspath(path: Path) -> None:
     except OSError as exc:
         call_ktrigger(
             IKernelTrigger.on_warning,
-            message=format_str(
-                _("Failed to add '${{path}}' to sys.path: ${{exc}}"),
-                fmt={"path": str(path), "exc": str(exc)},
+            message=fast_format_str(
+                _("Failed to add ${{path}} to sys.path: ${{exc}}"),
+                fmt={"path": make_pretty(path), "exc": str(exc)},
             ),
         )

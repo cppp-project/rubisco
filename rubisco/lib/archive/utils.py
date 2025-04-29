@@ -25,7 +25,8 @@ from pathlib import Path
 
 from rubisco.lib.exceptions import RUValueError
 from rubisco.lib.l10n import _
-from rubisco.lib.variable import format_str
+from rubisco.lib.variable.fast_format_str import fast_format_str
+from rubisco.lib.variable.utils import make_pretty
 from rubisco.shared.ktrigger import IKernelTrigger, call_ktrigger
 
 __all__ = ["get_includes", "write_to_archive"]
@@ -85,12 +86,14 @@ def write_to_archive(
             arcname = path.relative_to(start)
         except ValueError as exc:
             raise RUValueError(
-                format_str(
+                fast_format_str(
                     _(
-                        "'[underline]${{path}}[/underline]' is not in the "
-                        "subpath of '[underline]${{start}}[/underline]'",
+                        "${{path}} is not in the subpath of ${{start}}",
                     ),
-                    fmt={"path": str(path), "start": str(start)},
+                    fmt={
+                        "path": make_pretty(path),
+                        "start": make_pretty(start),
+                    },
                 ),
             ) from exc
         on_write(path, arcname)
