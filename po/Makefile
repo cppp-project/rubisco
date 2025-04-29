@@ -40,6 +40,7 @@ $(PACKAGE)$(POT_EXT):
 			--output=$(PACKAGE)$(POT_EXT) \
 			--keyword=_ \
 			--from-code=$(CHARSET) \
+			--width=79 \
 			$$files;
 
 update-po: all $(srcdir)/*$(PO_EXT)

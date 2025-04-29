@@ -60,7 +60,8 @@ if TYPE_CHECKING:
     from rubisco.envutils.env import RUEnvironment
     from rubisco.envutils.packages import ExtensionPackageInfo
     from rubisco.kernel.project_config import ProjectConfigration
-    from rubisco.kernel.workflow import Step, Workflow
+    from rubisco.kernel.workflow.step import Step
+    from rubisco.kernel.workflow.workflow import Workflow
     from rubisco.lib.process import Process
     from rubisco.lib.version import Version
     from rubisco.shared.extension import IRUExtension
@@ -559,47 +560,26 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
         ext_version: Version,
     ) -> None:
         if dest.is_global():
-            output_step(
-                fast_format_str(
-                    _(
-                        "Installing extension [green]${{name}}[/green]:[cyan]"
-                        "${{version}}[/cyan] to global (${{path}}) ...",
-                    ),
-                    fmt={
-                        "name": ext_name,
-                        "version": str(ext_version),
-                        "path": make_pretty(dest.path),
-                    },
-                ),
-            )
+            dest_msg = _("global")
         elif dest.is_user():
-            output_step(
-                fast_format_str(
-                    _(
-                        "Installing extension [green]${{name}}[/green]:[cyan]"
-                        "${{version}}[/cyan] to user (${{path}}) ...",
-                    ),
-                    fmt={
-                        "name": ext_name,
-                        "version": str(ext_version),
-                        "path": make_pretty(dest.path),
-                    },
-                ),
-            )
+            dest_msg = _("user")
         else:
-            output_step(
-                fast_format_str(
-                    _(
-                        "Installing extension [green]${{name}}[/green]:[cyan]"
-                        "${{version}}[/cyan] to workspace (${{path}}) ...",
-                    ),
-                    fmt={
-                        "name": ext_name,
-                        "version": str(ext_version),
-                        "path": make_pretty(dest.path),
-                    },
+            dest_msg = _("workspace")
+        output_step(
+            fast_format_str(
+                _(
+                    "Installing extension [green]${{name}}[/green]:[cyan]"
+                    "${{version}}[/cyan] to [yellow]${{dest}}[/yellow]"
+                    " (${{path}}) ...",
                 ),
-            )
+                fmt={
+                    "name": ext_name,
+                    "version": str(ext_version),
+                    "path": make_pretty(dest.path),
+                    "dest": dest_msg,
+                },
+            ),
+        )
         push_level()
 
     def on_extension_installed(
@@ -628,48 +608,26 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
         ext_version: Version,
     ) -> None:
         if dest.is_global():
-            output_step(
-                fast_format_str(
-                    _(
-                        "Uninstalling extension [green]${{name}}[/green]:"
-                        "[cyan]${{version}}[/cyan] from global (${{path}}) ...",
-                    ),
-                    fmt={
-                        "name": ext_name,
-                        "version": str(ext_version),
-                        "path": make_pretty(dest.path),
-                    },
-                ),
-            )
+            dest_msg = _("global")
         elif dest.is_user():
-            output_step(
-                fast_format_str(
-                    _(
-                        "Uninstalling extension [green]${{name}}[/green]:"
-                        "[cyan]${{version}}[/cyan] from user (${{path}}) ...",
-                    ),
-                    fmt={
-                        "name": ext_name,
-                        "version": str(ext_version),
-                        "path": make_pretty(dest.path),
-                    },
-                ),
-            )
+            dest_msg = _("user")
         else:
-            output_step(
-                fast_format_str(
-                    _(
-                        "Uninstalling extension [green]${{name}}[/green]:"
-                        "[cyan]${{version}}[/cyan] from workspace "
-                        "(${{path}}) ...",
-                    ),
-                    fmt={
-                        "name": ext_name,
-                        "version": str(ext_version),
-                        "path": make_pretty(dest.path),
-                    },
+            dest_msg = _("workspace")
+        output_step(
+            fast_format_str(
+                _(
+                    "Uninstalling extension [green]${{name}}[/green]:"
+                    "[cyan]${{version}}[/cyan] from [yellow]"
+                    "${{dest}}[/yellow] (${{path}}) ...",
                 ),
-            )
+                fmt={
+                    "name": ext_name,
+                    "version": str(ext_version),
+                    "path": make_pretty(dest.path),
+                    "dest": dest_msg,
+                },
+            ),
+        )
         push_level()
 
     def on_extension_uninstalled(
@@ -698,48 +656,26 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
         ext_version: Version,
     ) -> None:
         if dest.is_global():
-            output_step(
-                fast_format_str(
-                    _(
-                        "Upgrading extension [green]${{name}}[/green]:"
-                        "[cyan]${{version}}[/cyan] from global (${{path}}) ...",
-                    ),
-                    fmt={
-                        "name": ext_name,
-                        "version": str(ext_version),
-                        "path": make_pretty(dest.path),
-                    },
-                ),
-            )
+            dest_msg = _("global")
         elif dest.is_user():
-            output_step(
-                fast_format_str(
-                    _(
-                        "Upgrading extension [green]${{name}}[/green]:"
-                        "[cyan]${{version}}[/cyan] from user (${{path}}) ...",
-                    ),
-                    fmt={
-                        "name": ext_name,
-                        "version": str(ext_version),
-                        "path": make_pretty(dest.path),
-                    },
-                ),
-            )
+            dest_msg = _("user")
         else:
-            output_step(
-                fast_format_str(
-                    _(
-                        "Upgrading extension [green]${{name}}[/green]:"
-                        "[cyan]${{version}}[/cyan] from workspace "
-                        "(${{path}}) ...",
-                    ),
-                    fmt={
-                        "name": ext_name,
-                        "version": str(ext_version),
-                        "path": make_pretty(dest.path),
-                    },
+            dest_msg = _("workspace")
+        output_step(
+            fast_format_str(
+                _(
+                    "Upgrading extension [green]${{name}}[/green]:"
+                    "[cyan]${{version}}[/cyan] from [yellow]"
+                    "${{dest}}[/yellow] (${{path}}) ...",
                 ),
-            )
+                fmt={
+                    "name": ext_name,
+                    "version": str(ext_version),
+                    "path": make_pretty(dest.path),
+                    "dest": dest_msg,
+                },
+            ),
+        )
         push_level()
 
     def on_extension_upgraded(
@@ -767,29 +703,18 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
         query: set[ExtensionPackageInfo],
     ) -> None:
         if dest.is_global():
-            msg = fast_format_str(
-                _(
-                    "The following extensions will be uninstalled from global "
-                    "(${{path}}):",
-                ),
-                fmt={"path": make_pretty(dest.path)},
-            )
+            dest_msg = _("global")
         elif dest.is_user():
-            msg = fast_format_str(
-                _(
-                    "The following extensions will be uninstalled from user "
-                    "(${{path}}):",
-                ),
-                fmt={"path": make_pretty(dest.path)},
-            )
+            dest_msg = _("user")
         else:
-            msg = fast_format_str(
-                _(
-                    "The following extensions will be uninstalled from "
-                    "workspace (${{path}}):",
-                ),
-                fmt={"path": make_pretty(dest.path)},
-            )
+            dest_msg = _("workspace")
+        msg = fast_format_str(
+            _(
+                "The following extensions will be uninstalled from [yellow]"
+                "${{dest}}[/yellow] (${{path}}):",
+            ),
+            fmt={"path": make_pretty(dest.path), "dest": dest_msg},
+        )
 
         rich.print(msg)
         for ext in query:

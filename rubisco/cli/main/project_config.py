@@ -117,7 +117,7 @@ def call_hook(name: str) -> None:
     if name not in _hooks:
         raise RUValueError(
             fast_format_str(
-                _("Undefined command or hook ${{name}}"),
+                _("Undefined command or hook ${{name}}."),
                 fmt={"name": name},
             ),
             hint=_("Perhaps a typo?"),
@@ -137,7 +137,7 @@ def load_project() -> None:
         raise RUNotRubiscoProjectError(
             fast_format_str(
                 _(
-                    "Working directory ${{path}} is not a rubisco project.",
+                    "Working directory ${{path}} is not a Rubisco project.",
                 ),
                 fmt={"path": make_pretty(Path.cwd().absolute())},
             ),

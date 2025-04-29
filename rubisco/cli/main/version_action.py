@@ -39,12 +39,13 @@ def show_version() -> None:
     rich.print(APP_NAME, f"[white]{APP_VERSION}[/white]", end="\n")
 
     copyright_text = _(
-        "Copyright (C) 2024 The C++ Plus Project.\n"
+        "[bold]Copyright (C) 2025 [link=https://github.com/cppp-project]"
+        "The C++ Plus Project[/link].[/bold]\n"
         "License [bold]GPLv3+[/bold]: GNU GPL version [cyan]3[/cyan] or later "
         "<https://www.gnu.org/licenses/gpl.html>.\nThis is free "
         "software: you are free to change and redistribute it.\nThere is "
         "[yellow]NO WARRANTY[/yellow], to the extent permitted by law.\n"
-        "Written by [underline]ChenPi11[/underline].",
+        "Written by [link=https://github.com/ChenPi11]ChenPi11[/link].",
     )
 
     rich.print(copyright_text)

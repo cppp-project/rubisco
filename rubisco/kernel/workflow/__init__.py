@@ -24,9 +24,7 @@ Workflow is a ordered list of steps. Each step only contains one action.
 
 from __future__ import annotations
 
-import uuid
 from pathlib import Path
-from typing import TYPE_CHECKING
 
 import json5 as json
 import yaml
@@ -34,214 +32,15 @@ import yaml
 from rubisco.config import DEFAULT_CHARSET
 from rubisco.kernel.workflow._interfaces import workflow_set_runner
 from rubisco.kernel.workflow.steps import step_contributes, step_types
+from rubisco.kernel.workflow.workflow import Workflow
 from rubisco.lib.exceptions import RUValueError
 from rubisco.lib.l10n import _
 from rubisco.lib.log import logger
-from rubisco.lib.variable import (
-    AutoFormatDict,
-    assert_iter_types,
-    make_pretty,
-    pop_variables,
-    push_variables,
-)
+from rubisco.lib.variable import AutoFormatDict, make_pretty
 from rubisco.lib.variable.fast_format_str import fast_format_str
 from rubisco.shared.ktrigger import IKernelTrigger, call_ktrigger
 
-if TYPE_CHECKING:
-    from collections.abc import Generator
-
-    from rubisco.kernel.workflow.step import Step
-
-
-class Workflow:
-    """A workflow."""
-
-    id: str
-    name: str
-    first_step: Step | None
-    raw_data: AutoFormatDict
-
-    pushed_variables: list[str]
-
-    def __init__(self, data: AutoFormatDict) -> None:
-        """Create a new workflow.
-
-        Args:
-            data (AutoFormatDict): The workflow json data.
-
-        """
-        self.pushed_variables = []
-        pairs = data.get("vars", [], valtype=list)
-        for pair in pairs:
-            assert_iter_types(
-                pairs,
-                dict,
-                RUValueError(
-                    _("Workflow variables must be a list of name and value."),
-                ),
-            )
-            for key, val in pair.items():
-                self.pushed_variables.append(str(key))
-                push_variables(str(key), val)
-
-        self.id = data.get(
-            "id",
-            str(uuid.uuid4()),
-            valtype=str,
-        )
-        self.name = data.get("name", valtype=str)
-        self.raw_data = data
-
-    def _parse_steps(  # noqa: C901
-        self,
-        steps: list[AutoFormatDict],
-    ) -> Step | None:
-        """Parse the steps.
-
-        Args:
-            steps (list[AutoFormatDict]): The steps dict data.
-
-        Returns:
-            Step: The first step.
-
-        """
-        first_step = None
-        prev_step = None
-
-        step_ids: list[str] = []
-
-        for step_data in steps:
-            step_id = step_data.get(
-                "id",
-                str(uuid.uuid4()),
-                valtype=str,
-            )
-            step_name = step_data.get("name", "", valtype=str)
-            step_type = step_data.get("type", "", valtype=str)
-            step_cls: type | None
-
-            step_data["id"] = step_id
-            if step_id in step_ids:
-                raise RUValueError(
-                    fast_format_str(
-                        _("Step id '${{step_id}}' is duplicated."),
-                        fmt={"step_id": step_id},
-                    ),
-                )
-            step_ids.append(step_id)
-
-            step_cls = None
-
-            if not step_type:
-                for cls, contribute in step_contributes.items():
-                    is_match = all(
-                        step_data.get(contribute_item, None) is not None
-                        for contribute_item in contribute  # All items exist.
-                    )
-                    if is_match:
-                        step_cls = cls
-                        break
-            else:
-                step_cls = step_types.get(step_type)
-                if step_cls is None:
-                    raise RUValueError(
-                        fast_format_str(
-                            _(
-                                "Unknown step type: '${{step_type}}' of step "
-                                "'${{step_name}}'. Please check the workflow.",
-                            ),
-                            fmt={
-                                "step_type": step_type,
-                                "step_name": step_name,
-                            },
-                        ),
-                        hint=_(
-                            "Consider use 'type' attribute manually.",
-                        ),
-                    )
-
-            if step_cls is None:
-                raise RUValueError(
-                    fast_format_str(
-                        _(
-                            "The type of step '${{step}}'[black](${{step_id}})"
-                            "[/black] in workflow '${{workflow}}'[black]("
-                            "${{workflow_id}})[/black] is not provided and "
-                            "could not be inferred.",
-                        ),
-                        fmt={
-                            "step": make_pretty(step_name, _("<Unnamed>")),
-                            "workflow": make_pretty(self.name, _("<Unnamed>")),
-                            "step_id": step_id,
-                            "workflow_id": self.id,
-                        },
-                    ),
-                )
-            step = step_cls(step_data, self)
-            if step.suc:
-                call_ktrigger(
-                    IKernelTrigger.post_run_workflow_step,
-                    step=step,
-                )
-
-            if prev_step is not None:
-                prev_step.next = step
-
-            if first_step is None:
-                first_step = step
-
-            prev_step = step
-
-        return first_step
-
-    def __str__(self) -> str:
-        """Return the name of the workflow.
-
-        Returns:
-            str: The name of the workflow.
-
-        """
-        return self.name
-
-    def __repr__(self) -> str:
-        """Return the representation of the workflow.
-
-        Returns:
-            str: The repr of the workflow.
-
-        """
-        return f"<{self.__class__.__name__} {self.name}>"
-
-    def __iter__(self) -> Generator[Step, None, None]:
-        """Iterate over the steps.
-
-        Yields:
-            Step: One step.
-
-        """
-        cur_step = self.first_step
-        while cur_step is not None:
-            yield cur_step
-            cur_step = cur_step.next
-
-    def run(self) -> None:
-        """Run the workflow."""
-        call_ktrigger(
-            IKernelTrigger.pre_run_workflow,
-            workflow=self,
-        )
-        self.first_step = self._parse_steps(
-            self.raw_data.get("steps", valtype=list[dict[str, object]]),
-        )
-        call_ktrigger(
-            IKernelTrigger.post_run_workflow,
-            workflow=self,
-        )
-
-    def __del__(self) -> None:
-        """Pop variables."""
-        for name in self.pushed_variables:
-            pop_variables(name)
+__all__ = ["register_step_type", "run_inline_workflow", "run_workflow"]
 
 
 def register_step_type(name: str, cls: type, contributes: list[str]) -> None:

@@ -222,7 +222,7 @@ def extract(  # pylint: disable=R0913 # noqa: PLR0913
                     str(
                         fast_format_str(
                             _(
-                                "Unable to guess compression type of ${{path}}",
+                                "Unable to guess compression type of ${{path}}.",  # noqa: E501
                             ),
                             fmt={"path": make_pretty(file)},
                         ),
@@ -489,7 +489,7 @@ def compress(  # pylint: disable=R0913, R0917 # noqa: PLR0913
                     fast_format_str(
                         _(
                             "Unable to determine compression type of "  # -
-                            "${{path}}",
+                            "${{path}}.",
                         ),
                         fmt={"path": make_pretty(dest)},
                     ),
