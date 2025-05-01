@@ -24,102 +24,116 @@ To avoid circular import, we use the protocol to define the interface.
 
 
 from pathlib import Path
-from typing import Protocol, runtime_checkable
+from typing import ClassVar, Protocol, runtime_checkable
 
 from rubisco.envutils.env import RUEnvironment
 from rubisco.envutils.packages import ExtensionPackageInfo
+from rubisco.lib.variable.autoformatdict import AutoFormatDict
 
-__all__ = ["load_extension", "run_workflow"]
+__all__ = ["WorkflowInterfaces"]
 
 
-def load_extension(
-    ext: Path | str | ExtensionPackageInfo,
-    env: RUEnvironment,
-    *,
-    strict: bool = False,
-) -> None:
-    """Load the extension.
-
-    Args:
-        ext (Path | str | ExtensionPackageInfo):If it is a str, it will be
-            treat as extension's name, the extension will be loaded from the
-            default extension directory. If the path is a path, the extension
-            will be loaded from the path. If the path is ExtensionPackageInfo
-            type, the extension will be loaded from the package info.
-        env (RUEnvironment): The environment of the extension.
-            It will be used only if the extension is a installed extension.
-            If the extension is a standalone extension, it will be ignored.
-            We will get the extension's info from the `rubisco.json` file.
-        strict (bool, optional): If True, raise an exception if the extension
-            loading failed.
-
-    """
+def _notimplemented(*args: object, **kwargs: object) -> None:
     raise NotImplementedError
 
 
-@runtime_checkable
-class _LoadExtensionFunction(Protocol):  # pylint: disable=R0903
-    def __call__(
-        self,
-        ext: Path | str | ExtensionPackageInfo,
-        env: RUEnvironment,
-        *,
-        strict: bool = False,
-    ) -> None: ...
+class WorkflowInterfaces:
+    """Interfaces for workflow module."""
 
+    @runtime_checkable
+    class _LoadExtensionFunction(Protocol):  # pylint: disable=R0903
+        def __call__(
+            self,
+            ext: Path | str | ExtensionPackageInfo,
+            env: RUEnvironment,
+            *,
+            strict: bool = False,
+        ) -> None: ...
 
-def workflow_set_extloader(
-    extloader: _LoadExtensionFunction,
-) -> None:
-    """Set the extension loader. For internal use only.
+    _load_extension: ClassVar[_LoadExtensionFunction] = _notimplemented
 
-    Args:
-        extloader (_LoadExtensionFunction): The extension loader.
+    @classmethod
+    def get_load_extension(cls) -> _LoadExtensionFunction:
+        """Get the extension loader. For internal use only.
 
-    """
-    global load_extension  # pylint: disable=global-statement # noqa: PLW0603
+        Returns:
+            _LoadExtensionFunction: The extension loader.
 
-    load_extension = extloader
+        """
+        return cls._load_extension
 
+    @classmethod
+    def set_load_extension(cls, extloader: _LoadExtensionFunction) -> None:
+        """Set the extension loader. For internal use only.
 
-def run_workflow(
-    file: Path,
-    *,
-    fail_fast: bool = True,
-) -> Exception | None:
-    """Run a workflow file.
+        Args:
+            extloader (_LoadExtensionFunction): The extension loader.
 
-    Args:
-        file (Path): Workflow file path. It can be a JSON, or a yaml.
-        fail_fast (bool, optional): Raise an exception if run failed.
+        """
+        cls._load_extension = extloader
 
-    Raises:
-        RUValueError: If workflow's step parse failed.
+    @runtime_checkable
+    class _RunWorkflowFunction(Protocol):  # pylint: disable=R0903
+        def __call__(
+            self,
+            file: Path,
+            *,
+            fail_fast: bool = True,
+        ) -> Exception | None: ...
 
-    Returns:
-        Exception | None: If running failed without fail-fast, return its
-            exception. Return None if succeed.
+    _run_workflow: ClassVar[_RunWorkflowFunction] = _notimplemented
 
-    """
-    raise NotImplementedError
+    @classmethod
+    def get_run_workflow(cls) -> _RunWorkflowFunction:
+        """Get the workflow runner. For internal use only.
 
+        Returns:
+            _RunWorkflowFunction: The workflow runner.
 
-@runtime_checkable
-class _RunWorkflowFunction(Protocol):  # pylint: disable=R0903
-    def __call__(
-        self,
-        file: Path,
-        *,
-        fail_fast: bool = True,
-    ) -> Exception | None: ...
+        """
+        return cls._run_workflow
 
+    @classmethod
+    def set_run_workflow(cls, runner: _RunWorkflowFunction) -> None:
+        """Set the workflow runner. For internal use only.
 
-def workflow_set_runner(runner: _RunWorkflowFunction) -> None:
-    """Set the workflow runner. For internal use only.
+        Args:
+            runner (_RunWorkflowFunction): The workflow runner.
 
-    Args:
-        runner (_RunWorkflowFunction): The workflow runner.
+        """
+        cls._run_workflow = runner
 
-    """
-    global run_workflow  # pylint: disable=global-statement # noqa: PLW0603
-    run_workflow = runner
+    @runtime_checkable
+    class _RunInlineWorkflowFunction(Protocol):  # pylint: disable=R0903
+        def __call__(
+            self,
+            data: AutoFormatDict | list[AutoFormatDict],
+            default_id: str,
+            *,
+            fail_fast: bool = True,
+        ) -> Exception | None: ...
+
+    _run_inline_workflow: ClassVar[_RunInlineWorkflowFunction] = _notimplemented
+
+    @classmethod
+    def get_run_inline_workflow(cls) -> _RunInlineWorkflowFunction:
+        """Get the workflow runner. For internal use only.
+
+        Returns:
+            _RunWorkflowFunction: The workflow runner.
+
+        """
+        return cls._run_inline_workflow
+
+    @classmethod
+    def set_run_inline_workflow(
+        cls,
+        runner: _RunInlineWorkflowFunction,
+    ) -> None:
+        """Set the workflow runner. For internal use only.
+
+        Args:
+            runner (_RunWorkflowFunction): The workflow runner.
+
+        """
+        cls._run_inline_workflow = runner

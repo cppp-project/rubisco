@@ -43,7 +43,7 @@ from rubisco.envutils.packages import ExtensionPackageInfo, parse_extension_info
 from rubisco.kernel.config_file import config_file
 from rubisco.kernel.ext_name_check import is_valid_extension_name
 from rubisco.kernel.workflow import register_step_type
-from rubisco.kernel.workflow._interfaces import workflow_set_extloader
+from rubisco.kernel.workflow._interfaces import WorkflowInterfaces
 from rubisco.lib.exceptions import RUNotRubiscoExtensionError, RUValueError
 from rubisco.lib.l10n import _
 from rubisco.lib.load_module import import_module_from_path
@@ -379,4 +379,4 @@ def load_all_extensions() -> None:
         _load_exts(GLOBAL_ENV, autoruns)
 
 
-workflow_set_extloader(load_extension)  # Avoid circular import.
+WorkflowInterfaces.set_load_extension(load_extension)  # Avoid circular import.

@@ -45,6 +45,7 @@ if TYPE_CHECKING:
     from rubisco.kernel.project_config import ProjectConfigration
     from rubisco.kernel.workflow.step import Step, Workflow
     from rubisco.lib.process import Process
+    from rubisco.lib.variable.autoformatdict import AutoFormatDict
     from rubisco.lib.version import Version
     from rubisco.shared.extension import IRUExtension
 
@@ -333,6 +334,24 @@ class IKernelTrigger:  # pylint: disable=too-many-public-methods
 
         """
         _null_trigger("post_run_workflow", workflow=workflow)
+
+    def pre_run_matrix(self, *, variables: AutoFormatDict) -> None:
+        """When a matrix job is started.
+
+        Args:
+            variables (AutoFormatDict): The variables.
+
+        """
+        _null_trigger("pre_run_matrix", variables=variables)
+
+    def post_run_matrix(self, *, variables: AutoFormatDict) -> None:
+        """When a matrix job is finished.
+
+        Args:
+            variables (AutoFormatDict): The variables.
+
+        """
+        _null_trigger("post_run_matrix", variables=variables)
 
     def on_mkdir(self, *, path: Path) -> None:
         """On we are creating directories.

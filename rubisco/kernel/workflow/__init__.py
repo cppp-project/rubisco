@@ -30,7 +30,7 @@ import json5 as json
 import yaml
 
 from rubisco.config import DEFAULT_CHARSET
-from rubisco.kernel.workflow._interfaces import workflow_set_runner
+from rubisco.kernel.workflow._interfaces import WorkflowInterfaces
 from rubisco.kernel.workflow.steps import step_contributes, step_types
 from rubisco.kernel.workflow.workflow import Workflow
 from rubisco.lib.exceptions import RUValueError
@@ -93,7 +93,7 @@ def run_inline_workflow(
 
     """
     if isinstance(data, list):
-        data = AutoFormatDict({"name": _("<Inline Workflow>"), "steps": data})
+        data = AutoFormatDict({"name": "", "steps": data})
 
     wf = Workflow(data, default_id)
     try:
@@ -112,6 +112,9 @@ def run_inline_workflow(
         )
         return exc
     return None
+
+
+WorkflowInterfaces.set_run_inline_workflow(run_inline_workflow)
 
 
 def run_workflow(
@@ -156,7 +159,7 @@ def run_workflow(
         )
 
 
-workflow_set_runner(run_workflow)
+WorkflowInterfaces.set_run_workflow(run_workflow)
 
 
 if __name__ == "__main__":

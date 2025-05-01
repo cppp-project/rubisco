@@ -126,11 +126,11 @@ class AutoFormatDict(dict[str, Any]):
 
     orig_keys = dict[str, Any].keys
 
-    def keys(self) -> Generator[str, None, None]:  # type: ignore[signature-mismatch]
+    def keys(self) -> Generator[str]:  # type: ignore[signature-mismatch]
         """Get the keys of the dict.
 
         Returns:
-            Generator[str, None, None]: The keys of the dict.
+            Generator[str]: The keys of the dict.
 
         """
         for key in self.orig_keys():
@@ -140,7 +140,7 @@ class AutoFormatDict(dict[str, Any]):
 
     def values(  # type: ignore[signature-mismatch]
         self,
-    ) -> Generator[Any, None, None]:
+    ) -> Generator[Any]:
         """Get the values of the dict."""
         for value in super().values():
             yield format_str(value)
@@ -321,7 +321,7 @@ class AutoFormatDict(dict[str, Any]):
             return False
 
         for key, value in self.items():
-            if key not in other or other[key] != value:
+            if format_str(key) not in other or other[key] != value:
                 return False
 
         return True

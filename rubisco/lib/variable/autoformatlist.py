@@ -59,11 +59,11 @@ class AutoFormatList(list[T], Generic[T]):
 
     orig_count = list[T].count
 
-    def count(self, value: Any) -> int:  # noqa: ANN401
+    def count(self, value: T) -> int:
         """Count the value in the list.
 
         Args:
-            value (Any): The value to count.
+            value (T): The value to count.
 
         Returns:
             int: The count of the value.
@@ -119,19 +119,19 @@ class AutoFormatList(list[T], Generic[T]):
 
     orig_insert = list[T].insert
 
-    def insert(self, index: SupportsIndex, obj: Any) -> None:  # noqa: ANN401
+    def insert(self, index: SupportsIndex, obj: T) -> None:
         """Insert the object to the given index.
 
         Args:
             index (SupportsIndex): The index to insert object.
-            obj (Any): The object to insert.
+            obj (T): The object to insert.
 
         """
         super().insert(index, to_autotype()(obj))
 
     orig_remove = list[T].remove
 
-    def pop(self, index: SupportsIndex = -1) -> Any:  # noqa: ANN401
+    def pop(self, index: SupportsIndex = -1) -> T:
         """Pop the value of the given index.
 
         Args:
@@ -139,7 +139,7 @@ class AutoFormatList(list[T], Generic[T]):
                 Defaults to -1.
 
         Returns:
-            Any: The value of the given index.
+            T: The value of the given index.
 
         """
         return format_str(super().pop(index))
@@ -182,11 +182,11 @@ class AutoFormatList(list[T], Generic[T]):
             return format_str(super().__getitem__(index))
         return AutoFormatList(super().__getitem__(index))
 
-    def __contains__(self, value: Any) -> bool:  # noqa: ANN401
+    def __contains__(self, value: object) -> bool:
         """Check if the value is in the list.
 
         Args:
-            value (Any): The value to check.
+            value (object): The value to check.
 
         Returns:
             bool: True if the value is in the list, False otherwise.
@@ -208,11 +208,11 @@ class AutoFormatList(list[T], Generic[T]):
         res.extend(other)
         return res
 
-    def __iadd__(self, other: Iterable[Any]) -> Self:
+    def __iadd__(self, other: Iterable[T]) -> Self:
         """Add the other iterable to the list.
 
         Args:
-            other (Iterable[Any]): The iterable to add.
+            other (Iterable[T]): The iterable to add.
 
         Returns:
             Self: The new list.
@@ -251,7 +251,7 @@ class AutoFormatList(list[T], Generic[T]):
 
     def __iter__(
         self,
-    ) -> Generator[Any, None, None]:  # type: ignore[signature-mismatch]
+    ) -> Generator[T]:
         """Get the iterator of the list."""
         for item in super().__iter__():
             yield format_str(item)

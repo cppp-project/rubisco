@@ -63,6 +63,7 @@ if TYPE_CHECKING:
     from rubisco.kernel.workflow.step import Step
     from rubisco.kernel.workflow.workflow import Workflow
     from rubisco.lib.process import Process
+    from rubisco.lib.variable.autoformatdict import AutoFormatDict
     from rubisco.lib.version import Version
     from rubisco.shared.extension import IRUExtension
 
@@ -355,25 +356,37 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
         pop_level()
 
     def pre_run_workflow(self, *, workflow: Workflow) -> None:
-        output_step(
-            fast_format_str(
-                _(
-                    "Running workflow: [white]${{name}}[/white] "
-                    "[black](${{id}})[/black]",
+        if workflow.name:
+            output_step(
+                fast_format_str(
+                    _(
+                        "Running workflow: [white]${{name}}[/white] "
+                        "[black](${{id}})[/black]",
+                    ),
+                    fmt={"name": workflow.name, "id": workflow.id},
                 ),
-                fmt={"name": workflow.name, "id": workflow.id},
-            ),
-        )
-        push_level()
+            )
+            push_level()
 
     def post_run_workflow(self, *, workflow: Workflow) -> None:
+        if workflow.name:
+            pop_level()
+            output_step(
+                fast_format_str(
+                    _("Workflow '${{name}}' finished."),
+                    fmt={"name": workflow.name},
+                ),
+            )
+
+    def pre_run_matrix(self, *, variables: AutoFormatDict) -> None:
+        output_step(fast_format_str(_("Running jobs with variables:")))
+        push_level()
+        for key, val in variables.items():
+            output_line(f"{key}: {val!r}")
         pop_level()
-        output_step(
-            fast_format_str(
-                _("Workflow '${{name}}' finished."),
-                fmt={"name": workflow.name},
-            ),
-        )
+
+    def post_run_matrix(self, *, variables: AutoFormatDict) -> None:
+        pass
 
     def on_mkdir(self, *, path: Path) -> None:
         output_step(

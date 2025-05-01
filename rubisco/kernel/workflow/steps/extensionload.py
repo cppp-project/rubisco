@@ -22,7 +22,7 @@
 from pathlib import Path
 
 from rubisco.envutils.env import GLOBAL_ENV, USER_ENV, WORKSPACE_ENV
-from rubisco.kernel.workflow._interfaces import load_extension
+from rubisco.kernel.workflow._interfaces import WorkflowInterfaces
 from rubisco.kernel.workflow.step import Step
 
 __all__ = ["ExtensionLoadStep"]
@@ -39,6 +39,7 @@ class ExtensionLoadStep(Step):
 
     def run(self) -> None:
         """Run the step."""
+        load_extension = WorkflowInterfaces.get_load_extension()
         load_extension(self.path, WORKSPACE_ENV, strict=True)
         load_extension(self.path, USER_ENV, strict=True)
         load_extension(self.path, GLOBAL_ENV, strict=True)

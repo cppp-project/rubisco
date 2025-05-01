@@ -21,7 +21,7 @@
 
 from pathlib import Path
 
-from rubisco.kernel.workflow._interfaces import run_workflow
+from rubisco.kernel.workflow._interfaces import WorkflowInterfaces
 from rubisco.kernel.workflow.step import Step
 from rubisco.lib.variable.variable import push_variables
 
@@ -42,6 +42,9 @@ class WorkflowRunStep(Step):
 
     def run(self) -> None:
         """Run the step."""
-        exc = run_workflow(self.path, fail_fast=self.fail_fast)
+        exc = WorkflowInterfaces.get_run_workflow()(
+            self.path,
+            fail_fast=self.fail_fast,
+        )
         if exc:
             push_variables(f"{self.global_id}.exception", exc)
