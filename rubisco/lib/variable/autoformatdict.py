@@ -20,6 +20,7 @@
 """AutoFormatDict implementation."""
 
 from collections.abc import Generator, Iterator
+from os import PathLike
 from types import GenericAlias, UnionType
 from typing import Any, ClassVar, cast
 
@@ -105,6 +106,10 @@ class AutoFormatDict(dict[str, Any]):
 
         if res is self.raise_if_not_found:
             raise KeyError(repr(key))
+
+        if is_instance("", valtype) and isinstance(res, PathLike):
+            # Treat PathLike as str.
+            res = str(cast("PathLike[str]", res))
 
         if not is_instance(res, valtype):
             valtype_name = getattr(valtype, "__name__", repr(valtype))

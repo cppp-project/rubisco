@@ -256,7 +256,7 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
                     "Cloning Git repository ${{url}} (${{branch}}) into "
                     "${{path}} ...",
                 ),
-                fmt={"url": url, " branch": branch, "path": make_pretty(path)},
+                fmt={"url": url, "branch": branch, "path": make_pretty(path)},
             ),
         )
 

@@ -1,7 +1,14 @@
 name: 📦 Pack built-in extensions.
 
 steps:
-  - name: 📦 Packing the source distribution
-    compress: extensions/test
-    start: extensions/test
-    to: extensions/test.zip
+  - glob: extensions/*
+    save-to: exts
+    regular: false
+
+  - matrix:
+      file: ${{ exts }}
+    steps:
+      - name: 📦 Pack ${{ file }} to extension pack.
+        compress: ${{ file }}
+        start: ${{ file }}
+        to: extensions/$&{{ file.stem }}.zip
