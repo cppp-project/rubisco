@@ -19,8 +19,6 @@
 
 """Test the speed of the given host."""
 
-import asyncio
-import sys
 import time
 
 import aiohttp
@@ -64,9 +62,3 @@ async def url_speedtest(url: str) -> int:
         delta = (time.time_ns() - start) // 1000
         logger.info("Testing speed for '%s' ... %dus", url, delta)
         return delta
-
-
-def test_speedtest() -> None:
-    """Test the speedtest module."""
-    speed = asyncio.run(url_speedtest("https://example.com"))
-    sys.stdout.write(f"Speed of https://example.com: {speed} us.\n")

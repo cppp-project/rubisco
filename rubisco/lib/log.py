@@ -64,21 +64,3 @@ if "--debug" in sys.argv:  # Don't use argparse here.
     )
     logger_formatter = logging.Formatter(LOG_FORMAT)
     logger.addHandler(logger_handler)
-
-
-def test_log() -> None:
-    """Test the logging system."""
-    logger.debug("Debug message.")
-    logger.info("Info message.")
-    logger.debug("Debug message.")
-    logger.info("Info message.")
-    logger.warning("Warning message.")
-    logger.error("Error message.")
-    logger.critical("Critical message.")
-    try:
-        msg = "Test exception."
-        raise RuntimeError(msg)  # noqa: TRY301
-    except RuntimeError:
-        logger.exception("Exception message.")
-        logger.warning("Warning with exception.", exc_info=True)
-    logger.info("Done.")

@@ -27,8 +27,6 @@ import sys
 from pathlib import Path
 from types import ModuleType
 
-import pytest
-
 from rubisco.lib.exceptions import RUNotRubiscoExtensionError
 
 
@@ -74,27 +72,3 @@ def import_module_from_path(path: Path) -> ModuleType:
         raise ImportError(path)
 
     return module
-
-
-class TestLoadModule:
-    """Test load module from path."""
-
-    def test_import_file_module(self) -> None:
-        """Test import a single-file module."""
-        module = import_module_from_path(Path("tests/test_module.py"))
-        if module.TEST != "test":
-            raise AssertionError
-
-    def test_import_package_module(self) -> None:
-        """Test import a package module."""
-        module = import_module_from_path(Path("tests/test_pkg_module"))
-        if module.TEST != "test" or module.TEST2 != "test":
-            raise AssertionError
-
-    def test_import_not_found(self) -> None:
-        """Test import a not found module."""
-        pytest.raises(
-            RUNotRubiscoExtensionError,
-            import_module_from_path,
-            Path("/_Not_Found_"),
-        )

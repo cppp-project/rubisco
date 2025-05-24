@@ -74,22 +74,3 @@ def expand_cmdlist(args: Iterable[str | Iterable[Any]]) -> list[str]:
         else:
             res_args.append(str(arg))
     return res_args
-
-
-def test_command_generator() -> None:
-    """Test command generator."""
-    if command(["echo", "Hello, world!"]) != 'echo "Hello, world!"':
-        raise AssertionError
-    if command("echo Hello, world!") != "echo Hello, world!":
-        raise AssertionError
-
-
-def test_recursive_command_generator() -> None:
-    """Test recursive command generator."""
-    if command(["echo", ["Hello, world!"]]) != 'echo "Hello, world!"':
-        raise AssertionError
-    if (
-        command(["echo", ["Hello, world!", "Goodbye, world!"]])
-        != 'echo "Hello, world!" "Goodbye, world!"'
-    ):
-        raise AssertionError
