@@ -32,7 +32,7 @@ from rubisco.shared.ktrigger import IKernelTrigger, call_ktrigger
 __all__ = ["GlobFileStep"]
 
 
-class GlobFileStep(Step):
+class GlobFileStep(Step):  # pylint: disable=R0902
     """Glob files or directories."""
 
     patterns: list[str]

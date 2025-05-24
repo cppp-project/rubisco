@@ -174,7 +174,7 @@ async def find_fastest_mirror(
         mlist: AutoFormatDict = get_mirrorlist(host, protocol)
         future = asyncio.get_event_loop().create_future()
         tasks: list[asyncio.Task[None]] = []
-        for mirror, murl in mlist.items():
+        for mirror, murl in mlist.orig_items():
             task = asyncio.ensure_future(_speedtest(future, mirror, murl))
             tasks.append(task)
         daemon = asyncio.ensure_future(_speedtest_daemon(future, tasks))
@@ -249,10 +249,16 @@ def get_url(
             url_template = get_mirrorlist(
                 website,
                 protocol,
-            ).get(  # type: ignore[no-untyped-call]
+            ).orig_get(
                 mirror,
-                valtype=str,
             )
+            if not isinstance(url_template, str):
+                raise RUValueError(
+                    fast_format_str(
+                        _("Mirror '${{mirror}}' is not a string."),
+                        fmt={"mirror": mirror},
+                    ),
+                )
             logger.info("Selected mirror: %s ('%s')", mirror, url_template)
             return fast_format_str(
                 url_template,
