@@ -22,8 +22,6 @@
 from dataclasses import dataclass, field
 from typing import Generic, TypeVar
 
-from beartype import beartype
-
 from rubisco.lib.exceptions import RUTypeError, RUValueError
 from rubisco.lib.l10n import _
 from rubisco.lib.variable.fast_format_str import fast_format_str
@@ -99,7 +97,6 @@ class OptionOrArgument(Generic[T]):  # pylint: disable=R0902
             )
         return self._value
 
-    @beartype
     def set(self, value: T) -> None:
         """Set the value.
 
@@ -108,8 +105,23 @@ class OptionOrArgument(Generic[T]):  # pylint: disable=R0902
 
         Raises:
             RUValueError: If the value is frozen.
+            RUTypeError: If the value is not the given type.
 
         """
+        if not is_instance(value, self.typecheck):
+            if self._is_option:
+                msg = _("The option `${{name}}` is not the type `${{type}}`.")
+            else:
+                msg = _("The argument `${{name}}` is not the type `${{type}}`.")
+            raise RUTypeError(
+                fast_format_str(
+                    msg,
+                    fmt={
+                        "name": self.name,
+                        "type": self.typecheck.__name__,
+                    },
+                ),
+            )
         if self._frozen:
             if self._is_option:
                 msg = _("The option `${{name}}` is readonly now.")
