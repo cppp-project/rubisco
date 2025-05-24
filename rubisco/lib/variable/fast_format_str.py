@@ -31,12 +31,10 @@ It is faster than the full format_str() function.
 import re
 from typing import Any
 
-import pytest
-
 from rubisco.lib.exceptions import RUValueError
 from rubisco.lib.l10n import _
-from rubisco.lib.variable.var_contianer import VariableContainer
-from rubisco.lib.variable.variable import get_variable, push_variables
+from rubisco.lib.variable.var_container import VariableContainer
+from rubisco.lib.variable.variable import get_variable
 
 __all__ = ["fast_format_str"]
 
@@ -109,73 +107,3 @@ def fast_format_str(
             val = get_variable(varname)
             string = string.replace(match.group(), str(val))
     return string
-
-
-class TestFastFormatStr:
-    """Test fast_format_str."""
-
-    def test_empty(self) -> None:
-        """Test empty string."""
-        if fast_format_str("") != "":
-            raise AssertionError
-
-    def test_literal(self) -> None:
-        """Test literal string."""
-        if fast_format_str("hello") != "hello":
-            raise AssertionError
-
-    def test_var(self) -> None:
-        """Test variable."""
-        push_variables("var", "world")
-        if fast_format_str("${{var}}") != "world":
-            raise AssertionError
-        push_variables("var", 1)
-        if fast_format_str("${{var}}") != 1:
-            raise AssertionError
-        if fast_format_str("${{var}}", fmt={"var": "test"}) != "test":
-            raise AssertionError
-        if fast_format_str("${{var}}", fmt={"var": 0.0}) != 0.0:
-            raise AssertionError
-
-    def test_var_not_found(self) -> None:
-        """Test variable not found."""
-        pytest.raises(
-            KeyError,
-            fast_format_str,
-            "${{_U}}",
-        )
-
-    def test_var_name(self) -> None:
-        """Test variable name."""
-        fast_format_str("${{   s s }}")
-        if (
-            fast_format_str(
-                "${{  a}} ${{ a_b   }} ${{a-b}} ${{a.b}}",
-                fmt={"a": 1, "a_b": 2, "a-b": 3, "a.b": 4},
-            )
-            != "1 2 3 4"
-        ):
-            raise AssertionError
-
-    def test_var_with_decoration(self) -> None:
-        """Test variable with decoration."""
-        push_variables("var", "world")
-        pytest.raises(
-            RUValueError,
-            fast_format_str,
-            "${{var:1}}",
-        )
-        if fast_format_str("${{var}} : ${{var}}") != "world : world":
-            raise AssertionError
-        # Although "${{var:${{var}}}} : ${{var}}" is a expression with
-        # decoration, but safety check will not raise an error.
-        # This is a bug, but I don't want to fix it. (We need fast instead of
-        # safety)
-
-    def test_var_with_pyexpr(self) -> None:
-        """Test variable with python expression."""
-        pytest.raises(
-            RUValueError,
-            fast_format_str,
-            "${{var:$&{{1+1}}}}",
-        )

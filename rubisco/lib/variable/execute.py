@@ -21,22 +21,17 @@
 
 from typing import Any
 
-import pytest
-
 from rubisco.lib.exceptions import RUValueError
 from rubisco.lib.l10n import _
 from rubisco.lib.variable.callbacks import on_undefined_var
-from rubisco.lib.variable.lexer import get_token
 from rubisco.lib.variable.pyexpr_sandbox import eval_pyexpr
 from rubisco.lib.variable.ru_ast import (
     Expression,
     ExpressionType,
-    parse_expression,
 )
 from rubisco.lib.variable.variable import (
     get_variable,
     has_variable,
-    push_variables,
 )
 
 __all__ = ["execute_expression"]
@@ -92,52 +87,3 @@ def execute_expression(expr: Expression) -> str | Any:  # noqa: ANN401
 
     msg = f"Unknown expression type: {expr.type}"
     raise ValueError(msg)
-
-
-class TestExecuteExpression:
-    """Test execute_expression."""
-
-    def _check(self, expr: str, res: str | Any) -> None:  # noqa: ANN401
-        expr_result = execute_expression(parse_expression(get_token(expr)))
-        if expr_result != res:
-            raise AssertionError
-
-    def test_empty(self) -> None:
-        """Test empty expression."""
-        self._check("", "")
-
-    def test_root(self) -> None:
-        """Test root expression."""
-        self._check("a", "a")
-
-    def test_variable(self) -> None:
-        """Test variable expression."""
-        push_variables("a", "b")
-        self._check("${{a}}", "b")
-        push_variables("a", 1)
-        self._check("${{a}}", 1)
-
-    def test_var_decoration(self) -> None:
-        """Test variable decoration."""
-        self._check("${{_U: c}}", " c")
-        push_variables("a", "b")
-        self._check("${{_U:${{_U:${{a}}}}}}", "b")
-
-    def test_pyexpr(self) -> None:
-        """Test python expression."""
-        self._check("$&{{1+1}}", 2)
-        push_variables("a", 1)
-        self._check("$&{{a+1}}", 2)
-
-    def test_nested_all(self) -> None:
-        """Test nested all."""
-        push_variables("a", None)
-        expr = (
-            "X${{aa: ${{  Var:$&{{a}}}} Hello}}Y ${{bb: ${{a}}"  # Don't remove.
-            "HLWD}}}}s $&{{None}}"
-        )
-        self._check(expr, "X None HelloY  NoneHLWD}}s None")
-
-    def test_undefined_var(self) -> None:
-        """Test undefined variable."""
-        pytest.raises(RUValueError, self._check, "${{_U}}", "")

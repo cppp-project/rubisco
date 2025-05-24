@@ -31,7 +31,7 @@ from rubisco.lib.l10n import _
 from rubisco.lib.variable.autoformatdict import AutoFormatDict
 from rubisco.lib.variable.autoformatlist import AutoFormatList
 from rubisco.lib.variable.utils import assert_iter_types
-from rubisco.lib.variable.var_contianer import VariableContainer
+from rubisco.lib.variable.var_container import VariableContainer
 from rubisco.shared.ktrigger import IKernelTrigger, call_ktrigger
 
 __all__ = ["MatrixStep"]

@@ -24,7 +24,7 @@ from typing import Any, TypeVar
 from rubisco.lib.variable.execute import execute_expression
 from rubisco.lib.variable.lexer import get_token
 from rubisco.lib.variable.ru_ast import parse_expression
-from rubisco.lib.variable.var_contianer import VariableContainer
+from rubisco.lib.variable.var_container import VariableContainer
 
 __all__ = ["format_str"]
 
@@ -54,32 +54,3 @@ def format_str(
 
     with VariableContainer(fmt):
         return execute_expression(parse_expression(get_token(string)))
-
-
-class TestFormatStr:
-    """Test format_str."""
-
-    def test_empty(self) -> None:
-        """Test empty string."""
-        if format_str("") != "":
-            raise AssertionError
-
-    def test_no_var(self) -> None:
-        """Test no variable."""
-        if format_str("hello") != "hello":
-            raise AssertionError
-
-    def test_var(self) -> None:
-        """Test variable."""
-        if format_str("hello ${{var}}", fmt={"var": "world"}) != "hello world":
-            raise AssertionError
-
-    def test_var_with_decoration(self) -> None:
-        """Test variable with decoration."""
-        if format_str("hello ${{var:1}}") != "hello 1":
-            raise AssertionError
-
-    def test_var_with_pyexpr(self) -> None:
-        """Test variable with python expression."""
-        if format_str("hello ${{var:$&{{1+1}}}}}}") != "hello 2}}":
-            raise AssertionError

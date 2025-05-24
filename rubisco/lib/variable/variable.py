@@ -21,8 +21,6 @@
 
 from typing import Any
 
-import pytest
-
 from rubisco.lib.stack import Stack
 from rubisco.lib.variable.callbacks import undefined_var_callbacks
 
@@ -132,42 +130,3 @@ def get_variable(
     if default is None:
         raise KeyError(name)
     return default
-
-
-class TestVariable:
-    """Test variable system."""
-
-    def test_push_pop_variables(self) -> None:
-        """Test push and pop variables."""
-        push_variables("a", 1)
-        if get_variable("a") != 1:
-            raise AssertionError
-
-        push_variables("a", "x")
-        if get_variable("a") != "x":
-            raise AssertionError
-
-        if has_variable("a") is False:
-            raise AssertionError
-
-        if pop_variables("a") != "x":
-            raise AssertionError
-        if get_variable("a") != 1:
-            raise AssertionError
-
-        if pop_variables("a") != 1:
-            raise AssertionError
-
-        if has_variable("a") is True:
-            raise AssertionError
-
-        pytest.raises(KeyError, get_variable, "a")
-
-    def test_push_pop_variables_default(self) -> None:
-        """Test push and pop variables with default value."""
-        if pop_variables("a", default=1) != 1:
-            raise AssertionError
-
-        push_variables("a", 1)
-        if pop_variables("a", default=2) != 1:
-            raise AssertionError

@@ -24,8 +24,6 @@ from collections.abc import Callable
 from types import ModuleType
 from typing import Any, NoReturn
 
-import pytest
-
 from rubisco.lib.exceptions import RUError
 from rubisco.lib.l10n import _
 from rubisco.lib.log import logger
@@ -135,46 +133,3 @@ def eval_pyexpr(expr: str) -> Any:  # noqa: ANN401
             ),
             hint=f"{exc.__class__.__name__}: {exc}",
         ) from exc
-
-
-class TestEval:
-    """Test eval_pyexpr."""
-
-    def test_eval(self) -> None:
-        """Test eval."""
-        if eval_pyexpr("1 + 1") != 2:  # noqa: PLR2004
-            raise AssertionError
-        if eval_pyexpr('"str" * 2') != "strstr":
-            raise AssertionError
-
-    def test_syntax_error(self) -> None:
-        """Test syntax error."""
-        pytest.raises(
-            RUEvalError,
-            eval_pyexpr,
-            "",
-        )
-
-        pytest.raises(
-            RUEvalError,
-            eval_pyexpr,
-            "+",
-        )
-
-    def test_disallowed_function(self) -> None:
-        """Test disallowed function."""
-        pytest.raises(
-            RUFunctionDisallowedError,
-            eval_pyexpr,
-            "__import__('os')",
-        )
-        pytest.raises(
-            RUFunctionDisallowedError,
-            eval_pyexpr,
-            "open('test.txt')",
-        )
-        pytest.raises(
-            RUFunctionDisallowedError,
-            eval_pyexpr,
-            'exec(\'__import__("o" + "s")\')',
-        )

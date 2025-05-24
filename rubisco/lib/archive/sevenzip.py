@@ -54,7 +54,8 @@ def extract_7z(
     with py7zr.SevenZipFile(file, mode="r", password=password) as fp:
         task_name = fast_format_str(
             _(
-                "Extracting ${{file}} to ${{path}} as '${{type}}' ...",
+                "Extracting "  # Pylint think this is a duplicate code.
+                "${{file}} to ${{path}} as '${{type}}' ...",
             ),
             fmt={
                 "file": make_pretty(file),
@@ -125,8 +126,8 @@ def extract_7z(
                 """
                 call_ktrigger(
                     IKernelTrigger.on_progress,
-                    task_name=task_name,
                     current=1,
+                    task_name=task_name,
                     delta=True,
                     more_data={
                         "path": Path(processing_file_path),
@@ -194,7 +195,8 @@ def compress_7z(  # pylint: disable=too-many-arguments
         rm_recursive(dest)
     task_name = fast_format_str(
         _(
-            "Compressing ${{path}} to ${{file}} as '${{type}}' ...",
+            "Compressing ${{path}} "  # Pylint think this is a duplicate code.
+            "to ${{file}} as '${{type}}' ...",
         ),
         fmt={
             "path": make_pretty(src),

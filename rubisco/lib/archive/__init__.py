@@ -27,11 +27,10 @@ import lzma
 import os
 import tarfile
 import zipfile
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 import py7zr
 import py7zr.exceptions
-import pytest
 
 from rubisco.config import COPY_BUFSIZE
 from rubisco.lib.archive.sevenzip import compress_7z, extract_7z
@@ -39,7 +38,6 @@ from rubisco.lib.archive.tar import compress_tarball, extract_tarball
 from rubisco.lib.archive.zip import compress_zip, extract_zip
 from rubisco.lib.exceptions import RUValueError
 from rubisco.lib.fileutil import (
-    TemporaryObject,
     assert_rel_path,
     check_file_exists,
     rm_recursive,
@@ -49,6 +47,9 @@ from rubisco.lib.log import logger
 from rubisco.lib.variable.fast_format_str import fast_format_str
 from rubisco.lib.variable.utils import make_pretty
 from rubisco.shared.ktrigger import IKernelTrigger, call_ktrigger
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 __all__ = ["compress", "extract"]
 
@@ -543,147 +544,3 @@ def compress(  # pylint: disable=R0913, R0917 # noqa: PLR0913
                 },
             ),
         ) from exc
-
-
-class TestArchive:
-    """Test archive module."""
-
-    def _check_extract_archive(self, path: Path) -> None:
-        """Check extract archive.
-
-        Args:
-            path (Path): Extract destination.
-
-        """
-        if not path.is_dir():
-            raise AssertionError
-        if not (path / "dir1").is_dir():
-            raise AssertionError
-        if not (path / "dir1" / "file1").is_file():
-            raise AssertionError
-        if (path / "dir1" / "file1").stat().st_size != 0:
-            raise AssertionError
-        with (path / "file2").open(encoding="utf-8") as f:
-            if f.read() != "Test\n":
-                raise AssertionError
-        if not (path / "file3").is_file():
-            raise AssertionError
-
-    def _extract(self, compress_type: str, password: str = "") -> None:
-        with TemporaryObject.new_directory(suffix="test") as path:
-            archive_file = Path(f"tests/test.{compress_type}")
-            if password:
-                archive_file = Path(f"tests/test-pwd.{compress_type}")
-            extract(
-                archive_file,
-                path.path / "test",
-                password=password,
-                allow_absolute_dest=True,
-            )
-            self._check_extract_archive(path.path / "test")
-
-    def test_extract_7z(self) -> None:
-        """Test extract 7z."""
-        self._extract("7z")
-
-    def test_extract_zip(self) -> None:
-        """Test extract zip."""
-        self._extract("zip")
-
-    def test_extract_tar_gz(self) -> None:
-        """Test extract tar.gz."""
-        self._extract("tar.gz")
-
-    def test_extract_tar_xz(self) -> None:
-        """Test extract tar.xz."""
-        self._extract("tar.xz")
-
-    def test_extract_tgz(self) -> None:
-        """Test extract tgz (alias of tar.gz)."""
-        self._extract("tgz")
-
-    def test_extract_password_zip(self) -> None:
-        """Test extract zip with password."""
-        self._extract("zip", password="1234")  # noqa: S106
-
-    def test_extract_invalid_password(self) -> None:
-        """Test extract zip with invalid password."""
-        pytest.raises(
-            RuntimeError,
-            self._extract,
-            "zip",
-            password="0",  # noqa: S106
-        )
-
-    def test_extract_to_absolute(self) -> None:
-        """Test extract tgz (alias of tar.gz)."""
-        self._extract("tgz")
-
-    def _compress(self, compress_type: str) -> None:
-        with TemporaryObject.new_directory(suffix="test") as path:
-            compress(
-                Path("tests/data").absolute(),
-                path.path / f"test.{compress_type}",
-                start=Path("tests/data").absolute(),
-                compress_type=compress_type,
-                compress_level=9,
-                allow_absolute_dest=True,
-            )
-            extract(
-                path.path / f"test.{compress_type}",
-                path.path / "extract",
-                compress_type=compress_type,
-                allow_absolute_dest=True,
-            )
-            self._check_extract_archive(path.path / "extract")
-
-    def test_compress_7z(self) -> None:
-        """Test compress 7-Zip."""
-        self._compress("7z")
-
-    def test_compress_zip(self) -> None:
-        """Test compress zip."""
-        self._compress("zip")
-
-    def test_compress_tar_gz(self) -> None:
-        """Test compress tar.gz."""
-        self._compress("tar.gz")
-
-    def test_compress_tar_xz(self) -> None:
-        """Test compress tar.xz."""
-        self._compress("tar.xz")
-
-    def test_compress_tgz(self) -> None:
-        """Test compress tgz (alias of tar.gz)."""
-        self._compress("tgz")
-
-    def test_compress_to_absolute(self) -> None:
-        """Test compress to absolute path."""
-        with TemporaryObject.new_directory(suffix="test") as path:
-            pytest.raises(
-                RUValueError,
-                compress,
-                Path("tests/data").absolute(),
-                (path.path / "test.zip").absolute(),
-                start=Path("tests/data"),
-                compress_level=9,
-                allow_absolute_dest=False,
-            )
-
-    def test_compress_invalid_type(self) -> None:
-        """Test compress invalid type."""
-        with TemporaryObject.new_directory(suffix="test") as path:
-            pytest.raises(
-                RUValueError,
-                compress,
-                Path("tests/data").absolute(),
-                path.path / "test.zip",
-                start=Path("tests/data"),
-                compress_type="invalid",
-                compress_level=9,
-                allow_absolute_dest=True,
-            )
-
-
-if __name__ == "__main__":
-    pytest.main([__file__])

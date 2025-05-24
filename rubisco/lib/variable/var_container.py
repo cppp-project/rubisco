@@ -28,12 +28,7 @@ original values when the context is exited.
 from types import TracebackType
 from typing import Any
 
-from rubisco.lib.variable.variable import (
-    get_variable,
-    has_variable,
-    pop_variables,
-    push_variables,
-)
+from rubisco.lib.variable.variable import pop_variables, push_variables
 
 __all__ = ["VariableContainer"]
 
