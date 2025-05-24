@@ -24,15 +24,16 @@ from pathlib import Path
 
 import py7zr
 import py7zr.callbacks
-import py7zr.exceptions
 
 from rubisco.lib.archive.utils import get_includes, write_to_archive
 from rubisco.lib.fileutil import check_file_exists, rm_recursive
 from rubisco.lib.l10n import _
-from rubisco.lib.variable import format_str
-from rubisco.shared.ktrigger import IKernelTrigger, call_ktrigger
-
-# pylint: disable=R0801
+from rubisco.lib.variable.fast_format_str import fast_format_str
+from rubisco.lib.variable.utils import make_pretty
+from rubisco.shared.ktrigger import (
+    IKernelTrigger,
+    call_ktrigger,
+)
 
 __all__ = ["compress_7z", "extract_7z"]
 
@@ -51,12 +52,15 @@ def extract_7z(
 
     """
     with py7zr.SevenZipFile(file, mode="r", password=password) as fp:
-        task_name = format_str(
+        task_name = fast_format_str(
             _(
-                "Extracting '[underline]${{file}}[/underline]' to "
-                "'[underline]${{path}}[/underline]' as '${{type}}' ...",
+                "Extracting ${{file}} to ${{path}} as '${{type}}' ...",
             ),
-            fmt={"file": str(file), "path": str(dest), "type": "7z"},
+            fmt={
+                "file": make_pretty(file),
+                "path": make_pretty(dest),
+                "type": "7z",
+            },
         )
 
         class _ExtractCallback(py7zr.callbacks.ExtractCallback):
@@ -188,12 +192,15 @@ def compress_7z(  # pylint: disable=too-many-arguments
         check_file_exists(dest)
     elif dest.exists():
         rm_recursive(dest)
-    task_name = format_str(
+    task_name = fast_format_str(
         _(
-            "Compressing '[underline]${{path}}[/underline]' to "
-            "'[underline]${{file}}[/underline]' as '${{type}}' ...",
+            "Compressing ${{path}} to ${{file}} as '${{type}}' ...",
         ),
-        fmt={"path": str(src), "file": str(dest), "type": "7z"},
+        fmt={
+            "path": make_pretty(src),
+            "file": make_pretty(dest),
+            "type": "7z",
+        },
     )
 
     if not start:
