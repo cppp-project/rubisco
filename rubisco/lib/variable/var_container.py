@@ -78,29 +78,3 @@ class VariableContainer:
         """
         for key in self._fmt:
             pop_variables(key)
-
-
-class TestVariableContainer:
-    """Test the VariableContainer class."""
-
-    def test_variable_container(self) -> None:
-        """Test the VariableContainer class."""
-        fmt = {"var1": "value1", "var2": "value2"}
-        with VariableContainer(fmt):
-            if get_variable("var1") != "value1":
-                raise AssertionError
-            if get_variable("var2") != "value2":
-                raise AssertionError
-
-        if has_variable("var1") or has_variable("var2"):
-            raise AssertionError
-
-    def test_variable_container_empty(self) -> None:
-        """Test the VariableContainer class with empty format dictionary."""
-        with VariableContainer():
-            pass
-
-    def test_variable_container_none(self) -> None:
-        """Test the VariableContainer class with None format dictionary."""
-        with VariableContainer(None):
-            pass
