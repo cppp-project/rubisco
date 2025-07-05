@@ -26,16 +26,17 @@ from typing import Any
 import rich
 
 from rubisco.config import APP_NAME, APP_VERSION
+from rubisco.kernel.command_event.args import Argument, Option
 from rubisco.lib.l10n import _
 
 # ruff: noqa: D102 D107
 # pylint: disable=missing-function-docstring
 
-__all__ = ["CLIVersionAction", "show_version"]
+__all__ = ["CLIVersionAction", "show_version", "version_callback"]
 
 
 def show_version() -> None:
-    """Get version string."""
+    """Show version string."""
     rich.print(APP_NAME, f"[white]{APP_VERSION}[/white]", end="\n")
 
     copyright_text = _(
@@ -84,3 +85,11 @@ class CLIVersionAction(argparse.Action):
     ) -> None:
         show_version()
         parser.exit()
+
+
+def version_callback(
+    options: list[Option[Any]],  # noqa: ARG001 # pylint: disable=W0613
+    args: list[Argument[Any]],  # noqa: ARG001 # pylint: disable=W0613
+) -> None:
+    """Show version string."""
+    show_version()

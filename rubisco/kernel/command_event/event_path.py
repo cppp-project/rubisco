@@ -28,7 +28,7 @@ from pathlib import PurePath
 from typing import TYPE_CHECKING, Any, Self
 
 from rubisco.kernel.command_event.args import Option
-from rubisco.kernel.command_event.callback import EventCallbackFunction
+from rubisco.kernel.command_event.callback import EventCallback
 from rubisco.kernel.command_event.event_file_data import EventFileData
 from rubisco.kernel.command_event.event_types import (
     EventObjectStat,
@@ -42,7 +42,11 @@ from rubisco.lib.variable.fast_format_str import fast_format_str
 from rubisco.lib.variable.utils import make_pretty
 
 if TYPE_CHECKING:
+    from _typeshed import StrPath, Unused
+
     from rubisco.kernel.command_event.cmd_event import EventObject
+
+__all__ = ["EventPath"]
 
 
 class EventPath(PurePath):  # pylint: disable=R0904
@@ -53,6 +57,22 @@ class EventPath(PurePath):  # pylint: disable=R0904
 
     _event: "EventObject | None" = None
 
+    def __init__(self, *args: "StrPath", **kwargs: "Unused") -> None:
+        """Initialize the EventPath class.
+
+        Args:
+            *args: The arguments to pass to the super class.
+            **kwargs: Never used.
+
+        """
+        if kwargs:
+            msg = "Invalid argument."
+            raise ValueError(msg)
+
+        if args and not str(args[0]).startswith("/"):
+            args = ("/" + str(args[0]), *args[1:])
+        super().__init__(*args)
+
     @property
     def event_object(self) -> "EventObject":
         """Get the event."""
@@ -60,13 +80,13 @@ class EventPath(PurePath):  # pylint: disable=R0904
 
     def add_dir_callback(
         self,
-        callback: EventCallbackFunction,
+        callback: EventCallback,
     ) -> None:
         """Add a callback to the event.
 
         Args:
-            callback (EventCallbackFunction): The callback to add. It will be
-                called when the directory's children files are executed.
+            callback (EventCallback): The callback to add. It will be called
+                when the directory's children files are executed.
 
         """
         _event = self.resolve().event_object
@@ -189,7 +209,7 @@ class EventPath(PurePath):  # pylint: disable=R0904
         return obj.stat().type == EventObjectType.MOUNT_POINT
 
     def is_other(self) -> bool:
-        """Check if the event is other types (not directories)."""
+        """Check if the event is other types (not a directory)."""
         if not self.exists():
             return False
         obj = self.resolve().event_object
@@ -258,9 +278,7 @@ class EventPath(PurePath):  # pylint: disable=R0904
         self,
         description: str,
         options: list[Option[Any]] | None = None,
-        callback: (
-            EventCallbackFunction | list[EventCallbackFunction] | None  # CCB
-        ) = None,
+        callback: EventCallback | list[EventCallback] | None = None,
         *,
         exists_ok: bool = True,
     ) -> Self:
@@ -270,9 +288,9 @@ class EventPath(PurePath):  # pylint: disable=R0904
             description (str): The description of the directory.
             options (list[Option] | None, optional): The options of the
                 directory. Defaults to None.
-            callback (ECF | list[ECF]| None, optional): The callback of the
-                directory. Defaults to None. It will be called when the
-                directory's children files are executed.
+            callback (EventCallback | list[EventCallback] | None, optional): The
+                callback of the directory. Defaults to None. It will be called
+                when the directory's children files are executed.
             exists_ok (bool): If True, do nothing if the directory already
                 exists.
 
@@ -302,7 +320,7 @@ class EventPath(PurePath):  # pylint: disable=R0904
             EventObjectStat(
                 type=EventObjectType.DIRECTORY,
                 options=options or [],
-                dir_description=description,
+                description=description,
                 dir_callbacks=(
                     []
                     if callback is None
@@ -316,12 +334,15 @@ class EventPath(PurePath):  # pylint: disable=R0904
         self,
         data: EventFileData,
         options: list[Option[Any]] | None = None,
+        description: str | None = None,
     ) -> Self:
         """Create a command event file.
 
         Args:
             data (EventFileData): The data of the file.
             options (list[Option] | None, optional): The options of the file.
+                Defaults to None.
+            description (str | None, optional): The description of the file.
                 Defaults to None.
 
         Returns:
@@ -348,9 +369,43 @@ class EventPath(PurePath):  # pylint: disable=R0904
             EventObjectStat(
                 type=EventObjectType.FILE,
                 options=options or [],
+                description=description,
             ),
         )
         self._event.write(data)
+        return self
+
+    def update_file(
+        self,
+        data: EventFileData,
+        options: list[Option[Any]] | None = None,
+        description: str | None = None,
+    ) -> Self:
+        """Update a file's callback if it exists. Otherwise, create a new file.
+
+        Args:
+            data (EventFileData): The callback to merge.
+            options (list[Option[Any]] | None, optional): The options of the
+                file. **ONLY ACTIVE IF THE FILE NOT EXISTS.** Defaults to None.
+            description (str | None, optional): The description of the file.
+                **ONLY ACTIVE IF THE FILE NOT EXISTS.** Defaults to None.
+
+        Returns:
+            Self: Self.
+
+        """
+        if self.exists():
+            file_data = self.resolve().event_object.file_data
+            if not file_data:
+                raise RUValueError(
+                    fast_format_str(
+                        _("Not a file: ${{path}}"),
+                        fmt={"path": self.as_posix()},
+                    ),
+                )
+            file_data.merge(data)
+        else:
+            self.mkfile(data, options, description)
         return self
 
     def mklink(self, alias_to: str | os.PathLike[str]) -> Self:
@@ -383,6 +438,41 @@ class EventPath(PurePath):  # pylint: disable=R0904
             EventObjectStat(
                 type=EventObjectType.ALIAS,
                 alias_to=alias_to,
+            ),
+        )
+        return self
+
+    def mount(self, mount_to: str) -> Self:
+        """Make a mount point.
+
+        Args:
+            mount_to (str): The shell command to mount.
+
+        Returns:
+            Self: Self.
+
+        """
+        if self.exists():
+            raise RUValueError(
+                fast_format_str(
+                    _("File exists: ${{path}}"),
+                    fmt={
+                        "path": make_pretty(self.as_posix()),
+                    },
+                ),
+            )
+        logger.info(
+            "Creating mount point %s with command %s",
+            self.as_posix(),
+            mount_to,
+        )
+
+        parent = self._get_parent()
+        self._event = parent.event_object.add_child(
+            self.name,
+            EventObjectStat(
+                type=EventObjectType.MOUNT_POINT,
+                mount_to=mount_to,
             ),
         )
         return self

@@ -22,10 +22,12 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, Any, cast
 
-from rubisco.cli.main.arg_parser import commands_parser
 from rubisco.config import USER_REPO_CONFIG
+from rubisco.kernel.command_event.callback import EventCallback
+from rubisco.kernel.command_event.event_file_data import EventFileData
+from rubisco.kernel.command_event.event_path import EventPath
 from rubisco.kernel.project_config import ProjectHook, load_project_config
 from rubisco.lib.exceptions import RUNotRubiscoProjectError, RUValueError
 from rubisco.lib.l10n import _
@@ -34,8 +36,7 @@ from rubisco.lib.variable import make_pretty
 from rubisco.lib.variable.fast_format_str import fast_format_str
 
 if TYPE_CHECKING:
-    import argparse
-
+    from rubisco.kernel.command_event.args import Argument, Option
     from rubisco.kernel.project_config import ProjectConfigration
 
 __all__ = [
@@ -81,6 +82,23 @@ def get_project_config() -> ProjectConfigration | None:
     return _project_config
 
 
+def _add_hook_to_cefs(path: EventPath, name: str) -> None:
+    # TODO(ChenPi11, #0): Use CEFS to manage hook callbacks.  # noqa: FIX002
+    def _callback(
+        options: list[Option[Any]],  # noqa: ARG001 # pylint: disable=W0613
+        args: list[Argument[Any]],  # noqa: ARG001 # pylint: disable=W0613
+    ) -> None:
+        call_hook(name)
+
+    path /= name
+    path.update_file(
+        EventFileData(
+            args=[],
+            callbacks=[EventCallback(callback=_callback, description="")],
+        ),
+    )
+
+
 def bind_hook(name: str) -> None:
     """Bind hook to a command.
 
@@ -93,18 +111,7 @@ def bind_hook(name: str) -> None:
         if name not in _hooks:
             _hooks[name] = []
         _hooks[name].append(cast("ProjectHook", _project_config.hooks[name]))
-        hook_parser = commands_parser.add_parser(
-            name,
-            help=fast_format_str(
-                _("(${{num}} hooks)"),
-                fmt={"num": str(len(_hooks[name]))},
-            ),
-        )
-
-        def _call_this_hook(_args: argparse.Namespace) -> None:
-            call_hook(name)
-
-        hook_parser.set_defaults(func=_call_this_hook)
+        _add_hook_to_cefs(EventPath("/"), name)
 
 
 def call_hook(name: str) -> None:

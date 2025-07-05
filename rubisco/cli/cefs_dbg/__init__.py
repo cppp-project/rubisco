@@ -17,26 +17,4 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-"""Rubisco command event router."""
-
-from pathlib import PurePath
-
-from rubisco.kernel.command_event.cmd_event import EventObject
-from rubisco.kernel.command_event.event_types import (
-    EventObjectStat,
-    EventObjectType,
-)
-from rubisco.kernel.command_event.root import set_root
-
-# Set the root event.
-set_root(
-    EventObject(
-        name="",
-        parent=None,
-        stat=EventObjectStat(
-            type=EventObjectType.DIRECTORY,
-            description="",
-        ),
-        abspath=PurePath("/"),
-    ),
-)
+"""Rubisco CLI for CommandEventFS debugging."""

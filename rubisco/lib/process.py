@@ -64,15 +64,19 @@ class Process:
     cwd: Path
     process: Popen[bytes]
     _tempfile: TemporaryObject | None
+    shell: str | None
 
     def __init__(
         self,
         cmd: list[str] | str,
         cwd: Path | None = None,
+        shell: str | None = get_system_shell(),
     ) -> None:
         """Prepare to run a process."""
         if cwd is None:
             cwd = Path.cwd()
+
+        self.shell = shell
 
         if isinstance(cmd, str) and "\n" in cmd:
             self._tempfile = TemporaryObject.new_file(suffix=".bat")
@@ -81,7 +85,7 @@ class Process:
                 encoding=DEFAULT_CHARSET,
             )
             self._tempfile.path.chmod(0o755)
-            self.cmd = command([get_system_shell(), str(self._tempfile.path)])
+            self.cmd = command([self.shell, str(self._tempfile.path)])
         else:
             self.cmd = command(cmd)
             self._tempfile = None

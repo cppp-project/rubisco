@@ -21,48 +21,52 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
-from rubisco.cli.main.arg_parser import arg_parser, commands_parser
-from rubisco.cli.main.help_formatter import RUHelpFormatter
 from rubisco.cli.main.project_config import get_project_config
-from rubisco.cli.main.version_action import show_version
+from rubisco.kernel.command_event.callback import EventCallback
+from rubisco.kernel.command_event.event_file_data import EventFileData
+from rubisco.kernel.command_event.event_path import EventPath
 from rubisco.lib.l10n import _
 from rubisco.shared.ktrigger import IKernelTrigger, call_ktrigger
 
 if TYPE_CHECKING:
-    from argparse import Namespace
+    from rubisco.kernel.command_event.args import Argument, Option
 
 __all__ = ["register_builtin_cmds"]
 
 
-def show_project_info(_: Namespace) -> None:
-    """For 'rubisco info' command."""
+def show_project_info(
+    options: list[Option[Any]],  # noqa: ARG001 # pylint: disable=W0613
+    args: list[Argument[Any]],  # noqa: ARG001 # pylint: disable=W0613
+) -> None:
+    """For 'rubisco info' command.
+
+    Args:
+        options (list[Option[Any]]): List of options.
+        args (list[Argument[Any]]): List of arguments.
+
+    """
     call_ktrigger(
         IKernelTrigger.on_show_project_info,
         project=get_project_config(),
     )
 
 
-def _show_version(_: Namespace) -> None:
-    show_version()
-
-
 def register_builtin_cmds() -> None:
     """Register built-in commands."""
     # If user don't provide any arguments. We should show the project info.
-    arg_parser.set_defaults(func=show_project_info)
 
-    # For "rubisco info" command.
-    commands_parser.add_parser(
-        "info",
-        help=_("Show project information."),
-        formatter_class=RUHelpFormatter,
-    ).set_defaults(func=show_project_info)
-
-    # For "rubisco version" command.
-    commands_parser.add_parser(
-        "version",
-        help=_("Show Rubisco version."),
-        formatter_class=RUHelpFormatter,
-    ).set_defaults(func=_show_version)
+    EventPath("/info").mkfile(
+        EventFileData(
+            callbacks=[
+                EventCallback(
+                    callback=show_project_info,
+                    description=_(
+                        "Default callback for showing Rubisco project infomation.",  # noqa: E501
+                    ),
+                ),
+            ],
+        ),
+        description=_("Show project information."),
+    )

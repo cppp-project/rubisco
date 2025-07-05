@@ -43,20 +43,20 @@ class EventFileData:
 
     """
 
-    args: list[Argument[Any]] | DynamicArguments[Any] = field(
+    args: list[Argument[Any]] | DynamicArguments = field(
         default_factory=list[Argument[Any]],
     )
     callbacks: list[EventCallback] = field(default_factory=list[EventCallback])
 
-    def merge(
+    def merge_callbacks(
         self,
-        args: list[Argument[Any]] | DynamicArguments[Any],
+        args: list[Argument[Any]] | DynamicArguments,
         callback: EventCallback,
     ) -> Self:
         """Merge the given args and callbacks to the current file data.
 
         Args:
-            args (list[Argument[Any]] | DynamicArguments[Any]): The args to
+            args (list[Argument[Any]] | DynamicArguments): The args to
                 merge.
             callback (EventCallback): The callback to merge.
 
@@ -85,3 +85,25 @@ class EventFileData:
                 fmt={"data": args},
             ),
         )
+
+    def merge(self, data: "EventFileData") -> Self:
+        """Merge the given args and callbacks to the current file data.
+
+        Args:
+            data (EventFileData): The file data to merge.
+
+        Returns:
+            Self: Self.
+
+        The args of this file will be set to the given args if it's longer
+        than the current args. The callbacks will be appended to the current
+        callbacks.
+
+        Don't merge the args that have different types at the same position.
+        It will cause a `RUTypeError`.
+
+        """
+        for callback in data.callbacks:
+            self.merge_callbacks(data.args, callback)
+
+        return self

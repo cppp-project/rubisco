@@ -28,7 +28,11 @@ from pathlib import Path
 
 import colorama
 
-from rubisco.cli.main.arg_parser import arg_parser, early_arg_parser
+from rubisco.cli.main.arg_parser import (
+    early_arg_parser,
+    get_arg_parser,
+    init_arg_parser,
+)
 from rubisco.cli.main.builtin_cmds import register_builtin_cmds
 from rubisco.cli.main.extman_cmds import register_extman_cmds
 from rubisco.cli.main.ktrigger import RubiscoKTrigger
@@ -85,6 +89,7 @@ def main() -> None:
         logger.info("Rubisco CLI version %s started.", str(APP_VERSION))
         colorama.init()
         bind_ktrigger_interface("rubisco", RubiscoKTrigger())
+        init_arg_parser()
         load_all_extensions()
 
         # Register built-in command lines.
@@ -102,13 +107,11 @@ def main() -> None:
         if no_project_mode:
             logger.debug("Running in no project mode.")
 
+        arg_parser = get_arg_parser()
+
         args = arg_parser.parse_known_args()[0]
 
-        op_command = args.command
-        if op_command is None:
-            op_command = "info"
-
-        args.func(args)
+        args.callback(args)
         sys.exit(0)
 
     except SystemExit as exc:

@@ -22,10 +22,8 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
-from rubisco.cli.main.arg_parser import extman_command_parser
-from rubisco.cli.main.help_formatter import RUHelpFormatter
 from rubisco.envutils.env import (
     GLOBAL_ENV,
     USER_ENV,
@@ -38,14 +36,23 @@ from rubisco.envutils.packages import (
     query_packages,
     uninstall_extension,
 )
+from rubisco.kernel.command_event.args import (
+    Argument,
+    DynamicArguments,
+    Option,
+    load_callback_args,
+)
+from rubisco.kernel.command_event.callback import EventCallback
+from rubisco.kernel.command_event.event_file_data import EventFileData
+from rubisco.kernel.command_event.event_path import EventPath
+from rubisco.lib.convert import convert_to
+from rubisco.lib.exceptions import RUValueError
 from rubisco.lib.l10n import _
 from rubisco.lib.log import logger
 from rubisco.lib.variable.fast_format_str import fast_format_str
 from rubisco.shared.ktrigger import IKernelTrigger, call_ktrigger
 
 if TYPE_CHECKING:
-    import argparse
-
     from rubisco.envutils.packages import ExtensionPackageInfo
 
 __all__ = ["register_extman_cmds"]
@@ -94,17 +101,22 @@ def _list_pkgs(
     return list(pkg_set)
 
 
-def list_packages(args: argparse.Namespace) -> None:
+def list_packages(
+    options: list[Option[Any]],
+    args: list[Argument[Any]],
+) -> None:
     """For 'rubisco ext list PATTERNS' command.
 
     Args:
-        args (argparse.Namespace): Argparse arguments.
+        options (list[Option[Any]]): List of options.
+        args (list[Argument[Any]]): List of arguments.
 
     """
-    patterns: list[str] = args.packages
-    show_workspace: bool = args.show_workspace
-    show_user: bool = args.show_user
-    show_global: bool = args.show_global
+    opts, args_ = load_callback_args(options, args)
+    patterns: list[str] = args_
+    show_workspace: bool = convert_to(opts["show-workspace"], bool)
+    show_user: bool = convert_to(opts["show-user"], bool)
+    show_global: bool = convert_to(opts["show-global"], bool)
 
     pkg_list = _list_pkgs(
         patterns,
@@ -184,17 +196,22 @@ def _show_pkgs(pkg: ExtensionPackageInfo) -> None:
     )
 
 
-def show_packages(args: argparse.Namespace) -> None:
+def show_packages(
+    options: list[Option[Any]],
+    args: list[Argument[Any]],
+) -> None:
     """For 'rubisco ext show PATTERNS' command.
 
     Args:
-        args (argparse.Namespace): Argparse arguments.
+        options (list[Option[Any]]): List of options.
+        args (list[Argument[Any]]): List of arguments.
 
     """
-    patterns: list[str] = args.packages
-    show_workspace: bool = args.show_workspace
-    show_user: bool = args.show_user
-    show_global: bool = args.show_global
+    opts, args_ = load_callback_args(options, args)
+    patterns: list[str] = args_
+    show_workspace: bool = convert_to(opts["show-workspace"], bool)
+    show_user: bool = convert_to(opts["show-user"], bool)
+    show_global: bool = convert_to(opts["show-global"], bool)
 
     pkg_list = _list_pkgs(
         patterns,
@@ -212,28 +229,37 @@ def show_packages(args: argparse.Namespace) -> None:
             call_ktrigger(IKernelTrigger.on_output, message="")
 
 
-def install_packages(args: argparse.Namespace) -> None:
+def install_packages(
+    options: list[Option[Any]],
+    args: list[Argument[Any]],
+) -> None:
     """For 'rubisco ext install FILES' command.
 
     Args:
-        args (argparse.Namespace): Argparse arguments.
+        options (list[Option[Any]]): List of options.
+        args (list[Argument[Any]]): List of arguments.
 
     """
-    files_glob: list[str] = args.files
-    install_dest_type: EnvType = args.install_dest
+    opts, args_ = load_callback_args(options, args)
+    files_glob: list[str] = args_
     files_list: list[Path] = []
 
-    install_dest: RUEnvironment
-    match install_dest_type:
-        case EnvType.GLOBAL:
-            install_dest = GLOBAL_ENV
-        case EnvType.USER:
-            install_dest = USER_ENV
-        case EnvType.WORKSPACE:
-            install_dest = WORKSPACE_ENV
-        case _:
-            msg = "Invalid install destination."
-            raise ValueError(msg)
+    inst_to_global: bool = convert_to(opts["global"], bool)
+    inst_to_user: bool = convert_to(opts["user"], bool)
+    inst_to_workspace: bool = convert_to(opts["workspace"], bool)
+
+    # Checking for conflicts.
+    _sum = int(inst_to_global) + int(inst_to_user) + int(inst_to_workspace)
+    if _sum > 1 or _sum == 0:
+        msg = _("You must specify only one install destination.")
+        raise RUValueError(msg)
+
+    if inst_to_global:
+        install_dest = GLOBAL_ENV
+    elif inst_to_user:
+        install_dest = USER_ENV
+    else:
+        install_dest = WORKSPACE_ENV
 
     for file_glob in files_glob:
         files_list.extend(Path.cwd().glob(file_glob))
@@ -247,27 +273,35 @@ def install_packages(args: argparse.Namespace) -> None:
         install_extension(file, install_dest)
 
 
-def uninstall_packages(args: argparse.Namespace) -> None:
+def uninstall_packages(
+    options: list[Option[Any]],
+    args: list[Argument[Any]],
+) -> None:
     """For 'rubisco ext uninstall PATTERNS' command.
 
     Args:
-        args (argparse.Namespace): Argparse arguments.
+        options (list[Option[Any]]): List of options.
+        args (list[Argument[Any]]): List of arguments.
 
     """
-    patterns: list[str] = args.packages
-    env_type: EnvType = args.env_type
+    opts, args_ = load_callback_args(options, args)
+    patterns: list[str] = args_
+    uninst_global: bool = convert_to(opts["global"], bool)
+    uninst_user: bool = convert_to(opts["user"], bool)
+    uninst_workspace: bool = convert_to(opts["workspace"], bool)
 
-    env: RUEnvironment
-    match env_type:
-        case EnvType.GLOBAL:
-            env = GLOBAL_ENV
-        case EnvType.USER:
-            env = USER_ENV
-        case EnvType.WORKSPACE:
-            env = WORKSPACE_ENV
-        case _:
-            msg = "Invalid uninstall destination."
-            raise ValueError(msg)
+    # Checking for conflicts.
+    _sum = int(uninst_global) + int(uninst_user) + int(uninst_workspace)
+    if _sum > 1 or _sum == 0:
+        msg = _("You must specify only one uninstall destination.")
+        raise RUValueError(msg)
+
+    if uninst_global:
+        env = GLOBAL_ENV
+    elif uninst_user:
+        env = USER_ENV
+    else:
+        env = WORKSPACE_ENV
 
     uninstall_extension(patterns, env)
 
@@ -275,174 +309,189 @@ def uninstall_packages(args: argparse.Namespace) -> None:
 def register_extman_cmds() -> None:
     """Register extension manager commands."""
     # Command "ext list".
-    ext_list_command_parser = extman_command_parser.add_parser(
-        "list",
-        help=_("List extensions with matching patterns."),
-        formatter_class=RUHelpFormatter,
-    )
-
-    ext_list_command_parser.add_argument(
-        "packages",
-        nargs="*",
-        help=_("Packages matching patterns."),
-    )
-
-    ext_list_command_parser.set_defaults(func=list_packages)
-
-    ext_list_command_parser.add_argument(
-        "-W",
-        "--ignore-workspace",
-        "--no-workspace",
-        action="store_false",
-        dest="show_workspace",
-        default=True,
-        help=_("List extensions in workspace."),
-    )
-
-    ext_list_command_parser.add_argument(
-        "-U",
-        "--ignore-user",
-        "--no-user",
-        action="store_false",
-        dest="show_user",
-        default=True,
-        help=_("List extensions in user."),
-    )
-
-    ext_list_command_parser.add_argument(
-        "-G",
-        "--ignore-global",
-        "--no-global",
-        action="store_false",
-        dest="show_global",
-        default=True,
-        help=_("List extensions in global."),
+    EventPath("/ext/list").mkfile(
+        EventFileData(
+            args=DynamicArguments(
+                name="patterns",
+                title=_("Packages matching patterns."),
+                description=_("Packages matching patterns."),
+                mincount=0,
+            ),
+            callbacks=[
+                EventCallback(
+                    callback=list_packages,
+                    description=_(
+                        "Default callback for list Rubisco extensions.",
+                    ),
+                ),
+            ],
+        ),
+        description=_("Show project information."),
+        options=[
+            Option(
+                name="show-workspace",
+                aliases=["W"],
+                title=_("Show workspace extensions."),
+                description=_("Show workspace extensions."),
+                typecheck=str,
+                default=True,
+            ),
+            Option(
+                name="show-user",
+                aliases=["U"],
+                title=_("Show user extensions."),
+                description=_("Show user extensions."),
+                typecheck=str,
+                default=True,
+            ),
+            Option(
+                name="show-global",
+                aliases=["G"],
+                title=_("Show global extensions."),
+                description=_("Show global extensions."),
+                typecheck=str,
+                default=True,
+            ),
+        ],
     )
 
     # Command "ext show".
-    ext_show_command_parser = extman_command_parser.add_parser(
-        "show",
-        help=_("Show extensions info with matching patterns."),
-        formatter_class=RUHelpFormatter,
-    )
-
-    ext_show_command_parser.add_argument(
-        "packages",
-        nargs="*",
-        help=_("Packages matching patterns."),
-    )
-
-    ext_show_command_parser.set_defaults(func=show_packages)
-
-    ext_show_command_parser.add_argument(
-        "-W",
-        "--ignore-workspace",
-        action="store_false",
-        dest="show_workspace",
-        default=True,
-        help=_("List extensions in workspace."),
-    )
-
-    ext_show_command_parser.add_argument(
-        "-U",
-        "--ignore-user",
-        action="store_false",
-        dest="show_user",
-        default=True,
-        help=_("List extensions in user."),
-    )
-
-    ext_show_command_parser.add_argument(
-        "-G",
-        "--ignore-global",
-        action="store_false",
-        dest="show_global",
-        default=True,
-        help=_("List extensions in global."),
+    EventPath("/ext/show").mkfile(
+        EventFileData(
+            args=DynamicArguments(
+                name="packages",
+                title=_("Packages matching patterns."),
+                description=_("Packages matching patterns."),
+                mincount=0,
+            ),
+            callbacks=[
+                EventCallback(
+                    callback=show_packages,
+                    description=_(
+                        "Default callback for show Rubisco extensions.",
+                    ),
+                ),
+            ],
+        ),
+        description=_("Show extensions info with matching patterns."),
+        options=[
+            Option(
+                name="show-workspace",
+                aliases=["W"],
+                title=_("Show workspace extensions."),
+                description=_("Show workspace extensions."),
+                typecheck=str,
+                default=True,
+            ),
+            Option(
+                name="show-user",
+                aliases=["U"],
+                title=_("Show user extensions."),
+                description=_("Show user extensions."),
+                typecheck=str,
+                default=True,
+            ),
+            Option(
+                name="show-global",
+                aliases=["G"],
+                title=_("Show global extensions."),
+                description=_("Show global extensions."),
+                typecheck=str,
+                default=True,
+            ),
+        ],
     )
 
     # Command "ext install".
-    ext_install_command_parser = extman_command_parser.add_parser(
-        "install",
-        help=_("Install extensions with matching patterns."),
-        formatter_class=RUHelpFormatter,
-    )
-
-    ext_install_command_parser.add_argument(
-        "files",
-        nargs="+",
-        help=_("Extension package files glob patterns."),
-    )
-
-    ext_install_command_parser.set_defaults(func=install_packages)
-
-    ext_install_command_parser.add_argument(
-        "-w",
-        "--workspace",
-        action="store_const",
-        dest="install_dest",
-        const=EnvType.WORKSPACE,
-        default=EnvType.WORKSPACE,
-        help=_("Install extensions to workspace."),
-    )
-
-    ext_install_command_parser.add_argument(
-        "-u",
-        "--user",
-        action="store_const",
-        dest="install_dest",
-        const=EnvType.USER,
-        help=_("Install extensions to user."),
-    )
-
-    ext_install_command_parser.add_argument(
-        "-g",
-        "--global",
-        action="store_const",
-        dest="install_dest",
-        const=EnvType.GLOBAL,
-        help=_("Install extensions to global."),
+    EventPath("/ext/install").mkfile(
+        EventFileData(
+            args=DynamicArguments(
+                name="files",
+                title=_("Extension package files glob patterns."),
+                description=_("Extension package files glob patterns."),
+                mincount=1,
+            ),
+            callbacks=[
+                EventCallback(
+                    callback=install_packages,
+                    description=_(
+                        "Default callback for install Rubisco extensions.",
+                    ),
+                ),
+            ],
+        ),
+        description=_("Install extensions with matching patterns."),
+        options=[
+            Option(
+                name="workspace",
+                aliases=["W"],
+                title=_("Install to workspace."),
+                description=_("Install extension packages to workspace."),
+                typecheck=str,
+                default="False",
+            ),
+            Option(
+                name="user",
+                aliases=["U"],
+                title=_("Install to user."),
+                description=_("Install extension packages to user."),
+                typecheck=str,
+                default="False",
+            ),
+            Option(
+                name="global",
+                aliases=["G"],
+                title=_("Install to global."),
+                description=_("Install extension packages to global."),
+                typecheck=str,
+                default="False",
+            ),
+        ],
     )
 
     # Command "ext uninstall".
-    ext_uninstall_command_parser = extman_command_parser.add_parser(
-        "uninstall",
-        help=_("Uninstall extensions with matching patterns."),
-        formatter_class=RUHelpFormatter,
-    )
-
-    ext_uninstall_command_parser.add_argument(
-        "packages",
-        nargs="+",
-        help=_("Packages matching patterns."),
-    )
-
-    ext_uninstall_command_parser.set_defaults(func=uninstall_packages)
-
-    ext_uninstall_command_parser.add_argument(
-        "-w",
-        "--workspace",
-        action="store_const",
-        dest="env_type",
-        const=EnvType.WORKSPACE,
-        default=EnvType.WORKSPACE,
-        help=_("Uninstall extensions in workspace."),
-    )
-
-    ext_uninstall_command_parser.add_argument(
-        "-u",
-        "--user",
-        action="store_const",
-        dest="env_type",
-        const=EnvType.USER,
-        help=_("Uninstall extensions in user."),
-    )
-
-    ext_uninstall_command_parser.add_argument(
-        "-g",
-        "--global",
-        action="store_const",
-        dest="env_type",
-        const=EnvType.GLOBAL,
-        help=_("Uninstall extensions in global."),
+    EventPath("/ext/uninstall").mkfile(
+        EventFileData(
+            args=DynamicArguments(
+                name="packages",
+                title=_("Packages matching patterns."),
+                description=_("Packages matching patterns."),
+                mincount=1,
+            ),
+            callbacks=[
+                EventCallback(
+                    callback=uninstall_packages,
+                    description=_(
+                        "Default callback for uninstall Rubisco extensions.",
+                    ),
+                ),
+            ],
+        ),
+        description=_("Uninstall extensions with matching patterns."),
+        options=[
+            Option(
+                name="workspace",
+                aliases=["W"],
+                title=_("Uninstall from workspace."),
+                description=_("Uninstall extension packages from workspace."),
+                typecheck=str,
+                default="False",
+            ),
+            Option(
+                name="user",
+                aliases=["U"],
+                title=_("Uninstall from user."),
+                description=_("Uninstall extension packages from user."),
+                typecheck=str,
+                default="False",
+            ),
+            Option(
+                name="global",
+                aliases=["G"],
+                title=_("Uninstall from global."),
+                description=_("Uninstall extension packages from global."),
+                typecheck=str,
+                default="False",
+            ),
+        ],
     )

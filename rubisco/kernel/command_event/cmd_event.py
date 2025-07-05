@@ -34,12 +34,13 @@ from rubisco.kernel.command_event.event_types import (
     EventObjectStat,
     EventObjectType,
 )
-from rubisco.kernel.command_event.root import set_root
 from rubisco.lib.exceptions import RUValueError
 from rubisco.lib.l10n import _
 from rubisco.lib.log import logger
 from rubisco.lib.variable.fast_format_str import fast_format_str
 from rubisco.lib.variable.utils import make_pretty
+
+__all__ = ["EventObject"]
 
 
 class EventObject:
@@ -145,6 +146,15 @@ class EventObject:
 
         """
         return self._stat
+
+    def set_stat(self, stat: EventObjectStat) -> None:
+        """Set the stat of the node.
+
+        Args:
+            stat (EventObjectStat): The stat of the node.
+
+        """
+        self._stat = stat
 
     def add_child(
         self,
@@ -391,7 +401,7 @@ class EventObject:
 
     def _execute_dynamic_args(
         self,
-        file_data_args: DynamicArguments[Any],
+        file_data_args: DynamicArguments,
         file_data: EventFileData,
         args: list[str],
     ) -> None:
@@ -456,7 +466,7 @@ class EventObject:
                 opt.get()  # Try to get the value to check if it's set.
                 opt.freeze()
             for callback in resolved_object.stat().dir_callbacks:
-                callback(resolved_object.stat().options, [])
+                callback.callback(resolved_object.stat().options, [])
         finally:
             for opt in resolved_object.stat().options:
                 opt.unfreeze()
@@ -536,17 +546,3 @@ class EventObject:
             f"EventObject(name={self.name!r}, abspath={self.abspath!r}"
             f", stat={self._stat!r})"
         )
-
-
-# Set the root event.
-set_root(
-    EventObject(
-        name="",
-        parent=None,
-        stat=EventObjectStat(
-            type=EventObjectType.DIRECTORY,
-            dir_description="",
-        ),
-        abspath=PurePath("/"),
-    ),
-)

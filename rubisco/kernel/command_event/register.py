@@ -38,6 +38,8 @@ from rubisco.lib.l10n import _
 from rubisco.lib.log import logger
 from rubisco.lib.variable.fast_format_str import fast_format_str
 
+__all__ = ["EventUnit", "register_events"]
+
 
 @dataclass(frozen=True)
 class EventUnit:
@@ -88,17 +90,18 @@ def _register_events(
 
 
 def register_events(
-    event: EventUnit,
+    events: list[EventUnit],
     root: EventPath | None = None,
 ) -> None:
     """Register events recursively to the event tree.
 
     Args:
-        event (EventUnit): The event to register.
+        events ( list[EventUnit]): The event to register.
         root (EventPath | None): The root of the event tree. None means
             the root of the event tree. Defaults to None.
 
     """
     if root is None:
         root = EventPath("/")
-    _register_events(event, root.event_object)
+    for event in events:
+        _register_events(event, root.event_object)

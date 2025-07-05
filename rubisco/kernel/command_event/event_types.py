@@ -26,7 +26,10 @@ from pathlib import PurePath
 from typing import Any
 
 from rubisco.kernel.command_event.args import Option
-from rubisco.kernel.command_event.callback import EventCallbackFunction
+from rubisco.kernel.command_event.callback import EventCallback
+from rubisco.lib.l10n import _
+
+__all__ = ["EventObjectStat", "EventObjectType", "get_event_object_type_string"]
 
 
 class EventObjectType(enum.Enum):
@@ -43,12 +46,35 @@ class EventObjectType(enum.Enum):
     MOUNT_POINT = enum.auto()
 
 
+def get_event_object_type_string(obj_type: EventObjectType) -> str:
+    """Get the string representation of an event object type.
+
+    Args:
+        obj_type (EventObjectType): The event object type.
+
+    Returns:
+        str: The string representation of an event object type.
+
+    """
+    if obj_type == EventObjectType.DIRECTORY:
+        return _("Directory")
+    if obj_type == EventObjectType.FILE:
+        return _("File")
+    if obj_type == EventObjectType.ALIAS:
+        return _("Alias")
+    if obj_type == EventObjectType.MOUNT_POINT:
+        return _("Mount point")
+    msg = f"Unknown event object type: {obj_type}."
+    raise ValueError(msg)
+
+
 @dataclass
 class EventObjectStat:
     """The stat of an command event tree node."""
 
     # The type of an command event tree node.
     type: EventObjectType
+    description: str | None = None
 
     # Attributes for directory, file and mount point.
     options: list[Option[Any]] = field(
@@ -56,13 +82,15 @@ class EventObjectStat:
     )
 
     # Attributes for directory.
-    dir_description: str | None = None
-    dir_callbacks: list[EventCallbackFunction] = field(
-        default_factory=list[EventCallbackFunction],
+    dir_callbacks: list[EventCallback] = field(
+        default_factory=list[EventCallback],
     )
 
     # Attributes for alias.
     alias_to: PurePath | PathLike[str] | str | None = None
+
+    # Attributes for mount point.
+    mount_to: str | None = None
 
     def __post_init__(self) -> None:
         """Post init."""

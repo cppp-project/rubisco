@@ -1,0 +1,218 @@
+# -*- mode: python -*-
+# vi: set ft=python :
+
+# Copyright (C) 2024 The C++ Plus Project.
+# This file is part of the Rubisco.
+#
+# Rubisco is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published
+# by the Free Software Foundation, either version 3 of the License,
+# or (at your option) any later version.
+#
+# Rubisco is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+"""Generate argparser from CommandEventFS."""
+
+from argparse import ArgumentParser, Namespace
+from typing import TYPE_CHECKING, TypeAlias
+
+from rubisco.cli.main.help_formatter import RUHelpFormatter
+from rubisco.kernel.command_event.event_file_data import EventFileData
+from rubisco.kernel.command_event.event_path import EventPath
+
+if TYPE_CHECKING:
+    from argparse import _SubParsersAction  # type: ignore[attr-defined]
+
+# After Python 3.14 released. We will only support Python 3.12 or later.
+# We will use `type SubParser = xxx` syntax.
+SubParser: TypeAlias = (
+    "_SubParsersAction[ArgumentParser]"  # type: ignore[valid-type] # pylint: disable=line-too-long
+)
+
+_subparsers: dict[str, SubParser] = {}
+
+
+def _get_subparser(
+    path: EventPath,
+    parent: ArgumentParser,
+) -> SubParser:
+    name = path.parent.normpath().as_posix()
+    val = _subparsers.get(name)
+    if val:
+        return val
+    subparser = parent.add_subparsers(
+        metavar="",
+        required=True,
+    )
+    _subparsers[name] = subparser
+    return subparser
+
+
+def _fill_options(
+    path: EventPath,
+    args: Namespace,
+) -> None:
+    for option in path.stat().options:
+        if not hasattr(args, option.name) and option.default is None:
+            msg = f"Option {option.name} is not provided in the namespace."
+            raise ValueError(msg)
+        path.set_option(option.name, getattr(args, option.name, option.default))
+
+    if path.normpath().as_posix() != "/":
+        _fill_options(path.parent, args)
+
+
+def _fill_arguments(
+    data: EventFileData,
+    args: Namespace,
+) -> list[str]:
+    args_list: list[str] = []
+
+    if isinstance(data.args, list):
+        for arg in data.args:
+            if not hasattr(args, arg.name):
+                msg = f"Argument {arg.name} is not provided in the namespace."
+                raise ValueError(msg)
+            args_list.append(getattr(args, arg.name))
+    else:
+        if not hasattr(args, data.args.name):
+            msg = f"Argument {data.args.name} is not provided in the namespace."
+            raise ValueError(msg)
+        args_list.extend(getattr(args, data.args.name))
+
+    return args_list
+
+
+def _call_event(path: EventPath, args: Namespace) -> None:
+    """Call event function.
+
+    Args:
+        path (EventPath): The event path.
+        args (Namespace): The namespace.
+
+    """
+    data = path.read()
+    if not data:
+        msg = f"Not a file, this should never happen: {path}"
+        raise ValueError(msg)
+
+    _fill_options(path, args)
+    path.execute(_fill_arguments(data, args))
+
+
+def _gen_options(event_path: EventPath, parser: ArgumentParser) -> None:
+    for options in event_path.stat().options:
+        names: list[str] = []
+        for name in [options.name, *options.aliases]:
+            names.append(f"--{name}" if len(name) > 1 else f"-{name}")  # noqa: PERF401
+        parser.add_argument(
+            *names,
+            type=options.typecheck,
+            help=options.description,
+            action="store",
+            dest=options.name,
+            default=options.default,
+        )
+
+
+def _gen_args(
+    event_path: EventPath,
+    parser: ArgumentParser,
+) -> None:
+    data = event_path.read()
+    if not data:
+        msg = f"Not a file, this should never happen: {event_path}"
+        raise ValueError(msg)
+    if isinstance(data.args, list):
+        for arg in data.args:
+            parser.add_argument(
+                arg.name,
+                type=arg.typecheck,
+                help=arg.description,
+                action="store",
+                default=arg.default,
+            )
+    else:
+        parser.add_argument(
+            data.args.name,
+            help=data.args.description,
+            action="store",
+            nargs="+" if data.args.mincount == 0 else "*",
+        )
+
+
+def _gen_from_file(event_path: EventPath, parent: ArgumentParser) -> None:
+    data = event_path.read()
+    if not data:
+        msg = f"Not a file, this should never happen: {event_path}"
+        raise ValueError(msg)
+
+    subparser = _get_subparser(event_path, parent)
+    parser = subparser.add_parser(
+        event_path.name,
+        help=event_path.stat().description,
+        formatter_class=RUHelpFormatter,
+        allow_abbrev=True,
+    )
+
+    def _callback(args: Namespace) -> None:
+        _call_event(event_path, args)
+
+    parser.set_defaults(callback=_callback)
+    _gen_options(event_path, parser)
+    _gen_args(event_path, parser)
+
+
+def _gen_from_dir(event_path: EventPath, parent: ArgumentParser) -> None:
+    subparser = _get_subparser(event_path, parent)
+    parser = subparser.add_parser(
+        event_path.name,
+        help=event_path.stat().description,
+        formatter_class=RUHelpFormatter,
+        allow_abbrev=True,
+    )
+    _gen_options(event_path, parser)
+    for subdir in event_path.list_dirs():
+        _gen_from_dir(subdir, parser)
+    for file in event_path.list_files():
+        _gen_from_file(file, parser)
+
+
+def _gen_from_link(event_path: EventPath, parent: ArgumentParser) -> None:
+    if not event_path.stat().alias_to or not event_path.is_alias():
+        msg = f"Not a link: {event_path}, this should never happen."
+        raise ValueError(msg)
+    if event_path.is_dir():
+        _gen_from_dir(event_path, parent)
+    elif event_path.is_file():
+        _gen_from_file(event_path, parent)
+    elif event_path.is_mount_point():
+        pass  # Mount point will be mounted later.
+    else:
+        msg = f"Unknown event type: {event_path}, this should never happen."
+        raise ValueError(msg)
+
+
+def gen_argparse(
+    event_path: EventPath,
+    parent: ArgumentParser,
+) -> None:
+    """Generate argparser from CommandEventFS.
+
+    Args:
+        event_path (EventPath): The event path.
+        parent (ArgumentParser): The parent argument parser.
+
+    """
+    for subdir in event_path.list_dirs():
+        _gen_from_dir(subdir, parent)
+    for file in event_path.list_files():
+        _gen_from_file(file, parent)
+    for link in event_path.list_aliases():
+        _gen_from_link(link, parent)

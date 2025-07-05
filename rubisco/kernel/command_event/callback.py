@@ -26,10 +26,7 @@ from typing import Any, Protocol, runtime_checkable
 
 from rubisco.kernel.command_event.args import Argument, Option
 
-__all__ = [
-    "EventCallback",
-    "EventCallbackFunction",
-]
+__all__ = ["EventCallback", "EventCallbackFunction"]
 
 
 @runtime_checkable

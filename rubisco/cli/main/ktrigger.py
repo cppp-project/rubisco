@@ -28,6 +28,9 @@ import colorama
 import rich
 import rich.live
 import rich.progress
+from pygments import highlight
+from pygments.formatters.terminal256 import Terminal256Formatter
+from pygments.lexers import get_lexer_by_name
 
 from rubisco.cli.input import ask_yesno
 from rubisco.cli.main.project_config import get_hooks
@@ -95,6 +98,16 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
         self.task_totals = {}
         self.live = None
         self._speedtest_hosts = {}
+
+    def _highlight_command(self, shell: Path, cmd: str) -> str:
+        shellname = shell.name.lower()
+        if shellname in {"sh", "ksh", "csh", "bash", "fish", "zsh"}:
+            return highlight(
+                cmd,
+                get_lexer_by_name(shellname),
+                Terminal256Formatter(),
+            )
+        return cmd
 
     def pre_exec_process(self, *, proc: Process) -> None:
         output_step(

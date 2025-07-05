@@ -24,14 +24,11 @@ from typing import Generic, TypeVar
 
 from rubisco.lib.exceptions import RUTypeError, RUValueError
 from rubisco.lib.l10n import _
+from rubisco.lib.log import logger
 from rubisco.lib.variable.fast_format_str import fast_format_str
 from rubisco.lib.variable.typecheck import is_instance
 
-__all__ = [
-    "Argument",
-    "DynamicArguments",
-    "Option",
-]
+__all__ = ["Argument", "DynamicArguments", "Option", "load_callback_args"]
 
 T = TypeVar("T")
 
@@ -49,6 +46,7 @@ class OptionOrArgument(Generic[T]):  # pylint: disable=R0902
     title: str  # Used in GUI. It maybe unused forever.
     description: str
     typecheck: type[T]
+
     # Option's aliases, Used in CLI.
     aliases: list[str] = field(default_factory=list[str])
     default: T | None = None
@@ -134,6 +132,12 @@ class OptionOrArgument(Generic[T]):  # pylint: disable=R0902
                 ),
             )
 
+        logger.debug(
+            "Set %s %s to %s.",
+            "option" if self._is_option else "argument",
+            self.name,
+            value,
+        )
         self._value = value
 
     @property
@@ -219,7 +223,7 @@ class Argument(OptionOrArgument[T], Generic[T]):
 
 
 @dataclass
-class DynamicArguments(Generic[T]):
+class DynamicArguments:  # pylint: disable=R0902
     """Dynamic arguments.
 
     Some command events may have dynamic arguments. This class is used to
@@ -233,3 +237,117 @@ class DynamicArguments(Generic[T]):
     mincount: int
     maxcount: int = -1
     ext_attributes: dict[str, object] = field(default_factory=dict[str, object])
+
+    _value: list[Argument[str]] | None = field(
+        default_factory=list[Argument[str]],
+    )
+
+    _frozen: bool = False
+
+    def __post_init__(self) -> None:
+        """Post init."""
+        if self.mincount < 0:
+            msg = fast_format_str(
+                _(
+                    "The minimum count of `${{name}}` must be greater "
+                    "than or equal to 0.",
+                ),
+                fmt={"name": self.name},
+            )
+            raise RUValueError(msg)
+        if self.maxcount != -1 and self.maxcount <= self.mincount:
+            raise RUValueError(
+                fast_format_str(
+                    _(
+                        "The maximum count of `${{name}}` must be greater "
+                        "than the minimum count of `${{name}}`.",
+                    ),
+                    fmt={"name": self.name},
+                ),
+            )
+
+    def get(self) -> list[Argument[str]] | None:
+        """Get the argument list.
+
+        Returns:
+            list[Argument[str]]: The list that contains the arguments.
+
+        """
+        return self._value
+
+    def set(self, value: list[Argument[str]]) -> None:
+        """Get the arguments.
+
+        Args:
+            value (list[Argument[str]]): The arguments.
+
+        """
+        if self._frozen:
+            msg = _("The argument `${{name}}` is readonly now.")
+            raise RUValueError(
+                fast_format_str(
+                    msg,
+                    fmt={"name": self.name},
+                ),
+            )
+
+        self._value = value
+
+    @property
+    def value(self) -> list[Argument[str]] | None:
+        """Get the argument list.
+
+        Returns:
+            list[Argument[str]]: The list that contains the arguments.
+
+        """
+        return self.get()
+
+    @value.setter
+    def value(self, value: list[Argument[str]]) -> None:
+        """Get the arguments.
+
+        Args:
+            value (list[Argument[str]]): The arguments.
+
+        """
+        self.set(value)
+
+    def freeze(self) -> None:
+        """Freeze the value.
+
+        After freezing, the value cannot be changed.
+        """
+        self._frozen = True
+
+    def unfreeze(self) -> None:
+        """Unfreeze the value.
+
+        After unfreezing, the value can be changed.
+        """
+        self._frozen = False
+
+
+OT = TypeVar("OT")
+AT = TypeVar("AT")
+
+
+def load_callback_args(
+    options: list[Option[OT]],
+    args: list[Argument[AT]],
+) -> tuple[dict[str, OT], list[AT]]:
+    """Load callback arguments.
+
+    Args:
+        options (list[Option[OT]]): List of options.
+        args (list[Argument[AT]]): List of arguments.
+
+    Returns:
+        tuple[dict[str, OT], list[AT]]: A tuple of options and arguments.
+
+    """
+    opt_dict: dict[str, OT] = {}
+    for opt in options:
+        opt_dict[opt.name] = opt.value
+
+    return opt_dict, [arg.get() for arg in args]

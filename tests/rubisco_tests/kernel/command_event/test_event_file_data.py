@@ -47,11 +47,11 @@ def test_event_file_data() -> None:
     if dt.args != []:
         pytest.fail("Args should be empty.")
 
-    if dt.callbacks != []:
+    if dt.callbacks:
         pytest.fail("Callbacks should be empty.")
 
-    dt.merge(
-        DynamicArguments[str](
+    dt.merge_callbacks(
+        DynamicArguments(
             name="test",
             title="test",
             description="desc",
@@ -62,8 +62,8 @@ def test_event_file_data() -> None:
     )
 
     with pytest.raises(RUValueError):
-        dt.merge(
-            DynamicArguments[str](
+        dt.merge_callbacks(
+            DynamicArguments(
                 name="test",
                 title="test",
                 description="desc",
