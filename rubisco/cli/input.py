@@ -30,7 +30,7 @@ from rubisco.lib.l10n import _
 __all__ = ["ask_yesno"]
 
 
-def ask_yesno(message: str, default: bool | None = None) -> bool:
+def ask_yesno(message: str, *, default: bool | None = None) -> bool:
     """Ask the user a yes/no question.
 
     Args:

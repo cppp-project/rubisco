@@ -331,6 +331,15 @@ class AutoFormatDict(dict[str, Any]):
 
         return True
 
+    def __hash__(self) -> int:  # type: ignore[override]
+        """Get the hash of the dict.
+
+        Returns:
+            int: The hash of the dict.
+
+        """
+        return hash(tuple(self.items()))
+
     def __ne__(self, other: object) -> bool:
         """Check if the dict is not equal to the other.
 

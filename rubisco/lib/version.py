@@ -219,3 +219,12 @@ class Version:
             return False
 
         return False
+
+    def __hash__(self) -> int:
+        """Get the hash of the version.
+
+        Returns:
+            int: The hash of the version.
+
+        """
+        return hash((self.major, self.minor, self.patch, self.pre, self.build))

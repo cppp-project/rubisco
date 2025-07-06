@@ -84,13 +84,13 @@ def _size_to_int(  # noqa: PLR0911 PLR0912 C901 # pylint: disable=R0911, R0912
 
 
 def convert_to(  # noqa: PLR0911 C901  # pylint: disable=R0911
-    value: str,
+    value: str | T,
     as_type: type[T],
 ) -> T:
     """Convert a string literal to specific type.
 
     Args:
-        value (str): The string literal.
+        value (str | T): The string literal or the value.
         as_type (type[T]): The type to convert to.
 
     Returns:
@@ -100,28 +100,33 @@ def convert_to(  # noqa: PLR0911 C901  # pylint: disable=R0911
         RUValueError: If we cannot convert the value to the specified type.
 
     """
+    if isinstance(value, as_type):
+        return value
+
+    value_ = cast("str", value)
+
     if as_type is bool:
-        if value.lower() in {"false", "no", "off", "n", "0"}:
+        if value_.lower() in {"false", "no", "off", "n", "0"}:
             return cast("T", val=False)
         return cast("T", val=True)
     if as_type is int:
-        return cast("T", _size_to_int(value))
+        return cast("T", _size_to_int(value_))
     if as_type is float:
-        if value.lower() in {"pi", "\u03c0"}:
+        if value_.lower() in {"pi", "\u03c0"}:
             return cast("T", math.pi)
-        if value.lower() == "e":
+        if value_.lower() == "e":
             return cast("T", math.e)
-        return cast("T", float(value))
+        return cast("T", float(value_))
     if as_type is str:
-        return cast("T", value)
+        return cast("T", value_)
     if as_type is list:
-        return cast("T", value.split(","))
+        return cast("T", value_.split(","))
     if as_type is tuple:
-        return cast("T", tuple(value.split(",")))
+        return cast("T", tuple(value_.split(",")))
     if as_type is set:
-        return cast("T", set(value.split(",")))
+        return cast("T", set(value_.split(",")))
     if as_type is dict:
-        return cast("T", AutoFormatDict(json5.loads(value)))
+        return cast("T", AutoFormatDict(json5.loads(value_)))
     raise RUTypeError(
         fast_format_str(
             _("Cannot convert value ${{value}} to type ${{type}}"),

@@ -266,3 +266,12 @@ class AutoFormatList(list[T], Generic[T]):
 
         """
         return f"[{', '.join([repr(item) for item in self])}]"
+
+    def __hash__(self) -> int:  # type: ignore[override]
+        """Get the hash of the list.
+
+        Returns:
+            int: The hash of the list.
+
+        """
+        return hash(tuple(self))

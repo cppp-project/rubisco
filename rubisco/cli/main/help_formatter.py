@@ -27,7 +27,7 @@ from rich_argparse import RichHelpFormatter
 
 from rubisco.lib.l10n import _
 
-# ruff: noqa: D102 D107
+# ruff: noqa: D102
 # pylint: disable=missing-function-docstring
 
 __all__ = ["RUHelpFormatter"]

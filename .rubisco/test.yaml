@@ -1,9 +1,5 @@
 name: 🧪 Run test
 
 steps:
-  - glob: "rubisco/**/*.py"
-    save-to: test-files
-    recursive: True
-
   - name: 🧪 Run test
-    run: [python, -m, pytest, -v, "${{ test-files }}"]
+    run: [python, -m, pytest, -v]

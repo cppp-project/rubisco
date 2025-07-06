@@ -195,7 +195,7 @@ class RubiscoCEFSDebuggerCLI:
             for arg in data.args:
                 rich.print(f"\t{arg.name}({arg.typecheck}): {arg.description}")
             if not data.args:
-                rich.print(f"\t[gray50 italic]{_("None.")}[/gray50 italic]")
+                rich.print(f"\t[gray50 italic]{_('None.')}[/gray50 italic]")
         else:
             rich.print(_("Dynamic Arguments:"))
             rich.print(f"\t{data.args.name}: {data.args.description}")

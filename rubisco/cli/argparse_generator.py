@@ -20,11 +20,15 @@
 """Generate argparser from CommandEventFS."""
 
 from argparse import ArgumentParser, Namespace
-from typing import TYPE_CHECKING, TypeAlias
+from typing import TYPE_CHECKING, TypeAlias, cast
 
 from rubisco.cli.main.help_formatter import RUHelpFormatter
 from rubisco.kernel.command_event.event_file_data import EventFileData
 from rubisco.kernel.command_event.event_path import EventPath
+from rubisco.lib.convert import convert_to
+from rubisco.lib.exceptions import RUTypeError
+from rubisco.lib.l10n import _
+from rubisco.lib.variable.typecheck import is_instance
 
 if TYPE_CHECKING:
     from argparse import _SubParsersAction  # type: ignore[attr-defined]
@@ -62,7 +66,10 @@ def _fill_options(
         if not hasattr(args, option.name) and option.default is None:
             msg = f"Option {option.name} is not provided in the namespace."
             raise ValueError(msg)
-        path.set_option(option.name, getattr(args, option.name, option.default))
+        val = getattr(args, option.name, None)
+        val = val if val is not None else option.default
+        val = convert_to(val, option.typecheck)
+        path.set_option(option.name, val)
 
     if path.normpath().as_posix() != "/":
         _fill_options(path.parent, args)
@@ -118,7 +125,33 @@ def _gen_options(event_path: EventPath, parser: ArgumentParser) -> None:
             action="store",
             dest=options.name,
             default=options.default,
+            nargs="?" if options.default else None,
         )
+
+        advanced_opts = options.ext_attributes.get("cli-advanced-options", [])
+        if not is_instance(advanced_opts, list[dict[str, list[str] | str]]):
+            raise RUTypeError(_("The advanced options must be a list."))
+
+        for ext_args in cast("list[dict[str, list[str] | str]]", advanced_opts):
+            if is_instance(ext_args["name"], str):
+                ext_names = [cast("str", ext_args["name"])]
+            else:
+                ext_names = cast("list[str]", ext_args["name"])
+            if not isinstance(ext_args["action"], str):
+                raise RUTypeError(
+                    _("The advanced options action must be a string."),
+                )
+            if not isinstance(ext_args["description"], str):
+                raise RUTypeError(
+                    _("The advanced options description must be a string."),
+                )
+
+            parser.add_argument(
+                *ext_names,
+                action=ext_args["action"],
+                dest=options.name,
+                help=ext_args["description"],
+            )
 
 
 def _gen_args(
@@ -143,7 +176,7 @@ def _gen_args(
             data.args.name,
             help=data.args.description,
             action="store",
-            nargs="+" if data.args.mincount == 0 else "*",
+            nargs="*" if data.args.mincount == 0 else "+",
         )
 
 

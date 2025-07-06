@@ -328,29 +328,68 @@ def register_extman_cmds() -> None:
         ),
         description=_("Show project information."),
         options=[
-            Option(
+            Option[bool](
                 name="show-workspace",
-                aliases=["W"],
                 title=_("Show workspace extensions."),
                 description=_("Show workspace extensions."),
-                typecheck=str,
+                typecheck=bool,
                 default=True,
+                ext_attributes={
+                    "cli-advanced-options": [
+                        {
+                            "name": "-w",
+                            "description": _("Show workspace extensions."),
+                            "action": "store_true",
+                        },
+                        {
+                            "name": "-W",
+                            "description": _("Hide workspace extensions."),
+                            "action": "store_false",
+                        },
+                    ],
+                },
             ),
-            Option(
+            Option[bool](
                 name="show-user",
-                aliases=["U"],
                 title=_("Show user extensions."),
                 description=_("Show user extensions."),
-                typecheck=str,
+                typecheck=bool,
                 default=True,
+                ext_attributes={
+                    "cli-advanced-options": [
+                        {
+                            "name": "-u",
+                            "description": _("Show user extensions."),
+                            "action": "store_true",
+                        },
+                        {
+                            "name": "-U",
+                            "description": _("Hide user extensions."),
+                            "action": "store_false",
+                        },
+                    ],
+                },
             ),
-            Option(
+            Option[bool](
                 name="show-global",
-                aliases=["G"],
                 title=_("Show global extensions."),
                 description=_("Show global extensions."),
-                typecheck=str,
+                typecheck=bool,
                 default=True,
+                ext_attributes={
+                    "cli-advanced-options": [
+                        {
+                            "name": "-g",
+                            "description": _("Show global extensions."),
+                            "action": "store_true",
+                        },
+                        {
+                            "name": "-G",
+                            "description": _("Hide global extensions."),
+                            "action": "store_false",
+                        },
+                    ],
+                },
             ),
         ],
     )
