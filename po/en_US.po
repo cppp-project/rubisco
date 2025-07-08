@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Rubisco 0.1.0\n"
 "Report-Msgid-Bugs-To: cpppteam@email.cn\n"
-"POT-Creation-Date: 2025-07-06 22:59+0800\n"
-"PO-Revision-Date: 2025-07-06 23:00+0800\n"
+"POT-Creation-Date: 2025-07-07 16:06+0800\n"
+"PO-Revision-Date: 2025-07-07 16:08+0800\n"
 "Last-Translator:  <wushengwuxi-msctinoulk@outlook.com>\n"
 "Language-Team: English\n"
 "Language: en_US\n"
@@ -660,6 +660,26 @@ msgstr "Not a file."
 msgid "Options:"
 msgstr "Options:"
 
+#: ../rubisco/cli/cefs_dbg/cli.py:305 ../rubisco/cli/cefs_dbg/cli.py:385
+msgid "Description: [yellow]${{description}}[/yellow]"
+msgstr "Description: [yellow]${{description}}[/yellow]"
+
+#: ../rubisco/cli/cefs_dbg/cli.py:312
+msgid "Type: [green]${{type}}[/green]"
+msgstr "Type: [green]${{type}}[/green]"
+
+#: ../rubisco/cli/cefs_dbg/cli.py:320
+msgid "Aliases: [blue]${{aliases}}[/blue]"
+msgstr "Aliases: [blue]${{aliases}}[/blue]"
+
+#: ../rubisco/cli/cefs_dbg/cli.py:328
+msgid "Default value: ${{default}}"
+msgstr "Default value: ${{default}}"
+
+#: ../rubisco/cli/cefs_dbg/cli.py:336
+msgid "Extra attributes: ${{ext_attributes}}"
+msgstr "Extra attributes: ${{ext_attributes}}"
+
 #: ../rubisco/cli/cefs_dbg/cli.py:373
 msgid "File: ${{path}} ${{alias_to}}"
 msgstr "File: ${{path}} ${{alias_to}}"
@@ -667,10 +687,6 @@ msgstr "File: ${{path}} ${{alias_to}}"
 #: ../rubisco/cli/cefs_dbg/cli.py:379
 msgid "Type: ${{type}}"
 msgstr "Type: ${{type}}"
-
-#: ../rubisco/cli/cefs_dbg/cli.py:385
-msgid "Description: [yellow]${{description}}[/yellow]"
-msgstr "Description: [yellow]${{description}}[/yellow]"
 
 #: ../rubisco/cli/cefs_dbg/cli.py:392
 msgid "Mount point: ${{path}}"

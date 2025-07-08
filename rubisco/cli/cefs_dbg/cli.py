@@ -302,14 +302,14 @@ class RubiscoCEFSDebuggerCLI:
             rich.print(
                 "\t\t"
                 + fast_format_str(
-                    "Description: [yellow]${{description}}[/yellow]",
+                    _("Description: [yellow]${{description}}[/yellow]"),
                     fmt={"description": option.description},
                 ),
             )
             rich.print(
                 "\t\t"
                 + fast_format_str(
-                    "Type: [green]${{type}}[/green]",
+                    _("Type: [green]${{type}}[/green]"),
                     fmt={"type": option.typecheck.__name__},
                 ),
             )
@@ -317,7 +317,7 @@ class RubiscoCEFSDebuggerCLI:
                 rich.print(
                     "\t\t"
                     + fast_format_str(
-                        "Aliases: [blue]${{aliases}}[/blue]",
+                        _("Aliases: [blue]${{aliases}}[/blue]"),
                         fmt={"aliases": "[/blue], [blue]".join(option.aliases)},
                     ),
                 )
@@ -325,7 +325,7 @@ class RubiscoCEFSDebuggerCLI:
                 rich.print(
                     "\t\t"
                     + fast_format_str(
-                        "Default value: ${{default}}",
+                        _("Default value: ${{default}}"),
                         fmt={"default": repr(option.default)},
                     ),
                 )
@@ -333,9 +333,9 @@ class RubiscoCEFSDebuggerCLI:
                 rich.print(
                     "\t\t"
                     + fast_format_str(
-                        "Extra attributes: ${{ext_attributes}}",
+                        _("Extra attributes: ${{ext_attributes}}"),
                         fmt={
-                            "ext_attributes": ", ".join(option.ext_attributes),
+                            "ext_attributes": repr(option.ext_attributes),
                         },
                     ),
                 )

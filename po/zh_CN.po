@@ -20,7 +20,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Rubisco 0.1.0\n"
 "Report-Msgid-Bugs-To: cpppteam@email.cn\n"
-"POT-Creation-Date: 2025-07-06 22:59+0800\n"
+"POT-Creation-Date: 2025-07-07 16:06+0800\n"
 "PO-Revision-Date: 2024-06-25 11:07+0800\n"
 "Last-Translator:  <wushengwuxi-msctinoulk@outlook.com>\n"
 "Language-Team: Chinese (simplified) <i18n-zh@googlegroups.com>\n"
@@ -231,6 +231,10 @@ msgstr "另一个数据库连接正在使用共享缓存模式中的相同记录
 msgid "Alias"
 msgstr "别名"
 
+#: ../rubisco/cli/cefs_dbg/cli.py:320
+msgid "Aliases: [blue]${{aliases}}[/blue]"
+msgstr "别名：[blue]${{aliases}}[/blue]"
+
 #: ../rubisco/kernel/mirrorlist.py:198
 msgid "All mirrors are unreachable or canceled. Switching to official [underline][blue]${{url}}[/blue][/underline] ..."
 msgstr "所有镜像都无法访问或已取消。切换到 official [underline][blue]${{url}}[/blue][/underline] ..."
@@ -412,6 +416,10 @@ msgstr "显示 Rubisco 项目信息的默认回调函数。"
 msgid "Default callback for uninstall Rubisco extensions."
 msgstr "卸载 Rubisco 扩展的默认回调函数。"
 
+#: ../rubisco/cli/cefs_dbg/cli.py:328
+msgid "Default value: ${{default}}"
+msgstr "默认值： ${{default}}"
+
 #: ../rubisco/cli/cefs_dbg/helpmsg.py:111
 msgid "Description"
 msgstr "描述"
@@ -420,7 +428,7 @@ msgstr "描述"
 msgid "Description: ${{desc}}"
 msgstr "描述： ${{desc}}"
 
-#: ../rubisco/cli/cefs_dbg/cli.py:385
+#: ../rubisco/cli/cefs_dbg/cli.py:305 ../rubisco/cli/cefs_dbg/cli.py:385
 msgid "Description: [yellow]${{description}}[/yellow]"
 msgstr "描述：[yellow]${{description}}[/yellow]"
 
@@ -509,6 +517,10 @@ msgstr "扩展名称必须为小写，且只包含 0-9, a-z, A-Z, '_', '.' 和 '
 msgid "Extension package files glob patterns."
 msgstr "扩展包文件 glob 模式字符串。"
 
+#: ../rubisco/cli/cefs_dbg/cli.py:336
+msgid "Extra attributes: ${{ext_attributes}}"
+msgstr "额外属性： ${{ext_attributes}}"
+
 #: ../rubisco/lib/archive/zip.py:65 ../rubisco/lib/archive/__init__.py:115
 #: ../rubisco/lib/archive/tar.py:83 ../rubisco/lib/archive/sevenzip.py:57
 msgid "Extracting ${{file}} to ${{path}} as '${{type}}' ..."
@@ -560,7 +572,7 @@ msgstr "解锁扩展环境 ${{path}} 时出错： ${{msg}}"
 
 #: ../rubisco/kernel/command_event/event_types.py:62
 msgid "File"
-msgstr ""
+msgstr "文件"
 
 #: ../rubisco/lib/fileutil.py:244
 msgid "File ${{path}} already exists."
@@ -872,7 +884,7 @@ msgstr "未安装任何扩展。"
 
 #: ../rubisco/cli/cefs_dbg/cli.py:260 ../rubisco/cli/cefs_dbg/cli.py:351
 msgid "No file specified."
-msgstr ""
+msgstr "未指定文件。"
 
 #: ../rubisco/cli/main/extman_cmds.py:269
 msgid "No files found."
@@ -1273,15 +1285,15 @@ msgstr "扩展路径 ${{path}} 不存在。"
 
 #: ../rubisco/cli/main/arg_parser.py:91
 msgid "The file path for saving log."
-msgstr ""
+msgstr "日志保存的文件路径。"
 
 #: ../rubisco/cli/cefs_dbg/helpmsg.py:68
 msgid "The file path to display status."
-msgstr ""
+msgstr "显示状态的文件路径。"
 
 #: ../rubisco/cli/cefs_dbg/helpmsg.py:61
 msgid "The file path to display."
-msgstr ""
+msgstr "显示的文件路径。"
 
 #: ../rubisco/cli/main/ktrigger.py:739
 msgid "The following extensions will be uninstalled from [yellow]${{dest}}[/yellow] (${{path}}):"
@@ -1290,7 +1302,7 @@ msgstr "以下扩展将从 [yellow]${{dest}}[/yellow] (${{path}}) 卸载："
 #: ../rubisco/kernel/workflow/steps/glob.py:65
 #: ../rubisco/kernel/workflow/steps/glob.py:75
 msgid "The glob item must be a string."
-msgstr ""
+msgstr "通配符项必须是字符串。"
 
 #: ../rubisco/envutils/packages.py:569 ../rubisco/envutils/packages.py:626
 msgid "The higher version of '${{name}}' extension is already installed."
@@ -1306,11 +1318,11 @@ msgstr "锁文件 ${{path}} 已损坏。"
 
 #: ../rubisco/kernel/command_event/args.py:262
 msgid "The maximum count of `${{name}}` must be greater than the minimum count of `${{name}}`."
-msgstr ""
+msgstr "`${{name}}` 的最大计数必须大于 `${{name}}` 的最小计数。"
 
 #: ../rubisco/kernel/command_event/args.py:252
 msgid "The minimum count of `${{name}}` must be greater than or equal to 0."
-msgstr ""
+msgstr "`${{name}}` 的最小计数必须大于或等于 0。"
 
 #: ../rubisco/kernel/project_config.py:170
 msgid "The minimum version of rubisco required by the project [underline][link=${{uri}}]${{name}}[/link][/underline]' is '[cyan]${{version}}[/cyan]'."
@@ -1418,6 +1430,10 @@ msgstr "尝试将扩展作为路径加载。"
 #: ../rubisco/cli/cefs_dbg/cli.py:379
 msgid "Type: ${{type}}"
 msgstr "类型：${{type}}"
+
+#: ../rubisco/cli/cefs_dbg/cli.py:312
+msgid "Type: [green]${{type}}[/green]"
+msgstr "类型：[green]${{type}}[/green]"
 
 #: ../rubisco/lib/archive/__init__.py:492
 msgid "Unable to determine compression type of ${{path}}."

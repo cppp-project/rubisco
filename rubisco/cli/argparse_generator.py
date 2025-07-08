@@ -129,28 +129,31 @@ def _gen_options(event_path: EventPath, parser: ArgumentParser) -> None:
         )
 
         advanced_opts = options.ext_attributes.get("cli-advanced-options", [])
-        if not is_instance(advanced_opts, list[dict[str, list[str] | str]]):
-            raise RUTypeError(_("The advanced options must be a list."))
+        if not is_instance(
+            advanced_opts,
+            list[dict[str, list[str] | int | str | None]],
+        ):
+            raise RUTypeError(
+                _("The advanced options must be a list."),
+                hint=_(
+                    "Advanced options must be a list of "
+                    "`dict[str, list[str] | int | str | None]`.",
+                ),
+            )
 
-        for ext_args in cast("list[dict[str, list[str] | str]]", advanced_opts):
-            if is_instance(ext_args["name"], str):
-                ext_names = [cast("str", ext_args["name"])]
+        for ext_args in cast(
+            "list[dict[str, int | str | None]]",
+            advanced_opts,
+        ):
+            ext_names_ = ext_args.pop("name", None)
+            if is_instance(ext_names_, str):
+                ext_names = [cast("str", ext_names_)]
             else:
-                ext_names = cast("list[str]", ext_args["name"])
-            if not isinstance(ext_args["action"], str):
-                raise RUTypeError(
-                    _("The advanced options action must be a string."),
-                )
-            if not isinstance(ext_args["description"], str):
-                raise RUTypeError(
-                    _("The advanced options description must be a string."),
-                )
-
+                ext_names = cast("list[str]", ext_names_)
             parser.add_argument(
                 *ext_names,
-                action=ext_args["action"],
                 dest=options.name,
-                help=ext_args["description"],
+                **ext_args,  # type: ignore[arg-type]
             )
 
 

@@ -52,7 +52,6 @@ __all__ = [
     "GLOBAL_ENV",
     "USER_ENV",
     "WORKSPACE_ENV",
-    "EnvType",
     "RUEnvironment",
 ]
 

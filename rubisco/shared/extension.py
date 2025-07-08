@@ -174,19 +174,6 @@ def _get_extension_instance(path: Path) -> IRUExtension:
                 fmt={"path": make_pretty(Path(exc.args[0]).absolute())},
             ),
         ) from exc
-    except ImportError as exc:
-        msg = fast_format_str(
-            _("Failed to load extension ${{path}}."),
-            fmt={"path": make_pretty(path.absolute())},
-        )
-        raise RUValueError(
-            msg,
-            hint=fast_format_str(
-                _(
-                    "Please make sure this extension is valid.",
-                ),
-            ),
-        ) from exc
 
     if not hasattr(module, "instance"):
         raise RUValueError(
@@ -349,8 +336,12 @@ def load_extension(
         call_ktrigger(
             IKernelTrigger.on_error,
             message=fast_format_str(
-                _("Failed to load extension '${{name}}': ${{exc}}"),
-                fmt={"name": strext, "exc": str(exc)},
+                _("Failed to load extension '${{env}}/${{name}}': ${{exc}}"),
+                fmt={
+                    "env": env.env_type.value,
+                    "name": strext,
+                    "exc": str(exc),
+                },
             ),
         )
 

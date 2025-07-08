@@ -30,6 +30,7 @@ from rubisco.lib.variable.fast_format_str import fast_format_str
 from rubisco.shared.ktrigger import IKernelTrigger, call_ktrigger
 
 __all__ = [
+    "git_branch_set_upstream",
     "git_clone",
     "git_get_remote",
     "git_has_remote",
@@ -92,6 +93,7 @@ def git_clone(  # pylint: disable=R0913, R0917 # noqa: PLR0913
     url: str,
     path: Path,
     branch: str = "main",
+    protocol: str = "http",
     *,
     shallow: bool = True,
     strict: bool = False,
@@ -103,6 +105,7 @@ def git_clone(  # pylint: disable=R0913, R0917 # noqa: PLR0913
         url (str): Repository URL.
         path (Path): Path to clone the repository.
         branch (str, optional): Branch to clone. Defaults to "main".
+        protocol (str, optional): Protocol to use. Defaults to "http".
         shallow (bool, optional): Shallow clone. Defaults to True.
         strict (bool, optional): Raise an error if the repository already
             exists. If False, the repository will be updated. Defaults to
@@ -126,7 +129,7 @@ def git_clone(  # pylint: disable=R0913, R0917 # noqa: PLR0913
         return
 
     old_url = url
-    url = get_url(url, use_fastest=use_fastest)
+    url = get_url(url, protocol=protocol, use_fastest=use_fastest)
 
     logger.info("Cloning repository '%s' to '%s'...", url, str(path))
     call_ktrigger(

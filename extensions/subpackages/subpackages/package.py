@@ -19,15 +19,97 @@
 
 """Package class."""
 
+from dataclasses import dataclass
 from pathlib import Path
+from typing import TYPE_CHECKING
 
-from rubisco.kernel.project_config import (
+from rubisco.shared.api.exception import (
+    RUNotRubiscoProjectError,
+    RUTypeError,
+    RUValueError,
+)
+from rubisco.shared.api.git import git_clone
+from rubisco.shared.api.kernel import (
     ProjectConfigration,
     load_project_config,
 )
-from rubisco.lib.exceptions import RUNotRubiscoProjectError
-from rubisco.lib.variable.fast_format_str import fast_format_str
-from rubisco.lib.variable.utils import make_pretty
+from rubisco.shared.api.l10n import _
+from rubisco.shared.api.variable import fast_format_str
+
+if TYPE_CHECKING:
+    from rubisco.lib.variable.autoformatdict import AutoFormatDict
+
+
+@dataclass
+class SubpackageReference:
+    """Subpackage reference."""
+
+    name: str
+    branch: str
+    url: str
+    paths: list[Path]
+    # We support multiple paths. If one of its path exists, we will use it.
+
+    def exists(self) -> bool:
+        """Check if the subpackage exists.
+
+        Returns:
+            bool: True if the subpackage exists.
+
+        """
+        return any(path.exists() for path in self.paths)
+
+    def get_path(self) -> Path:
+        """Get the path of the subpackage.
+
+        Returns:
+            Path: The path of the subpackage.
+
+        """
+        for path in self.paths:
+            if path.exists():
+                return path
+        return self.paths[0]
+
+    def fetch(
+        self,
+        protocol: str,
+        *,
+        shallow: bool = True,
+        use_direct: bool = False,
+    ) -> "Package | None":
+        """Fetch the subpackage.
+
+        Args:
+            protocol (str): The protocol to use.
+            shallow (bool, optional): Whether to use shallow clone. Defaults to
+                True.
+            use_direct (bool, optional): Whether to use direct url without
+                mirror speed test. Defaults to False.
+
+        Returns:
+            Package | None: The fetched package.
+
+        """
+        path = self.get_path()
+        git_clone(
+            self.url,
+            path,
+            branch=self.branch,
+            protocol=protocol,
+            shallow=shallow,
+            use_fastest=not use_direct,
+        )
+        try:
+            pkg = Package(path)
+            pkg.fetch(
+                protocol=protocol,
+                shallow=shallow,
+                use_direct=use_direct,
+            )
+        except RUNotRubiscoProjectError:
+            return None
+        return pkg
 
 
 class Package:
@@ -36,7 +118,8 @@ class Package:
     name: str
     path: Path
     config: ProjectConfigration
-    subpackages: list["Package"]
+    subpackage_refs: list[SubpackageReference]
+    subpackages: list["Package | None"]
 
     def __init__(self, path: Path) -> None:
         """Parse a rubisco package.
@@ -45,19 +128,73 @@ class Package:
             path (Path): The path of the package.
 
         """
-        try:
-            self.config = load_project_config(path)
-        except RUNotRubiscoProjectError as exc:
-            raise RUNotRubiscoProjectError(
-                fast_format_str(
-                    _(
-                        "Working directory '[underline]${{path}}[/underline]'"
-                        " not a rubisco project.",
+        config = load_project_config(path)
+        self.name = config.name
+        self.path = path
+        self.config = config
+        self._load_subpkgs()
+
+    def _load_subpkgs(self) -> None:
+        subpkgs: list[SubpackageReference] = []
+        subpkg_dict = self.config.config.get("subpackages", [], valtype=dict)
+        subpkg_dict: AutoFormatDict
+        for name, subpkg in subpkg_dict.items():
+            if not isinstance(subpkg, dict):  # type: ignore[union-attr]
+                msg = fast_format_str(
+                    _("Subpackage reference ${{name}} is not a dict."),
+                    fmt={"name": name},
+                )
+                raise RUTypeError(msg)
+            subpkg: AutoFormatDict
+            branch = subpkg.get("branch", valtype=str)
+            url = subpkg.get("url", valtype=str)
+            paths = subpkg.get("path", valtype=list[str] | str)
+            if isinstance(paths, str):
+                paths = [paths]
+            if not paths:
+                raise RUValueError(
+                    fast_format_str(
+                        _("Subpackage reference ${{name}} has no path."),
+                        fmt={"name": name},
                     ),
-                    fmt={"path": make_pretty(Path.cwd().absolute())},
-                ),
-                hint=fast_format_str(
-                    _("'[underline]${{path}}[/underline]' is not found."),
-                    fmt={"path": make_pretty(USER_REPO_CONFIG.absolute())},
-                ),
-            ) from exc
+                )
+            spr = SubpackageReference(
+                name=name,
+                branch=branch,
+                url=url,
+                paths=[self.path / Path(p) for p in paths],
+            )
+            subpkgs.append(spr)
+
+        self.subpackage_refs = subpkgs
+
+    def fetch(
+        self,
+        protocol: str,
+        *,
+        shallow: bool = True,
+        use_direct: bool = False,
+    ) -> list["Package | None"]:
+        """Fetch the package.
+
+        Args:
+            protocol (str): The protocol to use.
+            shallow (bool, optional): Whether to use shallow clone. Defaults to
+                True.
+            use_direct (bool, optional): Whether to use direct url without
+                mirror speed test. Defaults to False.
+
+        Returns:
+            list[Package | None]: The fetched packages.
+
+        """
+        subpkgs = [
+            subpkg.fetch(
+                protocol,
+                shallow=shallow,
+                use_direct=use_direct,
+            )
+            for subpkg in self.subpackage_refs
+        ]
+        self.subpackages = subpkgs
+        return subpkgs

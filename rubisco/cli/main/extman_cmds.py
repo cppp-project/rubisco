@@ -244,22 +244,21 @@ def install_packages(
     files_glob: list[str] = args_
     files_list: list[Path] = []
 
-    inst_to_global: bool = convert_to(opts["global"], bool)
-    inst_to_user: bool = convert_to(opts["user"], bool)
-    inst_to_workspace: bool = convert_to(opts["workspace"], bool)
+    dest = convert_to(opts["install-destination"], str)
 
-    # Checking for conflicts.
-    _sum = int(inst_to_global) + int(inst_to_user) + int(inst_to_workspace)
-    if _sum > 1 or _sum == 0:
-        msg = _("You must specify only one install destination.")
-        raise RUValueError(msg)
-
-    if inst_to_global:
-        install_dest = GLOBAL_ENV
-    elif inst_to_user:
-        install_dest = USER_ENV
-    else:
-        install_dest = WORKSPACE_ENV
+    match dest:
+        case "workspace":
+            install_dest = WORKSPACE_ENV
+        case "user":
+            install_dest = USER_ENV
+        case "global":
+            install_dest = GLOBAL_ENV
+        case _:
+            msg = _(
+                "Invalid install destination: ${{dest}}. "
+                "Supported destinations are 'workspace', 'user', 'global'.",
+            )
+            raise RUValueError(fast_format_str(msg, fmt={"dest": dest}))
 
     for file_glob in files_glob:
         files_list.extend(Path.cwd().glob(file_glob))
@@ -286,22 +285,21 @@ def uninstall_packages(
     """
     opts, args_ = load_callback_args(options, args)
     patterns: list[str] = args_
-    uninst_global: bool = convert_to(opts["global"], bool)
-    uninst_user: bool = convert_to(opts["user"], bool)
-    uninst_workspace: bool = convert_to(opts["workspace"], bool)
+    dest = convert_to(opts["uninstall-destination"], str)
 
-    # Checking for conflicts.
-    _sum = int(uninst_global) + int(uninst_user) + int(uninst_workspace)
-    if _sum > 1 or _sum == 0:
-        msg = _("You must specify only one uninstall destination.")
-        raise RUValueError(msg)
-
-    if uninst_global:
-        env = GLOBAL_ENV
-    elif uninst_user:
-        env = USER_ENV
-    else:
-        env = WORKSPACE_ENV
+    match dest:
+        case "workspace":
+            env = WORKSPACE_ENV
+        case "user":
+            env = USER_ENV
+        case "global":
+            env = GLOBAL_ENV
+        case _:
+            msg = _(
+                "Invalid uninstall destination: ${{dest}}. "
+                "Supported destinations are 'workspace', 'user', 'global'.",
+            )
+            raise RUValueError(fast_format_str(msg, fmt={"dest": dest}))
 
     uninstall_extension(patterns, env)
 
@@ -338,12 +336,12 @@ def register_extman_cmds() -> None:
                     "cli-advanced-options": [
                         {
                             "name": "-w",
-                            "description": _("Show workspace extensions."),
+                            "help": _("Show workspace extensions."),
                             "action": "store_true",
                         },
                         {
                             "name": "-W",
-                            "description": _("Hide workspace extensions."),
+                            "help": _("Hide workspace extensions."),
                             "action": "store_false",
                         },
                     ],
@@ -359,12 +357,12 @@ def register_extman_cmds() -> None:
                     "cli-advanced-options": [
                         {
                             "name": "-u",
-                            "description": _("Show user extensions."),
+                            "help": _("Show user extensions."),
                             "action": "store_true",
                         },
                         {
                             "name": "-U",
-                            "description": _("Hide user extensions."),
+                            "help": _("Hide user extensions."),
                             "action": "store_false",
                         },
                     ],
@@ -380,12 +378,12 @@ def register_extman_cmds() -> None:
                     "cli-advanced-options": [
                         {
                             "name": "-g",
-                            "description": _("Show global extensions."),
+                            "help": _("Show global extensions."),
                             "action": "store_true",
                         },
                         {
                             "name": "-G",
-                            "description": _("Hide global extensions."),
+                            "help": _("Hide global extensions."),
                             "action": "store_false",
                         },
                     ],
@@ -414,29 +412,68 @@ def register_extman_cmds() -> None:
         ),
         description=_("Show extensions info with matching patterns."),
         options=[
-            Option(
+            Option[bool](
                 name="show-workspace",
-                aliases=["W"],
                 title=_("Show workspace extensions."),
                 description=_("Show workspace extensions."),
-                typecheck=str,
+                typecheck=bool,
                 default=True,
+                ext_attributes={
+                    "cli-advanced-options": [
+                        {
+                            "name": "-w",
+                            "help": _("Show workspace extensions."),
+                            "action": "store_true",
+                        },
+                        {
+                            "name": "-W",
+                            "help": _("Hide workspace extensions."),
+                            "action": "store_false",
+                        },
+                    ],
+                },
             ),
-            Option(
+            Option[bool](
                 name="show-user",
-                aliases=["U"],
                 title=_("Show user extensions."),
                 description=_("Show user extensions."),
-                typecheck=str,
+                typecheck=bool,
                 default=True,
+                ext_attributes={
+                    "cli-advanced-options": [
+                        {
+                            "name": "-u",
+                            "help": _("Show user extensions."),
+                            "action": "store_true",
+                        },
+                        {
+                            "name": "-U",
+                            "help": _("Hide user extensions."),
+                            "action": "store_false",
+                        },
+                    ],
+                },
             ),
-            Option(
+            Option[bool](
                 name="show-global",
-                aliases=["G"],
                 title=_("Show global extensions."),
                 description=_("Show global extensions."),
-                typecheck=str,
+                typecheck=bool,
                 default=True,
+                ext_attributes={
+                    "cli-advanced-options": [
+                        {
+                            "name": "-g",
+                            "help": _("Show global extensions."),
+                            "action": "store_true",
+                        },
+                        {
+                            "name": "-G",
+                            "help": _("Hide global extensions."),
+                            "action": "store_false",
+                        },
+                    ],
+                },
             ),
         ],
     )
@@ -461,29 +498,38 @@ def register_extman_cmds() -> None:
         ),
         description=_("Install extensions with matching patterns."),
         options=[
-            Option(
-                name="workspace",
-                aliases=["W"],
-                title=_("Install to workspace."),
-                description=_("Install extension packages to workspace."),
+            Option[str](
+                name="install-destination",
+                aliases=["T"],
+                title=_("Install to destination."),
+                description=_(
+                    "Install extension packages to destination. "
+                    "support 'workspace', 'user', 'global'.",
+                ),
                 typecheck=str,
-                default="False",
-            ),
-            Option(
-                name="user",
-                aliases=["U"],
-                title=_("Install to user."),
-                description=_("Install extension packages to user."),
-                typecheck=str,
-                default="False",
-            ),
-            Option(
-                name="global",
-                aliases=["G"],
-                title=_("Install to global."),
-                description=_("Install extension packages to global."),
-                typecheck=str,
-                default="False",
+                default="workspace",
+                ext_attributes={
+                    "cli-advanced-options": [
+                        {
+                            "name": "-w",
+                            "help": _("Install to workspace."),
+                            "action": "store_const",
+                            "const": "workspace",
+                        },
+                        {
+                            "name": "-u",
+                            "help": _("Install to user."),
+                            "action": "store_const",
+                            "const": "user",
+                        },
+                        {
+                            "name": "-g",
+                            "help": _("Install to global."),
+                            "action": "store_const",
+                            "const": "global",
+                        },
+                    ],
+                },
             ),
         ],
     )
@@ -508,29 +554,37 @@ def register_extman_cmds() -> None:
         ),
         description=_("Uninstall extensions with matching patterns."),
         options=[
-            Option(
-                name="workspace",
-                aliases=["W"],
-                title=_("Uninstall from workspace."),
-                description=_("Uninstall extension packages from workspace."),
+            Option[str](
+                name="uninstall-destination",
+                title=_("Uninstall to destination."),
+                description=_(
+                    "Uninstall extension packages to destination. "
+                    "support 'workspace', 'user', 'global'.",
+                ),
                 typecheck=str,
-                default="False",
-            ),
-            Option(
-                name="user",
-                aliases=["U"],
-                title=_("Uninstall from user."),
-                description=_("Uninstall extension packages from user."),
-                typecheck=str,
-                default="False",
-            ),
-            Option(
-                name="global",
-                aliases=["G"],
-                title=_("Uninstall from global."),
-                description=_("Uninstall extension packages from global."),
-                typecheck=str,
-                default="False",
+                default="workspace",
+                ext_attributes={
+                    "cli-advanced-options": [
+                        {
+                            "name": "-w",
+                            "help": _("Uninstall to workspace."),
+                            "action": "store_const",
+                            "const": "workspace",
+                        },
+                        {
+                            "name": "-u",
+                            "help": _("Uninstall to user."),
+                            "action": "store_const",
+                            "const": "user",
+                        },
+                        {
+                            "name": "-g",
+                            "help": _("Uninstall to global."),
+                            "action": "store_const",
+                            "const": "global",
+                        },
+                    ],
+                },
             ),
         ],
     )

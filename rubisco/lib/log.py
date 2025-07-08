@@ -32,14 +32,27 @@ from rubisco.config import (
     LOG_TIME_FORMAT,
 )
 
-__all__ = ["logger"]
+__all__ = ["logger", "rubisco_get_logger"]
+
+
+def rubisco_get_logger(name: str = APP_NAME) -> logging.Logger:
+    """Get the logger.
+
+    Args:
+        name (str, optional): The name of the logger. Defaults to APP_NAME.
+
+    Returns:
+        logging.Logger: The logger.
+
+    """
+    ru_logger = logging.getLogger(name)
+    ru_logger.setLevel(LOG_LEVEL)
+    return ru_logger
+
 
 # The global logger.
-logger = logging.getLogger(APP_NAME)
+logger = rubisco_get_logger()
 
-# Initialize the global logger.
-
-logger.setLevel(LOG_LEVEL)
 
 if "--log" in sys.argv:
     if not Path(LOG_FILE).parent.exists():

@@ -5,6 +5,9 @@
             "kgithub": "https://kkgithub.com/${{ user }}/${{ repo }}.git",
             "githubfast": "https://githubfast.com/${{ user }}/${{ repo }}.git",
             "bgithub.xyz": "https://bgithub.xyz/${{ user }}/${{ repo }}.git"
+        },
+        "ssh": {
+            "official": "git@github.com:${{ user }}/${{ repo }}.git"
         }
     },
     "github": "github.com",

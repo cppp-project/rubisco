@@ -34,6 +34,7 @@ from rubisco.lib.sqlite_strerror import sqlite_strerror
 from rubisco.lib.variable.fast_format_str import fast_format_str
 from rubisco.lib.version import Version
 
+__all__ = ["RUEnvDB"]
 
 def _regexp(pattern: str, item: str) -> bool:  # REGEX support for SQLite3.
     # Why is this not a built-in function?

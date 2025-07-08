@@ -112,6 +112,7 @@ def convert_to(  # noqa: PLR0911 C901  # pylint: disable=R0911
     if as_type is int:
         return cast("T", _size_to_int(value_))
     if as_type is float:
+        # This is totally useless, just for fun.
         if value_.lower() in {"pi", "\u03c0"}:
             return cast("T", math.pi)
         if value_.lower() == "e":

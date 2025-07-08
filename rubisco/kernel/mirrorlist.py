@@ -241,7 +241,8 @@ def get_url(
     )  # user/repo@website.
     if matched:
         user, repo, website = matched.groups()
-        if use_fastest:
+        if use_fastest and protocol == "http":
+            # Only support HTTP(s) speedtest now.
             mirror = asyncio.run(find_fastest_mirror(website))
         else:
             mirror = "official"
@@ -249,9 +250,20 @@ def get_url(
             url_template = get_mirrorlist(
                 website,
                 protocol,
-            ).orig_get(
-                mirror,
-            )
+            ).orig_get(mirror, None)
+            if url_template is None:
+                raise RUValueError(
+                    fast_format_str(
+                        _(
+                            "Mirror '${{p}}/${{site}}/${{mirror}}' not found.",
+                        ),
+                        fmt={
+                            "p": protocol,
+                            "site": website,
+                            "mirror": mirror,
+                        },
+                    ),
+                )
             if not isinstance(url_template, str):
                 raise RUValueError(
                     fast_format_str(
