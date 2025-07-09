@@ -146,7 +146,11 @@ def git_clone(  # pylint: disable=R0913, R0917 # noqa: PLR0913
     logger.info("Repository '%s' cloned.", str(path))
 
     if old_url != url:  # Reset the origin URL to official.
-        git_set_remote(path, "origin", get_url(old_url, use_fastest=False))
+        git_set_remote(
+            path,
+            "origin",
+            get_url(old_url, protocol=protocol, use_fastest=False),
+        )
         git_set_remote(path, "mirror", url)
         git_branch_set_upstream(path, branch, "origin")
 

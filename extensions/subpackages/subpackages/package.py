@@ -136,7 +136,7 @@ class Package:
 
     def _load_subpkgs(self) -> None:
         subpkgs: list[SubpackageReference] = []
-        subpkg_dict = self.config.config.get("subpackages", [], valtype=dict)
+        subpkg_dict = self.config.config.get("subpackages", {}, valtype=dict)
         subpkg_dict: AutoFormatDict
         for name, subpkg in subpkg_dict.items():
             if not isinstance(subpkg, dict):  # type: ignore[union-attr]
