@@ -78,7 +78,7 @@ def extract_tarball(
         elif dest.exists():
             rm_recursive(dest)
 
-        task_name = fast_format_str(
+        task_start_msg = fast_format_str(
             _(
                 "Extracting ${{file}} to ${{path}} as '${{type}}' ...",
             ),
@@ -88,11 +88,12 @@ def extract_tarball(
                 "type": f"tar.{compress_type}" if compress_type else "tar",
             },
         )
+        task_name = _("Extracting")
         call_ktrigger(
             IKernelTrigger.on_new_task,
+            task_start_msg=task_start_msg,
             task_name=task_name,
-            task_type=IKernelTrigger.TASK_EXTRACT,
-            total=len(memembers),
+            total=float(len(memembers)),
         )
 
         for member in memembers:
@@ -100,9 +101,9 @@ def extract_tarball(
             call_ktrigger(
                 IKernelTrigger.on_progress,
                 task_name=task_name,
-                current=1,
+                current=1.0,
                 delta=True,
-                more_data={"path": Path(member.path), "dest": dest},
+                update_msg=f"[underline]{dest / member.path}[/underline]",
             )
 
         call_ktrigger(IKernelTrigger.on_finish_task, task_name=task_name)

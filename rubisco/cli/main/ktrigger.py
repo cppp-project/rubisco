@@ -22,13 +22,13 @@
 from __future__ import annotations
 
 import sys
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 import colorama
 import rich
 import rich.live
 import rich.progress
-from pygments import highlight
+from pygments import highlight  # type: ignore[attr-defined]
 from pygments.formatters.terminal256 import Terminal256Formatter
 from pygments.lexers import get_lexer_by_name
 
@@ -144,33 +144,19 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
     def on_new_task(
         self,
         *,
+        task_start_msg: str,
         task_name: str,
-        task_type: str,
         total: float,
     ) -> None:
-        if task_type == IKernelTrigger.TASK_WAIT:
-            self.task_types[task_name] = IKernelTrigger.TASK_WAIT
-            return
-
-        output_step(task_name)
-
-        if task_type == IKernelTrigger.TASK_DOWNLOAD:
-            title = _("[yellow]Downloading[/yellow]")
-        elif task_type == IKernelTrigger.TASK_EXTRACT:
-            title = _("[yellow]Extracting[/yellow]")
-        elif task_type == IKernelTrigger.TASK_COMPRESS:
-            title = _("[yellow]Compressing[/yellow]")
-        else:
-            title = _("[yellow]Processing[/yellow]")
+        output_step(task_start_msg)
 
         if self.cur_progress is None:
             self.cur_progress = rich.progress.Progress()
             self.cur_progress.start()
         if task_name in self.tasks:
             self.cur_progress.update(self.tasks[task_name], completed=0)
-        task_id = self.cur_progress.add_task(title, total=total)
+        task_id = self.cur_progress.add_task(task_name, total=total)
         self.tasks[task_name] = task_id
-        self.task_types[task_name] = task_type
         self.task_totals[task_name] = total
 
     def on_progress(
@@ -179,23 +165,10 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
         task_name: str,
         current: float,
         delta: bool = False,
-        more_data: dict[str, Any] | None = None,
+        update_msg: str = "",
     ) -> None:
-        if more_data is None:
-            more_data = {}
-        if (
-            self.task_types[task_name] == IKernelTrigger.TASK_EXTRACT
-            and self.task_totals[task_name] < 2500  # noqa: PLR2004
-        ):
-            # If extracting a few files (< 2500), show the file name.
-            path = str((more_data["dest"] / more_data["path"]).absolute())
-            output_line(f"[underline]{path}[/underline]", level=-2)
-        elif self.task_types[task_name] == IKernelTrigger.TASK_WAIT:
-            output_step(
-                fast_format_str(task_name, fmt={"seconds": str(current)}),
-                end="\r",
-            )
-            return
+        output_line(update_msg)
+
         if self.cur_progress is None:
             logger.warning("Progress not started.")
             return
@@ -211,16 +184,11 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
         self.cur_progress.update(self.tasks[task_name], total=total)
 
     def on_finish_task(self, *, task_name: str) -> None:
-        if self.task_types[task_name] == IKernelTrigger.TASK_WAIT:
-            del self.task_types[task_name]
-            return
-
         if self.cur_progress is None:
             logger.warning("Progress not started.")
             return
         self.cur_progress.remove_task(self.tasks[task_name])
         del self.tasks[task_name]
-        del self.task_types[task_name]
         del self.task_totals[task_name]
         if not self.tasks:
             self.cur_progress.stop()
@@ -409,8 +377,11 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
             ),
         )
 
-    def on_output(self, *, message: str) -> None:
-        rich.print(message)
+    def on_output(self, *, message: str, raw: bool = True) -> None:
+        if raw:
+            rich.print(message)
+        else:
+            output_line(message)
 
     def on_move_file(self, *, src: Path, dst: Path) -> None:
         output_step(
@@ -756,3 +727,26 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
             default=True,
         ):
             raise KeyboardInterrupt
+
+    def on_wait(
+        self,
+        *,
+        msg: str,
+        cur_time: int,
+    ) -> None:
+        """Update waiting message.
+
+        Args:
+            msg (str): Waiting message.
+            cur_time (int): Current time.
+
+        Raises:
+            RUValueError: Waiting message is empty.
+
+        """
+        rich.print(
+            fast_format_str(
+                msg,
+                fmt={"seconds": cur_time},
+            ),
+        )

@@ -69,11 +69,6 @@ def _null_trigger(
 class IKernelTrigger:  # pylint: disable=too-many-public-methods
     """Kernel trigger interface."""
 
-    TASK_DOWNLOAD = "download"
-    TASK_EXTRACT = "extract"
-    TASK_COMPRESS = "compress"
-    TASK_WAIT = "wait"
-
     def pre_exec_process(self, *, proc: Process) -> None:
         """Pre-exec process.
 
@@ -117,23 +112,22 @@ class IKernelTrigger:  # pylint: disable=too-many-public-methods
     def on_new_task(
         self,
         *,
+        task_start_msg: str,
         task_name: str,
-        task_type: str,
         total: float,
     ) -> None:
         """When a progressive task is created.
 
         Args:
+            task_start_msg (str): Task start message.
             task_name (str): Task name.
-            task_type (str): Task type.
-                Must be `IKernelTrigger.TASK_*`.
             total (float): Total steps.
 
         """
         _null_trigger(
             "on_new_task",
+            task_start_msg=task_start_msg,
             task_name=task_name,
-            task_type=task_type,
             total=total,
         )
 
@@ -143,15 +137,16 @@ class IKernelTrigger:  # pylint: disable=too-many-public-methods
         task_name: str,
         current: float,
         delta: bool = False,
-        more_data: dict[str, Any] | None = None,
+        update_msg: str = "",
     ) -> None:
         """When the progressive task progress is updated.
 
         Args:
-            task_name (str): Task name.
+            task_name (str): Task name. It's the unique identifier of the
+                task.
             current (int | float): Current step.
             delta (bool): If the current is delta.
-            more_data (dict[str, Any] | None): More data of the progress.
+            update_msg (str): Update message.
 
         """
         _null_trigger(
@@ -159,7 +154,7 @@ class IKernelTrigger:  # pylint: disable=too-many-public-methods
             task_name=task_name,
             current=current,
             delta=delta,
-            more_data=more_data,
+            update_msg=update_msg,
         )
 
     def set_progress_total(self, *, task_name: str, total: float) -> None:
@@ -368,14 +363,16 @@ class IKernelTrigger:  # pylint: disable=too-many-public-methods
         """
         _null_trigger("on_file_selected", path=path)
 
-    def on_output(self, *, message: str) -> None:
+    def on_output(self, *, message: str, raw: bool = True) -> None:
         """Output a message.
 
         Args:
             message (str): Message.
+            raw (bool): If false, UCI cannot convert the message to its favorite
+                format.
 
         """
-        _null_trigger("on_output", message=message)
+        _null_trigger("on_output", message=message, raw=raw)
 
     def on_move_file(self, *, src: Path, dst: Path) -> None:
         """On we are moving files.
@@ -614,6 +611,24 @@ class IKernelTrigger:  # pylint: disable=too-many-public-methods
             dest=dest,
             query=query,
         )
+
+    def on_wait(
+        self,
+        *,
+        msg: str,
+        cur_time: int,
+    ) -> None:
+        """Update waiting message.
+
+        Args:
+            msg (str): Waiting message.
+            cur_time (int): Current time.
+
+        Raises:
+            RUValueError: Waiting message is empty.
+
+        """
+        _null_trigger("on_wait", msg=msg, cur_time=cur_time)
 
 
 # KTrigger instances.

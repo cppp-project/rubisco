@@ -205,7 +205,7 @@ class RUEnvironment:
             "Waiting for the environment to be unlocked ('%s')",
             self._lockfile,
         )
-        task_name = fast_format_str(
+        msg = fast_format_str(
             _(
                 "Waiting for the environment to be unlocked "
                 "(${{path}}): ${{seconds}} seconds.",
@@ -214,30 +214,13 @@ class RUEnvironment:
                 "path": make_pretty(self._lockfile),
             },
         )
-        call_ktrigger(
-            IKernelTrigger.on_new_task,
-            task_name=task_name,
-            task_type=IKernelTrigger.TASK_WAIT,
-            total=0,
-        )
         wait_time = 0
         locked = False
         while self.is_locked() and not self.is_locked_by_self():
             locked = True
-            call_ktrigger(
-                IKernelTrigger.on_progress,
-                task_name=task_name,
-                current=wait_time,
-                delta=False,
-                more_data={"env": self},
-            )
+            call_ktrigger(IKernelTrigger.on_wait, msg=msg, cur_time=wait_time)
             time.sleep(1)
             wait_time += 1
-
-        call_ktrigger(
-            IKernelTrigger.on_finish_task,
-            task_name=task_name,
-        )
 
         return locked
 

@@ -61,7 +61,7 @@ def write_to_archive(
     dest: Path,
     start: Path,
     on_write: Callable[[Path, Path], None],
-    task_name: str,
+    task_start_msg: str,
 ) -> None:
     """Write files to archive.
 
@@ -72,13 +72,14 @@ def write_to_archive(
         on_write (Callable[[Path, Path], None]): Callback function to write
             file to archive. It takes two arguments: source file path and
             its arcname.
-        task_name (str): Task for this compress/archive operation.
+        task_start_msg (str): Task for this compress/archive operation.
 
     """
+    task_name = _("Compressing")
     call_ktrigger(
         IKernelTrigger.on_new_task,
+        task_start_msg=task_start_msg,
         task_name=task_name,
-        task_type=IKernelTrigger.TASK_COMPRESS,
         total=len(includes),
     )
     for path in includes:
@@ -102,6 +103,6 @@ def write_to_archive(
             task_name=task_name,
             current=1,
             delta=True,
-            more_data={"path": path, "dest": dest},
+            update_msg=f"[underline]{dest / path}[/underline]",
         )
     call_ktrigger(IKernelTrigger.on_finish_task, task_name=task_name)

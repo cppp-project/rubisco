@@ -60,7 +60,7 @@ def extract_zip(
             check_file_exists(dest)
         elif dest.exists():
             rm_recursive(dest)
-        task_name = fast_format_str(
+        test_msg = fast_format_str(
             _(
                 "Extracting ${{file}} to ${{path}} as '${{type}}' ...",
             ),
@@ -70,10 +70,11 @@ def extract_zip(
                 "type": "zip",
             },
         )
+        task_name = _("Extracting")
         call_ktrigger(
             IKernelTrigger.on_new_task,
+            task_start_msg=test_msg,
             task_name=task_name,
-            task_type=IKernelTrigger.TASK_EXTRACT,
             total=len(memembers),
         )
 
@@ -94,7 +95,7 @@ def extract_zip(
                 task_name=task_name,
                 current=1,
                 delta=True,
-                more_data={"path": Path(member.filename), "dest": dest},
+                update_msg=f"[underline]{dest / member.filename}[/underline]",
             )
 
         call_ktrigger(IKernelTrigger.on_finish_task, task_name=task_name)
@@ -128,7 +129,7 @@ def compress_zip(  # pylint: disable=R0913, R0917 # noqa: PLR0913
         check_file_exists(dest)
     elif dest.exists():
         rm_recursive(dest)
-    task_name = fast_format_str(
+    task_start_msg = fast_format_str(
         _(
             "Compressing ${{path}} to ${{file}} as '${{type}}' ...",
         ),
@@ -155,5 +156,5 @@ def compress_zip(  # pylint: disable=R0913, R0917 # noqa: PLR0913
             dest,
             start,
             fp.write,
-            task_name=task_name,
+            task_start_msg=task_start_msg,
         )

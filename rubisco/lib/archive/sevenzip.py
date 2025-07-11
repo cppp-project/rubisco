@@ -52,7 +52,7 @@ def extract_7z(
 
     """
     with py7zr.SevenZipFile(file, mode="r", password=password) as fp:
-        task_name = fast_format_str(
+        task_msg = fast_format_str(
             _(
                 "Extracting "  # Pylint think this is a duplicate code.
                 "${{file}} to ${{path}} as '${{type}}' ...",
@@ -63,6 +63,8 @@ def extract_7z(
                 "type": "7z",
             },
         )
+
+        task_name = _("Extracting")
 
         class _ExtractCallback(py7zr.callbacks.ExtractCallback):
             end: bool = False
@@ -76,9 +78,9 @@ def extract_7z(
                 self.end = False
                 call_ktrigger(
                     IKernelTrigger.on_new_task,
+                    task_start_msg=task_msg,
                     task_name=task_name,
-                    task_type=IKernelTrigger.TASK_EXTRACT,
-                    total=len(fp.getnames()),
+                    total=float(len(fp.getnames())),
                 )
 
             def report_start(
@@ -124,15 +126,13 @@ def extract_7z(
                     wrote_bytes (int): Wrote bytes.
 
                 """
+                pfp = processing_file_path
                 call_ktrigger(
                     IKernelTrigger.on_progress,
-                    current=1,
                     task_name=task_name,
+                    current=1,
                     delta=True,
-                    more_data={
-                        "path": Path(processing_file_path),
-                        "dest": dest,
-                    },
+                    update_msg=f"[underline]{dest / pfp}[/underline]",
                 )
 
             def report_warning(self, message: str) -> None:

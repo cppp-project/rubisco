@@ -21,7 +21,12 @@
 
 from pathlib import Path
 
+from git.exc import GitError
+from git.repo import Repo
+from git.util import RemoteProgress
+
 from rubisco.kernel.mirrorlist import get_url
+from rubisco.lib.exceptions import RUError
 from rubisco.lib.l10n import _
 from rubisco.lib.log import logger
 from rubisco.lib.process import Process
@@ -40,6 +45,62 @@ __all__ = [
 ]
 
 
+def _gitpython_progress_update_opname(  # noqa: PLR0911 # pylint: disable=R0911
+    op_code: int,
+) -> str:
+    if op_code & RemoteProgress.CHECKING_OUT:
+        return _("Checking out files")
+    if op_code & RemoteProgress.COMPRESSING:
+        return _("Compressing objects")
+    if op_code & RemoteProgress.COUNTING:
+        return _("Counting objects")
+    if op_code & RemoteProgress.FINDING_SOURCES:
+        return _("Finding sources")
+    if op_code & RemoteProgress.RECEIVING:
+        return _("Receiving objects")
+    if op_code & RemoteProgress.RESOLVING:
+        return _("Resolving deltas")
+    if op_code & RemoteProgress.WRITING:
+        return _("Writing objects")
+    return "???"
+
+
+def _gitpython_progress_update(
+    op_code: int,
+    cur_count: str | float,
+    max_count: str | float | None,
+    message: str,  # noqa: ARG001 # pylint: disable=W0613
+) -> None:
+    if isinstance(cur_count, str) or isinstance(max_count, str):
+        return
+
+    msg = _gitpython_progress_update_opname(op_code)
+
+    if op_code & RemoteProgress.BEGIN:
+        call_ktrigger(
+            IKernelTrigger.on_new_task,
+            task_start_msg="",
+            task_name=msg,
+            total=max_count,
+        )
+    elif op_code & RemoteProgress.END:
+        percent = f"{int(cur_count)}/{int(max_count)}" if max_count else ""
+        finish_msg = f"{msg}: {percent}"
+        call_ktrigger(
+            IKernelTrigger.on_output,
+            message=finish_msg,
+            raw=False,
+        )
+        call_ktrigger(IKernelTrigger.on_finish_task, task_name=msg)
+    else:
+        call_ktrigger(
+            IKernelTrigger.on_progress,
+            task_name=msg,
+            current=cur_count,
+            delta=False,
+        )
+
+
 def is_git_repo(path: Path) -> bool:
     """Check if a directory is a git repository.
 
@@ -50,18 +111,14 @@ def is_git_repo(path: Path) -> bool:
         bool: True if the directory is a git repository.
 
     """
-    if not path.exists():
+    if not path.is_dir():
         return False
 
-    _stdout, _stderr, retcode = Process(
-        ["git", "rev-parse", "--is-inside-work-tree"],
-        cwd=path,
-    ).popen(
-        stdout=True,
-        stderr=1,
-        fail_on_error=False,
-    )
-    return retcode == 0
+    try:
+        Repo(path).close()
+    except GitError:
+        return False
+    return True
 
 
 def git_update(path: Path, branch: str = "main") -> None:
@@ -85,7 +142,26 @@ def git_update(path: Path, branch: str = "main") -> None:
 
     logger.info("Updating repository '%s'...", str(path))
     call_ktrigger(IKernelTrigger.on_update_git_repo, path=path, branch=branch)
-    Process(["git", "pull", "--verbose"], cwd=path).run()
+    if not is_git_repo(path):
+        logger.error("Repository '%s' is not a git repository.", str(path))
+        raise RUError(
+            fast_format_str(
+                _("Repository ${{path}} is not a git repository."),
+                fmt={"path": str(path)},
+            ),
+        )
+    try:
+        repo = Repo(path)
+        origin = repo.remote("origin")
+        origin.pull()
+    except GitError as exc:
+        logger.error("Git operation failed: %s", str(exc))
+        raise RUError(
+            fast_format_str(
+                _("Git operation failed: ${{exc}}"),
+                fmt={"exc": str(exc)},
+            ),
+        ) from exc
     logger.info("Repository '%s' updated.", str(path))
 
 
@@ -138,21 +214,32 @@ def git_clone(  # pylint: disable=R0913, R0917 # noqa: PLR0913
         path=path,
         branch=branch,
     )
-    cmd = ["git", "clone", "--verbose", "--branch", branch, url, str(path)]
-    if shallow:
-        cmd.append("--depth")
-        cmd.append("1")
-    Process(cmd).run()
+    try:
+        repo = Repo.clone_from(
+            url,
+            path,
+            branch=branch,
+            progress=_gitpython_progress_update,
+            multi_options=["--depth=1"] if shallow else [],
+        )
+    except GitError as exc:
+        logger.error("Repository '%s' clone failed.", str(path))
+        raise RUError(
+            fast_format_str(
+                _("Git operation failed: ${{exc}}"),
+                fmt={"exc": str(exc)},
+            ),
+        ) from exc
     logger.info("Repository '%s' cloned.", str(path))
 
     if old_url != url:  # Reset the origin URL to official.
-        git_set_remote(
-            path,
-            "origin",
-            get_url(old_url, protocol=protocol, use_fastest=False),
+        origin_url = get_url(old_url, protocol=protocol, use_fastest=False)
+        repo.remote("origin").set_url(origin_url)
+        repo.create_remote("mirror", url)
+        # Set the upstream branch.
+        repo.branches[branch].set_tracking_branch(
+            repo.remotes.origin.refs[branch],
         )
-        git_set_remote(path, "mirror", url)
-        git_branch_set_upstream(path, branch, "origin")
 
 
 def git_has_remote(path: Path, remote: str) -> bool:

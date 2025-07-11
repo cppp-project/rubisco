@@ -126,6 +126,8 @@ def output_line(message: str, level: int = -1, end: str = "\n") -> None:
         end (str, optional): End of the message. Defaults to "\n".
 
     """
+    if not message:
+        return
     indent = sum_level_indent(level)
     rich.print(f"{indent}{message}", end=end, flush=True)
 

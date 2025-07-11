@@ -21,17 +21,19 @@
 
 from __future__ import annotations
 
-from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING
 
 import requests
 
 from rubisco.config import COPY_BUFSIZE, TIMEOUT
-from rubisco.lib.fileutil import check_file_exists, rm_recursive
+from rubisco.lib.fileutil import check_file_exists
 from rubisco.lib.l10n import _
 from rubisco.lib.log import logger
 from rubisco.lib.variable.fast_format_str import fast_format_str
 from rubisco.shared.ktrigger import IKernelTrigger, call_ktrigger
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 __all__ = ["wget"]
 
@@ -65,15 +67,16 @@ def wget(
         requests.get(url, stream=True, timeout=TIMEOUT) as response,
     ):
         response.raise_for_status()
-        task_name = fast_format_str(
+        task_msg = fast_format_str(
             _("Downloading ${{url}} ..."),
             fmt={"url": url},
         )
+        task_name = _("Download")
         call_ktrigger(
             IKernelTrigger.on_new_task,
+            task_start_msg=task_msg,
             task_name=task_name,
-            task_type=IKernelTrigger.TASK_DOWNLOAD,
-            total=content_length,
+            total=float(content_length),
         )
         for chunk in response.iter_content(chunk_size=COPY_BUFSIZE):
             file.write(chunk)
@@ -81,70 +84,8 @@ def wget(
             call_ktrigger(
                 IKernelTrigger.on_progress,
                 task_name=task_name,
-                current=len(chunk),
+                current=float(len(chunk)),
                 delta=True,
-                more_data={"url": url},
             )
-        call_ktrigger(
-            IKernelTrigger.on_finish_task,
-            task_name=task_name,
-        )
+        call_ktrigger(IKernelTrigger.on_finish_task, task_name=task_name)
     logger.debug("Downloaded '%s' to '%s'.", url, save_to)
-
-
-if __name__ == "__main__":
-    import rich
-    import rich.progress_bar
-
-    from rubisco.shared.ktrigger import (  # pylint: disable=ungrouped-imports
-        bind_ktrigger_interface,
-    )
-
-    rich.print(
-        "[yellow]Make sure you have Internet connection. Otherwise, "
-        "it may fail.[/yellow]",
-    )
-
-    URL = "https://musl.libc.org/releases/musl-1.2.5.tar.gz"
-    TARGET = Path("musl-1.2.5.tar.gz")
-
-    class _TestKTrigger(IKernelTrigger):
-        _progress_bar: rich.progress_bar.ProgressBar
-        _cur = 0
-
-        def on_new_task(
-            self,
-            *,
-            task_name: str,
-            task_type: str,
-            total: float,
-        ) -> None:
-            rich.print("on_new_task():", task_name, task_type, total)
-            self._progress_bar = rich.progress_bar.ProgressBar(
-                total=total,
-            )
-            self._cur = 0
-
-        def on_progress(
-            self,
-            *,
-            task_name: str,  # noqa: ARG002
-            current: float,
-            delta: bool = False,
-            more_data: dict[str, Any] | None = None,  # noqa: ARG002
-        ) -> None:
-            if delta:
-                current += self._cur
-                self._cur = current
-            self._progress_bar.update(self._cur)
-            rich.print(self._progress_bar)
-            rich.get_console().file.write("\r")
-
-        def on_finish_task(self, *, task_name: str) -> None:
-            rich.print("\non_finish_task():", task_name)
-
-    kt = _TestKTrigger()
-    bind_ktrigger_interface("test", kt)
-
-    wget(URL, TARGET)
-    rm_recursive(TARGET)
