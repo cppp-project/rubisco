@@ -24,7 +24,7 @@ filesystem support.
 """
 
 import os
-from pathlib import PurePath
+from pathlib import PurePosixPath
 from typing import TYPE_CHECKING, Any, Self
 
 from rubisco.kernel.command_event.args import Option
@@ -42,14 +42,14 @@ from rubisco.lib.variable.fast_format_str import fast_format_str
 from rubisco.lib.variable.utils import make_pretty
 
 if TYPE_CHECKING:
-    from _typeshed import StrPath, Unused
+    from _typeshed import StrPath
 
     from rubisco.kernel.command_event.cmd_event import EventObject
 
 __all__ = ["EventPath"]
 
 
-class EventPath(PurePath):  # pylint: disable=R0904
+class EventPath(PurePosixPath):  # pylint: disable=R0904
     """A path object that represents an event.
 
     See `EventObject` for more information.
@@ -57,21 +57,19 @@ class EventPath(PurePath):  # pylint: disable=R0904
 
     _event: "EventObject | None" = None
 
-    def __init__(self, *args: "StrPath", **kwargs: "Unused") -> None:
+    def __new__(cls, *args: "StrPath") -> Self:
         """Initialize the EventPath class.
 
         Args:
             *args: The arguments to pass to the super class.
-            **kwargs: Never used.
+
+        Returns:
+            Self: The instance of the class.
 
         """
-        if kwargs:
-            msg = "Invalid argument."
-            raise ValueError(msg)
-
         if args and not str(args[0]).startswith("/"):
             args = ("/" + str(args[0]), *args[1:])
-        super().__init__(*args)
+        return super().__new__(cls, *args)
 
     @property
     def event_object(self) -> "EventObject":
