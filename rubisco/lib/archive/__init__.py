@@ -110,7 +110,7 @@ def extract_file(  # pylint: disable=too-many-branches # noqa: C901 PLR0912
             rm_recursive(dest)
         with dest.open("wb") as fdst:
             if fsize > COPY_BUFSIZE * 50:
-                task_name = fast_format_str(
+                task_start_msg = fast_format_str(
                     _(
                         "Extracting ${{file}} to ${{path}} as '${{type}}' ...",
                     ),
@@ -120,10 +120,11 @@ def extract_file(  # pylint: disable=too-many-branches # noqa: C901 PLR0912
                         "type": compress_type,
                     },
                 )
+                task_name = _("Extracting")
                 call_ktrigger(
                     IKernelTrigger.on_new_task,
+                    task_start_msg=task_start_msg,
                     task_name=task_name,
-                    task_type=IKernelTrigger.TASK_EXTRACT,
                     total=fsize,
                 )
                 while buf := fsrc.read(COPY_BUFSIZE):
@@ -330,7 +331,7 @@ def compress_file(  # pylint: disable=R0912 # noqa: C901 PLR0912
         fsrc.seek(0, os.SEEK_SET)
         with dest.open("wb") as fdst:
             if fsize > COPY_BUFSIZE * 50:
-                task_name = fast_format_str(
+                task_start_msg = fast_format_str(
                     _(
                         "Compressing ${{path}} to ${{file}} as '${{type}}' ...",
                     ),
@@ -340,10 +341,11 @@ def compress_file(  # pylint: disable=R0912 # noqa: C901 PLR0912
                         "type": compress_type,
                     },
                 )
+                task_name = _("Compressing")
                 call_ktrigger(
                     IKernelTrigger.on_new_task,
+                    task_start_msg=task_start_msg,
                     task_name=task_name,
-                    task_type=IKernelTrigger.TASK_COMPRESS,
                     total=fsize,
                 )
                 while buf := fsrc.read(COPY_BUFSIZE):
