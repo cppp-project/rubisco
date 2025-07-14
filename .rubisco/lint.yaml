@@ -8,23 +8,10 @@ steps:
     recursive: True
 
   - name: 🛠️ Analysing the code with ruff
-    run:
-      [
-        python,
-        -m,
-        ruff,
-        check,
-        rubisco,
-        --config,
-        ruff.toml,
-        --select=ALL,
-        --ignore=D203,
-        --ignore=D213,
-      ]
+    run: ruff check rubisco --config ruff.toml
 
   - name: 🛠️ Analysing the code with pylint
-    run: [python, -m, pylint, -j, "${{ nproc }}", "${{ src-files }}"]
+    run: [pylint, -j, "${{ nproc }}", "${{ src-files }}"]
 
   - name: 🛠️ Running type check
-    run:
-      python -m pyright --verbose --threads ${{ nproc }} --level=warning rubisco
+    run: pyright --verbose --threads ${{ nproc }} --level=warning rubisco
