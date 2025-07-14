@@ -22,6 +22,7 @@
 
 import os
 import platform
+import shutil
 import sys
 from pathlib import Path
 
@@ -37,14 +38,18 @@ def init_builtin_vars() -> None:
     push_variables("home", str(Path.home().absolute()))
     push_variables("cwd", str(Path.cwd().absolute()))
     push_variables("nproc", os.cpu_count())
+    push_variables("rubisco", str(RUBISCO_COMMAND))
     push_variables("rubisco.version", str(APP_VERSION))
-    push_variables("rubisco.command", str(RUBISCO_COMMAND))
     push_variables("rubisco.python_version", sys.version)
     push_variables("rubisco.python_impl", sys.implementation.name)
-    push_variables("host.os", os.name)
+    push_variables("host", os.name)
     push_variables("host.system", uname_result.system)
     push_variables("host.node", uname_result.node)
     push_variables("host.release", uname_result.release)
     push_variables("host.version", uname_result.version)
     push_variables("host.machine", uname_result.machine)
     push_variables("host.processor", uname_result.processor)
+    if shutil.which("python"):
+        push_variables("python", "python")
+    else:
+        push_variables("python", "python3")
