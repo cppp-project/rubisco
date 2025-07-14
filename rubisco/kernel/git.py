@@ -22,6 +22,7 @@
 from pathlib import Path
 
 from git.exc import GitError
+from git.remote import Remote
 from git.repo import Repo
 from git.util import RemoteProgress
 
@@ -121,12 +122,20 @@ def is_git_repo(path: Path) -> bool:
     return True
 
 
-def git_update(path: Path, branch: str = "main") -> None:
+def git_update(
+    path: Path,
+    branch: str = "main",
+    *,
+    protocol: str = "http",
+    use_fastest: bool = True,
+) -> None:
     """Update a git repository.
 
     Args:
         path (Path): Path to the repository.
         branch (str, optional): Branch to update. Defaults to "main".
+        protocol (str, optional): Protocol to use. Defaults to "http".
+        use_fastest (bool, optional): Use the fastest mirror. Defaults to True.
 
     """
     if not path.exists():
@@ -152,8 +161,26 @@ def git_update(path: Path, branch: str = "main") -> None:
         )
     try:
         repo = Repo(path)
-        origin = repo.remote("origin")
-        origin.pull()
+        rubisco_url = Remote(repo, "rubisco-url")
+        if rubisco_url:
+            mirror_url = get_url(
+                rubisco_url.url,
+                protocol=protocol,
+                use_fastest=use_fastest,
+            )
+            if not Remote(repo, "mirror").exists():
+                repo.create_remote("mirror", mirror_url)
+            else:
+                repo.remote("mirror").set_url(mirror_url)
+            mirror = repo.remote("mirror")
+            mirror.pull(branch)
+            # Set upstream to origin.
+            repo.branches[branch].set_tracking_branch(
+                repo.remotes.origin.refs[branch],
+            )
+        else:
+            origin = repo.remote("origin")
+            origin.pull()
     except GitError as exc:
         logger.error("Git operation failed: %s", str(exc))
         raise RUError(
@@ -201,7 +228,7 @@ def git_clone(  # pylint: disable=R0913, R0917 # noqa: PLR0913
                 ),
             )
         logger.warning("Repository already exists, Updating...")
-        git_update(path, branch)
+        git_update(path, branch, protocol=protocol, use_fastest=use_fastest)
         return
 
     old_url = url
@@ -235,6 +262,7 @@ def git_clone(  # pylint: disable=R0913, R0917 # noqa: PLR0913
     if old_url != url:  # Reset the origin URL to official.
         origin_url = get_url(old_url, protocol=protocol, use_fastest=False)
         repo.remote("origin").set_url(origin_url)
+        repo.create_remote("rubisco-url", old_url)
         repo.create_remote("mirror", url)
         # Set the upstream branch.
         repo.branches[branch].set_tracking_branch(
