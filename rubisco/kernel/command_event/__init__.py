@@ -19,7 +19,7 @@
 
 """Rubisco command event router."""
 
-from pathlib import PurePath
+from pathlib import PurePosixPath
 
 from rubisco.kernel.command_event.cmd_event import EventObject
 from rubisco.kernel.command_event.event_types import (
@@ -37,6 +37,6 @@ set_root(
             type=EventObjectType.DIRECTORY,
             description="",
         ),
-        abspath=PurePath("/"),
+        abspath=PurePosixPath("/"),
     ),
 )

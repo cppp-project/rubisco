@@ -24,7 +24,7 @@ Event object is internal object for a event. It's like a object in file system.
 
 
 from dataclasses import dataclass, field
-from pathlib import PurePath
+from pathlib import PurePosixPath
 from typing import Any
 
 from rubisco.kernel.command_event.args import Argument, DynamicArguments
@@ -85,7 +85,7 @@ class EventObject:
     This is to prevent users from overriding built-in or extension commands.
     """
 
-    abspath: PurePath
+    abspath: PurePosixPath
     parent: "EventObject | None"
     name: str
     _stat: EventObjectStat
@@ -117,7 +117,7 @@ class EventObject:
         name: str,
         parent: "EventObject | None",
         stat: EventObjectStat,
-        abspath: PurePath,
+        abspath: PurePosixPath,
         *,
         file_data: EventFileData | None = None,
     ) -> None:
@@ -127,7 +127,7 @@ class EventObject:
             name (str): The name of the node.
             parent (EventObject | None): The parent of the node.
             stat (EventObjectStat): The stat of the node.
-            abspath (PurePath): The absolute path of the node.
+            abspath (PurePosixPath): The absolute path of the node.
             file_data (EventFileData | None): The file data of the node.
 
         """

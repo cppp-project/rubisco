@@ -24,6 +24,7 @@ filesystem support.
 """
 
 import os
+import posixpath
 from pathlib import PurePosixPath
 from typing import TYPE_CHECKING, Any, Self
 
@@ -101,7 +102,7 @@ class EventPath(PurePosixPath):  # pylint: disable=R0904
 
     def normpath(self) -> "EventPath":
         """Normalize the path."""
-        return EventPath(os.path.normpath(self.as_posix()))
+        return EventPath(posixpath.normpath(self.as_posix()))
 
     def _get_event(self) -> "EventObject":
         if self._event is not None:

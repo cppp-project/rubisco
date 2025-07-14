@@ -22,7 +22,7 @@
 import enum
 from dataclasses import dataclass, field
 from os import PathLike
-from pathlib import PurePath
+from pathlib import PurePosixPath
 from typing import Any
 
 from rubisco.kernel.command_event.args import Option
@@ -87,14 +87,14 @@ class EventObjectStat:
     )
 
     # Attributes for alias.
-    alias_to: PurePath | PathLike[str] | str | None = None
+    alias_to: PurePosixPath | PathLike[str] | str | None = None
 
     # Attributes for mount point.
     mount_to: str | None = None
 
     def __post_init__(self) -> None:
         """Post init."""
-        self.alias_to = PurePath(self.alias_to) if self.alias_to else None
+        self.alias_to = PurePosixPath(self.alias_to) if self.alias_to else None
         if self.type == EventObjectType.ALIAS and self.alias_to is None:
             msg = "Alias must have an alias_to."
             raise ValueError(msg)
