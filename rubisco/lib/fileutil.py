@@ -23,6 +23,7 @@ from __future__ import annotations
 
 import atexit
 import fnmatch
+import os
 import shutil
 import sys
 import tempfile
@@ -259,7 +260,7 @@ def copy_recursive(  # pylint: disable=R0913, R0917 # noqa: PLR0913
         )
 
 
-tempdirs: set[Path] = set()
+tempdirs: set[TemporaryObject] = set()
 
 
 def new_tempdir(prefix: str = "", suffix: str = "") -> Path:
@@ -282,7 +283,7 @@ def new_tempdir(prefix: str = "", suffix: str = "") -> Path:
     ).absolute()
 
 
-def new_tempfile(prefix: str = "", suffix: str = "") -> Path:
+def new_tempfile(prefix: str = "", suffix: str = "") -> tuple[Path, int]:
     """Create temporary file but do not register it.
 
     Args:
@@ -290,16 +291,15 @@ def new_tempfile(prefix: str = "", suffix: str = "") -> Path:
         suffix (str): The suffix of the temporary file.
 
     Returns:
-        str: The temporary file.
+        The tempfile path and its fd.
 
     """
-    return Path(
-        tempfile.mkstemp(
-            suffix=suffix,
-            prefix=prefix,
-            dir=tempfile.gettempdir(),
-        )[1],
-    ).absolute()
+    fd, path = tempfile.mkstemp(
+        suffix=suffix,
+        prefix=prefix,
+        dir=tempfile.gettempdir(),
+    )
+    return Path(path).absolute(), fd
 
 
 class TemporaryObject:
@@ -315,8 +315,15 @@ class TemporaryObject:
     __path: Path
     __type: int
     __moved: bool = False
+    __fd: int | None
 
-    def __init__(self, temp_type: int, path: Path) -> None:
+    def __init__(
+        self,
+        temp_type: int,
+        path: Path,
+        *,
+        fd: int | None = None,
+    ) -> None:
         """Create a temporary object.
 
         Args:
@@ -325,11 +332,14 @@ class TemporaryObject:
                 TemporaryObject.TYPE_DIRECTORY.
             path (Path): The path of the temporary object.
                 We will register it for temporary later.
+            fd (int): The file descriptor of the tempfile.
+                Default to None.
 
         """
         self.__type = temp_type
         self.__path = path
-        tempdirs.add(self.__path)
+        self.__fd = fd
+        tempdirs.add(self)
         logger.debug("Registered temporary object '%s'.", str(self.__path))
 
     def __enter__(self) -> Self:
@@ -454,6 +464,8 @@ class TemporaryObject:
         """Remove the temporary object."""
         if self.__moved:
             return
+        if self.__fd:
+            os.close(self.__fd)
         if self.path.is_file():
             self.path.unlink()
         else:
@@ -470,7 +482,7 @@ class TemporaryObject:
         if self.__moved:
             return self.path
         try:
-            tempdirs.remove(self.path)
+            tempdirs.remove(self)
             logger.debug("Unregistered temporary object '%s'.", str(self.path))
         except KeyError as exc:
             logger.warning(
@@ -495,7 +507,8 @@ class TemporaryObject:
             TemporaryObject: The temporary file.
 
         """
-        return cls(cls.TYPE_FILE, new_tempfile(prefix=prefix, suffix=suffix))
+        path, fd = new_tempfile(prefix=prefix, suffix=suffix)
+        return cls(cls.TYPE_FILE, path, fd=fd)
 
     @classmethod
     def new_directory(cls, prefix: str = APP_NAME, suffix: str = "") -> Self:
@@ -569,12 +582,8 @@ class TemporaryObject:
     @classmethod
     def cleanup(cls) -> None:
         """Clean up all temporary directories."""
-        for tempdir in tempdirs:
-            if tempdir.is_file():
-                tempdir.unlink()
-            else:
-                shutil.rmtree(tempdir, ignore_errors=False)
-            logger.debug("Unregistered temporary object '%s'.", str(tempdir))
+        for tempdir in tempdirs.copy():
+            tempdir.remove()
         tempdirs.clear()
 
 
