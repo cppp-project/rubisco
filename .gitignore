@@ -101,6 +101,7 @@ venv.bak/
 .cache
 .idea
 .ruff_cache
+uv.lock
 
 # Spyder project settings
 .spyderproject

@@ -1,34 +1,33 @@
-name: ✔️ Lint
+name: ✔️ Run lint
 
-on: [push, pull_request]
+on: [pull_request, workflow_dispatch, release]
 
 jobs:
-  check:
-
+  lint:
     runs-on: ubuntu-latest
-
     strategy:
       fail-fast: false
       matrix:
         python-version: ["3.11", "3.12", "3.13"]
 
     steps:
+      - name: ⬇️ Check out the repository
+        uses: actions/checkout@v4
 
-    #--------------------------------------------collect--------------------------------------------
-    - name: ⬇️ Check out the repository
-      uses: actions/checkout@v4
+      - name: 📁 Setup Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
 
-    - name: 📁 Setup Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v5
-      with:
-        python-version: ${{ matrix.python-version }}
+      - name: 📁 Install the latest version of uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          version: "latest"
 
-    - name: 📁 Collect dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt -r requirements-dev.txt
+      - name: 📁 Collect dependencies
+        run: |
+          uv pip install --system . ".[dev]" ".[ruff]"
 
-    #---------------------------------------------lint----------------------------------------------
-    - name: 🛠️ Run lint
-      run: |
-        python -m rubisco lint
+      - name: 🛠️ Run lint
+        run: |
+          uv run python -m rubisco lint
