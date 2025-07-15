@@ -2,4 +2,4 @@ name: 🧪 Run test
 
 steps:
   - name: 🧪 Run test
-    run: [python, -m, pytest, -v]
+    run: pytest -v
