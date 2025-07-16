@@ -26,8 +26,6 @@ import sys
 from pathlib import Path
 from subprocess import PIPE, STDOUT, Popen
 
-import psutil
-
 from rubisco.config import DEFAULT_CHARSET
 from rubisco.lib.command import command
 from rubisco.lib.exceptions import RUShellExecutionError
@@ -35,6 +33,9 @@ from rubisco.lib.fileutil import TemporaryObject
 from rubisco.lib.l10n import _
 from rubisco.lib.log import logger
 from rubisco.shared.ktrigger import IKernelTrigger, call_ktrigger
+
+if sys.platform != "cygwin":
+    import psutil
 
 __all__ = ["Process", "is_valid_pid"]
 
@@ -232,4 +233,18 @@ def is_valid_pid(pid: int) -> bool:
         bool: True if the pid is valid, otherwise False.
 
     """
-    return psutil.pid_exists(pid)
+    if sys.platform != "cygwin":
+        return psutil.pid_exists(pid)
+
+    # Cygwin/MSYS2 environment.
+    return _cygwin_is_valid_pid(pid)
+
+
+def _cygwin_is_valid_pid(pid: int) -> bool:
+    try:
+        os.kill(pid, 0)
+    except ProcessLookupError:
+        return False
+    except OSError:
+        pass
+    return True

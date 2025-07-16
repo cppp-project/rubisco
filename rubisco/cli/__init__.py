@@ -18,3 +18,13 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 """Rubisco CLI."""
+
+import io
+import sys
+
+from rubisco.config import DEFAULT_CHARSET
+
+# If we use default encoding on Windows, GitHub Action will failed because of
+# encoding problem.
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding=DEFAULT_CHARSET)
+sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding=DEFAULT_CHARSET)

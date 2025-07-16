@@ -23,6 +23,7 @@ dependencies = [
   "pytest >= 6.2.4",
   "pygments >= 2.10.0",
   "prompt_toolkit >= 3.0.23",
+  "psutil>=7.0.0; sys_platform != 'cygwin'",
 ]
 description = "C+++ Repository Utilities."
 license = {file = "LICENSE"}
