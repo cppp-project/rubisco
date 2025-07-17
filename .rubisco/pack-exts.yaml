@@ -11,4 +11,5 @@ steps:
       - name: 📦 Pack ${{ file }} to extension pack.
         compress: ${{ file }}
         start: ${{ file }}
-        to: extensions/$&{{ file.stem }}.zip
+        to: extensions/$&{{ file.stem }}.rubp
+        format: zip

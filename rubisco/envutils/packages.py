@@ -593,13 +593,25 @@ def upgrade_extension(pkg_file: Path, dest: RUEnvironment) -> None:
 
 
 def install_extension(pkg_file: Path, dest: RUEnvironment) -> None:
-    """Install the extension package.
+    """Install the Rubisco binary package (RuBP).
 
     Args:
-        pkg_file (Path): The package file.
+        pkg_file (Path): The package file. It's a zip file with "rubp" suffix.
         dest (RUEnvironment): The destination environment.
 
     """
+    if pkg_file.suffix not in {".rubp", ".RuBP"}:
+        call_ktrigger(
+            IKernelTrigger.on_warning,
+            message=fast_format_str(
+                _(
+                    "Rubisco Binary Package (RuBP) '${{path}}' must be a zip"
+                    "file with '.rubp' suffix.",
+                ),
+                fmt={"path": pkg_file},
+            ),
+        )
+
     info = get_extension_package_info(pkg_file)
     with dest:
         # EIS: Extension Installation Status.
