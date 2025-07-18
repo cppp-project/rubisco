@@ -38,6 +38,7 @@ from rubisco.shared.api.variable import fast_format_str
 from rubisco.shared.extension import IRUExtension
 from rubisco.shared.ktrigger import IKernelTrigger
 from subpackages.package import Package
+from subpackages.steps import FetchStep
 
 __all__ = ["instance"]
 
@@ -64,8 +65,12 @@ class SubpackagesExtension(IRUExtension):
     """Rubisco subpackage manager."""
 
     ktrigger = IKernelTrigger()
-    workflow_steps: ClassVar[dict[str, type[Step]]] = {}
-    steps_contributions: ClassVar[dict[type[Step], list[str]]] = {}
+    workflow_steps: ClassVar[dict[str, type[Step]]] = {
+        "subpackages-fetch": FetchStep,
+    }
+    steps_contributions: ClassVar[dict[type[Step], list[str]]] = {
+        FetchStep: ["subpkg-fetch"],
+    }
 
     def extension_can_load_now(self) -> bool:
         """Load git extension."""
