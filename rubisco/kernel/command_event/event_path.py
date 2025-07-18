@@ -72,6 +72,31 @@ class EventPath(PurePosixPath):  # pylint: disable=R0904
             args = ("/" + str(args[0]), *args[1:])
         return super().__new__(cls, *args)
 
+    def __eq__(self, other: object) -> bool:
+        """Compare two EventPath.
+
+        Args:
+            other (object): The other EventPath.
+
+        Returns:
+            bool: True if equal, False otherwise.
+
+        """
+        if isinstance(other, str):
+            return self.as_posix() == other
+        if not isinstance(other, EventPath):
+            return False
+        return self.as_posix() == other.as_posix()
+
+    def __hash__(self) -> int:
+        """Get the hash of the event.
+
+        Returns:
+            int: The hash of the event.
+
+        """
+        return hash(self.as_posix())
+
     @property
     def event_object(self) -> "EventObject":
         """Get the event."""

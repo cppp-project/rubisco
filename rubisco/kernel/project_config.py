@@ -148,7 +148,14 @@ class ProjectConfigration:  # pylint: disable=too-many-instance-attributes
                 "The project configuration file '%s' is not found.",
                 self.config_file,
             )
-            raise RUNotRubiscoProjectError
+            raise RUNotRubiscoProjectError(
+                fast_format_str(
+                    _("Project configuration file '${{path}}' is not found."),
+                    fmt={
+                        "path": make_pretty(self.config_file),
+                    },
+                ),
+            )
         self.config = _load_config(self.config_file, [])
 
         self.name = self.config.get("name", valtype=str)

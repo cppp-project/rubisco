@@ -180,7 +180,7 @@ def get_arg_parser() -> argparse.ArgumentParser:
 early_arg_parser = argparse.ArgumentParser(
     description="Rubisco CLI",
     add_help=False,
-    allow_abbrev=False,
+    allow_abbrev=True,
     formatter_class=RUHelpFormatter,
 )
 

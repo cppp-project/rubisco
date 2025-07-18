@@ -207,17 +207,22 @@ def _gen_from_file(event_path: EventPath, parent: ArgumentParser) -> None:
 
 def _gen_from_dir(event_path: EventPath, parent: ArgumentParser) -> None:
     subparser = _get_subparser(event_path, parent)
-    parser = subparser.add_parser(
-        event_path.name,
-        help=event_path.stat().description,
-        formatter_class=RUHelpFormatter,
-        allow_abbrev=True,
-    )
+    if event_path == "/":
+        parser = parent
+    else:
+        parser = subparser.add_parser(
+            event_path.name,
+            help=event_path.stat().description,
+            formatter_class=RUHelpFormatter,
+            allow_abbrev=True,
+        )
     _gen_options(event_path, parser)
     for subdir in event_path.list_dirs():
         _gen_from_dir(subdir, parser)
     for file in event_path.list_files():
         _gen_from_file(file, parser)
+    for link in event_path.list_aliases():
+        _gen_from_link(link, parent)
 
 
 def _gen_from_link(event_path: EventPath, parent: ArgumentParser) -> None:
@@ -246,9 +251,4 @@ def gen_argparse(
         parent (ArgumentParser): The parent argument parser.
 
     """
-    for subdir in event_path.list_dirs():
-        _gen_from_dir(subdir, parent)
-    for file in event_path.list_files():
-        _gen_from_file(file, parent)
-    for link in event_path.list_aliases():
-        _gen_from_link(link, parent)
+    _gen_from_dir(event_path, parent)
