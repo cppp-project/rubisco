@@ -85,20 +85,48 @@ def init_arg_parser() -> None:
                     typecheck=str,
                     default="",
                 ),
-                Option[str](
-                    name="log",
-                    title=_("Log file"),
-                    description=_("The file path for saving log."),
-                    typecheck=str,
-                    default="",
+                Option[bool](
+                    name="enable-rubisco-log",
+                    title=_("Enable Rubisco log"),
+                    description=_(
+                        "Allow Rubisco to save log. Do not use this"
+                        " option directly. Use `--log`"
+                        " to allow Rubisco log. It will be saved"
+                        " to `.rubisco/rubisco.log`.",
+                    ),
+                    typecheck=bool,
+                    default=False,
+                    ext_attributes={
+                        "cli-advanced-options": [
+                            {
+                                "name": "--log",
+                                "help": _("Allow Rubisco to save log."),
+                                "action": "store_true",
+                            },
+                        ],
+                    },
                 ),
                 Option[bool](
                     name="rubisco-debug",
-                    title=_("Debug mode"),
-                    description=_("Run rubisco in debug mode."),
+                    title=_("Enable debug mode."),
+                    description=_(
+                        "Run rubisco in debug mode. "
+                        "Don't use this option directly. Use "
+                        "`--debug` to enable debug mode. It's"
+                        " parsed when Rubisco log system"
+                        " initializing.",
+                    ),
                     typecheck=bool,
-                    aliases=["debug"],
                     default=False,
+                    ext_attributes={
+                        "cli-advanced-options": [
+                            {
+                                "name": "--debug",
+                                "help": _("Run rubisco in debug mode."),
+                                "action": "store_true",
+                            },
+                        ],
+                    },
                 ),
             ],
         ),

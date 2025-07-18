@@ -108,8 +108,7 @@ def main() -> None:
             logger.debug("Running in no project mode.")
 
         arg_parser = get_arg_parser()
-
-        args = arg_parser.parse_known_args()[0]
+        args = arg_parser.parse_args()
 
         args.callback(args)
         sys.exit(0)
