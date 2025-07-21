@@ -25,6 +25,7 @@ from pathlib import Path
 import py7zr
 import py7zr.callbacks
 
+from rubisco.kernel.config_file import config_file
 from rubisco.lib.archive.utils import get_includes, write_to_archive
 from rubisco.lib.fileutil import check_file_exists, rm_recursive
 from rubisco.lib.l10n import _
@@ -65,6 +66,8 @@ def extract_7z(
         )
 
         task_name = _("Extracting")
+
+        verbose = config_file.get("verbose", False, valtype=bool)
 
         class _ExtractCallback(py7zr.callbacks.ExtractCallback):
             end: bool = False
@@ -132,7 +135,7 @@ def extract_7z(
                     task_name=task_name,
                     current=1,
                     delta=True,
-                    update_msg=make_pretty(dest / pfp),
+                    update_msg=make_pretty(dest / pfp) if verbose else "",
                 )
 
             def report_warning(self, message: str) -> None:

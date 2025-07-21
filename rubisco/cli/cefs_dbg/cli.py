@@ -40,7 +40,7 @@ from rubisco.kernel.command_event.event_types import (
     EventObjectType,
     get_event_object_type_string,
 )
-from rubisco.lib.exceptions import RUError
+from rubisco.lib.exceptions import RUError, RUValueError
 from rubisco.lib.l10n import _
 from rubisco.lib.log import logger
 from rubisco.lib.variable.fast_format_str import fast_format_str
@@ -339,6 +339,17 @@ class RubiscoCEFSDebuggerCLI:
                         },
                     ),
                 )
+            try:
+                if option.get():
+                    rich.print(
+                        "\t\t"
+                        + fast_format_str(
+                            _("Current value: ${{value}}"),
+                            fmt={"value": repr(option.get())},
+                        ),
+                    )
+            except RUValueError:
+                pass
 
     def stat(self, args: list[str]) -> None:
         """`stat` command.

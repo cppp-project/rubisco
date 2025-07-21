@@ -23,6 +23,7 @@
 from collections.abc import Callable
 from pathlib import Path
 
+from rubisco.kernel.config_file import config_file
 from rubisco.lib.exceptions import RUValueError
 from rubisco.lib.l10n import _
 from rubisco.lib.variable.fast_format_str import fast_format_str
@@ -80,6 +81,8 @@ def write_to_archive(
         task_name=task_name,
         total=len(includes),
     )
+
+    verbose = config_file.get("verbose", False, valtype=bool)
     for path in includes:
         try:
             arcname = path.relative_to(start)
@@ -101,6 +104,6 @@ def write_to_archive(
             task_name=task_name,
             current=1,
             delta=True,
-            update_msg=make_pretty(path),
+            update_msg=make_pretty(path) if verbose else "",
         )
     call_ktrigger(IKernelTrigger.on_finish_task, task_name=task_name)

@@ -120,7 +120,7 @@ def _gen_options(event_path: EventPath, parser: ArgumentParser) -> None:
             names.append(f"--{name}" if len(name) > 1 else f"-{name}")  # noqa: PERF401
         parser.add_argument(
             *names,
-            type=options.typecheck,
+            type=options.typecheck if options.typecheck is list else str,
             help=options.description,
             action="store",
             dest=options.name,

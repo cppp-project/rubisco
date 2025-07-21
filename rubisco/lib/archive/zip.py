@@ -25,6 +25,7 @@ import zipfile
 from pathlib import Path
 
 from rubisco.config import DEFAULT_CHARSET
+from rubisco.kernel.config_file import config_file
 from rubisco.lib.archive.utils import get_includes, write_to_archive
 from rubisco.lib.fileutil import check_file_exists, rm_recursive
 from rubisco.lib.l10n import _
@@ -78,6 +79,7 @@ def extract_zip(
             total=len(memembers),
         )
 
+        verbose = config_file.get("verbose", False, valtype=bool)
         for member in memembers:
             fp.extract(
                 member,
@@ -90,12 +92,13 @@ def extract_zip(
             utime = member.date_time
             utime = time.mktime((*utime, 0, 0, -1))
             os.utime(dest / member.filename, (utime, utime))
+            update_msg = make_pretty(dest / member.filename) if verbose else ""
             call_ktrigger(
                 IKernelTrigger.on_progress,
                 task_name=task_name,
                 current=1,
                 delta=True,
-                update_msg=make_pretty(dest / member.filename),
+                update_msg=update_msg,
             )
 
         call_ktrigger(IKernelTrigger.on_finish_task, task_name=task_name)

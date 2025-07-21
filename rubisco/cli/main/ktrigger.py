@@ -48,6 +48,7 @@ from rubisco.cli.output import (
 from rubisco.config import (
     DEFAULT_CHARSET,
 )
+from rubisco.kernel.config_file import config_file
 from rubisco.lib.l10n import _, locale_language, locale_language_name
 from rubisco.lib.log import logger
 from rubisco.lib.speedtest import C_INTMAX
@@ -395,14 +396,22 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
             )
 
     def pre_run_matrix(self, *, variables: AutoFormatDict) -> None:
+        if not config_file.get("verbose", False):
+            output_step(_("Running matrix jobs ..."))
+            push_level()
+            return
+
         output_step(fast_format_str(_("Running jobs with variables:")))
         push_level()
         for key, val in variables.items():
             output_line(f"{key}: {val!r}")
-        pop_level()
 
-    def post_run_matrix(self, *, variables: AutoFormatDict) -> None:
-        pass
+    def post_run_matrix(
+        self,
+        *,
+        variables: AutoFormatDict,  # noqa: ARG002
+    ) -> None:
+        pop_level()
 
     def on_mkdir(self, *, path: Path) -> None:
         output_step(
@@ -449,6 +458,9 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
         )
 
     def on_file_selected(self, *, path: Path) -> None:
+        if not config_file.get("verbose", False):
+            return
+
         output_step(
             fast_format_str(
                 _("Selected: ${{path}}"),

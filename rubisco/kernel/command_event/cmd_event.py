@@ -484,6 +484,10 @@ class EventObject:
         for opt in file_stat.options:
             opt.get()  # Try to get the value to check if it's set.
 
+        # Before execute the file, we should execute the parents.
+        if self.parent is not None:
+            self.parent.execute_dir()
+
         if isinstance(file_data.args, DynamicArguments):
             self._execute_dynamic_args(file_data.args, file_data, args)
             return
@@ -501,10 +505,6 @@ class EventObject:
                     },
                 ),
             )
-
-        # Before execute the file, we should execute the parents.
-        if self.parent is not None:
-            self.parent.execute_dir()
 
         try:
             for idx, opt in enumerate(args):

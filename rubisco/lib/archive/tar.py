@@ -23,6 +23,7 @@ import tarfile
 from pathlib import Path
 from typing import Literal, cast
 
+from rubisco.kernel.config_file import config_file
 from rubisco.lib.archive.utils import get_includes, write_to_archive
 from rubisco.lib.fileutil import check_file_exists, rm_recursive
 from rubisco.lib.l10n import _
@@ -96,6 +97,7 @@ def extract_tarball(
             total=float(len(memembers)),
         )
 
+        verbose = config_file.get("verbose", False, valtype=bool)
         for member in memembers:
             fp.extract(member, dest, filter=tarfile.tar_filter)
             call_ktrigger(
@@ -103,7 +105,7 @@ def extract_tarball(
                 task_name=task_name,
                 current=1.0,
                 delta=True,
-                update_msg=make_pretty(dest / member.path),
+                update_msg=make_pretty(dest / member.path) if verbose else "",
             )
 
         call_ktrigger(IKernelTrigger.on_finish_task, task_name=task_name)

@@ -27,7 +27,11 @@ from rubisco.cli.cefs_dbg.cli import RubiscoCEFSDebuggerCLI
 from rubisco.cli.main.help_formatter import RUHelpFormatter
 from rubisco.cli.main.version_action import CLIVersionAction, version_callback
 from rubisco.cli.output import output_step
-from rubisco.kernel.command_event.args import Argument, Option
+from rubisco.kernel.command_event.args import (
+    Argument,
+    Option,
+    load_callback_args,
+)
 from rubisco.kernel.command_event.callback import EventCallback
 from rubisco.kernel.command_event.event_file_data import EventFileData
 from rubisco.kernel.command_event.event_path import EventPath
@@ -36,6 +40,7 @@ from rubisco.kernel.command_event.event_types import (
     EventObjectType,
 )
 from rubisco.kernel.command_event.register import EventUnit, register_events
+from rubisco.kernel.config_file import config_file
 from rubisco.lib.l10n import _
 
 __all__ = [
@@ -60,6 +65,19 @@ def cefs_callback(
         RubiscoCEFSDebuggerCLI().run()
     except (SystemExit, KeyboardInterrupt, EOFError):
         output_step(_("Rubisco CommandEventFS Debugger CLI exited."))
+
+
+def init_options(options: list[Option[Any]], args: list[Argument[Any]]) -> None:
+    """Parse options in '/' and init Rubisco configs.
+
+    Args:
+        options (list[Option[Any]]): Options of command line.
+        args (list[Argument[Any]]): Arguments of command line.
+
+    """
+    opts, __ = load_callback_args(options, args)
+    verbose = opts.get("enable-verbose")
+    config_file["verbose"] = verbose
 
 
 def init_arg_parser() -> None:
@@ -127,6 +145,30 @@ def init_arg_parser() -> None:
                             },
                         ],
                     },
+                ),
+                Option[bool](
+                    name="enable-verbose",
+                    title=_("Verbose"),
+                    description=_("Enable verbose output."),
+                    typecheck=bool,
+                    default=False,
+                    ext_attributes={
+                        "cli-advanced-options": [
+                            {
+                                "name": "--verbose",
+                                "help": _("Enable verbose output."),
+                                "action": "store_true",
+                            },
+                        ],
+                    },
+                ),
+            ],
+            dir_callbacks=[
+                EventCallback(
+                    callback=init_options,
+                    description=_(
+                        "Parse options in '/' and init Rubisco configs.",
+                    ),
                 ),
             ],
         ),
