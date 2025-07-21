@@ -58,7 +58,6 @@ def get_includes(
 
 def write_to_archive(
     includes: list[Path],
-    dest: Path,
     start: Path,
     on_write: Callable[[Path, Path], None],
     task_start_msg: str,
@@ -67,7 +66,6 @@ def write_to_archive(
 
     Args:
         includes (list[Path]): Included files list.
-        dest (Path): Destination archive file.
         start (Path | None, optional): Start directory. Defaults to None.
         on_write (Callable[[Path, Path], None]): Callback function to write
             file to archive. It takes two arguments: source file path and
@@ -103,6 +101,6 @@ def write_to_archive(
             task_name=task_name,
             current=1,
             delta=True,
-            update_msg=f"[underline]{dest / path}[/underline]",
+            update_msg=make_pretty(path),
         )
     call_ktrigger(IKernelTrigger.on_finish_task, task_name=task_name)

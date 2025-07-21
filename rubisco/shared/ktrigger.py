@@ -131,7 +131,7 @@ class IKernelTrigger:  # pylint: disable=too-many-public-methods
             total=total,
         )
 
-    def on_progress(
+    def on_progress(  # pylint: disable=R0913
         self,
         *,
         task_name: str,

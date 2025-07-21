@@ -186,7 +186,7 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
         )
         self.tasks[task_name] = task_id
 
-    def on_progress(
+    def on_progress(  # pylint: disable=R0913
         self,
         *,
         task_name: str,

@@ -103,7 +103,7 @@ def extract_tarball(
                 task_name=task_name,
                 current=1.0,
                 delta=True,
-                update_msg=f"[underline]{dest / member.path}[/underline]",
+                update_msg=make_pretty(dest / member.path),
             )
 
         call_ktrigger(IKernelTrigger.on_finish_task, task_name=task_name)
@@ -186,7 +186,6 @@ def compress_tarball(  # pylint: disable=R0913, R0917 # noqa: PLR0913
         ) as fp_:
             write_to_archive(
                 includes,
-                dest,
                 start,
                 lambda path, arcname: fp_.add(
                     path,
@@ -202,7 +201,6 @@ def compress_tarball(  # pylint: disable=R0913, R0917 # noqa: PLR0913
         ) as fp:
             write_to_archive(
                 includes,
-                dest,
                 start,
                 lambda path, arcname: fp.add(
                     path,

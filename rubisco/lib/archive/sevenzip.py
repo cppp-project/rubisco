@@ -132,7 +132,7 @@ def extract_7z(
                     task_name=task_name,
                     current=1,
                     delta=True,
-                    update_msg=f"[underline]{dest / pfp}[/underline]",
+                    update_msg=make_pretty(dest / pfp),
                 )
 
             def report_warning(self, message: str) -> None:
@@ -216,7 +216,6 @@ def compress_7z(  # pylint: disable=too-many-arguments
 
         write_to_archive(
             includes,
-            dest,
             start,
             lambda path, arcname: fp.write(path, str(arcname)),
             task_name,

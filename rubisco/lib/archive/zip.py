@@ -95,7 +95,7 @@ def extract_zip(
                 task_name=task_name,
                 current=1,
                 delta=True,
-                update_msg=f"[underline]{dest / member.filename}[/underline]",
+                update_msg=make_pretty(dest / member.filename),
             )
 
         call_ktrigger(IKernelTrigger.on_finish_task, task_name=task_name)
@@ -153,7 +153,6 @@ def compress_zip(  # pylint: disable=R0913, R0917 # noqa: PLR0913
 
         write_to_archive(
             includes,
-            dest,
             start,
             fp.write,
             task_start_msg=task_start_msg,
