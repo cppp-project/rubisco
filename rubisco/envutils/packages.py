@@ -34,6 +34,7 @@ import json5
 from rubisco.config import DEFAULT_CHARSET, EXTENSIONS_DIR
 from rubisco.envutils.env_type import EnvType
 from rubisco.envutils.pip import install_requirements
+from rubisco.envutils.utils import canonical_pkg_name
 from rubisco.kernel.ext_name_check import is_valid_extension_name
 from rubisco.lib.archive import extract_zip
 from rubisco.lib.exceptions import RUValueError
@@ -93,7 +94,7 @@ def _pkg_check(zip_file: zipfile.ZipFile, pkg_name: str) -> None:
             root_list.add(str(Path(file).parts[0]))
 
     try:
-        root_list.remove(pkg_name)
+        root_list.remove(canonical_pkg_name(pkg_name))
         root_list.remove("rubisco.json")
     except KeyError as exc:
         raise RUValueError(
@@ -340,7 +341,7 @@ def _extract_extension(
     """Extract the extension package to the destination directory."""
     with (
         TemporaryObject.register_tempobject(
-            dest.path / EXTENSIONS_DIR / info.name,
+            dest.path / EXTENSIONS_DIR / canonical_pkg_name(info.name),
             TemporaryObject.TYPE_DIRECTORY,
         ) as dest_dir,
         TemporaryObject.new_directory() as temp_dir,
@@ -355,7 +356,10 @@ def _extract_extension(
                 (temp_dir.path / "data" / "requirements.txt"),
                 dest_dir.path / "requirements.txt",
             )
-        shutil.move(temp_dir.path / "data" / info.name, dest_dir.path)
+        shutil.move(
+            temp_dir.path / "data" / canonical_pkg_name(info.name),
+            dest_dir.path,
+        )
         if (temp_dir.path / "data" / "LICENSE").exists():
             shutil.move(
                 temp_dir.path / "data" / "LICENSE",
@@ -463,8 +467,9 @@ def _uninstall_extension(
 ) -> None:
     # Remove it from the database first.
     dest.db_handle.remove_packages([epi])
+    path = dest.path / EXTENSIONS_DIR / canonical_pkg_name(epi.name)
     try:
-        rm_recursive(dest.path / EXTENSIONS_DIR / epi.name)
+        rm_recursive(path)
     except FileNotFoundError:
         call_ktrigger(
             IKernelTrigger.on_warning,
@@ -475,9 +480,7 @@ def _uninstall_extension(
                 ),
                 fmt={
                     "name": epi.name,
-                    "path": make_pretty(
-                        dest.path / EXTENSIONS_DIR / epi.name,
-                    ),
+                    "path": make_pretty(path),
                 },
             ),
         )

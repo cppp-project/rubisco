@@ -40,6 +40,7 @@ from rubisco.envutils.env import (
     RUEnvironment,
 )
 from rubisco.envutils.packages import ExtensionPackageInfo, parse_extension_info
+from rubisco.envutils.utils import canonical_pkg_name
 from rubisco.kernel.config_file import config_file
 from rubisco.kernel.ext_name_check import is_valid_extension_name
 from rubisco.kernel.workflow import register_step_type
@@ -229,7 +230,10 @@ def _get_ext_info(
         return ext, ext_info
 
     ext_info = ext
-    return env.extensions_venv_path / ext_info.name, ext_info
+    return (
+        env.extensions_venv_path / canonical_pkg_name(ext_info.name),
+        ext_info,
+    )
 
 
 loaded_extensions: list[str] = []
@@ -287,7 +291,9 @@ def load_extension(
         logger.info("Loading extension '%s'...", ext_info.name)
 
         # Get the extension instance.
-        instance = _get_extension_instance(path / ext_info.name)
+        instance = _get_extension_instance(
+            path / canonical_pkg_name(ext_info.name),
+        )
 
         # Check if the extension can load now.
         if not instance.extension_can_load_now():

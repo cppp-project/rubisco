@@ -29,6 +29,7 @@ from rubisco.kernel.mirrorlist import get_url as get_mirror_url
 from rubisco.kernel.project_config import (
     ProjectConfigration,
     ProjectHook,
+    is_rubisco_project,
     load_project_config,
 )
 from rubisco.kernel.workflow.step import Step
@@ -42,6 +43,7 @@ __all__ = [
     "Workflow",
     "get_mirror_url",
     "get_rubisco_configuration",
+    "is_rubisco_project",
     "is_valid_extension_name",
     "load_project_config",
 ]

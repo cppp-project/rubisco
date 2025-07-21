@@ -121,7 +121,7 @@ class IKernelTrigger:  # pylint: disable=too-many-public-methods
         Args:
             task_start_msg (str): Task start message.
             task_name (str): Task name.
-            total (float): Total steps.
+            total (float): Total steps. -1 means infinite.
 
         """
         _null_trigger(
@@ -138,6 +138,7 @@ class IKernelTrigger:  # pylint: disable=too-many-public-methods
         current: float,
         delta: bool = False,
         update_msg: str = "",
+        status_msg: str = "",
     ) -> None:
         """When the progressive task progress is updated.
 
@@ -147,6 +148,7 @@ class IKernelTrigger:  # pylint: disable=too-many-public-methods
             current (int | float): Current step.
             delta (bool): If the current is delta.
             update_msg (str): Update message.
+            status_msg (str): Status message.
 
         """
         _null_trigger(
@@ -155,6 +157,7 @@ class IKernelTrigger:  # pylint: disable=too-many-public-methods
             current=current,
             delta=delta,
             update_msg=update_msg,
+            status_msg=status_msg,
         )
 
     def set_progress_total(self, *, task_name: str, total: float) -> None:

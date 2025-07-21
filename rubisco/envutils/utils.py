@@ -28,7 +28,7 @@ from rubisco.lib.variable.fast_format_str import fast_format_str
 from rubisco.lib.variable.utils import make_pretty
 from rubisco.shared.ktrigger import IKernelTrigger, call_ktrigger
 
-__all__ = ["add_venv_to_syspath", "is_venv"]
+__all__ = ["add_venv_to_syspath", "canonical_pkg_name", "is_venv"]
 
 
 def is_venv(path: Path) -> bool:
@@ -80,3 +80,15 @@ def add_venv_to_syspath(path: Path) -> None:
                 fmt={"path": make_pretty(path), "exc": str(exc)},
             ),
         )
+
+def canonical_pkg_name(pkg_name: str) -> str:
+    """Canonicalize the package name.
+
+    Args:
+        pkg_name (str): The package name.
+
+    Returns:
+        str: The canonicalized package name.
+
+    """
+    return pkg_name.replace("-", "_")

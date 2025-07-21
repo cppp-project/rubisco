@@ -77,6 +77,23 @@ if TYPE_CHECKING:
 __all__ = ["RubiscoKTrigger"]
 
 
+class CurrentProgressColumn(rich.progress.ProgressColumn):
+    """Progress bar column for infinite progres bar."""
+
+    def render(self, task: rich.progress.Task) -> str:
+        """Render for CurrentProgressColumn.
+
+        Args:
+            task (Task): The progress task
+
+        Returns:
+            Status message.
+
+        """
+        status = task.fields.get("status", "")
+        return f"[cyan]{status}[/cyan]" if status else ""
+
+
 class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
     IKernelTrigger,
 ):  # Rubisco CLI kernel trigger.
@@ -86,7 +103,6 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
     cur_progress: rich.progress.Progress | None
     tasks: dict[str, rich.progress.TaskID]
     task_types: dict[str, str]
-    task_totals: dict[str, float]
     live: rich.live.Live | None
     _speedtest_hosts: dict[str, str]
 
@@ -95,7 +111,6 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
         self.cur_progress = None
         self.tasks = {}
         self.task_types = {}
-        self.task_totals = {}
         self.live = None
         self._speedtest_hosts = {}
 
@@ -146,18 +161,30 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
         *,
         task_start_msg: str,
         task_name: str,
-        total: float,
+        total: float | None,
     ) -> None:
         output_step(task_start_msg)
 
         if self.cur_progress is None:
-            self.cur_progress = rich.progress.Progress()
+            self.cur_progress = rich.progress.Progress(
+                rich.progress.TextColumn(
+                    "[progress.description]{task.description}",
+                ),
+                rich.progress.BarColumn(),
+                CurrentProgressColumn(),
+                rich.progress.TaskProgressColumn(),
+                rich.progress.TimeElapsedColumn(),
+                rich.progress.TimeRemainingColumn(),
+                rich.progress.MofNCompleteColumn(),
+            )
             self.cur_progress.start()
         if task_name in self.tasks:
             self.cur_progress.update(self.tasks[task_name], completed=0)
-        task_id = self.cur_progress.add_task(task_name, total=total)
+        task_id = self.cur_progress.add_task(
+            task_name,
+            total=None if total == -1 else total,
+        )
         self.tasks[task_name] = task_id
-        self.task_totals[task_name] = total
 
     def on_progress(
         self,
@@ -166,6 +193,7 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
         current: float,
         delta: bool = False,
         update_msg: str = "",
+        status_msg: str = "",
     ) -> None:
         output_line(update_msg)
 
@@ -173,9 +201,17 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
             logger.warning("Progress not started.")
             return
         if delta:
-            self.cur_progress.update(self.tasks[task_name], advance=current)
+            self.cur_progress.update(
+                self.tasks[task_name],
+                advance=current,
+                status=status_msg,
+            )
         else:
-            self.cur_progress.update(self.tasks[task_name], completed=current)
+            self.cur_progress.update(
+                self.tasks[task_name],
+                completed=current,
+                status=status_msg,
+            )
 
     def set_progress_total(self, *, task_name: str, total: float) -> None:
         if self.cur_progress is None:
@@ -189,7 +225,6 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
             return
         self.cur_progress.remove_task(self.tasks[task_name])
         del self.tasks[task_name]
-        del self.task_totals[task_name]
         if not self.tasks:
             self.cur_progress.stop()
             self.cur_progress = None
@@ -747,6 +782,7 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
         rich.print(
             fast_format_str(
                 msg,
-                fmt={"seconds": cur_time},
+                fmt={"seonds": cur_time},
             ),
+            end="\r",
         )

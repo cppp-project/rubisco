@@ -4,12 +4,5 @@
   "description": "C+++ Repository Utilities.",
   "maintainer": "ChenPi11 <wushengwuxi-msctinoulk@outlook.com>",
   "license": "GPL-3.0",
-  "includes": ["hooks.json"],
-  "subpackages": {
-    "reiconv": {
-      "url": "ChenPi11/ci-test@github",
-      "branch": "main",
-      "path": ["ci-test"]
-    }
-  }
+  "includes": ["hooks.json"]
 }

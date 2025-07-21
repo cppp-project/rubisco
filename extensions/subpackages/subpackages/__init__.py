@@ -44,7 +44,7 @@ __all__ = ["instance"]
 
 
 def on_fetch(options: list[Option[Any]], args: list[Argument[Any]]) -> None:
-    """Fetch git extension."""
+    """Fetch subpackages."""
     opts, _args = load_callback_args(options, args)
     protocol = opts.get("protocol", "http")
     shallow = opts.get("shallow", True)
@@ -73,7 +73,7 @@ class SubpackagesExtension(IRUExtension):
     }
 
     def extension_can_load_now(self) -> bool:
-        """Load git extension."""
+        """Load the extension."""
         return not (find_command("git") is None or not Path(".git").is_dir())
 
     def reqs_is_solved(self) -> bool:

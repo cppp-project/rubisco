@@ -52,6 +52,7 @@ from rubisco.shared.ktrigger import IKernelTrigger, call_ktrigger
 __all__ = [
     "ProjectConfigration",
     "ProjectHook",
+    "is_rubisco_project",
     "load_project_config",
 ]
 
@@ -329,6 +330,19 @@ def load_project_config(project_dir: Path) -> ProjectConfigration:
 
     """
     return ProjectConfigration(project_dir / USER_REPO_CONFIG)
+
+
+def is_rubisco_project(project_dir: Path) -> bool:
+    """Check if the given directory is a Rubisco project.
+
+    Args:
+        project_dir (Path): The path to the project directory.
+
+    Returns:
+        bool: True if the directory is a Rubisco project, False otherwise.
+
+    """
+    return (project_dir / USER_REPO_CONFIG).exists()
 
 
 if __name__ == "__main__":

@@ -1,9 +1,9 @@
 {
-    "name": "subpackages",
+    "name": "cppp-srcpkg",
     "version": "0.1.0",
-    "description": "Rubisco subpackage manager.",
+    "description": "Rubisco source package builder.",
     "homepage": "https://github.com/cppp-project/rubisco",
     "maintainers": ["ChenPi11"],
     "license": "GPL-3.0",
-    "tags": ["subpackages", "rubisco"]
+    "tags": ["rubisco", "tarball", "srcpkg"]
 }
