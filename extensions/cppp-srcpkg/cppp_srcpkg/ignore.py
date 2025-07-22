@@ -78,7 +78,7 @@ class Manifest:
         filepath = file.relative_to(self.root) if file.is_absolute() else file
         for pattern in self.include_patterns:
             if fnmatch(str(filepath), pattern):
-                return False
+                return True
 
         if self.repo is None:
             return False

@@ -633,6 +633,19 @@ class IKernelTrigger:  # pylint: disable=too-many-public-methods
         """
         _null_trigger("on_wait", msg=msg, cur_time=cur_time)
 
+    def end_wait(
+        self,
+        *,
+        msg: str,
+    ) -> None:
+        """End for waiting.
+
+        Args:
+            msg (str): The wait message.
+
+        """
+        _null_trigger("end_wait", msg=msg)
+
 
 # KTrigger instances.
 ktriggers: dict[str, IKernelTrigger] = {}

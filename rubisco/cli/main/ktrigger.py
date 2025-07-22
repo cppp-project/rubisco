@@ -22,7 +22,7 @@
 from __future__ import annotations
 
 import sys
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import colorama
 import rich
@@ -34,6 +34,7 @@ from pygments.lexers import get_lexer_by_name
 
 from rubisco.cli.input import ask_yesno
 from rubisco.cli.main.project_config import get_hooks
+from rubisco.cli.osc9 import ProgressBarState, conemu_progress
 from rubisco.cli.output import (
     get_prompt,
     output_error,
@@ -91,6 +92,10 @@ class CurrentProgressColumn(rich.progress.ProgressColumn):
             Status message.
 
         """
+        if task.total:
+            conemu_progress(ProgressBarState.NORMAL, task.completed, task.total)
+        else:
+            conemu_progress(ProgressBarState.WAITING)
         status = task.fields.get("status", "")
         return f"[cyan]{status}[/cyan]" if status else ""
 
@@ -106,6 +111,7 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
     task_types: dict[str, str]
     live: rich.live.Live | None
     _speedtest_hosts: dict[str, str]
+    _rich_printer: object
 
     def __init__(self) -> None:
         super().__init__()
@@ -114,6 +120,7 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
         self.task_types = {}
         self.live = None
         self._speedtest_hosts = {}
+        self._rich_printer = rich.print
 
     def _highlight_command(self, shell: Path, cmd: str) -> str:
         shellname = shell.name.lower()
@@ -187,6 +194,21 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
         )
         self.tasks[task_name] = task_id
 
+        def _print_wrapper(
+            *args: list[Any],
+            flush: bool = False,
+            **kwargs: dict[str, Any],
+        ) -> None:
+            if not self.cur_progress:
+                self._rich_printer(*args, **kwargs, flush=flush)  # type: ignore[arg-type]
+                return
+
+            self.cur_progress.print(*args, **kwargs)  # type: ignore[arg-type]
+            if flush:
+                sys.stdout.buffer.flush()
+
+        rich.print = _print_wrapper  # Evil hacking.
+
     def on_progress(  # pylint: disable=R0913
         self,
         *,
@@ -229,6 +251,8 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
         if not self.tasks:
             self.cur_progress.stop()
             self.cur_progress = None
+            if self._rich_printer:
+                rich.print = self._rich_printer
 
     def on_syspkg_installation_skip(
         self,
@@ -305,6 +329,7 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
         self.live.update(msg)
 
     def pre_speedtest(self, *, host: str) -> None:
+        conemu_progress(ProgressBarState.WAITING)
         if self.live is None:
             output_step(_("Performing websites speed test ..."))
             self.live = rich.live.Live()
@@ -340,6 +365,7 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
             self.live = None
 
     def stop_speedtest(self, *, choise: str | None) -> None:
+        conemu_progress(ProgressBarState.NORMAL)
         if self.live is None:
             return
         self.live.stop()
@@ -791,6 +817,7 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
             RUValueError: Waiting message is empty.
 
         """
+        conemu_progress(ProgressBarState.WAITING)
         rich.print(
             fast_format_str(
                 msg,
@@ -798,3 +825,16 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
             ),
             end="\r",
         )
+
+    def end_wait(
+        self,
+        *,
+        msg: str,  # noqa: ARG002
+    ) -> None:
+        """End for waiting.
+
+        Args:
+            msg (str): The wait message.
+
+        """
+        conemu_progress(ProgressBarState.DEFAULT)

@@ -23,6 +23,7 @@ from __future__ import annotations
 
 import rich
 
+from rubisco.cli.osc9 import ProgressBarState, conemu_progress
 from rubisco.cli.output import output_warning
 from rubisco.lib.exceptions import RUValueError
 from rubisco.lib.l10n import _
@@ -30,17 +31,7 @@ from rubisco.lib.l10n import _
 __all__ = ["ask_yesno"]
 
 
-def ask_yesno(message: str, *, default: bool | None = None) -> bool:
-    """Ask the user a yes/no question.
-
-    Args:
-        message (str): The message to display.
-        default (bool, optional): The default value. Defaults to False.
-
-    Returns:
-        bool: True if the user answered yes.
-
-    """
+def _ask_yesno(message: str, *, default: bool | None) -> bool:
     for _i in range(15):  # pylint: disable=unused-variable
         choise = "(y/n)"
 
@@ -76,3 +67,20 @@ def ask_yesno(message: str, *, default: bool | None = None) -> bool:
     if default is not None:
         return default
     raise RUValueError(_("Invalid input."))
+
+
+def ask_yesno(message: str, *, default: bool | None = None) -> bool:
+    """Ask the user a yes/no question.
+
+    Args:
+        message (str): The message to display.
+        default (bool, optional): The default value. Defaults to False.
+
+    Returns:
+        bool: True if the user answered yes.
+
+    """
+    conemu_progress(ProgressBarState.WAITING)
+    ret = _ask_yesno(message=message, default=default)
+    conemu_progress(ProgressBarState.DEFAULT)
+    return ret

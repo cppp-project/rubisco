@@ -184,7 +184,6 @@ def output_step(message: str, level: int = -1, end: str = "\n") -> None:
                 },
             ),
             end=end,
-            flush=True,
         )
 
 
