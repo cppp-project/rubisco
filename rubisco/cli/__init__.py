@@ -19,6 +19,7 @@
 
 """Rubisco CLI."""
 
+import atexit
 import io
 import sys
 
@@ -39,3 +40,11 @@ sys.stderr = io.TextIOWrapper(
     errors=sys.stderr.errors,
     line_buffering=True,
 )
+
+
+def _reset_cursor() -> None:
+    sys.stdout.buffer.write(b"\x1b[?25h")
+    sys.stdout.buffer.flush()
+
+
+atexit.register(_reset_cursor)
