@@ -28,7 +28,7 @@ from rubisco.config import USER_REPO_CONFIG
 from rubisco.kernel.command_event.callback import EventCallback
 from rubisco.kernel.command_event.event_file_data import EventFileData
 from rubisco.kernel.command_event.event_path import EventPath
-from rubisco.kernel.project_config import ProjectHook, load_project_config
+from rubisco.kernel.project_config.project_config import load_project_config
 from rubisco.lib.exceptions import RUNotRubiscoProjectError, RUValueError
 from rubisco.lib.l10n import _
 from rubisco.lib.log import logger
@@ -37,7 +37,8 @@ from rubisco.lib.variable.fast_format_str import fast_format_str
 
 if TYPE_CHECKING:
     from rubisco.kernel.command_event.args import Argument, Option
-    from rubisco.kernel.project_config import ProjectConfigration
+    from rubisco.kernel.project_config.hook import ProjectHook
+    from rubisco.kernel.project_config.project_config import ProjectConfigration
 
 __all__ = [
     "bind_hook",

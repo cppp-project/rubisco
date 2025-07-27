@@ -38,10 +38,12 @@ from rubisco.lib.variable import (
     variables as _variables,
 )
 from rubisco.lib.variable.fast_format_str import fast_format_str
+from rubisco.lib.variable.var_container import VariableContainer
 
 __all__ = [
     "AutoFormatDict",
     "AutoFormatList",
+    "VariableContainer",
     "add_undefined_var_callback",
     "assert_iter_types",
     "fast_format_str",

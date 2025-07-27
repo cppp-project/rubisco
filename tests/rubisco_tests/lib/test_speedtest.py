@@ -21,11 +21,46 @@
 
 import asyncio
 import sys
+from http import HTTPStatus
+
+from aiohttp import ClientError, ClientSession, ClientTimeout
+import pytest
 
 from rubisco.lib.speedtest import url_speedtest
+
+TIMEOUT = 5
+
+
+async def _is_network_reachable() -> bool:
+    try:
+        async with (
+            ClientSession() as session,
+            session.get(
+                "https://example.com",
+                timeout=ClientTimeout(total=TIMEOUT),
+            ) as resp,
+        ):
+            return resp.status == HTTPStatus.OK
+    except (ClientError, OSError):
+        return False
+
+
+def is_network_reachable() -> bool:
+    """Check for the network is reachable.
+
+    Returns:
+        bool: Return True if network is reachable. False otherwise.
+
+    """
+    try:
+        return asyncio.run(_is_network_reachable())
+    except OSError:
+        return False
 
 
 def test_speedtest() -> None:
     """Test the speedtest module."""
+    if not is_network_reachable():
+        pytest.skip("Network is unreachable.")
     speed = asyncio.run(url_speedtest("https://example.com"))
     sys.stdout.write(f"Speed of https://example.com: {speed} us.\n")

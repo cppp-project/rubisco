@@ -17,25 +17,31 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-"""Rubisco CLI."""
+"""Utils for Rubisco project."""
 
-import io
-import sys
+from pathlib import Path
 
-from rubisco.config import DEFAULT_CHARSET
+from beartype import beartype
 
-# If we use default encoding on Windows, GitHub Action will failed because of
-# encoding problem.
-sys.stdout = io.TextIOWrapper(
-    sys.stdout.buffer,
-    encoding=DEFAULT_CHARSET,
-    errors=sys.stdout.errors,
-    newline=sys.stdout.newlines,
-    line_buffering=True,
-)
-sys.stderr = io.TextIOWrapper(
-    sys.stderr.buffer,
-    encoding=DEFAULT_CHARSET,
-    errors=sys.stderr.errors,
-    line_buffering=True,
-)
+from rubisco.config import USER_REPO_CONFIG
+from rubisco.kernel.config_loader import SUPPORTED_EXTS
+
+__all__ = ["is_rubisco_project"]
+
+
+@beartype
+def is_rubisco_project(project_dir: Path) -> bool:
+    """Check if the given directory is a Rubisco project.
+
+    Args:
+        project_dir (Path): The path to the project directory.
+
+    Returns:
+        bool: True if the directory is a Rubisco project, False otherwise.
+
+    """
+    path = project_dir / USER_REPO_CONFIG
+    if path.is_file():
+        return True
+
+    return any(path.with_suffix(ext).is_file() for ext in SUPPORTED_EXTS)

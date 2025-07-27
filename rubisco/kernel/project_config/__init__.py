@@ -17,25 +17,4 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-"""Rubisco CLI."""
-
-import io
-import sys
-
-from rubisco.config import DEFAULT_CHARSET
-
-# If we use default encoding on Windows, GitHub Action will failed because of
-# encoding problem.
-sys.stdout = io.TextIOWrapper(
-    sys.stdout.buffer,
-    encoding=DEFAULT_CHARSET,
-    errors=sys.stdout.errors,
-    newline=sys.stdout.newlines,
-    line_buffering=True,
-)
-sys.stderr = io.TextIOWrapper(
-    sys.stderr.buffer,
-    encoding=DEFAULT_CHARSET,
-    errors=sys.stderr.errors,
-    line_buffering=True,
-)
+"""Rubisco project configuration loader."""

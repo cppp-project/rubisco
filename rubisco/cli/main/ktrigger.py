@@ -64,7 +64,7 @@ if TYPE_CHECKING:
 
     from rubisco.envutils.env import RUEnvironment
     from rubisco.envutils.packages import ExtensionPackageInfo
-    from rubisco.kernel.project_config import ProjectConfigration
+    from rubisco.kernel.project_config.project_config import ProjectConfigration
     from rubisco.kernel.workflow.step import Step
     from rubisco.kernel.workflow.workflow import Workflow
     from rubisco.lib.process import Process
@@ -110,6 +110,7 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
     tasks: dict[str, rich.progress.TaskID]
     task_types: dict[str, str]
     live: rich.live.Live | None
+    verbose: bool
     _speedtest_hosts: dict[str, str]
     _rich_printer: object
 
@@ -119,6 +120,7 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
         self.tasks = {}
         self.task_types = {}
         self.live = None
+        self.verbose = config_file.get("verbose", False)
         self._speedtest_hosts = {}
         self._rich_printer = rich.print
 
@@ -422,7 +424,7 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
             )
 
     def pre_run_matrix(self, *, variables: AutoFormatDict) -> None:
-        if not config_file.get("verbose", False):
+        if not self.verbose:
             output_step(_("Running matrix jobs ..."))
             push_level()
             return
@@ -484,7 +486,7 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
         )
 
     def on_file_selected(self, *, path: Path) -> None:
-        if not config_file.get("verbose", False):
+        if not self.verbose:
             return
 
         output_step(
@@ -500,6 +502,9 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
         instance: IRUExtension,  # noqa: ARG002
         ext_info: ExtensionPackageInfo,
     ) -> None:
+        if not self.verbose:
+            return
+
         output_step(
             fast_format_str(
                 _("Extension '${{name}}' loaded."),
@@ -544,7 +549,7 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
         )
 
         if isinstance(project.maintainer, list):
-            maintainers = "\n  ".join(project.maintainer)
+            maintainers = "\n  ".join([str(m) for m in project.maintainer])
         else:
             maintainers = str(project.maintainer)
         rich.print(
@@ -553,10 +558,11 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
                 fmt={"maintainer": maintainers},
             ),
         )
+        _u = _("[yellow]Unknown[/yellow]")
         rich.print(
             fast_format_str(
                 _("[dark_orange]License:[/dark_orange] ${{license}}"),
-                fmt={"license": project.license},
+                fmt={"license": project.license or _u},
             ),
         )
         rich.print(

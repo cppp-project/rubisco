@@ -39,7 +39,7 @@ if TYPE_CHECKING:
 
     from rubisco.envutils.env import RUEnvironment
     from rubisco.envutils.packages import ExtensionPackageInfo
-    from rubisco.kernel.project_config import ProjectConfigration
+    from rubisco.kernel.project_config.project_config import ProjectConfigration
     from rubisco.kernel.workflow.step import Step, Workflow
     from rubisco.lib.process import Process
     from rubisco.lib.variable.autoformatdict import AutoFormatDict

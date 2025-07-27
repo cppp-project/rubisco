@@ -26,17 +26,19 @@ it into `rubisco.shared.api.cefs`.
 from rubisco.kernel.config_file import config_file
 from rubisco.kernel.ext_name_check import is_valid_extension_name
 from rubisco.kernel.mirrorlist import get_url as get_mirror_url
-from rubisco.kernel.project_config import (
+from rubisco.kernel.project_config.hook import ProjectHook
+from rubisco.kernel.project_config.maintainer import Maintainer
+from rubisco.kernel.project_config.project_config import (
     ProjectConfigration,
-    ProjectHook,
-    is_rubisco_project,
     load_project_config,
 )
+from rubisco.kernel.project_config.utils import is_rubisco_project
 from rubisco.kernel.workflow.step import Step
 from rubisco.kernel.workflow.workflow import Workflow
 from rubisco.lib.variable.autoformatdict import AutoFormatDict
 
 __all__ = [
+    "Maintainer",
     "ProjectConfigration",
     "ProjectHook",
     "Step",

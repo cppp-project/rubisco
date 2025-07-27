@@ -21,13 +21,13 @@
 
 from __future__ import annotations
 
-from pathlib import Path
-from typing import Any, cast
+from typing import TYPE_CHECKING, Any, cast
 
 import json5 as json
 
 from rubisco.config import APP_VERSION, USER_REPO_CONFIG
-from rubisco.kernel.workflow import run_inline_workflow, run_workflow
+from rubisco.kernel.project_config.hook import ProjectHook
+from rubisco.kernel.project_config.maintainer import Maintainer
 from rubisco.lib.exceptions import (
     RUNotRubiscoProjectError,
     RUTypeError,
@@ -36,7 +36,6 @@ from rubisco.lib.exceptions import (
 from rubisco.lib.fileutil import glob_path, resolve_path
 from rubisco.lib.l10n import _
 from rubisco.lib.log import logger
-from rubisco.lib.process import Process
 from rubisco.lib.variable import (
     AutoFormatDict,
     assert_iter_types,
@@ -49,70 +48,13 @@ from rubisco.lib.variable.typecheck import is_instance
 from rubisco.lib.version import Version
 from rubisco.shared.ktrigger import IKernelTrigger, call_ktrigger
 
+if TYPE_CHECKING:
+    from pathlib import Path
+
 __all__ = [
     "ProjectConfigration",
-    "ProjectHook",
-    "is_rubisco_project",
     "load_project_config",
 ]
-
-
-class ProjectHook:  # pylint: disable=too-few-public-methods
-    """Project hook."""
-
-    _raw_data: AutoFormatDict
-    name: str
-
-    def __init__(self, data: AutoFormatDict, name: str) -> None:
-        """Initialize the project hook."""
-        self._raw_data = data
-        self.name = name
-
-    def run(self) -> None:
-        """Run this hook."""
-        variables: AutoFormatDict = self._raw_data.get(
-            "vars",
-            {},
-            valtype=dict,
-        )
-        try:
-            for name, val in variables.items():  # Push all variables first.
-                push_variables(name, val)
-
-            cmd = self._raw_data.get("exec", None, valtype=str | list | None)
-            workflow = self._raw_data.get("run", None, valtype=str | None)
-            inline_wf = self._raw_data.get(
-                "workflow",
-                None,
-                valtype=dict | AutoFormatDict | list | None,
-            )
-
-            if not cmd and not workflow and not inline_wf:
-                raise RUValueError(
-                    fast_format_str(
-                        _("Hook '${{name}}' is invalid."),
-                        fmt={"name": self.name},
-                    ),
-                    hint=_(
-                        "A workflow [yellow]SHOULD[/yellow] contain at "
-                        "least 'exec', 'run' and 'workflow'.",
-                    ),
-                )
-
-            # Then, run inline workflow.
-            if inline_wf:
-                run_inline_workflow(inline_wf, self.name)
-
-            # Then, run workflow.
-            if workflow:
-                run_workflow(Path(workflow))
-
-            # Finally, execute shell command.
-            if cmd:
-                Process(cmd).run()
-        finally:
-            for name in variables:
-                pop_variables(name)
 
 
 class ProjectConfigration:  # pylint: disable=too-many-instance-attributes
@@ -128,8 +70,8 @@ class ProjectConfigration:  # pylint: disable=too-many-instance-attributes
     # Project optional configurations.
     description: str
     rubisco_min_version: Version
-    maintainer: list[str] | str
-    license: str
+    maintainer: list[Maintainer] | Maintainer
+    license: str | None
     hooks: AutoFormatDict
 
     pushed_variables: list[str]
@@ -189,15 +131,17 @@ class ProjectConfigration:  # pylint: disable=too-many-instance-attributes
                 hint=_("Please upgrade rubisco to the required version."),
             )
 
-        self.maintainer = self.config.get(
-            "maintainer",
-            _("[yellow]Unknown[/yellow]"),
-            valtype=list | str,
-        )
+        self.maintainer = [
+            Maintainer.parse(x)
+            for x in self.config.get(
+                "maintainer",
+                valtype=list | str | dict[str, str],
+            )
+        ]
 
         self.license = self.config.get(
             "license",
-            _("[yellow]Unknown[/yellow]"),
+            None,
             valtype=str,
         )
 
@@ -330,22 +274,3 @@ def load_project_config(project_dir: Path) -> ProjectConfigration:
 
     """
     return ProjectConfigration(project_dir / USER_REPO_CONFIG)
-
-
-def is_rubisco_project(project_dir: Path) -> bool:
-    """Check if the given directory is a Rubisco project.
-
-    Args:
-        project_dir (Path): The path to the project directory.
-
-    Returns:
-        bool: True if the directory is a Rubisco project, False otherwise.
-
-    """
-    return (project_dir / USER_REPO_CONFIG).exists()
-
-
-if __name__ == "__main__":
-    import rich
-
-    rich.print(_load_config(Path("project.json"), []))

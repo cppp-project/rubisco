@@ -17,25 +17,31 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-"""Rubisco CLI."""
+"""Test for rubisco config loader."""
 
-import io
-import sys
+from pathlib import Path
 
-from rubisco.config import DEFAULT_CHARSET
+import pytest
 
-# If we use default encoding on Windows, GitHub Action will failed because of
-# encoding problem.
-sys.stdout = io.TextIOWrapper(
-    sys.stdout.buffer,
-    encoding=DEFAULT_CHARSET,
-    errors=sys.stdout.errors,
-    newline=sys.stdout.newlines,
-    line_buffering=True,
-)
-sys.stderr = io.TextIOWrapper(
-    sys.stderr.buffer,
-    encoding=DEFAULT_CHARSET,
-    errors=sys.stderr.errors,
-    line_buffering=True,
-)
+from rubisco.kernel.config_loader import RUConfiguration
+
+
+def test_load() -> None:
+    """Test for rubisco config loader."""
+    res: dict[str, object] = {
+        "a": 2,
+        "b": ["B", 1, 2, 3],
+        "c": [1, 2, 3, 4],
+        "d": {
+            "aa": 11,
+            "bb": "bb",
+            "cc": [11, 22],
+            "dd": {"a": 1, "xxxx": [{"a": 1}, {"b": 2}], "b": 1},
+            "ee": "ef",
+        },
+        "includes": ["test.include.json"],
+    }
+    config = RUConfiguration.load_from_file(Path("tests/test.json5"))
+    d = dict(config)
+    if d != res:
+        pytest.fail(f"Expect {res}, got {d}")
