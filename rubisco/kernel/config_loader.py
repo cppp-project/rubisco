@@ -47,6 +47,19 @@ SUPPORTED_EXTS = {".json", ".json5", ".cfg", ".toml", ".ini", ".yml", ".yaml"}
 class RUConfiguration(AutoFormatDict):
     """Rubisco configuration."""
 
+    path: Path
+
+    def __init__(self, path: Path, init: AutoFormatDict) -> None:
+        """Initialize configuration.
+
+        Args:
+            path (Path): Config file path.
+            init (AutoFormatDict): Initial data.
+
+        """
+        super().__init__(init)
+        self.path = path
+
     @classmethod
     def __load_from_file(
         cls,
@@ -74,7 +87,7 @@ class RUConfiguration(AutoFormatDict):
                 )
 
             logger.debug("Loading config file as '%s': %s", filetype, path)
-            afd = RUConfiguration(loadfunc(f))
+            afd = RUConfiguration(path, AutoFormatDict(loadfunc(f)))
             includes: list[str] = afd.get(
                 "includes",
                 default=[],
@@ -96,7 +109,7 @@ class RUConfiguration(AutoFormatDict):
         path = path.resolve()
         if path in loaded:
             logger.warning("Circular dependency detected: %s", path)
-            return RUConfiguration({})
+            return RUConfiguration(path, AutoFormatDict({}))
         afd = cls.__load_from_file(path, loaded)
 
         dirpath = Path(str(path) + ".d")

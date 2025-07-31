@@ -72,6 +72,19 @@ class Maintainer:
             homepage = text.get("homepage", default=None, valtype=str | None)
         return Maintainer(name=name, email=email, homepage=homepage)
 
+    def to_dict(self) -> dict[str, object]:
+        """Convert maintainer to dict.
+
+        Returns:
+            dict[str, object]: The result dict.
+
+        """
+        return {
+            "name": self.name,
+            "email": self.email,
+            "homepage": self.homepage,
+        }
+
     def __str__(self) -> str:
         """Convert maintainer to string.
 

@@ -55,6 +55,21 @@ class TestIsInstance:
         if not is_instance(AutoFormatList(), list):
             pytest.fail("Type check failed.")
 
+    def test_autoformat_types(self) -> None:
+        """Test for autoformat types."""
+        if not is_instance(AutoFormatDict(), dict):
+            pytest.fail("Type check failed.")
+        if not is_instance(AutoFormatList(), list):
+            pytest.fail("Type check failed.")
+        if not is_instance(AutoFormatDict(), AutoFormatDict):
+            pytest.fail("Type check failed.")
+        if not is_instance(AutoFormatList(), AutoFormatList):
+            pytest.fail("Type check failed.")
+        if not is_instance({}, AutoFormatDict):
+            pytest.fail("Type check failed.")
+        if not is_instance([], AutoFormatList):
+            pytest.fail("Type check failed.")
+
     def test_union_type(self) -> None:
         """Test union type."""
         if not is_instance(1, int | str):

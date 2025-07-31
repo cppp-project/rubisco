@@ -366,11 +366,11 @@ class IKernelTrigger:  # pylint: disable=too-many-public-methods
         """
         _null_trigger("on_file_selected", path=path)
 
-    def on_output(self, *, message: str, raw: bool = True) -> None:
+    def on_output(self, *, message: object, raw: bool = True) -> None:
         """Output a message.
 
         Args:
-            message (str): Message.
+            message (object): Message or object to output.
             raw (bool): If false, UCI cannot convert the message to its favorite
                 format.
 

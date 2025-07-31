@@ -449,11 +449,11 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
             ),
         )
 
-    def on_output(self, *, message: str, raw: bool = True) -> None:
+    def on_output(self, *, message: object, raw: bool = True) -> None:
         if raw:
             rich.print(message)
         else:
-            output_line(message)
+            output_line(message if isinstance(message, str) else repr(message))
 
     def on_move_file(self, *, src: Path, dst: Path) -> None:
         output_step(
@@ -535,7 +535,7 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
         rich.print(
             fast_format_str(
                 _("[dark_orange]Configuration:[/dark_orange] ${{path}}"),
-                fmt={"path": make_pretty(project.config_file)},
+                fmt={"path": make_pretty(project.config.path)},
             ),
         )
         rich.print(
@@ -548,14 +548,14 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
             ),
         )
 
-        if isinstance(project.maintainer, list):
-            maintainers = "\n  ".join([str(m) for m in project.maintainer])
+        if isinstance(project.maintainers, list):
+            maintainers = "\n  ".join([str(m) for m in project.maintainers])
         else:
-            maintainers = str(project.maintainer)
+            maintainers = str(project.maintainers)
         rich.print(
             fast_format_str(
-                _("[dark_orange]Maintainer:[/dark_orange] ${{maintainer}}"),
-                fmt={"maintainer": maintainers},
+                _("[dark_orange]Maintainers:[/dark_orange] ${{maintainers}}"),
+                fmt={"maintainers": maintainers},
             ),
         )
         _u = _("[yellow]Unknown[/yellow]")

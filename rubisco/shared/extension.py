@@ -30,6 +30,7 @@ import beartype
 from rubisco.config import (
     DEFAULT_CHARSET,
     GLOBAL_EXTENSIONS_VENV_DIR,
+    RUBP_METADATA_FILE_NAME,
     USER_EXTENSIONS_VENV_DIR,
     WORKSPACE_EXTENSIONS_VENV_DIR,
 )
@@ -213,15 +214,16 @@ def _get_ext_info(
     ext: Path | str | ExtensionPackageInfo,
     env: RUEnvironment,
 ) -> tuple[Path, ExtensionPackageInfo]:
-    if isinstance(ext, Path):
+    if isinstance(ext, Path) or (isinstance(ext, str) and Path(ext).is_dir()):
+        ext_ = Path(ext)
         # If it's a standalone extension, we need to load the
-        # `rubisco.json` file to get the extension info.
-        with (ext / "rubisco.json").open(
+        # meta file to get the extension info.
+        with (ext_ / RUBP_METADATA_FILE_NAME).open(
             "r",
             encoding=DEFAULT_CHARSET,
         ) as file:
             ext_info = parse_extension_info(file, str(config_file))
-        return ext, ext_info
+        return ext_, ext_info
 
     if isinstance(ext, str):
         # If path is str, treat it as the name of the extension.
@@ -261,7 +263,7 @@ def load_extension(
         env (RUEnvironment): The environment of the extension.
             It will be used only if the extension is a installed extension.
             If the extension is a standalone extension, it will be ignored.
-            We will get the extension's info from the `rubisco.json` file.
+            We will get the extension's info from the meta file.
         strict (bool, optional): If True, raise an exception if the extension
             loading failed.
 

@@ -31,7 +31,14 @@ from typing import IO, TYPE_CHECKING
 
 import json5
 
-from rubisco.config import DEFAULT_CHARSET, EXTENSIONS_DIR
+from rubisco.config import (
+    DEFAULT_CHARSET,
+    EXTENSIONS_DIR,
+    RUBP_LICENSE_FILE_NAME,
+    RUBP_METADATA_FILE_NAME,
+    RUBP_README_FILE_NAME,
+    RUBP_REQUIREMENTS_FILE_NAME,
+)
 from rubisco.envutils.env_type import EnvType
 from rubisco.envutils.pip import install_requirements
 from rubisco.envutils.utils import canonical_pkg_name
@@ -95,23 +102,23 @@ def _pkg_check(zip_file: zipfile.ZipFile, pkg_name: str) -> None:
 
     try:
         root_list.remove(canonical_pkg_name(pkg_name))
-        root_list.remove("rubisco.json")
+        root_list.remove(RUBP_METADATA_FILE_NAME)
     except KeyError as exc:
         raise RUValueError(
             fast_format_str(
                 _(
                     "'${{name}}' package must contain a directory with the "
-                    "same name as the package name and a 'rubisco.json' file.",
+                    "same name as the package name and a '${{metafile}}' file.",
                 ),
-                fmt={"name": pkg_name},
+                fmt={"name": pkg_name, "metafile": RUBP_METADATA_FILE_NAME},
             ),
         ) from exc
     with contextlib.suppress(KeyError):
-        root_list.remove("LICENSE")
+        root_list.remove(RUBP_LICENSE_FILE_NAME)
     with contextlib.suppress(KeyError):
-        root_list.remove("README.md")
+        root_list.remove(RUBP_README_FILE_NAME)
     with contextlib.suppress(KeyError):
-        root_list.remove("requirements.txt")
+        root_list.remove(RUBP_REQUIREMENTS_FILE_NAME)
 
     if root_list:
         raise RUValueError(
@@ -127,14 +134,14 @@ def _pkg_check(zip_file: zipfile.ZipFile, pkg_name: str) -> None:
 
 def parse_extension_info(
     config_file: IO[str] | IO[bytes],
-    file_name: str = "rubisco.json",
+    file_name: str = RUBP_METADATA_FILE_NAME,
 ) -> ExtensionPackageInfo:
     """Parse the extension package info from the config file.
 
     Args:
         config_file (IO[str] | IO[bytes]): The config file.
         file_name (str, optional): The file name. For error message.
-            Defaults to "rubisco.json".
+            Defaults to RUBP_METADATA_FILE_NAME.
 
     Returns:
         ExtensionPackageInfo: The extension package info.
@@ -221,7 +228,7 @@ def parse_extension_info(
             fast_format_str(
                 _(
                     "${{path}} package configuration "
-                    "file is missing a required key: '${{key}}'.",
+                    "file is missing a required key: ${{key}}.",
                 ),
                 fmt={"path": make_pretty(file_name), "key": exc.args[0]},
             ),
@@ -242,7 +249,7 @@ def get_extension_package_info(pkg_file: Path) -> ExtensionPackageInfo:
     try:
         with (
             zipfile.ZipFile(pkg_file, "r") as zip_file,
-            zip_file.open("rubisco.json") as package_file,
+            zip_file.open(RUBP_METADATA_FILE_NAME) as package_file,
         ):
             json_opened = True
             ext_info = parse_extension_info(package_file)
@@ -250,7 +257,7 @@ def get_extension_package_info(pkg_file: Path) -> ExtensionPackageInfo:
             _pkg_check(zip_file, ext_info.name)
 
             try:
-                with zip_file.open("requirements.txt") as req_file:
+                with zip_file.open(RUBP_REQUIREMENTS_FILE_NAME) as req_file:
                     requirements = req_file.read().decode(DEFAULT_CHARSET)
             except KeyError:
                 requirements = None
@@ -269,15 +276,19 @@ def get_extension_package_info(pkg_file: Path) -> ExtensionPackageInfo:
             hint=_("Rubisco extension package must be a zip file."),
         ) from exc
     except KeyError as exc:
-        # If 'rubisco.json' file not found, ZipFile.open raises KeyError.
+        # If meta file not found, ZipFile.open raises KeyError.
         if not json_opened:
             raise RUValueError(
                 fast_format_str(
                     _(
-                        "Error while opening [underline]rubisco.json"
-                        "[/underline] in ${{path}}: '${{msg}}'.",
+                        "Error while opening ${{metafile}} in ${{path}}: "
+                        "'${{msg}}'.",
                     ),
-                    fmt={"path": make_pretty(pkg_file), "msg": exc.args[0]},
+                    fmt={
+                        "path": make_pretty(pkg_file),
+                        "metafile": make_pretty(RUBP_METADATA_FILE_NAME),
+                        "msg": exc.args[0],
+                    },
                 ),
             ) from exc
         raise RUValueError(
@@ -347,28 +358,28 @@ def _extract_extension(
         TemporaryObject.new_directory() as temp_dir,
     ):
         extract_zip(pkg_file, temp_dir.path / "data")
-        if (temp_dir.path / "data" / "requirements.txt").exists():
+        if (temp_dir.path / "data" / RUBP_REQUIREMENTS_FILE_NAME).exists():
             install_requirements(
                 dest,
-                temp_dir.path / "data" / "requirements.txt",
+                temp_dir.path / "data" / RUBP_REQUIREMENTS_FILE_NAME,
             )
             shutil.move(
-                (temp_dir.path / "data" / "requirements.txt"),
-                dest_dir.path / "requirements.txt",
+                (temp_dir.path / "data" / RUBP_REQUIREMENTS_FILE_NAME),
+                dest_dir.path / RUBP_REQUIREMENTS_FILE_NAME,
             )
         shutil.move(
             temp_dir.path / "data" / canonical_pkg_name(info.name),
             dest_dir.path,
         )
-        if (temp_dir.path / "data" / "LICENSE").exists():
+        if (temp_dir.path / "data" / RUBP_LICENSE_FILE_NAME).exists():
             shutil.move(
-                temp_dir.path / "data" / "LICENSE",
-                dest_dir.path / "LICENSE",
+                temp_dir.path / "data" / RUBP_LICENSE_FILE_NAME,
+                dest_dir.path / RUBP_LICENSE_FILE_NAME,
             )
-        if (temp_dir.path / "data" / "README.md").exists():
+        if (temp_dir.path / "data" / RUBP_README_FILE_NAME).exists():
             shutil.move(
-                temp_dir.path / "data" / "README.md",
-                dest_dir.path / "README.md",
+                temp_dir.path / "data" / RUBP_README_FILE_NAME,
+                dest_dir.path / RUBP_README_FILE_NAME,
             )
         # Register the extension.
         callback(dest_dir, temp_dir)

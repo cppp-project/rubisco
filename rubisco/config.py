@@ -102,6 +102,11 @@ PROGRAM_DIR: Path = PROGRAM_PATH.parent.absolute()
 
 VALID_EXTENSION_NAME = r"^[A-Za-z0-9_\-.]+$"
 
+RUBP_METADATA_FILE_NAME = f"{APP_NAME}.json"
+RUBP_REQUIREMENTS_FILE_NAME = "requirements.txt"
+RUBP_LICENSE_FILE_NAME = "LICENSE"
+RUBP_README_FILE_NAME = "README.md"
+
 if os.name == "nt":  # On Windows.
     GLOBAL_LIB_DIR = PROGRAM_DIR
     GLOBAL_CONFIG_DIR = PROGRAM_DIR / "config"

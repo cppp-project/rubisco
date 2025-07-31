@@ -24,6 +24,7 @@ it into `rubisco.shared.api.cefs`.
 """
 
 from rubisco.kernel.config_file import config_file
+from rubisco.kernel.config_loader import RUConfiguration
 from rubisco.kernel.ext_name_check import is_valid_extension_name
 from rubisco.kernel.mirrorlist import get_url as get_mirror_url
 from rubisco.kernel.project_config.hook import ProjectHook
@@ -41,6 +42,7 @@ __all__ = [
     "Maintainer",
     "ProjectConfigration",
     "ProjectHook",
+    "RUConfiguration",
     "Step",
     "Workflow",
     "get_mirror_url",

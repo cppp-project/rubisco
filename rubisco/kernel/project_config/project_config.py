@@ -21,19 +21,19 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, cast
+from pathlib import Path
+from typing import Any, cast
 
-import json5 as json
+from beartype import beartype
 
 from rubisco.config import APP_VERSION, USER_REPO_CONFIG
+from rubisco.kernel.config_loader import RUConfiguration
 from rubisco.kernel.project_config.hook import ProjectHook
 from rubisco.kernel.project_config.maintainer import Maintainer
 from rubisco.lib.exceptions import (
     RUNotRubiscoProjectError,
-    RUTypeError,
     RUValueError,
 )
-from rubisco.lib.fileutil import glob_path, resolve_path
 from rubisco.lib.l10n import _
 from rubisco.lib.log import logger
 from rubisco.lib.variable import (
@@ -44,12 +44,7 @@ from rubisco.lib.variable import (
     push_variables,
 )
 from rubisco.lib.variable.fast_format_str import fast_format_str
-from rubisco.lib.variable.typecheck import is_instance
 from rubisco.lib.version import Version
-from rubisco.shared.ktrigger import IKernelTrigger, call_ktrigger
-
-if TYPE_CHECKING:
-    from pathlib import Path
 
 __all__ = [
     "ProjectConfigration",
@@ -60,8 +55,7 @@ __all__ = [
 class ProjectConfigration:  # pylint: disable=too-many-instance-attributes
     """Project configuration instance."""
 
-    config_file: Path
-    config: AutoFormatDict
+    config: RUConfiguration
 
     # Project mandatory configurations.
     name: str
@@ -70,7 +64,7 @@ class ProjectConfigration:  # pylint: disable=too-many-instance-attributes
     # Project optional configurations.
     description: str
     rubisco_min_version: Version
-    maintainer: list[Maintainer] | Maintainer
+    maintainers: list[Maintainer] | Maintainer
     license: str | None
     hooks: AutoFormatDict
 
@@ -78,28 +72,46 @@ class ProjectConfigration:  # pylint: disable=too-many-instance-attributes
 
     def __init__(self, config_file: Path) -> None:
         """Initialize the project configuration."""
-        self.config_file = config_file
-        self.config = AutoFormatDict()
+        self.config = RUConfiguration(config_file, AutoFormatDict())
         self.hooks = AutoFormatDict()
         self.pushed_variables = []
 
         self._load()
 
+    def _check_version(self) -> None:
+        if self.rubisco_min_version > APP_VERSION:
+            raise RUValueError(
+                fast_format_str(
+                    _(
+                        "The minimum version of rubisco required by the "
+                        "project [underline][link=${{uri}}]${{name}}[/link]"
+                        "[/underline]' is "
+                        "'[cyan]${{version}}[/cyan]'.",
+                    ),
+                    fmt={
+                        "uri": self.config.path.as_uri(),
+                        "name": make_pretty(self.name, _("<Unnamed>")),
+                        "version": str(self.rubisco_min_version),
+                    },
+                ),
+                hint=_("Please upgrade rubisco to the required version."),
+            )
+
     def _load(self) -> None:
-        if not self.config_file.is_file():
+        if not self.config.path.is_file():
             logger.warning(
                 "The project configuration file '%s' is not found.",
-                self.config_file,
+                self.config.path,
             )
             raise RUNotRubiscoProjectError(
                 fast_format_str(
                     _("Project configuration file '${{path}}' is not found."),
                     fmt={
-                        "path": make_pretty(self.config_file),
+                        "path": make_pretty(self.config.path),
                     },
                 ),
             )
-        self.config = _load_config(self.config_file, [])
+        self.config = RUConfiguration.load_from_file(self.config.path)
 
         self.name = self.config.get("name", valtype=str)
         self.version = Version(self.config.get("version", valtype=str))
@@ -113,31 +125,26 @@ class ProjectConfigration:  # pylint: disable=too-many-instance-attributes
             self.config.get("rubisco-min-version", "0.0.0", valtype=str),
         )
 
-        if self.rubisco_min_version > APP_VERSION:
-            raise RUValueError(
-                fast_format_str(
-                    _(
-                        "The minimum version of rubisco required by the "
-                        "project [underline][link=${{uri}}]${{name}}[/link]"
-                        "[/underline]' is "
-                        "'[cyan]${{version}}[/cyan]'.",
-                    ),
-                    fmt={
-                        "uri": self.config_file.as_uri(),
-                        "name": make_pretty(self.name, _("<Unnamed>")),
-                        "version": str(self.rubisco_min_version),
-                    },
-                ),
-                hint=_("Please upgrade rubisco to the required version."),
-            )
+        self._check_version()
 
-        self.maintainer = [
-            Maintainer.parse(x)
-            for x in self.config.get(
-                "maintainer",
-                valtype=list | str | dict[str, str],
-            )
-        ]
+        _m = self.config.get(
+            "maintainer",
+            default=None,
+            valtype=str | None,
+        )
+        if _m:
+            maintainer = Maintainer.parse(_m)
+            self.maintainers = [maintainer]
+        else:
+            self.maintainers = []
+
+        _m = self.config.get(
+            "maintainers",
+            default=None,
+            valtype=list | dict[str, str] | None,
+        )
+        if _m:
+            self.maintainers.extend([Maintainer.parse(x) for x in _m])
 
         self.license = self.config.get(
             "license",
@@ -215,54 +222,7 @@ class ProjectConfigration:  # pylint: disable=too-many-instance-attributes
             pop_variables(val)
 
 
-def _load_config(config_file: Path, loaded_list: list[Path]) -> AutoFormatDict:
-    config_file = config_file.resolve()
-    with config_file.open() as file:
-        json_data = json.load(file)
-        if not is_instance(json_data, dict[str, object]):
-            raise RUTypeError(
-                _("The configuration file must be a JSON5 object."),
-            )
-        config = AutoFormatDict(json_data)
-        for include in config.get("includes", [], valtype=list):
-            if not isinstance(include, str):
-                raise RUValueError(
-                    fast_format_str(
-                        _(
-                            "Invalid path ${{path}}.",
-                        ),
-                        fmt={"path": make_pretty(config_file.absolute())},
-                    ),
-                )
-            include_file = config_file.parent / include
-            if include_file.is_dir():
-                include_file = include_file / USER_REPO_CONFIG
-            include_file = resolve_path(include_file)
-            loaded_list.append(config_file)
-            for one_file in glob_path(include_file):
-                if one_file in loaded_list:  # Avoid circular dependencies.
-                    logger.warning(
-                        "Circular dependency detected: %s",
-                        one_file,
-                    )
-                    call_ktrigger(
-                        IKernelTrigger.on_warning,
-                        message=fast_format_str(
-                            _(
-                                "Circular dependency detected: ${{path}}.",
-                            ),
-                            fmt={
-                                "path": make_pretty(one_file),
-                            },
-                        ),
-                    )
-                    continue  # Skip loaded file.
-                loaded_list.append(one_file)
-                config.merge(_load_config(one_file, loaded_list))
-
-    return config
-
-
+@beartype
 def load_project_config(project_dir: Path) -> ProjectConfigration:
     """Load the project configuration from the given configuration file.
 
@@ -274,3 +234,6 @@ def load_project_config(project_dir: Path) -> ProjectConfigration:
 
     """
     return ProjectConfigration(project_dir / USER_REPO_CONFIG)
+
+
+_T = Path  # Make Ruff happy.

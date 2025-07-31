@@ -27,7 +27,7 @@ import lzma
 import os
 import tarfile
 import zipfile
-from typing import TYPE_CHECKING
+from pathlib import Path
 
 import py7zr
 import py7zr.exceptions
@@ -47,9 +47,6 @@ from rubisco.lib.log import logger
 from rubisco.lib.variable.fast_format_str import fast_format_str
 from rubisco.lib.variable.utils import make_pretty
 from rubisco.shared.ktrigger import IKernelTrigger, call_ktrigger
-
-if TYPE_CHECKING:
-    from pathlib import Path
 
 __all__ = ["compress", "extract"]
 
@@ -455,6 +452,7 @@ def compress(  # pylint: disable=R0913, R0917 # noqa: PLR0913
     *,
     overwrite: bool = False,
     allow_absolute_dest: bool = False,
+    cwd: Path | None = None,
 ) -> None:
     """Compress a file or directory to destination.
 
@@ -474,8 +472,15 @@ def compress(  # pylint: disable=R0913, R0917 # noqa: PLR0913
             Defaults to False.
         allow_absolute_dest (bool, optional): Allow absolute destination path.
             Defaults to False.
+        cwd (Path | None, optional): The working directory for compressing. For
+            relative dest path. Defaults to None (don't chdir).
 
     """
+    if cwd:
+        old_cwd = Path.cwd()
+        os.chdir(cwd)
+    else:
+        old_cwd = None
     compress_type = compress_type.lower().strip() if compress_type else None
     if not allow_absolute_dest:
         assert_rel_path(dest)
@@ -546,3 +551,6 @@ def compress(  # pylint: disable=R0913, R0917 # noqa: PLR0913
                 },
             ),
         ) from exc
+    finally:
+        if old_cwd:
+            os.chdir(old_cwd)
