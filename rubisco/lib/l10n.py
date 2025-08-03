@@ -185,7 +185,7 @@ def _(message: str) -> str:
     """
     for translation in translations:
         translated = translation.gettext(message)
-        if translated:
+        if translated != message:
             return translated
     return message
 

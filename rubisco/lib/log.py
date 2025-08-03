@@ -23,6 +23,9 @@ import logging
 import sys
 from pathlib import Path
 
+import rich
+import rich.logging
+
 from rubisco.config import (
     APP_NAME,
     DEFAULT_CHARSET,
@@ -47,33 +50,30 @@ def rubisco_get_logger(name: str = APP_NAME) -> logging.Logger:
     """
     ru_logger = logging.getLogger(name)
     ru_logger.setLevel(LOG_LEVEL)
+    _init_log_handler(ru_logger)
     return ru_logger
+
+
+def _init_log_handler(logger_: logging.Logger) -> None:
+    logger_.addHandler(logging.NullHandler())
+
+    if "--log" in sys.argv:
+        if not Path(LOG_FILE).parent.exists():
+            LOG_FILE.parent.mkdir(exist_ok=True)
+        handler = logging.FileHandler(LOG_FILE, encoding=DEFAULT_CHARSET)
+        handler.setLevel(LOG_LEVEL)
+
+        formatter = logging.Formatter(LOG_FORMAT, datefmt=LOG_TIME_FORMAT)
+        handler.setFormatter(formatter)
+
+        logger_.addHandler(handler)
+    if "--debug" in sys.argv:  # Don't use argparse here.
+        handler = rich.logging.RichHandler(
+            level=LOG_LEVEL,
+            console=rich.get_console(),
+        )
+        logger_.addHandler(handler)
 
 
 # The global logger.
 logger = rubisco_get_logger()
-
-
-if "--log" in sys.argv:
-    if not Path(LOG_FILE).parent.exists():
-        LOG_FILE.parent.mkdir(exist_ok=True)
-    logger_handler = logging.FileHandler(LOG_FILE, encoding=DEFAULT_CHARSET)
-    logger_handler.setLevel(LOG_LEVEL)
-
-    logger_formatter = logging.Formatter(LOG_FORMAT, datefmt=LOG_TIME_FORMAT)
-    logger_handler.setFormatter(logger_formatter)
-
-    logger.addHandler(logger_handler)
-else:
-    logger.addHandler(logging.NullHandler())
-
-if "--debug" in sys.argv:  # Don't use argparse here.
-    import rich
-    import rich.logging
-
-    logger_handler = rich.logging.RichHandler(
-        level=LOG_LEVEL,
-        console=rich.get_console(),
-    )
-    logger_formatter = logging.Formatter(LOG_FORMAT)
-    logger.addHandler(logger_handler)

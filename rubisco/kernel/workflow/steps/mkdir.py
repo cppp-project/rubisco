@@ -62,4 +62,4 @@ class MkdirStep(Step):
         for path in self.paths:
             call_ktrigger(IKernelTrigger.on_mkdir, path=path)
             assert_rel_path(path)
-            path.mkdir(exist_ok=True)
+            path.mkdir(exist_ok=True, parents=True)

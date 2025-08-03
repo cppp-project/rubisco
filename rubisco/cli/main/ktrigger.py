@@ -110,7 +110,6 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
     tasks: dict[str, rich.progress.TaskID]
     task_types: dict[str, str]
     live: rich.live.Live | None
-    verbose: bool
     _speedtest_hosts: dict[str, str]
     _rich_printer: object
 
@@ -120,7 +119,6 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
         self.tasks = {}
         self.task_types = {}
         self.live = None
-        self.verbose = config_file.get("verbose", False)
         self._speedtest_hosts = {}
         self._rich_printer = rich.print
 
@@ -424,7 +422,7 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
             )
 
     def pre_run_matrix(self, *, variables: AutoFormatDict) -> None:
-        if not self.verbose:
+        if not config_file.get("verbose", False):
             output_step(_("Running matrix jobs ..."))
             push_level()
             return
@@ -486,7 +484,7 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
         )
 
     def on_file_selected(self, *, path: Path) -> None:
-        if not self.verbose:
+        if not config_file.get("verbose", False):
             return
 
         output_step(
@@ -502,7 +500,7 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
         instance: IRUExtension,  # noqa: ARG002
         ext_info: ExtensionPackageInfo,
     ) -> None:
-        if not self.verbose:
+        if not config_file.get("verbose", False):
             return
 
         output_step(
@@ -844,3 +842,43 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
 
         """
         conemu_progress(ProgressBarState.DEFAULT)
+
+    def on_step(
+        self,
+        *,
+        msg: str,
+    ) -> None:
+        """Update step message.
+
+        Args:
+            msg (str): Step message.
+
+        """
+        output_step(msg)
+
+    def on_steptask_start(
+        self,
+        *,
+        msg: str,
+    ) -> None:
+        """On step task started.
+
+        Args:
+            msg (str): Step message.
+
+        """
+        output_step(msg)
+        push_level()
+
+    def on_steptask_end(
+        self,
+        *,
+        msg: str,  # noqa: ARG002
+    ) -> None:
+        """On step task ended.
+
+        Args:
+            msg (str): Step message.
+
+        """
+        pop_level()

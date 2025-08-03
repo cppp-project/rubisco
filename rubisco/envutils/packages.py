@@ -38,11 +38,13 @@ from rubisco.config import (
     RUBP_METADATA_FILE_NAME,
     RUBP_README_FILE_NAME,
     RUBP_REQUIREMENTS_FILE_NAME,
+    RUBP_RESOURCE_DIR_NAME,
 )
 from rubisco.envutils.env_type import EnvType
 from rubisco.envutils.pip import install_requirements
 from rubisco.envutils.utils import canonical_pkg_name
 from rubisco.kernel.ext_name_check import is_valid_extension_name
+from rubisco.kernel.project_config.maintainer import Maintainer
 from rubisco.lib.archive import extract_zip
 from rubisco.lib.exceptions import RUValueError
 from rubisco.lib.fileutil import TemporaryObject, rm_recursive
@@ -119,6 +121,8 @@ def _pkg_check(zip_file: zipfile.ZipFile, pkg_name: str) -> None:
         root_list.remove(RUBP_README_FILE_NAME)
     with contextlib.suppress(KeyError):
         root_list.remove(RUBP_REQUIREMENTS_FILE_NAME)
+    with contextlib.suppress(KeyError):
+        root_list.remove(RUBP_RESOURCE_DIR_NAME)
 
     if root_list:
         raise RUValueError(
@@ -174,17 +178,13 @@ def parse_extension_info(
                     "0-9, a-z, A-Z, '_', '.' and '-'.",
                 ),
             )
-        maintianers = pkg_config.get("maintainers", valtype=list[str])
-        assert_iter_types(
-            maintianers,
-            str,
-            RUValueError(_("Maintainers must be a list of strings.")),
-        )
-        iter_assert(
-            maintianers,
-            lambda x: "," not in x,
-            RUValueError(_("Maintainers must not contain ','.")),
-        )
+        maintianers = [
+            Maintainer.parse(x)
+            for x in pkg_config.get(
+                "maintainers",
+                valtype=list[dict[str, str]],
+            )
+        ]
         tags = pkg_config.get("tags", valtype=list)
         assert_iter_types(
             tags,
@@ -207,7 +207,7 @@ def parse_extension_info(
             Version(pkg_config.get("version", valtype=str)),
             pkg_config.get("description", valtype=str),
             pkg_config.get("homepage", valtype=str),
-            maintianers,
+            [str(x) for x in maintianers],
             pkg_config.get("license", valtype=str),
             tags,
             None,
@@ -380,6 +380,11 @@ def _extract_extension(
             shutil.move(
                 temp_dir.path / "data" / RUBP_README_FILE_NAME,
                 dest_dir.path / RUBP_README_FILE_NAME,
+            )
+        if (temp_dir.path / "data" / RUBP_RESOURCE_DIR_NAME).exists():
+            shutil.move(
+                temp_dir.path / "data" / RUBP_RESOURCE_DIR_NAME,
+                dest_dir.path / RUBP_RESOURCE_DIR_NAME,
             )
         # Register the extension.
         callback(dest_dir, temp_dir)

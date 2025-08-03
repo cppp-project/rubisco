@@ -32,6 +32,7 @@ from rubisco.kernel.workflow.steps.mklink import MklinkStep
 from rubisco.kernel.workflow.steps.movefile import MoveFileStep
 from rubisco.kernel.workflow.steps.popen import PopenStep
 from rubisco.kernel.workflow.steps.remove import RemoveStep
+from rubisco.kernel.workflow.steps.set import PopvarStep, SetvarStep
 from rubisco.kernel.workflow.steps.shell_exec import ShellExecStep
 from rubisco.kernel.workflow.steps.workflowrun import WorkflowRunStep
 
@@ -54,6 +55,8 @@ step_types: dict[str, type[Step]] = {
     "extract": ExtractStep,
     "glob": GlobFileStep,
     "matrix": MatrixStep,
+    "setvar": SetvarStep,
+    "popvar": PopvarStep,
 }
 
 # Type is optional. If not provided, it will be inferred from the step data.
@@ -73,4 +76,6 @@ step_contributes: dict[type[Step], list[str]] = {
     ExtractStep: ["extract", "to"],
     GlobFileStep: ["glob"],
     MatrixStep: ["matrix", "steps"],
+    SetvarStep: ["var", "value"],
+    PopvarStep: ["popvar"],
 }

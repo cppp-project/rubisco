@@ -1,0 +1,23 @@
+name: 📄 Generate POT file.
+
+steps:
+  - name: 📄 Find source files.
+    glob: "rubp_build/**/*.py"
+    save-to: src-files
+    recursive: True
+
+  - name: 📄 Generate POT file.
+    run: [
+      xgettext,
+      --language=python,
+      "--default-domain=${{ project.name }}",
+      "--package-name=${{ project.name }}",
+      "--package-version=${{ project.version }}",
+      --msgid-bugs-address=wushengwuxi-msctinoulk@outlook.com,
+      --directory=rubp_build,
+      --output=po/rubp-build.pot,
+      --keyword=_,
+      --from-code=UTF-8,
+      --width=80,
+      "${{ src-files }}",
+      ]

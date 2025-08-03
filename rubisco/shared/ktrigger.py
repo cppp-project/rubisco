@@ -646,6 +646,45 @@ class IKernelTrigger:  # pylint: disable=too-many-public-methods
         """
         _null_trigger("end_wait", msg=msg)
 
+    def on_step(
+        self,
+        *,
+        msg: str,
+    ) -> None:
+        """Update step message.
+
+        Args:
+            msg (str): Step message.
+
+        """
+        _null_trigger("on_step", msg=msg)
+
+    def on_steptask_start(
+        self,
+        *,
+        msg: str,
+    ) -> None:
+        """On step task started.
+
+        Args:
+            msg (str): Step message.
+
+        """
+        _null_trigger("on_steptask_start", msg=msg)
+
+    def on_steptask_end(
+        self,
+        *,
+        msg: str,
+    ) -> None:
+        """On step task ended.
+
+        Args:
+            msg (str): Step message.
+
+        """
+        _null_trigger("on_steptask_end", msg=msg)
+
 
 # KTrigger instances.
 ktriggers: dict[str, IKernelTrigger] = {}

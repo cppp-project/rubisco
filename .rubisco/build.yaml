@@ -6,43 +6,7 @@ vars:
   - copyright: Copyright (C) 2024 The C++ Plus Project
 
 steps:
-  - name: 📦 Make source distribution directory
-    mkdir: ${{ project.name }}-${{ project.version }}
   - mkdir: dist
-
-  - name: 📦 Copy files to source distribution directory
-    copy: ${{ cwd }}
-    to: ${{ project.name }}-${{ project.version }}
-    excludes: [
-      ".git*",
-      ".venv",
-      "build",
-      "dist",
-      "__pycache__",
-      "*.log",
-      "*.7z",
-      "*.gz",
-      "*.xz",
-      "*.zip",
-      "*.whl",
-      "*.mo",
-      "*.pot",
-      "*.pyc",
-      "*.pyo",
-      "*.pyd",
-      "*$py.class",
-      ".ruff_cache",
-      ".pytype",
-      ".vscode",
-      ".rubisco/extensions",
-      "result.json",
-      "${{ project.name }}-*"
-    ]
-
-  - name: 📦 Packing the source distribution
-    compress: ${{ project.name }}-${{ project.version }}
-    to: dist/${{ project.name }}-${{ project.version }}
-    format: [zip, tar.xz]
 
   - name: 🛠️ Build wheel distribution
     run:

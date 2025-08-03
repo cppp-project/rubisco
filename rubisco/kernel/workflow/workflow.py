@@ -121,7 +121,8 @@ class Workflow:
                         step_data.get(contribute_item, None) is not None
                         for contribute_item in contribute  # All items exist.
                     )
-                    if is_match:
+                    # Contribute must be non-empty or ignored.
+                    if is_match and contribute:
                         step_cls = cls
                         break
             else:

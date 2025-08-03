@@ -72,9 +72,13 @@ __all__ = [
 class IRUExtension(abc.ABC):
     """Rubisco extension interface."""
 
+    # These attributes are provided by extension.
     ktrigger: IKernelTrigger
     workflow_steps: ClassVar[dict[str, type[Step]]]
     steps_contributions: ClassVar[dict[type[Step], list[str]]]
+
+    # These attributes are provided by Rubisco.
+    resdir: Path  # Resource directory. (if exists)
 
     @abc.abstractmethod
     def extension_can_load_now(self) -> bool:
@@ -164,9 +168,9 @@ def find_extension(name: str) -> Path:
 INVALID_EXT_NAMES = ["rubisco"]  # Avoid logger's name conflict.
 
 
-def _get_extension_instance(path: Path) -> IRUExtension:
+def _get_extension_instance(path: Path, ext_name: str) -> IRUExtension:
     try:
-        module = import_module_from_path(path)
+        module = import_module_from_path(path / ext_name)
     except RUNotRubiscoExtensionError as exc:
         raise RUValueError(
             fast_format_str(
@@ -192,6 +196,9 @@ def _get_extension_instance(path: Path) -> IRUExtension:
             ),
         )
     instance: IRUExtension = module.instance
+
+    # Pass attributes to the extension.
+    instance.resdir = path / "res"
 
     return instance
 
@@ -294,7 +301,8 @@ def load_extension(
 
         # Get the extension instance.
         instance = _get_extension_instance(
-            path / canonical_pkg_name(ext_info.name),
+            path,
+            canonical_pkg_name(ext_info.name),
         )
 
         # Check if the extension can load now.

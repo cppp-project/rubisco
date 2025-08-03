@@ -1,0 +1,12 @@
+name: 🛠️ Build rubp-build
+
+steps:
+  - name: 📦 Copy files to source distribution directory.
+    copy: ${{ cwd }}/rubp_build
+    to: .bindir/rubp_build
+    excludes: ["__pycache__", "*.pyc"]
+
+  - workflow: .rubisco/po.yaml
+
+  - name: 🛠️ Build RuBP.
+    type: rubp-pack

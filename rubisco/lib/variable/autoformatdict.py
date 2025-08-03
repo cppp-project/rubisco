@@ -252,7 +252,16 @@ class AutoFormatDict(dict[str, Any]):
         """
         mapping = to_autotype()(mapping)
 
-        for key, value in mapping.items():
+        items = (
+            mapping.orig_items()
+            if isinstance(
+                mapping,
+                AutoFormatDict,
+            )
+            else mapping.items()
+        )
+
+        for key, value in items:
             if key not in self or not isinstance(
                 value,
                 AutoFormatDict | AutoFormatList,
