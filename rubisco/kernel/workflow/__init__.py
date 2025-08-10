@@ -24,6 +24,7 @@ Workflow is a ordered list of steps. Each step only contains one action.
 
 from __future__ import annotations
 
+import os
 from pathlib import Path
 
 import json5 as json
@@ -121,12 +122,16 @@ def run_workflow(
     file: Path,
     *,
     fail_fast: bool = True,
+    chdir: Path | None = None,
 ) -> Exception | None:
     """Run a workflow file.
 
     Args:
         file (Path): Workflow file path. It can be a JSON, or a yaml.
         fail_fast (bool, optional): Raise an exception if run failed.
+            Defaults to True.
+        chdir (Path | None, optional): Change working directory to this
+            path before running the workflow. Defaults to None.
 
     Raises:
         RUValueError: If workflow's step parse failed.
@@ -136,27 +141,39 @@ def run_workflow(
             exception. Return None if succeed.
 
     """
-    with file.open(encoding=DEFAULT_CHARSET) as f:
-        if file.suffix.lower() in [".json", ".json5"]:
-            workflow = json.load(f)
-        elif file.suffix.lower() in [".yaml", ".yml"]:
-            workflow = yaml.safe_load(f)
-        else:
-            raise RUValueError(
-                fast_format_str(
-                    _(
-                        "The suffix of ${{path}} is invalid.",
+    cwd = None
+    if chdir:
+        cwd = Path.cwd()
+        os.chdir(chdir)
+        call_ktrigger(IKernelTrigger.on_chdir, path=chdir)
+    try:
+        with file.open(encoding=DEFAULT_CHARSET) as f:
+            if file.suffix.lower() in [".json", ".json5"]:
+                workflow = json.load(f)
+            elif file.suffix.lower() in [".yaml", ".yml"]:
+                workflow = yaml.safe_load(f)
+            else:
+                raise RUValueError(
+                    fast_format_str(
+                        _(
+                            "The suffix of ${{path}} is invalid.",
+                        ),
+                        fmt={"path": make_pretty(file.absolute())},
                     ),
-                    fmt={"path": make_pretty(file.absolute())},
-                ),
-                hint=_("We only support '.json', '.json5', '.yaml', '.yml'."),
-            )
+                    hint=_(
+                        "We only support '.json', '.json5', '.yaml', '.yml'.",
+                    ),
+                )
 
-        return run_inline_workflow(
-            AutoFormatDict(workflow),
-            fail_fast=fail_fast,
-            default_id=file.stem,
-        )
+            return run_inline_workflow(
+                AutoFormatDict(workflow),
+                fail_fast=fail_fast,
+                default_id=file.stem,
+            )
+    finally:
+        if cwd:
+            call_ktrigger(IKernelTrigger.on_leaving_dir, path=chdir)
+            os.chdir(cwd)
 
 
 WorkflowInterfaces.set_run_workflow(run_workflow)

@@ -22,11 +22,17 @@
 import os
 from fnmatch import fnmatch
 from pathlib import Path
+from typing import TYPE_CHECKING
 
-from pygit2 import GitError, Repository
+from pygit2 import Repository
+from rubisco.shared.api.log import rubisco_get_logger
 
 from cppp_srcpkg.preprocessor import rubiscoignore_pre_process
-from rubisco.shared.api.log import rubisco_get_logger
+
+if TYPE_CHECKING:
+    from pygit2._pygit2 import GitError
+else:
+    from pygit2 import GitError
 
 __all__ = ["RUBISCO_INCLUDE_FILE", "Manifest"]
 

@@ -22,7 +22,6 @@
 from pathlib import Path
 from typing import Any, ClassVar, cast
 
-from cppp_srcpkg.dist import dist
 from rubisco.shared.api.archive import compress
 from rubisco.shared.api.cefs import (
     Argument,
@@ -39,6 +38,8 @@ from rubisco.shared.api.utils import rm_recursive
 from rubisco.shared.api.variable import format_str
 from rubisco.shared.extension import IRUExtension
 from rubisco.shared.ktrigger import IKernelTrigger
+
+from cppp_srcpkg.dist import dist
 
 
 def on_dist(options: list[Option[Any]], args: list[Argument[Any]]) -> None:

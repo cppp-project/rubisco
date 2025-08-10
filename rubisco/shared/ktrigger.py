@@ -685,6 +685,31 @@ class IKernelTrigger:  # pylint: disable=too-many-public-methods
         """
         _null_trigger("on_steptask_end", msg=msg)
 
+    def on_chdir(
+        self,
+        *,
+        path: Path,
+    ) -> None:
+        """On change working directory.
+
+        Args:
+            path (Path): New working directory.
+
+        """
+        _null_trigger("on_chdir", path=path)
+
+    def on_leaving_dir(
+        self,
+        *,
+        path: Path,
+    ) -> None:
+        """On leaving working directory.
+
+        Args:
+            path (Path): New working directory.
+
+        """
+        _null_trigger("on_leaving_dir", path=path)
 
 # KTrigger instances.
 ktriggers: dict[str, IKernelTrigger] = {}

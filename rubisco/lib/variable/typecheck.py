@@ -62,6 +62,9 @@ def rubisco_isinstance(obj: Any, objtype: type | UnionType) -> bool:  # noqa: AN
     if type(obj).__name__ == "AutoFormatDict" and objtype is dict:
         return True
 
+    if objtype is Any:
+        return True
+
     return isinstance(obj, objtype)
 
 

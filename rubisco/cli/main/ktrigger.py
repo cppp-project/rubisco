@@ -389,14 +389,11 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
                     fmt={"name": step.name, "id": step.id},
                 ),
             )
-        push_level()
+            push_level()
 
-    def post_run_workflow_step(
-        self,
-        *,
-        step: Step,  # noqa: ARG002
-    ) -> None:
-        pop_level()
+    def post_run_workflow_step(self, *, step: Step) -> None:
+        if step.name.strip():
+            pop_level()
 
     def pre_run_workflow(self, *, workflow: Workflow) -> None:
         if workflow.name:
@@ -805,12 +802,7 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
         ):
             raise KeyboardInterrupt
 
-    def on_wait(
-        self,
-        *,
-        msg: str,
-        cur_time: int,
-    ) -> None:
+    def on_wait(self, *, msg: str, cur_time: int) -> None:
         """Update waiting message.
 
         Args:
@@ -843,11 +835,7 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
         """
         conemu_progress(ProgressBarState.DEFAULT)
 
-    def on_step(
-        self,
-        *,
-        msg: str,
-    ) -> None:
+    def on_step(self, *, msg: str) -> None:
         """Update step message.
 
         Args:
@@ -856,11 +844,7 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
         """
         output_step(msg)
 
-    def on_steptask_start(
-        self,
-        *,
-        msg: str,
-    ) -> None:
+    def on_steptask_start(self, *, msg: str) -> None:
         """On step task started.
 
         Args:
@@ -882,3 +866,31 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
 
         """
         pop_level()
+
+    def on_chdir(self, *, path: Path) -> None:
+        """On change working directory.
+
+        Args:
+            path (Path): New working directory.
+
+        """
+        output_step(
+            fast_format_str(
+                _("Entering directory ${{path}} ..."),
+                fmt={"path": make_pretty(path)},
+            ),
+        )
+
+    def on_leaving_dir(self, *, path: Path) -> None:
+        """On leaving working directory.
+
+        Args:
+            path (Path): New working directory.
+
+        """
+        output_step(
+            fast_format_str(
+                _("Leaving directory ${{path}} ..."),
+                fmt={"path": make_pretty(path)},
+            ),
+        )

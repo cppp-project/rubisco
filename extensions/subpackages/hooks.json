@@ -1,0 +1,35 @@
+{
+  "hooks": {
+    "lint": {
+      "run": ".rubisco/lint.yaml"
+    },
+    "pot": {
+      "run": ".rubisco/pot.yaml"
+    },
+    "po": {
+      "run": ".rubisco/po.yaml"
+    },
+    "build": {
+      "run": ".rubisco/build.yaml"
+    },
+    "clean": {
+      "workflow": [
+        {
+          "name": "Clean workflow",
+          "remove": [
+            ".bindir",
+            "build",
+            "dist",
+            "*/**/__pycache__",
+            ".rubisco/*.log",
+            "*.7z",
+            "*.gz",
+            "*.xz",
+            "*.zip"
+          ],
+          "strict": false
+        }
+      ]
+    }
+  }
+}

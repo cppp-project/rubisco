@@ -1,0 +1,71 @@
+# English translations for cppp-srcpkg package.
+# Copyright (C) 2025 THE cppp-srcpkg'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the cppp-srcpkg package.
+#  <wushengwuxi-msctinoulk@outlook.com>, 2025.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: cppp-srcpkg 0.1.0\n"
+"Report-Msgid-Bugs-To: wushengwuxi-msctinoulk@outlook.com\n"
+"POT-Creation-Date: 2025-08-03 21:12+0800\n"
+"PO-Revision-Date: 2025-08-03 21:17+0800\n"
+"Last-Translator:  <wushengwuxi-msctinoulk@outlook.com>\n"
+"Language-Team: English\n"
+"Language: en_US\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: /workspaces/cppp/rubisco/extensions/cppp-srcpkg/cppp_srcpkg/preprocessor.py:48
+msgid "Missing include file path in file ${{file}}."
+msgstr "Missing include file path in file ${{file}}."
+
+#: /workspaces/cppp/rubisco/extensions/cppp-srcpkg/cppp_srcpkg/__init__.py:105
+msgid "Source directory"
+msgstr "Source directory"
+
+#: /workspaces/cppp/rubisco/extensions/cppp-srcpkg/cppp_srcpkg/__init__.py:106
+msgid "Source directory."
+msgstr "Source directory."
+
+#: /workspaces/cppp/rubisco/extensions/cppp-srcpkg/cppp_srcpkg/__init__.py:113
+#: /workspaces/cppp/rubisco/extensions/cppp-srcpkg/cppp_srcpkg/__init__.py:117
+msgid "Make source package."
+msgstr "Make source package."
+
+#: /workspaces/cppp/rubisco/extensions/cppp-srcpkg/cppp_srcpkg/__init__.py:121
+msgid "Destination"
+msgstr "Destination"
+
+#: /workspaces/cppp/rubisco/extensions/cppp-srcpkg/cppp_srcpkg/__init__.py:124
+msgid "Destination directory."
+msgstr "Destination directory."
+
+#: /workspaces/cppp/rubisco/extensions/cppp-srcpkg/cppp_srcpkg/__init__.py:129
+msgid "Archive type"
+msgstr "Archive type"
+
+#: /workspaces/cppp/rubisco/extensions/cppp-srcpkg/cppp_srcpkg/__init__.py:133
+msgid "Archive type of the source distribution. Use '+' to make different archives. e.g. 'zip+tar.gz'. Use 'all' to select all supported types. Use 'none' to generate a directory instead of a archive. Defaults to 'all'."
+msgstr "Archive type of the source distribution. Use '+' to make different archives. e.g. 'zip+tar.gz'. Use 'all' to select all supported types. Use 'none' to generate a directory instead of a archive. Defaults to 'all'."
+
+#: /workspaces/cppp/rubisco/extensions/cppp-srcpkg/cppp_srcpkg/__init__.py:143
+msgid "Keep source directory"
+msgstr "Keep source directory"
+
+#: /workspaces/cppp/rubisco/extensions/cppp-srcpkg/cppp_srcpkg/__init__.py:147
+msgid "Keep source directory. If `archive-type` is 'none', this option will be enabled. Defaults to 'false'."
+msgstr "Keep source directory. If `archive-type` is 'none', this option will be enabled. Defaults to 'false'."
+
+#: /workspaces/cppp/rubisco/extensions/cppp-srcpkg/cppp_srcpkg/__init__.py:154
+msgid "Name format"
+msgstr "Name format"
+
+#: /workspaces/cppp/rubisco/extensions/cppp-srcpkg/cppp_srcpkg/__init__.py:158
+msgid "package name format. Defaults to '<project-name>-<version>'"
+msgstr "package name format. Defaults to '<project-name>-<version>'"
+
+#: /workspaces/cppp/rubisco/extensions/cppp-srcpkg/cppp_srcpkg/dist.py:100
+msgid "Making source package for project: [cyan]${{name}}[/cyan] ..."
+msgstr "Making source package for project: [cyan]${{name}}[/cyan] ..."

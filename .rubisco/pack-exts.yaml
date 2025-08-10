@@ -1,15 +1,20 @@
 name: 📦 Pack built-in extensions.
 
 steps:
+  - mkdir: dist
+
   - glob: extensions/*
     save-to: exts
     regular: false
 
   - matrix:
-      file: ${{ exts }}
+      extension: ${{ exts }}
     steps:
-      - name: 📦 Pack ${{ file }} to extension pack.
-        compress: ${{ file }}
-        start: ${{ file }}
-        to: extensions/$&{{ file.stem }}.rubp
-        format: zip
+      - name: 📦 Pack ${{ extension }} to RuBP.
+        workflow: ${{ extension }}/.rubisco/build.yaml
+        chdir: ${{ extension }}
+        fail-fast: true
+
+      - name: 📦 Copy output files.
+        copy: ${{ extension }}/dist/*.rubp
+        to: dist

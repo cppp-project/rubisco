@@ -1,8 +1,8 @@
-name: 🛠️ Build rubp-build
+name: 🛠️ Build subpackages
 
 steps:
-  - copy: rubp_build
-    to: .bindir/rubp-build
+  - copy: subpackages
+    to: .bindir/subpackages
     excludes: ["__pycache__", "*.pyc"]
 
   - workflow: .rubisco/po.yaml

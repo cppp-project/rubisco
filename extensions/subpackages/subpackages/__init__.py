@@ -37,6 +37,7 @@ from rubisco.shared.api.utils import find_command
 from rubisco.shared.api.variable import fast_format_str
 from rubisco.shared.extension import IRUExtension
 from rubisco.shared.ktrigger import IKernelTrigger
+
 from subpackages.package import Package
 from subpackages.steps import FetchStep
 
@@ -82,7 +83,10 @@ class SubpackagesExtension(IRUExtension):
 
     def on_load(self) -> None:
         """Load git extension."""
-        EventPath("/fetch").mkfile(
+        EventPath("/subpackages").mkdir(
+            description=_("Subpackages management."),
+        )
+        EventPath("/subpackages/fetch").mkfile(
             EventFileData(
                 callbacks=[
                     EventCallback(
@@ -165,7 +169,28 @@ class SubpackagesExtension(IRUExtension):
                     },
                 ),
             ],
+            description=_("Fetch subpackages."),
         )
+        # EventPath("/subpackages/list").mkfile(
+        #     EventFileData(
+        #         callbacks=[
+        #             EventCallback(
+        #                 callback=on_list,
+        #                 description=_("List subpackages."),
+        #             ),
+        #         ],
+        #     ),
+        #     options=[
+        #         Option[bool](
+        #             name="recursive",
+        #             title=_("Recursive"),
+        #             description=_("List subpackages recursively."),
+        #             typecheck=bool,
+        #             default=False,
+        #         ),
+        #     ],
+        #     description=_("List subpackages."),
+        # )
 
     def solve_reqs(self) -> None:
         """Solve requirements."""

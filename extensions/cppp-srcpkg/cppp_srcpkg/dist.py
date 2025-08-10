@@ -22,7 +22,7 @@
 from pathlib import Path
 from shutil import copyfile
 
-from cppp_srcpkg.ignore import Manifest
+from rubisco.shared.api.git import is_git_repo
 from rubisco.shared.api.kernel import (
     ProjectConfigration,
     is_rubisco_project,
@@ -32,6 +32,8 @@ from rubisco.shared.api.l10n import _
 from rubisco.shared.api.utils import human_readable_size
 from rubisco.shared.api.variable import fast_format_str
 from rubisco.shared.ktrigger import IKernelTrigger, call_ktrigger
+
+from cppp_srcpkg.ignore import Manifest
 
 
 def _dist(
@@ -54,7 +56,7 @@ def _dist(
         relpath = file.relative_to(srcdir)
         if manifest.need_ignore(file):
             continue
-        if is_rubisco_project(file):
+        if is_rubisco_project(file) and is_git_repo(file):
             config = load_project_config(file)
             dist(file, dstdir / relpath, config)
         elif file.is_dir():

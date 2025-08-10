@@ -33,18 +33,22 @@ class WorkflowRunStep(Step):
 
     path: Path
     fail_fast: bool
+    chdir: Path | None
 
     def init(self) -> None:
         """Initialize the step."""
         self.path = Path(self.raw_data.get("workflow", valtype=str))
 
         self.fail_fast = self.raw_data.get("fail-fast", True, valtype=bool)
+        chdir = self.raw_data.get("chdir", None, valtype=str | None)
+        self.chdir = Path(chdir) if chdir else None
 
     def run(self) -> None:
         """Run the step."""
         exc = WorkflowInterfaces.get_run_workflow()(
             self.path,
             fail_fast=self.fail_fast,
+            chdir=self.chdir,
         )
         if exc:
             push_variables(f"{self.global_id}.exception", exc)

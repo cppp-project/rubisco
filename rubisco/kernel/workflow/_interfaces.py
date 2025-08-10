@@ -79,6 +79,7 @@ class WorkflowInterfaces:
             file: Path,
             *,
             fail_fast: bool = True,
+            chdir: Path | None = None,
         ) -> Exception | None: ...
 
     _run_workflow: ClassVar[_RunWorkflowFunction] = _notimplemented

@@ -1,8 +1,8 @@
-name: 🛠️ Build rubp-build
+name: 🛠️ Build cppp-srcpkg
 
 steps:
-  - copy: rubp_build
-    to: .bindir/rubp-build
+  - copy: cppp_srcpkg
+    to: .bindir/cppp_srcpkg
     excludes: ["__pycache__", "*.pyc"]
 
   - workflow: .rubisco/po.yaml

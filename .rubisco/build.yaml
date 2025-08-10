@@ -1,9 +1,9 @@
 name: 🛠️ Build
 
 vars:
-  - icon_file: res/rubisco.ico
-  - group: The C++ Plus Project
-  - copyright: Copyright (C) 2024 The C++ Plus Project
+  icon_file: res/rubisco.ico
+  group: The C++ Plus Project
+  copyright: Copyright (C) 2024 The C++ Plus Project
 
 steps:
   - mkdir: dist

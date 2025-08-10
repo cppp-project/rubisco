@@ -36,7 +36,6 @@ def init_builtin_vars() -> None:
     """Initialize the built-in variables."""
     uname_result = platform.uname()
     push_variables("home", str(Path.home().absolute()))
-    push_variables("cwd", str(Path.cwd().absolute()))
     push_variables("nproc", os.cpu_count())
     push_variables("rubisco", str(RUBISCO_COMMAND))
     push_variables("rubisco.version", str(APP_VERSION))

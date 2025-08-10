@@ -31,6 +31,7 @@ from rubisco.lib.fileutil import (
     rm_recursive,
 )
 from rubisco.lib.l10n import _
+from rubisco.lib.variable.fast_format_str import fast_format_str
 from rubisco.lib.variable.utils import assert_iter_types
 from rubisco.shared.ktrigger import IKernelTrigger, call_ktrigger
 
@@ -75,14 +76,18 @@ class CopyFileStep(Step):
 
     def run(self) -> None:
         """Run the step."""
-        if self.overwrite and self.dst.exists():
+        if self.overwrite and self.dst.exists() and not self.dst.is_dir():
             rm_recursive(self.dst, strict=True)
-        if self.dst.is_dir():
+        if self.dst.exists() and not self.dst.is_dir():
             check_file_exists(self.dst)
         assert_rel_path(self.dst)
 
+        matched: bool = False
         for src_glob in self.srcs:
-            for src in glob.glob(src_glob):  # noqa: PTH207
+            files = glob.glob(src_glob)  # noqa: PTH207
+            if files:
+                matched = True
+            for src in files:
                 src_path = Path(src)
                 call_ktrigger(
                     IKernelTrigger.on_copy,
@@ -97,3 +102,11 @@ class CopyFileStep(Step):
                     symlinks=self.keep_symlinks,
                     exists_ok=self.overwrite,
                 )
+        if not matched:
+            call_ktrigger(
+                IKernelTrigger.on_warning,
+                message=fast_format_str(
+                    _("No file matched the glob pattern: ${{glob}}."),
+                    fmt={"glob": repr(self.srcs)},
+                ),
+            )

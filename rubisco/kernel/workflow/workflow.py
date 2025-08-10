@@ -20,6 +20,7 @@
 """Workflow implementation."""
 
 from collections.abc import Generator
+from typing import Any
 
 from rubisco.kernel.workflow.step import Step
 from rubisco.kernel.workflow.steps import step_contributes, step_types
@@ -27,7 +28,7 @@ from rubisco.lib.exceptions import RUValueError
 from rubisco.lib.l10n import _
 from rubisco.lib.variable.autoformatdict import AutoFormatDict
 from rubisco.lib.variable.fast_format_str import fast_format_str
-from rubisco.lib.variable.utils import assert_iter_types, make_pretty
+from rubisco.lib.variable.utils import make_pretty
 from rubisco.lib.variable.variable import pop_variables, push_variables
 from rubisco.shared.ktrigger import IKernelTrigger, call_ktrigger
 
@@ -53,19 +54,11 @@ class Workflow:
 
         """
         self.pushed_variables = []
-        pairs = data.get("vars", [], valtype=list)
-        assert_iter_types(
-            pairs,
-            dict,
-            RUValueError(
-                _("Workflow variables must be a list of name and value."),
-            ),
-        )
-        for pair in pairs:
-            pair: AutoFormatDict
-            for key, val in pair.items():
-                self.pushed_variables.append(str(key))
-                push_variables(str(key), val)
+        pairs = data.get("vars", {}, valtype=dict[str, Any])
+
+        for key, val in pairs.items():
+            self.pushed_variables.append(str(key))
+            push_variables(str(key), val)
 
         self.id = data.get(
             "id",

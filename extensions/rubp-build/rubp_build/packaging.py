@@ -24,6 +24,7 @@ import tomllib
 from pathlib import Path
 
 from rubisco.config import (
+    APP_NAME,
     DEFAULT_CHARSET,
     RUBP_LICENSE_FILE_NAME,
     RUBP_METADATA_FILE_NAME,
@@ -31,9 +32,14 @@ from rubisco.config import (
     RUBP_REQUIREMENTS_FILE_NAME,
 )
 from rubisco.shared.api.archive import compress
+from rubisco.shared.api.exception import RUTypeError
 from rubisco.shared.api.kernel import RUConfiguration
 from rubisco.shared.api.l10n import _
-from rubisco.shared.api.variable import fast_format_str, make_pretty
+from rubisco.shared.api.variable import (
+    assert_iter_types,
+    fast_format_str,
+    make_pretty,
+)
 from rubisco.shared.ktrigger import IKernelTrigger, call_ktrigger
 
 from rubp_build.logger import logger
@@ -73,20 +79,30 @@ class RuBP:
         requirements_txt = self.config.path.parent / "requirements.txt"
         pyproject_toml = self.config.path.parent / "pyproject.toml"
         if requirements_txt.is_file():
-            return (
-                requirements_txt.read_text(encoding=DEFAULT_CHARSET),
-                requirements_txt,
-            )
+            res_ = ""
+            with requirements_txt.open(encoding=DEFAULT_CHARSET) as f:
+                for line in f:
+                    if line.lstrip().startswith("rubisco"):
+                        continue
+                    res_ += line
+            return (res_, requirements_txt)
 
         if pyproject_toml.is_file():
             with pyproject_toml.open("rb") as f:
                 pyproject_toml_data = tomllib.load(f)
-                deps = pyproject_toml_data.get("project", {}).get(
+                deps: list[str] = pyproject_toml_data.get("project", {}).get(
                     "dependencies",
                     "",
                 )
+                exc = RUTypeError(_("`dependencies` must be list of string"))
+                assert_iter_types(deps, str, exc)
+                res: list[str] = []
+                for dep in deps:
+                    if dep.lstrip().startswith(APP_NAME):
+                        continue
+                    res.append(dep)
                 if deps:
-                    return "\n".join(deps), pyproject_toml
+                    return "\n".join(res), pyproject_toml
 
         return "", None
 
