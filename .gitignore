@@ -131,6 +131,9 @@ result.json
 # Test data
 !tests/*
 
+# Trae
+.marscode
+
 # Patterns for all subdirectories: all kinds of automatic backup files.
 *.orig
 *.rej
