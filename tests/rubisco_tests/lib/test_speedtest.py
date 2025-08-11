@@ -34,9 +34,9 @@ TIMEOUT = 5
 async def _is_network_reachable() -> bool:
     try:
         async with (
-            ClientSession() as session,
+            ClientSession(trust_env=True) as session,
             session.get(
-                "https://example.com",
+                "http://example.com",
                 timeout=ClientTimeout(total=TIMEOUT),
             ) as resp,
         ):
