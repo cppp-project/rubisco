@@ -22,7 +22,7 @@
 from __future__ import annotations
 
 import sys
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
 
 import colorama
 import rich
@@ -31,6 +31,7 @@ import rich.progress
 from pygments import highlight  # type: ignore[attr-defined]
 from pygments.formatters.terminal256 import Terminal256Formatter
 from pygments.lexers import get_lexer_by_name
+from rich.tree import Tree
 
 from rubisco.cli.input import ask_yesno
 from rubisco.cli.main.project_config import get_hooks
@@ -53,6 +54,7 @@ from rubisco.kernel.config_file import config_file
 from rubisco.lib.l10n import _, locale_language, locale_language_name
 from rubisco.lib.log import logger
 from rubisco.lib.speedtest import C_INTMAX
+from rubisco.lib.tree import Tree as RUTree
 from rubisco.lib.variable import make_pretty
 from rubisco.lib.variable.fast_format_str import fast_format_str
 from rubisco.shared.ktrigger import (
@@ -444,9 +446,25 @@ class RubiscoKTrigger(  # pylint: disable=too-many-public-methods
             ),
         )
 
+    def _convert_tree(self, tree: RUTree[object], rich_tree_root: Tree) -> None:
+        """Convert RUTree to rich Tree."""
+        for ru_node in tree.children:
+            node = rich_tree_root.add(str(ru_node.value))
+            if ru_node.children:
+                self._convert_tree(ru_node, node)
+
+    def _output_tree(self, tree: RUTree[object]) -> None:
+        """Output RUTree as rich Tree."""
+        rich_tree = Tree(str(tree.value))
+        self._convert_tree(tree, rich_tree)
+        rich.print(rich_tree)
+
     def on_output(self, *, message: object, raw: bool = True) -> None:
         if raw:
-            rich.print(message)
+            if isinstance(message, RUTree):
+                self._output_tree(cast("RUTree[object]", message))
+            else:
+                rich.print(str(message))
         else:
             output_line(message if isinstance(message, str) else repr(message))
 

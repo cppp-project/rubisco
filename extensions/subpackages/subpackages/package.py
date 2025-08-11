@@ -77,8 +77,8 @@ class SubpackageReference:
         *,
         shallow: bool = True,
         use_direct: bool = False,
-    ) -> "Package | None":
-        """Fetch the subpackage.
+    ) -> None:
+        """Fetch the subpackage itself.
 
         Args:
             protocol (str): The protocol to use.
@@ -92,6 +92,9 @@ class SubpackageReference:
 
         """
         path = self.get_path()
+        if self.exists():
+            return
+
         git_clone(
             self.url,
             path,
@@ -100,6 +103,38 @@ class SubpackageReference:
             shallow=shallow,
             use_fastest=not use_direct,
         )
+
+    def fetch_subpackages(
+        self,
+        protocol: str,
+        *,
+        shallow: bool = True,
+        use_direct: bool = False,
+    ) -> "Package | None":
+        """Fetch the subpackage's subpackages.
+
+        Args:
+            protocol (str): The protocol to use.
+            shallow (bool, optional): Whether to use shallow clone. Defaults to
+                True.
+            use_direct (bool, optional): Whether to use direct url without
+                mirror speed test. Defaults to False.
+
+        Returns:
+            Package | None: The fetched package.
+
+        """
+        path = self.get_path()
+        if not path.exists():
+            # fetch() should be called before this method. For BFS iteration.
+            raise RUValueError(
+                fast_format_str(
+                    _("Subpackage ${{name}} does not exist."),
+                    fmt={"name": self.name},
+                ),
+                hint=_("Please fetch the subpackage ITSELF first."),
+            )
+
         try:
             pkg = Package(path)
             pkg.fetch(
@@ -119,7 +154,7 @@ class Package:
     path: Path
     config: ProjectConfigration
     subpackage_refs: list[SubpackageReference]
-    subpackages: list["Package | None"]
+    subpackages: "list[Package | None]"
 
     def __init__(self, path: Path) -> None:
         """Parse a rubisco package.
@@ -132,9 +167,10 @@ class Package:
         self.name = config.name
         self.path = path
         self.config = config
-        self._load_subpkgs()
+        self._load_subpkg_refs()
+        self._load_subpackages()
 
-    def _load_subpkgs(self) -> None:
+    def _load_subpkg_refs(self) -> None:
         subpkgs: list[SubpackageReference] = []
         subpkg_dict = self.config.config.get("subpackages", {}, valtype=dict)
         subpkg_dict: AutoFormatDict
@@ -168,6 +204,14 @@ class Package:
 
         self.subpackage_refs = subpkgs
 
+    def _load_subpackages(self) -> None:
+        self.subpackages = []
+        for subpkg in self.subpackage_refs:
+            if subpkg.exists():
+                self.subpackages.append(Package(subpkg.get_path()))
+            else:
+                self.subpackages.append(None)
+
     def fetch(
         self,
         protocol: str,
@@ -188,13 +232,21 @@ class Package:
             list[Package | None]: The fetched packages.
 
         """
-        subpkgs = [
+        refs = self.subpackage_refs
+        for subpkg in refs:
             subpkg.fetch(
+                protocol=protocol,
+                shallow=shallow,
+                use_direct=use_direct,
+            )
+
+        subpkgs = [
+            subpkg.fetch_subpackages(
                 protocol,
                 shallow=shallow,
                 use_direct=use_direct,
             )
-            for subpkg in self.subpackage_refs
+            for subpkg in refs
         ]
         self.subpackages = subpkgs
         return subpkgs

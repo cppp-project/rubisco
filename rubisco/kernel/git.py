@@ -161,8 +161,8 @@ def git_update(
         )
     try:
         repo = Repo(path)
-        rubisco_url = Remote(repo, "rubisco-url")
-        if rubisco_url:
+        if "rubisco-url" in [remote.name for remote in repo.remotes]:
+            rubisco_url = Remote(repo, "rubisco-url")
             mirror_url = get_url(
                 rubisco_url.url,
                 protocol=protocol,

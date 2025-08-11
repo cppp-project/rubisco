@@ -29,6 +29,9 @@ of them.
 import types
 
 from rubisco.shared.ktrigger import IKernelTrigger, call_ktrigger
+from rubisco.lib.tree import Tree
+
+__all__ = ["Tree", "TaskStep", "ProgressTask"]
 
 
 class TaskStep:

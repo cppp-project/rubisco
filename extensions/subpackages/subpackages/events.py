@@ -32,9 +32,12 @@ from rubisco.shared.api.cefs import (
 )
 from rubisco.shared.api.exception import RUValueError
 from rubisco.shared.api.l10n import _
+from rubisco.shared.api.uci import Tree
 from rubisco.shared.api.variable import fast_format_str
+from rubisco.shared.ktrigger import IKernelTrigger, call_ktrigger
 
 from subpackages.package import Package
+from subpackages.pkglist import SubpackageRepr, load_subpkg_list
 
 __all__ = ["mount_to_cefs"]
 
@@ -55,6 +58,35 @@ def on_fetch(options: list[Option[Any]], args: list[Argument[Any]]) -> None:
         )
     pkg = Package(Path.cwd())
     pkg.fetch(protocol=protocol, shallow=shallow, use_direct=not use_mirror)
+
+
+def on_list(options: list[Option[Any]], args: list[Argument[Any]]) -> None:
+    """List subpackages."""
+    opts, _args = load_callback_args(options, args)
+    recursive = opts.get("recursive", True)
+    srcdir = Path.cwd()
+    pkg = Package(srcdir)
+    tree: Tree[SubpackageRepr] = Tree(
+        SubpackageRepr(
+            name=pkg.name,
+            path=pkg.path,
+            is_fetched=True,
+            cwd=srcdir,
+            url=None,
+            branch=None,
+            is_duplicate=False,
+        ),
+    )
+    if load_subpkg_list(tree, pkg, srcdir, recursive=recursive):
+        call_ktrigger(
+            IKernelTrigger.on_hint,
+            message=fast_format_str(
+                _("No subpackages found in ${{pkg}}."),
+                fmt={"pkg": pkg.name},
+            ),
+        )
+    else:
+        call_ktrigger(IKernelTrigger.on_output, message=tree)
 
 
 def mount_to_cefs() -> None:
@@ -109,8 +141,7 @@ def mount_to_cefs() -> None:
                         {
                             "name": "--no-shallow",
                             "help": _(
-                                "Do not use shallow mode to clone Git "
-                                "subpackages.",
+                                "Disable shallow mode to clone subpackages.",
                             ),
                             "action": "store_false",
                         },
@@ -147,23 +178,23 @@ def mount_to_cefs() -> None:
         ],
         description=_("Fetch subpackages."),
     )
-    # EventPath("/subpackages/list").mkfile(
-    #     EventFileData(
-    #         callbacks=[
-    #             EventCallback(
-    #                 callback=on_list,
-    #                 description=_("List subpackages."),
-    #             ),
-    #         ],
-    #     ),
-    #     options=[
-    #         Option[bool](
-    #             name="recursive",
-    #             title=_("Recursive"),
-    #             description=_("List subpackages recursively."),
-    #             typecheck=bool,
-    #             default=False,
-    #         ),
-    #     ],
-    #     description=_("List subpackages."),
-    # )
+    EventPath("/subpackages/list").mkfile(
+        EventFileData(
+            callbacks=[
+                EventCallback(
+                    callback=on_list,
+                    description=_("List subpackages."),
+                ),
+            ],
+        ),
+        options=[
+            Option[bool](
+                name="recursive",
+                title=_("Recursive"),
+                description=_("List subpackages recursively."),
+                typecheck=bool,
+                default=True,
+            ),
+        ],
+        description=_("List subpackages."),
+    )
