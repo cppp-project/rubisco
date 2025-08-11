@@ -1,0 +1,116 @@
+# Chinese translations for subpackages package
+# subpackages 软件包的简体中文翻译.
+# Copyright (C) 2025 THE subpackages'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the subpackages package.
+# YiFei Chen <wushengwuxi-msctinoulk@outlook.com>, 2025.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: subpackages 0.1.0\n"
+"Report-Msgid-Bugs-To: wushengwuxi-msctinoulk@outlook.com\n"
+"POT-Creation-Date: 2025-08-11 20:29+0800\n"
+"PO-Revision-Date: 2025-08-11 21:02+0800\n"
+"Last-Translator: YiFei Chen <wushengwuxi-msctinoulk@outlook.com>\n"
+"Language-Team: Chinese (simplified) <i18n-zh@googlegroups.com>\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: /workspaces/cppp/rubisco/extensions/subpackages/subpackages/events.py:54
+msgid "Invalid protocol: ${{protocol}}"
+msgstr "无效协议: ${{protocol}}"
+
+#: /workspaces/cppp/rubisco/extensions/subpackages/subpackages/events.py:57
+msgid "We only support \"http\"(HTTP(s)) and \"ssh\"(SSH)."
+msgstr "我们只支持 \"http\"(HTTP(s)) 和 \"ssh\"(SSH)。"
+
+#: /workspaces/cppp/rubisco/extensions/subpackages/subpackages/events.py:84
+msgid "No subpackages found in ${{pkg}}."
+msgstr "在 ${{pkg}} 中未找到子软件包。"
+
+#: /workspaces/cppp/rubisco/extensions/subpackages/subpackages/events.py:95
+msgid "Subpackages management."
+msgstr "子软件包管理。"
+
+#: /workspaces/cppp/rubisco/extensions/subpackages/subpackages/events.py:102
+#: /workspaces/cppp/rubisco/extensions/subpackages/subpackages/events.py:179
+msgid "Fetch subpackages."
+msgstr "获取子软件包。"
+
+#: /workspaces/cppp/rubisco/extensions/subpackages/subpackages/events.py:109
+msgid "Protocol"
+msgstr "协议"
+
+#: /workspaces/cppp/rubisco/extensions/subpackages/subpackages/events.py:110
+msgid "Protocol to use for fetching subpackages."
+msgstr "获取子软件包的协议。"
+
+#: /workspaces/cppp/rubisco/extensions/subpackages/subpackages/events.py:119
+msgid "Use HTTP(s) to fetch Git subpackages."
+msgstr "使用 HTTP(s) 获取 Git 子软件包。"
+
+#: /workspaces/cppp/rubisco/extensions/subpackages/subpackages/events.py:126
+msgid "Use SSH to fetch Git subpackages."
+msgstr "使用 SSH 获取 Git 子软件包。"
+
+#: /workspaces/cppp/rubisco/extensions/subpackages/subpackages/events.py:135
+msgid "Shallow"
+msgstr "浅克隆"
+
+#: /workspaces/cppp/rubisco/extensions/subpackages/subpackages/events.py:136
+msgid "Use shallow clone."
+msgstr "使用浅克隆获取子软件包。"
+
+#: /workspaces/cppp/rubisco/extensions/subpackages/subpackages/events.py:144
+msgid "Disable shallow mode to clone subpackages."
+msgstr "禁用浅克隆模式获取子软件包。"
+
+#: /workspaces/cppp/rubisco/extensions/subpackages/subpackages/events.py:153
+msgid "Use Mirror"
+msgstr "使用镜像获取子软件包。"
+
+#: /workspaces/cppp/rubisco/extensions/subpackages/subpackages/events.py:155
+msgid "Enable mirror speedtest and auto selection."
+msgstr "启用镜像速度测试和自动选择。"
+
+#: /workspaces/cppp/rubisco/extensions/subpackages/subpackages/events.py:164
+msgid "Use mirror to fetch Git subpackages."
+msgstr "使用镜像获取 Git 子软件包。"
+
+#: /workspaces/cppp/rubisco/extensions/subpackages/subpackages/events.py:171
+msgid "Disable mirror speedtest and auto selection."
+msgstr "禁用镜像速度测试和自动选择。"
+
+#: /workspaces/cppp/rubisco/extensions/subpackages/subpackages/events.py:186
+#: /workspaces/cppp/rubisco/extensions/subpackages/subpackages/events.py:199
+msgid "List subpackages."
+msgstr "列出子软件包。"
+
+#: /workspaces/cppp/rubisco/extensions/subpackages/subpackages/events.py:193
+msgid "Recursive"
+msgstr "递归"
+
+#: /workspaces/cppp/rubisco/extensions/subpackages/subpackages/events.py:194
+msgid "List subpackages recursively."
+msgstr "递归列出子软件包。"
+
+#: /workspaces/cppp/rubisco/extensions/subpackages/subpackages/package.py:132
+msgid "Subpackage ${{name}} does not exist."
+msgstr "子软件包 ${{name}} 不存在。"
+
+#: /workspaces/cppp/rubisco/extensions/subpackages/subpackages/package.py:135
+msgid "Please fetch the subpackage ITSELF first."
+msgstr "请先获取子软件包自身。"
+
+#: /workspaces/cppp/rubisco/extensions/subpackages/subpackages/package.py:180
+msgid "Subpackage reference ${{name}} is not a dict."
+msgstr "子软件包引用 ${{name}} 不是字典。"
+
+#: /workspaces/cppp/rubisco/extensions/subpackages/subpackages/package.py:193
+msgid "Subpackage reference ${{name}} has no path."
+msgstr "子软件包引用 ${{name}} 没有路径。"
+
+#: /workspaces/cppp/rubisco/extensions/subpackages/subpackages/steps.py:48
+msgid "Missing URL for fetching subpackages."
+msgstr "获取子软件包时缺少 URL。"

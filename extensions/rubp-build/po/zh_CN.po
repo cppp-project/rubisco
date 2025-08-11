@@ -1,6 +1,6 @@
 # Chinese translations for rubp-build package
 # rubp-build 软件包的简体中文翻译.
-# Copyright (C) 2025 THE rubp-build'S COPYRIGHT HOLDER
+# Copyright (C) 2025 The C++ Plus Project.
 # This file is distributed under the same license as the rubp-build package.
 #  <wushengwuxi-msctinoulk@outlook.com>, 2025.
 #
@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rubp-build 0.1.0\n"
 "Report-Msgid-Bugs-To: wushengwuxi-msctinoulk@outlook.com\n"
-"POT-Creation-Date: 2025-07-31 14:32+0800\n"
+"POT-Creation-Date: 2025-08-10 15:32+0800\n"
 "PO-Revision-Date: 2025-07-31 14:39+0800\n"
 "Last-Translator:  <wushengwuxi-msctinoulk@outlook.com>\n"
 "Language-Team: Chinese (simplified) <i18n-zh@googlegroups.com>\n"
@@ -17,35 +17,43 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: /workspaces/cppp/rubisco/extensions/rubp-build/rubp_build/packaging.py:108
-msgid "No readme file found."
-msgstr "未找到说明文件。"
-
-#: /workspaces/cppp/rubisco/extensions/rubp-build/rubp_build/packaging.py:131
-msgid "No license file found."
-msgstr "未找到许可证文件"
-
-#: /workspaces/cppp/rubisco/extensions/rubp-build/rubp_build/packaging.py:156
-msgid "Generating requirements.txt from ${{path}} ..."
-msgstr "正在根据 ${{path}} 生成 requirements.txt ..."
-
-#: /workspaces/cppp/rubisco/extensions/rubp-build/rubp_build/events.py:55
+#: /workspaces/cppp/rubisco/extensions/rubp-build/rubp_build/events.py:56
 msgid "Rubisco binary package builder. (Build RuBP from event is notsupported. Please use workflow to build RuBP.)"
 msgstr "Rubisco 二进制文件构建器。（不支持从这个事件来构建 RuBP，请使用工作流构建 RuBP。）"
 
-#: /workspaces/cppp/rubisco/extensions/rubp-build/rubp_build/events.py:63
+#: /workspaces/cppp/rubisco/extensions/rubp-build/rubp_build/events.py:64
 msgid "Project directory"
 msgstr "项目目录"
 
-#: /workspaces/cppp/rubisco/extensions/rubp-build/rubp_build/events.py:64
+#: /workspaces/cppp/rubisco/extensions/rubp-build/rubp_build/events.py:65
 msgid "Project directory path."
 msgstr "项目目录路径"
 
-#: /workspaces/cppp/rubisco/extensions/rubp-build/rubp_build/events.py:71
-#: /workspaces/cppp/rubisco/extensions/rubp-build/rubp_build/events.py:75
+#: /workspaces/cppp/rubisco/extensions/rubp-build/rubp_build/events.py:72
+#: /workspaces/cppp/rubisco/extensions/rubp-build/rubp_build/events.py:76
 msgid "Get RuBP metadata."
 msgstr "获取 RuBP 元数据"
 
-#: /workspaces/cppp/rubisco/extensions/rubp-build/rubp_build/version.py:92
+#: /workspaces/cppp/rubisco/extensions/rubp-build/rubp_build/version.py:91
 msgid "Tag '${{tag}}' not found."
 msgstr "标签 '${{tag}}' 未找到。"
+
+#: /workspaces/cppp/rubisco/extensions/rubp-build/rubp_build/packaging.py:97
+msgid "`dependencies` must be list of string"
+msgstr "`dependencies` 必须是字符串列表"
+
+#: /workspaces/cppp/rubisco/extensions/rubp-build/rubp_build/packaging.py:125
+msgid "No readme file found."
+msgstr "未找到说明文件。"
+
+#: /workspaces/cppp/rubisco/extensions/rubp-build/rubp_build/packaging.py:151
+msgid "No license file found."
+msgstr "未找到许可证文件"
+
+#: /workspaces/cppp/rubisco/extensions/rubp-build/rubp_build/packaging.py:176
+msgid "Generating requirements.txt from ${{path}} ..."
+msgstr "正在根据 ${{path}} 生成 requirements.txt ..."
+
+#: /workspaces/cppp/rubisco/extensions/rubp-build/rubp_build/deps/pyproject.py:111
+msgid "pyproject 'project' must be a dict."
+msgstr "pyproject 'project' 必须是一个字典。"

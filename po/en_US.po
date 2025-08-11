@@ -1,327 +1,56 @@
 # English translations for Rubisco package.
-# Copyright (C) 2025 THE Rubisco'S COPYRIGHT HOLDER
+# Copyright (C) 2025 The C++ Plus Project.
 # This file is distributed under the same license as the Rubisco package.
-#  <wushengwuxi-msctinoulk@outlook.com>, 2025.
+# YiFei Chen <wushengwuxi-msctinoulk@outlook.com>, 2025.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: Rubisco 0.1.0\n"
 "Report-Msgid-Bugs-To: cpppteam@email.cn\n"
-"POT-Creation-Date: 2025-07-07 16:06+0800\n"
-"PO-Revision-Date: 2025-07-07 16:08+0800\n"
-"Last-Translator:  <wushengwuxi-msctinoulk@outlook.com>\n"
+"POT-Creation-Date: 2025-08-11 20:29+0800\n"
+"PO-Revision-Date: 2025-08-11 21:26+0800\n"
+"Last-Translator: YiFei Chen <wushengwuxi-msctinoulk@outlook.com>\n"
 "Language-Team: English\n"
 "Language: en_US\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Type: text/plain; charset=ASCII\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: ../rubisco/envutils/utils.py:79
-msgid "Failed to add ${{path}} to sys.path: ${{exc}}"
-msgstr "Failed to add ${{path}} to sys.path: ${{exc}}"
-
-#: ../rubisco/envutils/env.py:119
-msgid "The database ${{path}} is broken."
-msgstr "The database ${{path}} is broken."
-
-#: ../rubisco/envutils/env.py:126
-msgid "Failed to check the environment."
-msgstr "Failed to check the environment."
-
-#: ../rubisco/envutils/env.py:129
-msgid "The ${{path}} is not a valid venv but exists.Please remove it and try again."
-msgstr "The ${{path}} is not a valid venv but exists.Please remove it and try again."
-
-#: ../rubisco/envutils/env.py:150
-msgid "Failed to create venv. Consider to check thepermissions of the path."
-msgstr "Failed to create venv. Consider to check thepermissions of the path."
-
-#: ../rubisco/envutils/env.py:158
-msgid "Failed to create the database for the environment."
-msgstr "Failed to create the database for the environment."
-
-#: ../rubisco/envutils/env.py:211
-msgid "Waiting for the environment to be unlocked (${{path}}): ${{seconds}} seconds."
-msgstr "Waiting for the environment to be unlocked (${{path}}): ${{seconds}} seconds."
-
-#: ../rubisco/envutils/env.py:263 ../rubisco/kernel/mirrorlist.py:207
-#: ../rubisco/lib/l10n.py:79
-msgid "Unknown"
-msgstr "Unknown"
-
-#: ../rubisco/envutils/env.py:268
-msgid "The environment ${{path}} is already locked by PID ${{pid}}. If you want to force unlock it, please remove the lock file ${{lockfile}} manually."
-msgstr "The environment ${{path}} is already locked by PID ${{pid}}. If you want to force unlock it, please remove the lock file ${{lockfile}} manually."
-
-#: ../rubisco/envutils/env.py:284
-msgid "The PID '${{pid}}' is not valid. Maybe the process has already exited. Remove the lock file if you believe the process has already exited."
-msgstr "The PID '${{pid}}' is not valid. Maybe the process has already exited. Remove the lock file if you believe the process has already exited."
-
-#: ../rubisco/envutils/env.py:316
-msgid "The lock file ${{path}} is broken."
-msgstr "The lock file ${{path}} is broken."
-
-#: ../rubisco/envutils/env.py:330
-msgid "Failed to read the lock file ${{path}}: ${{msg}}"
-msgstr "Failed to read the lock file ${{path}}: ${{msg}}"
-
-#: ../rubisco/envutils/env.py:388
-msgid "The environment ${{path}} is locked by another thread (PID ${{pid}}, Thread ${{thread}}). Unlock request is ignored."
-msgstr "The environment ${{path}} is locked by another thread (PID ${{pid}}, Thread ${{thread}}). Unlock request is ignored."
-
-#: ../rubisco/envutils/env.py:408
-msgid "Failed to unlock the extension environment ${{path}}: ${{msg}}"
-msgstr "Failed to unlock the extension environment ${{path}}: ${{msg}}"
-
-#: ../rubisco/envutils/env_db.py:141
-msgid "[SQLite3 Errorcode ${{codename}}(${{code}})]: ${{msg}}"
-msgstr "[SQLite3 Errorcode ${{codename}}(${{code}})]: ${{msg}}"
-
-#: ../rubisco/envutils/env_db.py:154
-msgid "Failed to open or operate on database ${{path}}: ${{exc}}"
-msgstr "Failed to open or operate on database ${{path}}: ${{exc}}"
-
-#: ../rubisco/envutils/env_db.py:289
-msgid "Invalid regex pattern: '${{pattern}}'."
-msgstr "Invalid regex pattern: '${{pattern}}'."
-
-#: ../rubisco/envutils/pip.py:78
-msgid "You are installing a extension to the global environment. Please make sure that you have the right permissions."
-msgstr "You are installing a extension to the global environment. Please make sure that you have the right permissions."
-
-#: ../rubisco/envutils/packages.py:102
-msgid "'${{name}}' package must contain a directory with the same name as the package name and a 'rubisco.json' file."
-msgstr "'${{name}}' package must contain a directory with the same name as the package name and a 'rubisco.json' file."
-
-#: ../rubisco/envutils/packages.py:119
-msgid "'${{name}}' package contains files that not allowed in the root directory."
-msgstr "'${{name}}' package contains files that not allowed in the root directory."
-
-#: ../rubisco/envutils/packages.py:160
-msgid "Package name '${{name}}' invalid."
-msgstr "Package name '${{name}}' invalid."
-
-#: ../rubisco/envutils/packages.py:165
-msgid "Package name must be lowercase and only contain 0-9, a-z, A-Z, '_', '.' and '-'."
-msgstr "Package name must be lowercase and only contain 0-9, a-z, A-Z, '_', '.' and '-'."
-
-#: ../rubisco/envutils/packages.py:173
-msgid "Maintainers must be a list of strings."
-msgstr "Maintainers must be a list of strings."
-
-#: ../rubisco/envutils/packages.py:178
-msgid "Maintainers must not contain ','."
-msgstr "Maintainers must not contain ','."
-
-#: ../rubisco/envutils/packages.py:184
-msgid "Tags must be a list of strings."
-msgstr "Tags must be a list of strings."
-
-#: ../rubisco/envutils/packages.py:191
-msgid "Tags must be lowercase and only contain 0-9, a-z, A-Z, '_' and '-'."
-msgstr "Tags must be lowercase and only contain 0-9, a-z, A-Z, '_' and '-'."
-
-#: ../rubisco/envutils/packages.py:212
-msgid "${{path}} package configuration file is not a valid JSON5 file."
-msgstr "${{path}} package configuration file is not a valid JSON5 file."
-
-#: ../rubisco/envutils/packages.py:222 ../rubisco/envutils/packages.py:285
-msgid "${{path}} package configuration file is missing a required key: '${{key}}'."
-msgstr "${{path}} package configuration file is missing a required key: '${{key}}'."
-
-#: ../rubisco/envutils/packages.py:264
-msgid "${{path}} is not a valid Rubisco extension package."
-msgstr "${{path}} is not a valid Rubisco extension package."
-
-#: ../rubisco/envutils/packages.py:268
-msgid "Rubisco extension package must be a zip file."
-msgstr "Rubisco extension package must be a zip file."
-
-#: ../rubisco/envutils/packages.py:276
-msgid "Error while opening [underline]rubisco.json[/underline] in ${{path}}: '${{msg}}'."
-msgstr "Error while opening [underline]rubisco.json[/underline] in ${{path}}: '${{msg}}'."
-
-#: ../rubisco/envutils/packages.py:316
-msgid "Multiple instances of '${{name}}' extension found in the database. Selecting the last one."
-msgstr "Multiple instances of '${{name}}' extension found in the database. Selecting the last one."
-
-#: ../rubisco/envutils/packages.py:383
-msgid "${{path}} already exists in the filesystem."
-msgstr "${{path}} already exists in the filesystem."
-
-#: ../rubisco/envutils/packages.py:434
-msgid "No extension installed."
-msgstr "No extension installed."
-
-#: ../rubisco/envutils/packages.py:442
-msgid "No extension found matching '${{pattern}}'."
-msgstr "No extension found matching '${{pattern}}'."
-
-#: ../rubisco/envutils/packages.py:453
-msgid "Selected '${{name}}'."
-msgstr "Selected '${{name}}'."
-
-#: ../rubisco/envutils/packages.py:473
-msgid "Extension '${{name}}'(${{path}}) is not found in the filesystem."
-msgstr "Extension '${{name}}'(${{path}}) is not found in the filesystem."
-
-#: ../rubisco/envutils/packages.py:518 ../rubisco/cli/output.py:258
-msgid "Interrupted by user."
-msgstr "Interrupted by user."
-
-#: ../rubisco/envutils/packages.py:557 ../rubisco/envutils/packages.py:614
-msgid "The same version of '${{name}}' extension is already installed."
-msgstr "The same version of '${{name}}' extension is already installed."
-
-#: ../rubisco/envutils/packages.py:569 ../rubisco/envutils/packages.py:626
-msgid "The higher version of '${{name}}' extension is already installed."
-msgstr "The higher version of '${{name}}' extension is already installed."
-
-#: ../rubisco/kernel/project_config.py:92
+#: ../rubisco/kernel/project_config/hook.py:75
 msgid "Hook '${{name}}' is invalid."
 msgstr "Hook '${{name}}' is invalid."
 
-#: ../rubisco/kernel/project_config.py:96
-msgid "A workflow [yellow]SHOULD[/yellow] contain at least 'exec', 'run' and 'workflow'."
-msgstr "A workflow [yellow]SHOULD[/yellow] contain at least 'exec', 'run' and 'workflow'."
+#: ../rubisco/kernel/project_config/hook.py:79
+msgid "A workflow [yellow]must[/yellow] contain at least 'exec', 'run' or 'workflow'."
+msgstr "A workflow [yellow]must[/yellow] contain at least 'exec', 'run' or 'workflow'."
 
-#: ../rubisco/kernel/project_config.py:170
+#: ../rubisco/kernel/project_config/project_config.py:86
 msgid "The minimum version of rubisco required by the project [underline][link=${{uri}}]${{name}}[/link][/underline]' is '[cyan]${{version}}[/cyan]'."
 msgstr "The minimum version of rubisco required by the project [underline][link=${{uri}}]${{name}}[/link][/underline]' is '[cyan]${{version}}[/cyan]'."
 
-#: ../rubisco/kernel/project_config.py:177
-#: ../rubisco/kernel/workflow/workflow.py:156
-#: ../rubisco/kernel/workflow/workflow.py:157
+#: ../rubisco/kernel/project_config/project_config.py:93
 #: ../rubisco/kernel/workflow/step.py:92
+#: ../rubisco/kernel/workflow/workflow.py:150
+#: ../rubisco/kernel/workflow/workflow.py:151
 msgid "<Unnamed>"
 msgstr "<Unnamed>"
 
-#: ../rubisco/kernel/project_config.py:181
+#: ../rubisco/kernel/project_config/project_config.py:97
 msgid "Please upgrade rubisco to the required version."
 msgstr "Please upgrade rubisco to the required version."
 
-#: ../rubisco/kernel/project_config.py:186
-#: ../rubisco/kernel/project_config.py:192
-msgid "[yellow]Unknown[/yellow]"
-msgstr "[yellow]Unknown[/yellow]"
+#: ../rubisco/kernel/project_config/project_config.py:108
+msgid "Project configuration file '${{path}}' is not found."
+msgstr "Project configuration file '${{path}}' is not found."
 
-#: ../rubisco/kernel/project_config.py:205
+#: ../rubisco/kernel/project_config/project_config.py:164
 msgid "Hooks must be a dictionary."
 msgstr "Hooks must be a dictionary."
 
-#: ../rubisco/kernel/project_config.py:272
-msgid "The configuration file must be a JSON5 object."
-msgstr "The configuration file must be a JSON5 object."
-
-#: ../rubisco/kernel/project_config.py:280
-msgid "Invalid path ${{path}}."
-msgstr "Invalid path ${{path}}."
-
-#: ../rubisco/kernel/project_config.py:300
-msgid "Circular dependency detected: ${{path}}."
-msgstr "Circular dependency detected: ${{path}}."
-
-#: ../rubisco/kernel/git.py:79
-msgid "Repository ${{path}} not found."
-msgstr "Repository ${{path}} not found."
-
-#: ../rubisco/kernel/git.py:119
-msgid "Repository ${{path}} already exists."
-msgstr "Repository ${{path}} already exists."
-
-#: ../rubisco/kernel/workflow/workflow.py:61
-msgid "Workflow variables must be a list of name and value."
-msgstr "Workflow variables must be a list of name and value."
-
-#: ../rubisco/kernel/workflow/workflow.py:110
-msgid "Step id '${{step_id}}' is duplicated."
-msgstr "Step id '${{step_id}}' is duplicated."
-
-#: ../rubisco/kernel/workflow/workflow.py:133
-msgid "Unknown step type: '${{step_type}}' of step '${{step_name}}'. Please check the workflow."
-msgstr "Unknown step type: '${{step_type}}' of step '${{step_name}}'. Please check the workflow."
-
-#: ../rubisco/kernel/workflow/workflow.py:142
-msgid "Consider use 'type' attribute manually."
-msgstr "Consider use 'type' attribute manually."
-
-#: ../rubisco/kernel/workflow/workflow.py:150
-msgid "The type of step '${{step}}'[black](${{step_id}})[/black] in workflow '${{workflow}}'[black](${{workflow_id}})[/black] is not provided and could not be inferred."
-msgstr "The type of step '${{step}}'[black](${{step_id}})[/black] in workflow '${{workflow}}'[black](${{workflow_id}})[/black] is not provided and could not be inferred."
-
-#: ../rubisco/kernel/workflow/steps/matrix.py:80
-msgid "Matrix variables must be a dict."
-msgstr "Matrix variables must be a dict."
-
-#: ../rubisco/kernel/workflow/steps/remove.py:54
-msgid "The remove item must be a string."
-msgstr "The remove item must be a string."
-
-#: ../rubisco/kernel/workflow/steps/glob.py:65
-#: ../rubisco/kernel/workflow/steps/glob.py:75
-msgid "The glob item must be a string."
-msgstr "The glob item must be a string."
-
-#: ../rubisco/kernel/workflow/steps/compress.py:74
-msgid "Compress format must be a list of string or a string."
-msgstr "Compress format must be a list of string or a string."
-
-#: ../rubisco/kernel/workflow/steps/copyfile.py:60
-msgid "The copy item must be a string."
-msgstr "The copy item must be a string."
-
-#: ../rubisco/kernel/workflow/steps/mkdir.py:52
-msgid "The paths must be a list of strings."
-msgstr "The paths must be a list of strings."
-
-#: ../rubisco/kernel/workflow/__init__.py:60
-msgid "Step type '${{name}}' registered multiple times. This may cause unexpected behavior. It's unsafe."
-msgstr "Step type '${{name}}' registered multiple times. This may cause unexpected behavior. It's unsafe."
-
-#: ../rubisco/kernel/workflow/__init__.py:108
-msgid "Workflow running failed: ${{exc}}"
-msgstr "Workflow running failed: ${{exc}}"
-
-#: ../rubisco/kernel/workflow/__init__.py:148
-msgid "The suffix of ${{path}} is invalid."
-msgstr "The suffix of ${{path}} is invalid."
-
-#: ../rubisco/kernel/workflow/__init__.py:152
-msgid "We only support '.json', '.json5', '.yaml', '.yml'."
-msgstr "We only support '.json', '.json5', '.yaml', '.yml'."
-
-#: ../rubisco/kernel/workflow/step.py:90
-msgid "Step '${{step}}' failed: ${{exc}}"
-msgstr "Step '${{step}}' failed: ${{exc}}"
-
-#: ../rubisco/kernel/mirrorlist.py:147
-msgid "Recursion detected in mirrorlist: '${{name}}'"
-msgstr "Recursion detected in mirrorlist: '${{name}}'"
-
-#: ../rubisco/kernel/mirrorlist.py:151
-msgid "Please check your [underline]mirrorlist.json[/underline] file in workspace, user or global config directory."
-msgstr "Please check your [underline]mirrorlist.json[/underline] file in workspace, user or global config directory."
-
-#: ../rubisco/kernel/mirrorlist.py:198
-msgid "All mirrors are unreachable or canceled. Switching to official [underline][blue]${{url}}[/blue][/underline] ..."
-msgstr "All mirrors are unreachable or canceled. Switching to official [underline][blue]${{url}}[/blue][/underline] ..."
-
-#: ../rubisco/kernel/mirrorlist.py:258
-msgid "Mirror '${{mirror}}' is not a string."
-msgstr "Mirror '${{mirror}}' is not a string."
-
-#: ../rubisco/kernel/mirrorlist.py:273
-msgid "Source '${{protocol}}/${{website}}/${{name}}' not found."
-msgstr "Source '${{protocol}}/${{website}}/${{name}}' not found."
-
-#: ../rubisco/kernel/command_event/register.py:58
-msgid "You can only register callbacks to files."
-msgstr "You can only register callbacks to files."
-
-#: ../rubisco/kernel/command_event/register.py:68
-msgid "You must register callbacks to files."
-msgstr "You must register callbacks to files."
+#: ../rubisco/kernel/command_event/event_file_data.py:84
+msgid "Invalid args count of EventFileData: ${{ data }}"
+msgstr "Invalid args count of EventFileData: ${{ data }}"
 
 #: ../rubisco/kernel/command_event/event_types.py:60
 msgid "Directory"
@@ -338,14 +67,6 @@ msgstr "Alias"
 #: ../rubisco/kernel/command_event/event_types.py:66
 msgid "Mount point"
 msgstr "Mount point"
-
-#: ../rubisco/kernel/command_event/event_file_data.py:84
-msgid "Invalid args count of EventFileData: ${{ data }}"
-msgstr "Invalid args count of EventFileData: ${{ data }}"
-
-#: ../rubisco/kernel/command_event/cefs_fstab.py:79
-msgid "Parsing failed: {{line}}"
-msgstr "Parsing failed: {{line}}"
 
 #: ../rubisco/kernel/command_event/args.py:76
 msgid "Missing required option: ${{name}}."
@@ -408,12 +129,12 @@ msgid "The number of arguments is more than ${{maxcount}}."
 msgstr "The number of arguments is more than ${{maxcount}}."
 
 #: ../rubisco/kernel/command_event/cmd_event.py:457
-#: ../rubisco/kernel/command_event/event_path.py:96
-#: ../rubisco/kernel/command_event/event_path.py:269
+#: ../rubisco/kernel/command_event/event_path.py:120
+#: ../rubisco/kernel/command_event/event_path.py:293
 msgid "Not a directory: ${{path}}."
 msgstr "Not a directory: ${{path}}."
 
-#: ../rubisco/kernel/command_event/cmd_event.py:495
+#: ../rubisco/kernel/command_event/cmd_event.py:499
 msgid "The number of arguments is not correct. Expected ${{expected}}, got ${{got}}."
 msgstr "The number of arguments is not correct. Expected ${{expected}}, got ${{got}}."
 
@@ -421,923 +142,191 @@ msgstr "The number of arguments is not correct. Expected ${{expected}}, got ${{g
 msgid "The node ${{path}} is not a file."
 msgstr "The node ${{path}} is not a file."
 
-#: ../rubisco/kernel/command_event/event_path.py:121
-#: ../rubisco/kernel/command_event/event_path.py:254
+#: ../rubisco/kernel/command_event/event_path.py:145
+#: ../rubisco/kernel/command_event/event_path.py:278
 msgid "No such event: ${{path}}."
 msgstr "No such event: ${{path}}."
 
-#: ../rubisco/kernel/command_event/event_path.py:260
+#: ../rubisco/kernel/command_event/event_path.py:284
 msgid "Rubisco command event filesystem does not support recursive creation of directories. You must create the parent directory first because you must set the description explicitly."
 msgstr "Rubisco command event filesystem does not support recursive creation of directories. You must create the parent directory first because you must set the description explicitly."
 
-#: ../rubisco/kernel/command_event/event_path.py:305
-#: ../rubisco/kernel/command_event/event_path.py:355
-#: ../rubisco/kernel/command_event/event_path.py:424
-#: ../rubisco/kernel/command_event/event_path.py:458
+#: ../rubisco/kernel/command_event/event_path.py:329
+#: ../rubisco/kernel/command_event/event_path.py:379
+#: ../rubisco/kernel/command_event/event_path.py:448
+#: ../rubisco/kernel/command_event/event_path.py:482
 msgid "File exists: ${{path}}"
 msgstr "File exists: ${{path}}"
 
-#: ../rubisco/kernel/command_event/event_path.py:402
+#: ../rubisco/kernel/command_event/event_path.py:426
 msgid "Not a file: ${{path}}"
 msgstr "Not a file: ${{path}}"
 
-#: ../rubisco/shared/ktrigger.py:638
-msgid "Kernel trigger id '${{name}}' is already exists."
-msgstr "Kernel trigger id '${{name}}' is already exists."
-
-#: ../rubisco/shared/extension.py:152
-msgid "The extension '${{name}}' does not exist in workspace, user, or global extension directory."
-msgstr "The extension '${{name}}' does not exist in workspace, user, or global extension directory."
-
-#: ../rubisco/shared/extension.py:157
-msgid "Try to load the extension as a path."
-msgstr "Try to load the extension as a path."
-
-#: ../rubisco/shared/extension.py:172
-msgid "The extension path ${{path}} does not exist."
-msgstr "The extension path ${{path}} does not exist."
-
-#: ../rubisco/shared/extension.py:179
-msgid "Failed to load extension ${{path}}."
-msgstr "Failed to load extension ${{path}}."
-
-#: ../rubisco/shared/extension.py:186 ../rubisco/shared/extension.py:201
-msgid "Please make sure this extension is valid."
-msgstr "Please make sure this extension is valid."
-
-#: ../rubisco/shared/extension.py:195
-msgid "The extension ${{path}} does not have an instance."
-msgstr "The extension ${{path}} does not have an instance."
-
-#: ../rubisco/shared/extension.py:290
-msgid "Extension name '${{name}}' invalid."
-msgstr "Extension name '${{name}}' invalid."
-
-#: ../rubisco/shared/extension.py:295
-msgid "Extension name must be lowercase and only contain 0-9, a-z, A-Z, '_', '.' and '-'."
-msgstr "Extension name must be lowercase and only contain 0-9, a-z, A-Z, '_', '.' and '-'."
-
-#: ../rubisco/shared/extension.py:352
-msgid "Failed to load extension '${{name}}': ${{exc}}"
-msgstr "Failed to load extension '${{name}}': ${{exc}}"
-
-#: ../rubisco/cli/argparse_generator.py:133
-msgid "The advanced options must be a list."
-msgstr "The advanced options must be a list."
-
-#: ../rubisco/cli/argparse_generator.py:142
-msgid "The advanced options action must be a string."
-msgstr "The advanced options action must be a string."
-
-#: ../rubisco/cli/argparse_generator.py:146
-msgid "The advanced options description must be a string."
-msgstr "The advanced options description must be a string."
-
-#: ../rubisco/cli/output.py:197
-msgid "[red]Error: ${{msg}}[/red]"
-msgstr "[red]Error: ${{msg}}[/red]"
-
-#: ../rubisco/cli/output.py:210
-msgid "[yellow]Warning: ${{msg}}[/yellow]"
-msgstr "[yellow]Warning: ${{msg}}[/yellow]"
-
-#: ../rubisco/cli/output.py:225
-msgid "[italic][magenta]Hint:[/magenta] ${{msg}}[/italic]"
-msgstr "[italic][magenta]Hint:[/magenta] ${{msg}}[/italic]"
-
-#: ../rubisco/cli/output.py:255
-msgid "Unknown error."
-msgstr "Unknown error."
-
-#: ../rubisco/cli/output.py:262
-msgid "JSON5 decode error."
-msgstr "JSON5 decode error."
-
-#: ../rubisco/cli/output.py:264
-msgid "Is may caused by a invalid JSON5 configuration file."
-msgstr "Is may caused by a invalid JSON5 configuration file."
-
-#: ../rubisco/cli/output.py:268
-msgid "Missing key: ${{msg}}"
-msgstr "Missing key: ${{msg}}"
-
-#: ../rubisco/cli/output.py:272
-msgid "Is may caused by a invalid configuration file."
-msgstr "Is may caused by a invalid configuration file."
-
-#: ../rubisco/cli/output.py:278
-msgid "Internal error: ${{type}}: ${{msg}}"
-msgstr "Internal error: ${{type}}: ${{msg}}"
-
-#: ../rubisco/cli/output.py:286
-msgid "See: ${{url}}"
-msgstr "See: ${{url}}"
-
-#: ../rubisco/cli/cefs_dbg/helpmsg.py:47
-msgid "Change the debugger's working directory."
-msgstr "Change the debugger's working directory."
-
-#: ../rubisco/cli/cefs_dbg/helpmsg.py:51
-msgid "Change the current directory to [italic]\\[PATH][/italic]. The default [italic]\\[PATH][/italic] is the root directory"
-msgstr "Change the current directory to [italic]\\[PATH][/italic]. The default [italic]\\[PATH][/italic] is the root directory"
-
-#: ../rubisco/cli/cefs_dbg/helpmsg.py:58
-msgid "Display the file's data."
-msgstr "Display the file's data."
-
-#: ../rubisco/cli/cefs_dbg/helpmsg.py:61
-msgid "The file path to display."
-msgstr "The file path to display."
-
-#: ../rubisco/cli/cefs_dbg/helpmsg.py:65
-msgid "Display file or directory status."
-msgstr "Display file or directory status."
-
-#: ../rubisco/cli/cefs_dbg/helpmsg.py:68
-msgid "The file path to display status."
-msgstr "The file path to display status."
-
-#: ../rubisco/cli/cefs_dbg/helpmsg.py:72
-msgid "List directory contents."
-msgstr "List directory contents."
-
-#: ../rubisco/cli/cefs_dbg/helpmsg.py:76
-msgid "List the directory contents of [italic]\\[PATH][/italic]. The default [italic]\\[PATH][/italic] is the current directory"
-msgstr "List the directory contents of [italic]\\[PATH][/italic]. The default [italic]\\[PATH][/italic] is the current directory"
-
-#: ../rubisco/cli/cefs_dbg/helpmsg.py:83
-msgid "Exit the debugger."
-msgstr "Exit the debugger."
-
-#: ../rubisco/cli/cefs_dbg/helpmsg.py:87
-msgid "Display information about builtin commands."
-msgstr "Display information about builtin commands."
-
-#: ../rubisco/cli/cefs_dbg/helpmsg.py:91
-msgid "The command to display help information. If not specified, display help information about all builtin commands."
-msgstr "The command to display help information. If not specified, display help information about all builtin commands."
-
-#: ../rubisco/cli/cefs_dbg/helpmsg.py:98
-msgid "Clear the terminal screen and scrollback buffer."
-msgstr "Clear the terminal screen and scrollback buffer."
-
-#: ../rubisco/cli/cefs_dbg/helpmsg.py:110
-msgid "Command"
-msgstr "Command"
-
-#: ../rubisco/cli/cefs_dbg/helpmsg.py:111
-msgid "Description"
-msgstr "Description"
-
-#: ../rubisco/cli/cefs_dbg/helpmsg.py:119
-msgid "Use [green]help[/green] [bold]<COMMAND>[/] to get more help."
-msgstr "Use [green]help[/green] [bold]<COMMAND>[/] to get more help."
-
-#: ../rubisco/cli/cefs_dbg/helpmsg.py:124
-msgid "`help` use \"[italic][COMMAND][/italic]\" for optional arguments. Use \"[bold]<COMMAND>[/bold]\" for required arguments."
-msgstr "`help` use \"[italic][COMMAND][/italic]\" for optional arguments. Use \"[bold]<COMMAND>[/bold]\" for required arguments."
-
-#: ../rubisco/cli/cefs_dbg/helpmsg.py:149
-#: ../rubisco/cli/main/help_formatter.py:54
-msgid "Usage:"
-msgstr "Usage:"
-
-#: ../rubisco/cli/cefs_dbg/helpmsg.py:151 ../rubisco/cli/cefs_dbg/cli.py:194
-msgid "Arguments:"
-msgstr "Arguments:"
-
-#: ../rubisco/cli/cefs_dbg/cli.py:132
-msgid "Command not found: ${{cmd}}"
-msgstr "Command not found: ${{cmd}}"
-
-#: ../rubisco/cli/cefs_dbg/cli.py:200
-msgid "Dynamic Arguments:"
-msgstr "Dynamic Arguments:"
-
-#: ../rubisco/cli/cefs_dbg/cli.py:204
-msgid "From ${{mincount}} to ${{maxcount}}."
-msgstr "From ${{mincount}} to ${{maxcount}}."
-
-#: ../rubisco/cli/cefs_dbg/cli.py:210
-msgid "unlimited"
-msgstr "unlimited"
-
-#: ../rubisco/cli/cefs_dbg/cli.py:221 ../rubisco/cli/cefs_dbg/cli.py:237
-#: ../rubisco/cli/cefs_dbg/cli.py:239
-msgid "Unknown."
-msgstr "Unknown."
-
-#: ../rubisco/cli/cefs_dbg/cli.py:224
-msgid "Callbacks:"
-msgstr "Callbacks:"
-
-#: ../rubisco/cli/cefs_dbg/cli.py:230
-msgid "Function: ${{repr}}"
-msgstr "Function: ${{repr}}"
-
-#: ../rubisco/cli/cefs_dbg/cli.py:245
-msgid "Source: ${{src}}"
-msgstr "Source: ${{src}}"
-
-#: ../rubisco/cli/cefs_dbg/cli.py:260 ../rubisco/cli/cefs_dbg/cli.py:351
-msgid "No file specified."
-msgstr "No file specified."
-
-#: ../rubisco/cli/cefs_dbg/cli.py:263 ../rubisco/cli/cefs_dbg/cli.py:292
-#: ../rubisco/cli/cefs_dbg/cli.py:354 ../rubisco/cli/cefs_dbg/cli.py:408
-msgid "Too many arguments."
-msgstr "Too many arguments."
-
-#: ../rubisco/cli/cefs_dbg/cli.py:269 ../rubisco/cli/cefs_dbg/cli.py:360
-msgid "No such file or directory: ${{path}}"
-msgstr "No such file or directory: ${{path}}"
-
-#: ../rubisco/cli/cefs_dbg/cli.py:274
-msgid "Not a file."
-msgstr "Not a file."
-
-#: ../rubisco/cli/cefs_dbg/cli.py:299 ../rubisco/cli/main/help_formatter.py:60
-msgid "Options:"
-msgstr "Options:"
-
-#: ../rubisco/cli/cefs_dbg/cli.py:305 ../rubisco/cli/cefs_dbg/cli.py:385
-msgid "Description: [yellow]${{description}}[/yellow]"
-msgstr "Description: [yellow]${{description}}[/yellow]"
-
-#: ../rubisco/cli/cefs_dbg/cli.py:312
-msgid "Type: [green]${{type}}[/green]"
-msgstr "Type: [green]${{type}}[/green]"
-
-#: ../rubisco/cli/cefs_dbg/cli.py:320
-msgid "Aliases: [blue]${{aliases}}[/blue]"
-msgstr "Aliases: [blue]${{aliases}}[/blue]"
-
-#: ../rubisco/cli/cefs_dbg/cli.py:328
-msgid "Default value: ${{default}}"
-msgstr "Default value: ${{default}}"
-
-#: ../rubisco/cli/cefs_dbg/cli.py:336
-msgid "Extra attributes: ${{ext_attributes}}"
-msgstr "Extra attributes: ${{ext_attributes}}"
-
-#: ../rubisco/cli/cefs_dbg/cli.py:373
-msgid "File: ${{path}} ${{alias_to}}"
-msgstr "File: ${{path}} ${{alias_to}}"
-
-#: ../rubisco/cli/cefs_dbg/cli.py:379
-msgid "Type: ${{type}}"
-msgstr "Type: ${{type}}"
-
-#: ../rubisco/cli/cefs_dbg/cli.py:392
-msgid "Mount point: ${{path}}"
-msgstr "Mount point: ${{path}}"
-
-#: ../rubisco/cli/input.py:71
-msgid "[yellow]Invalid input. Please enter '[green]Y[/green]' or '[red]N[/red]'."
-msgstr "[yellow]Invalid input. Please enter '[green]Y[/green]' or '[red]N[/red]'."
-
-#: ../rubisco/cli/input.py:78
-msgid "Invalid input."
-msgstr "Invalid input."
-
-#: ../rubisco/cli/main/project_config.py:77
-#: ../rubisco/cli/main/project_config.py:147
-msgid "Working directory ${{path}} is not a Rubisco project."
-msgstr "Working directory ${{path}} is not a Rubisco project."
-
-#: ../rubisco/cli/main/project_config.py:127
-msgid "Undefined command or hook ${{name}}."
-msgstr "Undefined command or hook ${{name}}."
-
-#: ../rubisco/cli/main/project_config.py:130
-msgid "Perhaps a typo?"
-msgstr "Perhaps a typo?"
-
-#: ../rubisco/cli/main/project_config.py:152
-msgid "${{path}} is not found."
-msgstr "${{path}} is not found."
-
-#: ../rubisco/cli/main/ktrigger.py:115
-msgid "Executing: [cyan]${{cmd}}[/cyan] ..."
-msgstr "Executing: [cyan]${{cmd}}[/cyan] ..."
-
-#: ../rubisco/cli/main/ktrigger.py:136
-msgid "${{path}} already exists. [yellow]Overwrite[/yellow]?"
-msgstr "${{path}} already exists. [yellow]Overwrite[/yellow]?"
-
-#: ../rubisco/cli/main/ktrigger.py:158
-msgid "[yellow]Downloading[/yellow]"
-msgstr "[yellow]Downloading[/yellow]"
-
-#: ../rubisco/cli/main/ktrigger.py:160
-msgid "[yellow]Extracting[/yellow]"
-msgstr "[yellow]Extracting[/yellow]"
-
-#: ../rubisco/cli/main/ktrigger.py:162
-msgid "[yellow]Compressing[/yellow]"
-msgstr "[yellow]Compressing[/yellow]"
-
-#: ../rubisco/cli/main/ktrigger.py:164
-msgid "[yellow]Processing[/yellow]"
-msgstr "[yellow]Processing[/yellow]"
-
-#: ../rubisco/cli/main/ktrigger.py:239
-msgid "Please install the following packages manually: [bold]${{packages}}[/bold]."
-msgstr "Please install the following packages manually: [bold]${{packages}}[/bold]."
-
-#: ../rubisco/cli/main/ktrigger.py:246
-msgid "Continue anyway?"
-msgstr "Continue anyway?"
-
-#: ../rubisco/cli/main/ktrigger.py:253
-msgid "Updating Git repository ${{path}}(${{branch}}) ..."
-msgstr "Updating Git repository ${{path}}(${{branch}}) ..."
-
-#: ../rubisco/cli/main/ktrigger.py:269
-msgid "Cloning Git repository ${{url}} (${{branch}}) into ${{path}} ..."
-msgstr "Cloning Git repository ${{url}} (${{branch}}) into ${{path}} ..."
-
-#: ../rubisco/cli/main/ktrigger.py:296
-msgid "Testing ${{host}} ... ${{status}}"
-msgstr "Testing ${{host}} ... ${{status}}"
-
-#: ../rubisco/cli/main/ktrigger.py:305
-msgid "Performing websites speed test ..."
-msgstr "Performing websites speed test ..."
-
-#: ../rubisco/cli/main/ktrigger.py:309 ../rubisco/cli/main/ktrigger.py:331
-msgid "[yellow]Testing[/yellow] ..."
-msgstr "[yellow]Testing[/yellow] ..."
-
-#: ../rubisco/cli/main/ktrigger.py:317
-msgid "[red]Canceled[/red]"
-msgstr "[red]Canceled[/red]"
-
-#: ../rubisco/cli/main/ktrigger.py:319
-msgid "[red]Failed[/red]"
-msgstr "[red]Failed[/red]"
-
-#: ../rubisco/cli/main/ktrigger.py:322
-msgid "${{speed}} us"
-msgstr "${{speed}} us"
-
-#: ../rubisco/cli/main/ktrigger.py:346
-msgid "Selected mirror: ${{url}}"
-msgstr "Selected mirror: ${{url}}"
-
-#: ../rubisco/cli/main/ktrigger.py:356
-msgid "Running: [white]${{name}}[/white] [black](${{id}})[/black]"
-msgstr "Running: [white]${{name}}[/white] [black](${{id}})[/black]"
-
-#: ../rubisco/cli/main/ktrigger.py:376
-msgid "Running workflow: [white]${{name}}[/white] [black](${{id}})[/black]"
-msgstr "Running workflow: [white]${{name}}[/white] [black](${{id}})[/black]"
-
-#: ../rubisco/cli/main/ktrigger.py:389
-msgid "Workflow '${{name}}' finished."
-msgstr "Workflow '${{name}}' finished."
-
-#: ../rubisco/cli/main/ktrigger.py:395
-msgid "Running jobs with variables:"
-msgstr "Running jobs with variables:"
-
-#: ../rubisco/cli/main/ktrigger.py:407
-msgid "Creating directory: ${{path}} ..."
-msgstr "Creating directory: ${{path}} ..."
-
-#: ../rubisco/cli/main/ktrigger.py:418
-msgid "Moving file ${{src}} to ${{dst}} ..."
-msgstr "Moving file ${{src}} to ${{dst}} ..."
-
-#: ../rubisco/cli/main/ktrigger.py:429
-msgid "Copying ${{src}} to ${{dst}} ..."
-msgstr "Copying ${{src}} to ${{dst}} ..."
-
-#: ../rubisco/cli/main/ktrigger.py:440
-msgid "Removing ${{path}} ..."
-msgstr "Removing ${{path}} ..."
-
-#: ../rubisco/cli/main/ktrigger.py:448
-msgid "Selected: ${{path}}"
-msgstr "Selected: ${{path}}"
-
-#: ../rubisco/cli/main/ktrigger.py:461
-msgid "Extension '${{name}}' loaded."
-msgstr "Extension '${{name}}' loaded."
-
-#: ../rubisco/cli/main/ktrigger.py:470
-msgid "[dark_orange]Rubisco CLI Language:[/dark_orange] '${{locale}}' '${{charset}}' '${{language_name}}'"
-msgstr "[dark_orange]Rubisco CLI Language:[/dark_orange] '${{locale}}' '${{charset}}' '${{language_name}}'"
-
-#: ../rubisco/cli/main/ktrigger.py:482
-msgid "[dark_orange]Project:[/dark_orange] ${{name}}"
-msgstr "[dark_orange]Project:[/dark_orange] ${{name}}"
-
-#: ../rubisco/cli/main/ktrigger.py:488
-msgid "[dark_orange]Configuration:[/dark_orange] ${{path}}"
-msgstr "[dark_orange]Configuration:[/dark_orange] ${{path}}"
-
-#: ../rubisco/cli/main/ktrigger.py:495
-msgid "[dark_orange]Version:[/dark_orange] v[white]${{version}}[/white]"
-msgstr "[dark_orange]Version:[/dark_orange] v[white]${{version}}[/white]"
-
-#: ../rubisco/cli/main/ktrigger.py:508
-msgid "[dark_orange]Maintainer:[/dark_orange] ${{maintainer}}"
-msgstr "[dark_orange]Maintainer:[/dark_orange] ${{maintainer}}"
-
-#: ../rubisco/cli/main/ktrigger.py:514
-msgid "[dark_orange]License:[/dark_orange] ${{license}}"
-msgstr "[dark_orange]License:[/dark_orange] ${{license}}"
-
-#: ../rubisco/cli/main/ktrigger.py:520
-msgid "[dark_orange]Description:[/dark_orange] ${{desc}}"
-msgstr "[dark_orange]Description:[/dark_orange] ${{desc}}"
-
-#: ../rubisco/cli/main/ktrigger.py:525
-msgid "[dark_orange]Hooks:[/dark_orange]"
-msgstr "[dark_orange]Hooks:[/dark_orange]"
-
-#: ../rubisco/cli/main/ktrigger.py:533
-msgid "(${{num}} hooks)"
-msgstr "(${{num}} hooks)"
-
-#: ../rubisco/cli/main/ktrigger.py:550
-msgid "Creating symbolic link: ${{src}} -> ${{dst}} ..."
-msgstr "Creating symbolic link: ${{src}} -> ${{dst}} ..."
-
-#: ../rubisco/cli/main/ktrigger.py:562
-msgid "Creating hard link: ${{src}} -> ${{dst}} ..."
-msgstr "Creating hard link: ${{src}} -> ${{dst}} ..."
-
-#: ../rubisco/cli/main/ktrigger.py:575
-msgid "Creating Rubisco extension environment: ${{path}} ..."
-msgstr "Creating Rubisco extension environment: ${{path}} ..."
-
-#: ../rubisco/cli/main/ktrigger.py:589 ../rubisco/cli/main/ktrigger.py:637
-#: ../rubisco/cli/main/ktrigger.py:685 ../rubisco/cli/main/ktrigger.py:732
-#: ../rubisco/cli/main/extman_cmds.py:63
-msgid "global"
-msgstr "global"
-
-#: ../rubisco/cli/main/ktrigger.py:591 ../rubisco/cli/main/ktrigger.py:639
-#: ../rubisco/cli/main/ktrigger.py:687 ../rubisco/cli/main/ktrigger.py:734
-#: ../rubisco/cli/main/extman_cmds.py:65
-msgid "user"
-msgstr "user"
-
-#: ../rubisco/cli/main/ktrigger.py:593 ../rubisco/cli/main/ktrigger.py:641
-#: ../rubisco/cli/main/ktrigger.py:689 ../rubisco/cli/main/ktrigger.py:736
-#: ../rubisco/cli/main/extman_cmds.py:67
-msgid "workspace"
-msgstr "workspace"
-
-#: ../rubisco/cli/main/ktrigger.py:597
-msgid "Installing extension [green]${{name}}[/green]:[cyan]${{version}}[/cyan] to [yellow]${{dest}}[/yellow] (${{path}}) ..."
-msgstr "Installing extension [green]${{name}}[/green]:[cyan]${{version}}[/cyan] to [yellow]${{dest}}[/yellow] (${{path}}) ..."
-
-#: ../rubisco/cli/main/ktrigger.py:622
-msgid "Extension [green]${{name}}[/green]:[cyan]${{version}}[/cyan] was successfully installed."
-msgstr "Extension [green]${{name}}[/green]:[cyan]${{version}}[/cyan] was successfully installed."
-
-#: ../rubisco/cli/main/ktrigger.py:645
-msgid "Uninstalling extension [green]${{name}}[/green]:[cyan]${{version}}[/cyan] from [yellow]${{dest}}[/yellow] (${{path}}) ..."
-msgstr "Uninstalling extension [green]${{name}}[/green]:[cyan]${{version}}[/cyan] from [yellow]${{dest}}[/yellow] (${{path}}) ..."
-
-#: ../rubisco/cli/main/ktrigger.py:670
-msgid "Extension [green]${{name}}[/green]:[cyan]${{version}}[/cyan] was successfully uninstalled."
-msgstr "Extension [green]${{name}}[/green]:[cyan]${{version}}[/cyan] was successfully uninstalled."
-
-#: ../rubisco/cli/main/ktrigger.py:693
-msgid "Upgrading extension [green]${{name}}[/green]:[cyan]${{version}}[/cyan] from [yellow]${{dest}}[/yellow] (${{path}}) ..."
-msgstr "Upgrading extension [green]${{name}}[/green]:[cyan]${{version}}[/cyan] from [yellow]${{dest}}[/yellow] (${{path}}) ..."
-
-#: ../rubisco/cli/main/ktrigger.py:718
-msgid "Extension [green]${{name}}[/green]:[cyan]${{version}}[/cyan] was successfully upgraded."
-msgstr "Extension [green]${{name}}[/green]:[cyan]${{version}}[/cyan] was successfully upgraded."
-
-#: ../rubisco/cli/main/ktrigger.py:739
-msgid "The following extensions will be uninstalled from [yellow]${{dest}}[/yellow] (${{path}}):"
-msgstr "The following extensions will be uninstalled from [yellow]${{dest}}[/yellow] (${{path}}):"
-
-#: ../rubisco/cli/main/ktrigger.py:755
-msgid "Continue?"
-msgstr "Continue?"
-
-#: ../rubisco/cli/main/arg_parser.py:62
-msgid "Rubisco CommandEventFS Debugger CLI exited."
-msgstr "Rubisco CommandEventFS Debugger CLI exited."
-
-#: ../rubisco/cli/main/arg_parser.py:73
-msgid "Project root"
-msgstr "Project root"
-
-#: ../rubisco/cli/main/arg_parser.py:74
-msgid "The root directory of Rubisco project."
-msgstr "The root directory of Rubisco project."
-
-#: ../rubisco/cli/main/arg_parser.py:81
-msgid "Used prompt colors (for CLI)."
-msgstr "Used prompt colors (for CLI)."
-
-#: ../rubisco/cli/main/arg_parser.py:83 ../rubisco/cli/main/arg_parser.py:200
-msgid "Prompt colors used by rubisco parent process."
-msgstr "Prompt colors used by rubisco parent process."
-
-#: ../rubisco/cli/main/arg_parser.py:90
-msgid "Log file"
-msgstr "Log file"
-
-#: ../rubisco/cli/main/arg_parser.py:91
-msgid "The file path for saving log."
-msgstr "The file path for saving log."
-
-#: ../rubisco/cli/main/arg_parser.py:97
-msgid "Debug mode"
-msgstr "Debug mode"
-
-#: ../rubisco/cli/main/arg_parser.py:98
-msgid "Run rubisco in debug mode."
-msgstr "Run rubisco in debug mode."
-
-#: ../rubisco/cli/main/arg_parser.py:113
-msgid "Show version."
-msgstr "Show version."
-
-#: ../rubisco/cli/main/arg_parser.py:119
-msgid "Show Rubisco version."
-msgstr "Show Rubisco version."
-
-#: ../rubisco/cli/main/arg_parser.py:128
-msgid "Launch CommandEventFS Debugger."
-msgstr "Launch CommandEventFS Debugger."
-
-#: ../rubisco/cli/main/arg_parser.py:135
-msgid "Launch Rubisco CommandEventFS Debugger CLI."
-msgstr "Launch Rubisco CommandEventFS Debugger CLI."
-
-#: ../rubisco/cli/main/arg_parser.py:145
-msgid "Extension directory."
-msgstr "Extension directory."
-
-#: ../rubisco/cli/main/arg_parser.py:191
-msgid "Project root directory."
-msgstr "Project root directory."
-
-#: ../rubisco/cli/main/version_action.py:43
-msgid ""
-"[bold]Copyright (C) 2025 [link=https://github.com/cppp-project]The C++ Plus Project[/link].[/bold]\n"
-"License [bold]GPLv3+[/bold]: GNU GPL version [cyan]3[/cyan] or later <https://www.gnu.org/licenses/gpl.html>.\n"
-"This is free software: you are free to change and redistribute it.\n"
-"There is [yellow]NO WARRANTY[/yellow], to the extent permitted by law.\n"
-"Written by [link=https://github.com/ChenPi11]ChenPi11[/link]."
-msgstr ""
-"[bold]Copyright (C) 2025 [link=https://github.com/cppp-project]The C++ Plus Project[/link].[/bold]\n"
-"License [bold]GPLv3+[/bold]: GNU GPL version [cyan]3[/cyan] or later <https://www.gnu.org/licenses/gpl.html>.\n"
-"This is free software: you are free to change and redistribute it.\n"
-"There is [yellow]NO WARRANTY[/yellow], to the extent permitted by law.\n"
-"Written by [link=https://github.com/ChenPi11]ChenPi11[/link]."
-
-#: ../rubisco/cli/main/version_action.py:68
-msgid "Show program's version number and exit."
-msgstr "Show program's version number and exit."
-
-#: ../rubisco/cli/main/builtin_cmds.py:66
-msgid "Default callback for showing Rubisco project infomation."
-msgstr "Default callback for showing Rubisco project infomation."
-
-#: ../rubisco/cli/main/builtin_cmds.py:71
-#: ../rubisco/cli/main/extman_cmds.py:329
-msgid "Show project information."
-msgstr "Show project information."
-
-#: ../rubisco/cli/main/main.py:78
-msgid "Entering directory ${{path}} ..."
-msgstr "Entering directory ${{path}} ..."
-
-#: ../rubisco/cli/main/extman_cmds.py:69
-msgid "foreign-package"
-msgstr "foreign-package"
-
-#: ../rubisco/cli/main/extman_cmds.py:70
-msgid "unknown"
-msgstr "unknown"
-
-#: ../rubisco/cli/main/extman_cmds.py:96
-msgid "No environment exists or selected."
-msgstr "No environment exists or selected."
-
-#: ../rubisco/cli/main/extman_cmds.py:144
-msgid "Package: [green]${{name}}[/green]"
-msgstr "Package: [green]${{name}}[/green]"
-
-#: ../rubisco/cli/main/extman_cmds.py:151
-msgid "Version: [cyan]${{ver}}[/cyan]"
-msgstr "Version: [cyan]${{ver}}[/cyan]"
-
-#: ../rubisco/cli/main/extman_cmds.py:158
-msgid "Installation Location: ${{loc}}"
-msgstr "Installation Location: ${{loc}}"
-
-#: ../rubisco/cli/main/extman_cmds.py:165
-msgid "Maintainers: ${{maintainers}}"
-msgstr "Maintainers: ${{maintainers}}"
-
-#: ../rubisco/cli/main/extman_cmds.py:172
-msgid "Homepage: ${{homepage}}"
-msgstr "Homepage: ${{homepage}}"
-
-#: ../rubisco/cli/main/extman_cmds.py:179
-msgid "License: ${{license}}"
-msgstr "License: ${{license}}"
-
-#: ../rubisco/cli/main/extman_cmds.py:186
-msgid "Tags: ${{tags}}"
-msgstr "Tags: ${{tags}}"
-
-#: ../rubisco/cli/main/extman_cmds.py:193
-msgid "Description: ${{desc}}"
-msgstr "Description: ${{desc}}"
-
-#: ../rubisco/cli/main/extman_cmds.py:224
-msgid "No packages found."
-msgstr "No packages found."
-
-#: ../rubisco/cli/main/extman_cmds.py:254
-msgid "You must specify only one install destination."
-msgstr "You must specify only one install destination."
-
-#: ../rubisco/cli/main/extman_cmds.py:269
-msgid "No files found."
-msgstr "No files found."
-
-#: ../rubisco/cli/main/extman_cmds.py:296
-msgid "You must specify only one uninstall destination."
-msgstr "You must specify only one uninstall destination."
-
-#: ../rubisco/cli/main/extman_cmds.py:316
-#: ../rubisco/cli/main/extman_cmds.py:317
-#: ../rubisco/cli/main/extman_cmds.py:402
-#: ../rubisco/cli/main/extman_cmds.py:403
-#: ../rubisco/cli/main/extman_cmds.py:496
-#: ../rubisco/cli/main/extman_cmds.py:497
-msgid "Packages matching patterns."
-msgstr "Packages matching patterns."
-
-#: ../rubisco/cli/main/extman_cmds.py:324
-msgid "Default callback for list Rubisco extensions."
-msgstr "Default callback for list Rubisco extensions."
-
-#: ../rubisco/cli/main/extman_cmds.py:333
-#: ../rubisco/cli/main/extman_cmds.py:334
-#: ../rubisco/cli/main/extman_cmds.py:341
-#: ../rubisco/cli/main/extman_cmds.py:420
-#: ../rubisco/cli/main/extman_cmds.py:421
-msgid "Show workspace extensions."
-msgstr "Show workspace extensions."
-
-#: ../rubisco/cli/main/extman_cmds.py:346
-msgid "Hide workspace extensions."
-msgstr "Hide workspace extensions."
-
-#: ../rubisco/cli/main/extman_cmds.py:354
-#: ../rubisco/cli/main/extman_cmds.py:355
-#: ../rubisco/cli/main/extman_cmds.py:362
-#: ../rubisco/cli/main/extman_cmds.py:428
-#: ../rubisco/cli/main/extman_cmds.py:429
-msgid "Show user extensions."
-msgstr "Show user extensions."
-
-#: ../rubisco/cli/main/extman_cmds.py:367
-msgid "Hide user extensions."
-msgstr "Hide user extensions."
-
-#: ../rubisco/cli/main/extman_cmds.py:375
-#: ../rubisco/cli/main/extman_cmds.py:376
-#: ../rubisco/cli/main/extman_cmds.py:383
-#: ../rubisco/cli/main/extman_cmds.py:436
-#: ../rubisco/cli/main/extman_cmds.py:437
-msgid "Show global extensions."
-msgstr "Show global extensions."
-
-#: ../rubisco/cli/main/extman_cmds.py:388
-msgid "Hide global extensions."
-msgstr "Hide global extensions."
-
-#: ../rubisco/cli/main/extman_cmds.py:410
-msgid "Default callback for show Rubisco extensions."
-msgstr "Default callback for show Rubisco extensions."
-
-#: ../rubisco/cli/main/extman_cmds.py:415
-msgid "Show extensions info with matching patterns."
-msgstr "Show extensions info with matching patterns."
-
-#: ../rubisco/cli/main/extman_cmds.py:449
-#: ../rubisco/cli/main/extman_cmds.py:450
-msgid "Extension package files glob patterns."
-msgstr "Extension package files glob patterns."
-
-#: ../rubisco/cli/main/extman_cmds.py:457
-msgid "Default callback for install Rubisco extensions."
-msgstr "Default callback for install Rubisco extensions."
-
-#: ../rubisco/cli/main/extman_cmds.py:462
-msgid "Install extensions with matching patterns."
-msgstr "Install extensions with matching patterns."
-
-#: ../rubisco/cli/main/extman_cmds.py:467
-msgid "Install to workspace."
-msgstr "Install to workspace."
-
-#: ../rubisco/cli/main/extman_cmds.py:468
-msgid "Install extension packages to workspace."
-msgstr "Install extension packages to workspace."
-
-#: ../rubisco/cli/main/extman_cmds.py:475
-msgid "Install to user."
-msgstr "Install to user."
-
-#: ../rubisco/cli/main/extman_cmds.py:476
-msgid "Install extension packages to user."
-msgstr "Install extension packages to user."
-
-#: ../rubisco/cli/main/extman_cmds.py:483
-msgid "Install to global."
-msgstr "Install to global."
-
-#: ../rubisco/cli/main/extman_cmds.py:484
-msgid "Install extension packages to global."
-msgstr "Install extension packages to global."
-
-#: ../rubisco/cli/main/extman_cmds.py:504
-msgid "Default callback for uninstall Rubisco extensions."
-msgstr "Default callback for uninstall Rubisco extensions."
-
-#: ../rubisco/cli/main/extman_cmds.py:509
-msgid "Uninstall extensions with matching patterns."
-msgstr "Uninstall extensions with matching patterns."
-
-#: ../rubisco/cli/main/extman_cmds.py:514
-msgid "Uninstall from workspace."
-msgstr "Uninstall from workspace."
-
-#: ../rubisco/cli/main/extman_cmds.py:515
-msgid "Uninstall extension packages from workspace."
-msgstr "Uninstall extension packages from workspace."
-
-#: ../rubisco/cli/main/extman_cmds.py:522
-msgid "Uninstall from user."
-msgstr "Uninstall from user."
-
-#: ../rubisco/cli/main/extman_cmds.py:523
-msgid "Uninstall extension packages from user."
-msgstr "Uninstall extension packages from user."
-
-#: ../rubisco/cli/main/extman_cmds.py:530
-msgid "Uninstall from global."
-msgstr "Uninstall from global."
-
-#: ../rubisco/cli/main/extman_cmds.py:531
-msgid "Uninstall extension packages from global."
-msgstr "Uninstall extension packages from global."
-
-#: ../rubisco/cli/main/help_formatter.py:48
-msgid "Show this help message and exit."
-msgstr "Show this help message and exit."
-
-#: ../rubisco/cli/main/help_formatter.py:57
-msgid "Positional Arguments:"
-msgstr "Positional Arguments:"
-
-#: ../rubisco/lib/archive/zip.py:65 ../rubisco/lib/archive/__init__.py:115
-#: ../rubisco/lib/archive/tar.py:83 ../rubisco/lib/archive/sevenzip.py:57
-msgid "Extracting ${{file}} to ${{path}} as '${{type}}' ..."
-msgstr "Extracting ${{file}} to ${{path}} as '${{type}}' ..."
-
-#: ../rubisco/lib/archive/zip.py:133 ../rubisco/lib/archive/__init__.py:335
-#: ../rubisco/lib/archive/tar.py:165 ../rubisco/lib/archive/sevenzip.py:198
-msgid "Compressing ${{path}} to ${{file}} as '${{type}}' ..."
-msgstr "Compressing ${{path}} to ${{file}} as '${{type}}' ..."
-
-#: ../rubisco/lib/archive/utils.py:91
-msgid "${{path}} is not in the subpath of ${{start}}"
-msgstr "${{path}} is not in the subpath of ${{start}}"
-
-#: ../rubisco/lib/archive/__init__.py:226
-msgid "Unable to guess compression type of ${{path}}."
-msgstr "Unable to guess compression type of ${{path}}."
-
-#: ../rubisco/lib/archive/__init__.py:231
-#: ../rubisco/lib/archive/__init__.py:497
-msgid "Please specify the compression type explicitly."
-msgstr "Please specify the compression type explicitly."
-
-#: ../rubisco/lib/archive/__init__.py:247
-#: ../rubisco/lib/archive/__init__.py:515
-msgid "Unsupported compression type: ${{type}}"
-msgstr "Unsupported compression type: ${{type}}"
-
-#: ../rubisco/lib/archive/__init__.py:251
-#: ../rubisco/lib/archive/__init__.py:519
-msgid "Supported types are 'gz', 'bz2', 'xz', 'zip', '7z', 'tar', 'tar.gz', 'tar.bz2', 'tar.xz'. You can also use the 'tgz', 'txz' and 'tbz2'."
-msgstr "Supported types are 'gz', 'bz2', 'xz', 'zip', '7z', 'tar', 'tar.gz', 'tar.bz2', 'tar.xz'. You can also use the 'tgz', 'txz' and 'tbz2'."
-
-#: ../rubisco/lib/archive/__init__.py:271
-msgid "Failed to extract ${{file}} to ${{dest}}: ${{exc}}"
-msgstr "Failed to extract ${{file}} to ${{dest}}: ${{exc}}"
-
-#: ../rubisco/lib/archive/__init__.py:492
-msgid "Unable to determine compression type of ${{path}}."
-msgstr "Unable to determine compression type of ${{path}}."
-
-#: ../rubisco/lib/archive/__init__.py:539
-msgid "Failed to compress ${{src}} to ${{dest}}: ${{exc}}"
-msgstr "Failed to compress ${{src}} to ${{dest}}: ${{exc}}"
-
-#: ../rubisco/lib/fileutil.py:91
-msgid "Absolute path ${{path}} is not allowed."
-msgstr "Absolute path ${{path}} is not allowed."
-
-#: ../rubisco/lib/fileutil.py:117
-msgid "Cannot remove root directory."
-msgstr "Cannot remove root directory."
-
-#: ../rubisco/lib/fileutil.py:131
-msgid "Error while removing ${{path}}: ${{error}}"
-msgstr "Error while removing ${{path}}: ${{error}}"
-
-#: ../rubisco/lib/fileutil.py:244
-msgid "File ${{path}} already exists."
-msgstr "File ${{path}} already exists."
-
-#: ../rubisco/lib/fileutil.py:550
-msgid "Invalid type: ${{path}}, expected file."
-msgstr "Invalid type: ${{path}}, expected file."
-
-#: ../rubisco/lib/fileutil.py:560
-msgid "Invalid type: ${{path}}, expected directory."
-msgstr "Invalid type: ${{path}}, expected directory."
-
-#: ../rubisco/lib/fileutil.py:671
-msgid "Command '${{cmd}}' not found."
-msgstr "Command '${{cmd}}' not found."
-
-#: ../rubisco/lib/wget.py:69
-msgid "Downloading ${{url}} ..."
-msgstr "Downloading ${{url}} ..."
-
-#: ../rubisco/lib/process.py:134 ../rubisco/lib/process.py:193
-msgid "Shell execution error."
-msgstr "Shell execution error."
-
-#: ../rubisco/lib/convert.py:132
+#: ../rubisco/kernel/command_event/cefs_fstab.py:79
+msgid "Parsing failed: {{line}}"
+msgstr "Parsing failed: {{line}}"
+
+#: ../rubisco/kernel/command_event/register.py:58
+msgid "You can only register callbacks to files."
+msgstr "You can only register callbacks to files."
+
+#: ../rubisco/kernel/command_event/register.py:68
+msgid "You must register callbacks to files."
+msgstr "You must register callbacks to files."
+
+#: ../rubisco/kernel/mirrorlist.py:146
+msgid "Recursion detected in mirrorlist: '${{name}}'"
+msgstr "Recursion detected in mirrorlist: '${{name}}'"
+
+#: ../rubisco/kernel/mirrorlist.py:150
+msgid "Please check your [underline]mirrorlist.json[/underline] file in workspace, user or global config directory."
+msgstr "Please check your [underline]mirrorlist.json[/underline] file in workspace, user or global config directory."
+
+#: ../rubisco/kernel/mirrorlist.py:197
+msgid "All mirrors are unreachable or canceled. Switching to official [underline][blue]${{url}}[/blue][/underline] ..."
+msgstr "All mirrors are unreachable or canceled. Switching to official [underline][blue]${{url}}[/blue][/underline] ..."
+
+#: ../rubisco/kernel/mirrorlist.py:206 ../rubisco/lib/l10n.py:79
+#: ../rubisco/envutils/env.py:250
+msgid "Unknown"
+msgstr "Unknown"
+
+#: ../rubisco/kernel/mirrorlist.py:257
+msgid "Mirror '${{p}}/${{site}}/${{mirror}}' not found."
+msgstr "Mirror '${{p}}/${{site}}/${{mirror}}' not found."
+
+#: ../rubisco/kernel/mirrorlist.py:269
+msgid "Mirror '${{mirror}}' is not a string."
+msgstr "Mirror '${{mirror}}' is not a string."
+
+#: ../rubisco/kernel/mirrorlist.py:284
+msgid "Source '${{protocol}}/${{website}}/${{name}}' not found."
+msgstr "Source '${{protocol}}/${{website}}/${{name}}' not found."
+
+#: ../rubisco/kernel/workflow/__init__.py:61
+msgid "Step type '${{name}}' registered multiple times. This may cause unexpected behavior. It's unsafe."
+msgstr "Step type '${{name}}' registered multiple times. This may cause unexpected behavior. It's unsafe."
+
+#: ../rubisco/kernel/workflow/__init__.py:109
+msgid "Workflow running failed: ${{exc}}"
+msgstr "Workflow running failed: ${{exc}}"
+
+#: ../rubisco/kernel/workflow/__init__.py:159
+msgid "The suffix of ${{path}} is invalid."
+msgstr "The suffix of ${{path}} is invalid."
+
+#: ../rubisco/kernel/workflow/__init__.py:164
+msgid "We only support '.json', '.json5', '.yaml', '.yml'."
+msgstr "We only support '.json', '.json5', '.yaml', '.yml'."
+
+#: ../rubisco/kernel/workflow/step.py:90
+msgid "Step '${{step}}' failed: ${{exc}}"
+msgstr "Step '${{step}}' failed: ${{exc}}"
+
+#: ../rubisco/kernel/workflow/steps/glob.py:65
+#: ../rubisco/kernel/workflow/steps/glob.py:75
+msgid "The glob item must be a string."
+msgstr "The glob item must be a string."
+
+#: ../rubisco/kernel/workflow/steps/matrix.py:80
+msgid "Matrix variables must be a dict."
+msgstr "Matrix variables must be a dict."
+
+#: ../rubisco/kernel/workflow/steps/compress.py:74
+msgid "Compress format must be a list of string or a string."
+msgstr "Compress format must be a list of string or a string."
+
+#: ../rubisco/kernel/workflow/steps/remove.py:54
+msgid "The remove item must be a string."
+msgstr "The remove item must be a string."
+
+#: ../rubisco/kernel/workflow/steps/mkdir.py:52
+msgid "The paths must be a list of strings."
+msgstr "The paths must be a list of strings."
+
+#: ../rubisco/kernel/workflow/steps/copyfile.py:61
+msgid "The copy item must be a string."
+msgstr "The copy item must be a string."
+
+#: ../rubisco/kernel/workflow/steps/copyfile.py:109
+msgid "No file matched the glob pattern: ${{glob}}."
+msgstr "No file matched the glob pattern: ${{glob}}."
+
+#: ../rubisco/kernel/workflow/workflow.py:103
+msgid "Step id '${{step_id}}' is duplicated."
+msgstr "Step id '${{step_id}}' is duplicated."
+
+#: ../rubisco/kernel/workflow/workflow.py:127
+msgid "Unknown step type: '${{step_type}}' of step '${{step_name}}'. Please check the workflow."
+msgstr "Unknown step type: '${{step_type}}' of step '${{step_name}}'. Please check the workflow."
+
+#: ../rubisco/kernel/workflow/workflow.py:136
+msgid "Consider use 'type' attribute manually."
+msgstr "Consider use 'type' attribute manually."
+
+#: ../rubisco/kernel/workflow/workflow.py:144
+msgid "The type of step '${{step}}'[black](${{step_id}})[/black] in workflow '${{workflow}}'[black](${{workflow_id}})[/black] is not provided and could not be inferred."
+msgstr "The type of step '${{step}}'[black](${{step_id}})[/black] in workflow '${{workflow}}'[black](${{workflow_id}})[/black] is not provided and could not be inferred."
+
+#: ../rubisco/kernel/git.py:53
+msgid "Checking out files"
+msgstr "Checking out files"
+
+#: ../rubisco/kernel/git.py:55
+msgid "Compressing objects"
+msgstr "Compressing objects"
+
+#: ../rubisco/kernel/git.py:57
+msgid "Counting objects"
+msgstr "Counting objects"
+
+#: ../rubisco/kernel/git.py:59
+msgid "Finding sources"
+msgstr "Finding sources"
+
+#: ../rubisco/kernel/git.py:61
+msgid "Receiving objects"
+msgstr "Receiving objects"
+
+#: ../rubisco/kernel/git.py:63
+msgid "Resolving deltas"
+msgstr "Resolving deltas"
+
+#: ../rubisco/kernel/git.py:65
+msgid "Writing objects"
+msgstr "Writing objects"
+
+#: ../rubisco/kernel/git.py:146
+msgid "Repository ${{path}} not found."
+msgstr "Repository ${{path}} not found."
+
+#: ../rubisco/kernel/git.py:158
+msgid "Repository ${{path}} is not a git repository."
+msgstr "Repository ${{path}} is not a git repository."
+
+#: ../rubisco/kernel/git.py:188 ../rubisco/kernel/git.py:256
+msgid "Git operation failed: ${{exc}}"
+msgstr "Git operation failed: ${{exc}}"
+
+#: ../rubisco/kernel/git.py:225
+msgid "Repository ${{path}} already exists."
+msgstr "Repository ${{path}} already exists."
+
+#: ../rubisco/kernel/config_loader.py:82
+msgid "Unknown file type: ${{path}}"
+msgstr "Unknown file type: ${{path}}"
+
+#: ../rubisco/lib/convert.py:133
 msgid "Cannot convert value ${{value}} to type ${{type}}"
 msgstr "Cannot convert value ${{value}} to type ${{type}}"
 
-#: ../rubisco/lib/variable/fast_format_str.py:78
-msgid "fast_format_str() only supports simple variable expressions."
-msgstr "fast_format_str() only supports simple variable expressions."
+#: ../rubisco/lib/wget.py:71
+msgid "Downloading ${{url}} ..."
+msgstr "Downloading ${{url}} ..."
 
-#: ../rubisco/lib/variable/fast_format_str.py:84
-msgid "fast_format_str() does not support default value."
-msgstr "fast_format_str() does not support default value."
-
-#: ../rubisco/lib/variable/autoformatdict.py:119
-msgid "The value of key ${{key}} needs to be ${{type}} instead of ${{value_type}}."
-msgstr "The value of key ${{key}} needs to be ${{type}} instead of ${{value_type}}."
-
-#: ../rubisco/lib/variable/pyexpr_sandbox.py:48
-#: ../rubisco/lib/variable/pyexpr_sandbox.py:112
-msgid "<rubisco inline python expression>"
-msgstr "<rubisco inline python expression>"
-
-#: ../rubisco/lib/variable/pyexpr_sandbox.py:70
-msgid "${{func}} is disallowed in Rubisco variable expression."
-msgstr "${{func}} is disallowed in Rubisco variable expression."
-
-#: ../rubisco/lib/variable/pyexpr_sandbox.py:125
-msgid "Eval python expression failed: ${{expr}}: ${{exc}}"
-msgstr "Eval python expression failed: ${{expr}}: ${{exc}}"
-
-#: ../rubisco/lib/variable/execute.py:53
-msgid "Undefined variable: ${{var}}"
-msgstr "Undefined variable: ${{var}}"
-
-#: ../rubisco/lib/variable/lexer.py:123 ../rubisco/lib/variable/lexer.py:162
-#: ../rubisco/lib/variable/lexer.py:206
-msgid "Invalid variable expression."
-msgstr "Invalid variable expression."
-
-#: ../rubisco/lib/variable/lexer.py:189
-msgid "Invalid variable decorate expression."
-msgstr "Invalid variable decorate expression."
-
-#: ../rubisco/lib/variable/lexer.py:213
-msgid "Invalid variable name."
-msgstr "Invalid variable name."
-
-#: ../rubisco/lib/variable/lexer.py:217
-msgid "Variable name must only contain letters, numbers, and '-', '.', '_'."
-msgstr "Variable name must only contain letters, numbers, and '-', '.', '_'."
+#: ../rubisco/lib/wget.py:74
+msgid "Download"
+msgstr "Download"
 
 #: ../rubisco/lib/sqlite_strerror.py:137
 msgid "Success."
@@ -1691,203 +680,1282 @@ msgstr "Subprocess return code is ${{retcode}}."
 msgid "Subprocess return code is ${{retcode}}. It may be caused by command not found."
 msgstr "Subprocess return code is ${{retcode}}. It may be caused by command not found."
 
-#: /usr/lib/python3.13/argparse.py:241
+#: ../rubisco/lib/archive/__init__.py:112 ../rubisco/lib/archive/sevenzip.py:58
+#: ../rubisco/lib/archive/tar.py:84 ../rubisco/lib/archive/zip.py:66
+msgid "Extracting ${{file}} to ${{path}} as '${{type}}' ..."
+msgstr "Extracting ${{file}} to ${{path}} as '${{type}}' ..."
+
+#: ../rubisco/lib/archive/__init__.py:120 ../rubisco/lib/archive/sevenzip.py:68
+#: ../rubisco/lib/archive/tar.py:92 ../rubisco/lib/archive/zip.py:74
+msgid "Extracting"
+msgstr "Extracting"
+
+#: ../rubisco/lib/archive/__init__.py:224
+msgid "Unable to guess compression type of ${{path}}."
+msgstr "Unable to guess compression type of ${{path}}."
+
+#: ../rubisco/lib/archive/__init__.py:229
+#: ../rubisco/lib/archive/__init__.py:504
+msgid "Please specify the compression type explicitly."
+msgstr "Please specify the compression type explicitly."
+
+#: ../rubisco/lib/archive/__init__.py:245
+#: ../rubisco/lib/archive/__init__.py:522
+msgid "Unsupported compression type: ${{type}}"
+msgstr "Unsupported compression type: ${{type}}"
+
+#: ../rubisco/lib/archive/__init__.py:249
+#: ../rubisco/lib/archive/__init__.py:526
+msgid "Supported types are 'gz', 'bz2', 'xz', 'zip', '7z', 'tar', 'tar.gz', 'tar.bz2', 'tar.xz'. You can also use the 'tgz', 'txz' and 'tbz2'."
+msgstr "Supported types are 'gz', 'bz2', 'xz', 'zip', '7z', 'tar', 'tar.gz', 'tar.bz2', 'tar.xz'. You can also use the 'tgz', 'txz' and 'tbz2'."
+
+#: ../rubisco/lib/archive/__init__.py:269
+msgid "Failed to extract ${{file}} to ${{dest}}: ${{exc}}"
+msgstr "Failed to extract ${{file}} to ${{dest}}: ${{exc}}"
+
+#: ../rubisco/lib/archive/__init__.py:333
+#: ../rubisco/lib/archive/sevenzip.py:201 ../rubisco/lib/archive/tar.py:168
+#: ../rubisco/lib/archive/zip.py:137
+msgid "Compressing ${{path}} to ${{file}} as '${{type}}' ..."
+msgstr "Compressing ${{path}} to ${{file}} as '${{type}}' ..."
+
+#: ../rubisco/lib/archive/__init__.py:341 ../rubisco/lib/archive/utils.py:77
+msgid "Compressing"
+msgstr "Compressing"
+
+#: ../rubisco/lib/archive/__init__.py:499
+msgid "Unable to determine compression type of ${{path}}."
+msgstr "Unable to determine compression type of ${{path}}."
+
+#: ../rubisco/lib/archive/__init__.py:546
+msgid "Failed to compress ${{src}} to ${{dest}}: ${{exc}}"
+msgstr "Failed to compress ${{src}} to ${{dest}}: ${{exc}}"
+
+#: ../rubisco/lib/archive/utils.py:93
+msgid "${{path}} is not in the subpath of ${{start}}"
+msgstr "${{path}} is not in the subpath of ${{start}}"
+
+#: ../rubisco/lib/process.py:135 ../rubisco/lib/process.py:194
+msgid "Shell execution error."
+msgstr "Shell execution error."
+
+#: ../rubisco/lib/fileutil.py:92
+msgid "Absolute path ${{path}} is not allowed."
+msgstr "Absolute path ${{path}} is not allowed."
+
+#: ../rubisco/lib/fileutil.py:118
+msgid "Cannot remove root directory."
+msgstr "Cannot remove root directory."
+
+#: ../rubisco/lib/fileutil.py:132
+msgid "Error while removing ${{path}}: ${{error}}"
+msgstr "Error while removing ${{path}}: ${{error}}"
+
+#: ../rubisco/lib/fileutil.py:245
+msgid "File ${{path}} already exists."
+msgstr "File ${{path}} already exists."
+
+#: ../rubisco/lib/fileutil.py:563
+msgid "Invalid type: ${{path}}, expected file."
+msgstr "Invalid type: ${{path}}, expected file."
+
+#: ../rubisco/lib/fileutil.py:573
+msgid "Invalid type: ${{path}}, expected directory."
+msgstr "Invalid type: ${{path}}, expected directory."
+
+#: ../rubisco/lib/fileutil.py:680
+msgid "Command '${{cmd}}' not found."
+msgstr "Command '${{cmd}}' not found."
+
+#: ../rubisco/lib/variable/fast_format_str.py:78
+msgid "fast_format_str() only supports simple variable expressions."
+msgstr "fast_format_str() only supports simple variable expressions."
+
+#: ../rubisco/lib/variable/fast_format_str.py:84
+msgid "fast_format_str() does not support default value."
+msgstr "fast_format_str() does not support default value."
+
+#: ../rubisco/lib/variable/pyexpr_sandbox.py:48
+#: ../rubisco/lib/variable/pyexpr_sandbox.py:112
+msgid "<rubisco inline python expression>"
+msgstr "<rubisco inline python expression>"
+
+#: ../rubisco/lib/variable/pyexpr_sandbox.py:70
+msgid "${{func}} is disallowed in Rubisco variable expression."
+msgstr "${{func}} is disallowed in Rubisco variable expression."
+
+#: ../rubisco/lib/variable/pyexpr_sandbox.py:125
+msgid "Eval python expression failed: ${{expr}}: ${{exc}}"
+msgstr "Eval python expression failed: ${{expr}}: ${{exc}}"
+
+#: ../rubisco/lib/variable/autoformatdict.py:119
+msgid "The value of key ${{key}} needs to be ${{type}} instead of ${{value_type}}."
+msgstr "The value of key ${{key}} needs to be ${{type}} instead of ${{value_type}}."
+
+#: ../rubisco/lib/variable/lexer.py:123 ../rubisco/lib/variable/lexer.py:162
+#: ../rubisco/lib/variable/lexer.py:206
+msgid "Invalid variable expression."
+msgstr "Invalid variable expression."
+
+#: ../rubisco/lib/variable/lexer.py:189
+msgid "Invalid variable decorate expression."
+msgstr "Invalid variable decorate expression."
+
+#: ../rubisco/lib/variable/lexer.py:213
+msgid "Invalid variable name."
+msgstr "Invalid variable name."
+
+#: ../rubisco/lib/variable/lexer.py:217
+msgid "Variable name must only contain letters, numbers, and '-', '.', '_'."
+msgstr "Variable name must only contain letters, numbers, and '-', '.', '_'."
+
+#: ../rubisco/lib/variable/execute.py:53
+msgid "Undefined variable: ${{var}}"
+msgstr "Undefined variable: ${{var}}"
+
+#: ../rubisco/shared/ktrigger.py:733
+msgid "Kernel trigger id '${{name}}' is already exists."
+msgstr "Kernel trigger id '${{name}}' is already exists."
+
+#: ../rubisco/shared/extension.py:158
+msgid "The extension '${{name}}' does not exist in workspace, user, or global extension directory."
+msgstr "The extension '${{name}}' does not exist in workspace, user, or global extension directory."
+
+#: ../rubisco/shared/extension.py:163
+msgid "Try to load the extension as a path."
+msgstr "Try to load the extension as a path."
+
+#: ../rubisco/shared/extension.py:178
+msgid "The extension path ${{path}} does not exist."
+msgstr "The extension path ${{path}} does not exist."
+
+#: ../rubisco/shared/extension.py:188
+msgid "The extension ${{path}} does not have an instance."
+msgstr "The extension ${{path}} does not have an instance."
+
+#: ../rubisco/shared/extension.py:194
+msgid "Please make sure this extension is valid."
+msgstr "Please make sure this extension is valid."
+
+#: ../rubisco/shared/extension.py:290
+msgid "Extension name '${{name}}' invalid."
+msgstr "Extension name '${{name}}' invalid."
+
+#: ../rubisco/shared/extension.py:295
+msgid "Extension name must be lowercase and only contain 0-9, a-z, A-Z, '_', '.' and '-'."
+msgstr "Extension name must be lowercase and only contain 0-9, a-z, A-Z, '_', '.' and '-'."
+
+#: ../rubisco/shared/extension.py:355
+msgid "Failed to load extension '${{env}}/${{name}}': ${{exc}}"
+msgstr "Failed to load extension '${{env}}/${{name}}': ${{exc}}"
+
+#: ../rubisco/cli/input.py:62
+msgid "[yellow]Invalid input. Please enter '[green]Y[/green]' or '[red]N[/red]'."
+msgstr "[yellow]Invalid input. Please enter '[green]Y[/green]' or '[red]N[/red]'."
+
+#: ../rubisco/cli/input.py:69
+msgid "Invalid input."
+msgstr "Invalid input."
+
+#: ../rubisco/cli/main/main.py:78 ../rubisco/cli/main/ktrigger.py:897
+msgid "Entering directory ${{path}} ..."
+msgstr "Entering directory ${{path}} ..."
+
+#: ../rubisco/cli/main/builtin_cmds.py:66
+msgid "Default callback for showing Rubisco project infomation."
+msgstr "Default callback for showing Rubisco project infomation."
+
+#: ../rubisco/cli/main/builtin_cmds.py:71
+#: ../rubisco/cli/main/extman_cmds.py:327
+msgid "Show project information."
+msgstr "Show project information."
+
+#: ../rubisco/cli/main/project_config.py:78
+#: ../rubisco/cli/main/project_config.py:148
+msgid "Working directory ${{path}} is not a Rubisco project."
+msgstr "Working directory ${{path}} is not a Rubisco project."
+
+#: ../rubisco/cli/main/project_config.py:128
+msgid "Undefined command or hook ${{name}}."
+msgstr "Undefined command or hook ${{name}}."
+
+#: ../rubisco/cli/main/project_config.py:131
+msgid "Perhaps a typo?"
+msgstr "Perhaps a typo?"
+
+#: ../rubisco/cli/main/project_config.py:153
+msgid "${{path}} is not found."
+msgstr "${{path}} is not found."
+
+#: ../rubisco/cli/main/ktrigger.py:140
+msgid "Executing: [cyan]${{cmd}}[/cyan] ..."
+msgstr "Executing: [cyan]${{cmd}}[/cyan] ..."
+
+#: ../rubisco/cli/main/ktrigger.py:161
+msgid "${{path}} already exists. [yellow]Overwrite[/yellow]?"
+msgstr "${{path}} already exists. [yellow]Overwrite[/yellow]?"
+
+#: ../rubisco/cli/main/ktrigger.py:269
+msgid "Please install the following packages manually: [bold]${{packages}}[/bold]."
+msgstr "Please install the following packages manually: [bold]${{packages}}[/bold]."
+
+#: ../rubisco/cli/main/ktrigger.py:276
+msgid "Continue anyway?"
+msgstr "Continue anyway?"
+
+#: ../rubisco/cli/main/ktrigger.py:283
+msgid "Updating Git repository ${{path}}(${{branch}}) ..."
+msgstr "Updating Git repository ${{path}}(${{branch}}) ..."
+
+#: ../rubisco/cli/main/ktrigger.py:299
+msgid "Cloning Git repository ${{url}} (${{branch}}) into ${{path}} ..."
+msgstr "Cloning Git repository ${{url}} (${{branch}}) into ${{path}} ..."
+
+#: ../rubisco/cli/main/ktrigger.py:326
+msgid "Testing ${{host}} ... ${{status}}"
+msgstr "Testing ${{host}} ... ${{status}}"
+
+#: ../rubisco/cli/main/ktrigger.py:336
+msgid "Performing websites speed test ..."
+msgstr "Performing websites speed test ..."
+
+#: ../rubisco/cli/main/ktrigger.py:340 ../rubisco/cli/main/ktrigger.py:362
+msgid "[yellow]Testing[/yellow] ..."
+msgstr "[yellow]Testing[/yellow] ..."
+
+#: ../rubisco/cli/main/ktrigger.py:348
+msgid "[red]Canceled[/red]"
+msgstr "[red]Canceled[/red]"
+
+#: ../rubisco/cli/main/ktrigger.py:350
+msgid "[red]Failed[/red]"
+msgstr "[red]Failed[/red]"
+
+#: ../rubisco/cli/main/ktrigger.py:353
+msgid "${{speed}} us"
+msgstr "${{speed}} us"
+
+#: ../rubisco/cli/main/ktrigger.py:378
+msgid "Selected mirror: ${{url}}"
+msgstr "Selected mirror: ${{url}}"
+
+#: ../rubisco/cli/main/ktrigger.py:388
+msgid "Running: [white]${{name}}[/white] [black](${{id}})[/black]"
+msgstr "Running: [white]${{name}}[/white] [black](${{id}})[/black]"
+
+#: ../rubisco/cli/main/ktrigger.py:405
+msgid "Running workflow: [white]${{name}}[/white] [black](${{id}})[/black]"
+msgstr "Running workflow: [white]${{name}}[/white] [black](${{id}})[/black]"
+
+#: ../rubisco/cli/main/ktrigger.py:418
+msgid "Workflow '${{name}}' finished."
+msgstr "Workflow '${{name}}' finished."
+
+#: ../rubisco/cli/main/ktrigger.py:425
+msgid "Running matrix jobs ..."
+msgstr "Running matrix jobs ..."
+
+#: ../rubisco/cli/main/ktrigger.py:429
+msgid "Running jobs with variables:"
+msgstr "Running jobs with variables:"
+
+#: ../rubisco/cli/main/ktrigger.py:444
+msgid "Creating directory: ${{path}} ..."
+msgstr "Creating directory: ${{path}} ..."
+
+#: ../rubisco/cli/main/ktrigger.py:474
+msgid "Moving file ${{src}} to ${{dst}} ..."
+msgstr "Moving file ${{src}} to ${{dst}} ..."
+
+#: ../rubisco/cli/main/ktrigger.py:485
+msgid "Copying ${{src}} to ${{dst}} ..."
+msgstr "Copying ${{src}} to ${{dst}} ..."
+
+#: ../rubisco/cli/main/ktrigger.py:496
+msgid "Removing ${{path}} ..."
+msgstr "Removing ${{path}} ..."
+
+#: ../rubisco/cli/main/ktrigger.py:507
+msgid "Selected: ${{path}}"
+msgstr "Selected: ${{path}}"
+
+#: ../rubisco/cli/main/ktrigger.py:523
+msgid "Extension '${{name}}' loaded."
+msgstr "Extension '${{name}}' loaded."
+
+#: ../rubisco/cli/main/ktrigger.py:532
+msgid "[dark_orange]Rubisco CLI Language:[/dark_orange] '${{locale}}' '${{charset}}' '${{language_name}}'"
+msgstr "[dark_orange]Rubisco CLI Language:[/dark_orange] '${{locale}}' '${{charset}}' '${{language_name}}'"
+
+#: ../rubisco/cli/main/ktrigger.py:544
+msgid "[dark_orange]Project:[/dark_orange] ${{name}}"
+msgstr "[dark_orange]Project:[/dark_orange] ${{name}}"
+
+#: ../rubisco/cli/main/ktrigger.py:550
+msgid "[dark_orange]Configuration:[/dark_orange] ${{path}}"
+msgstr "[dark_orange]Configuration:[/dark_orange] ${{path}}"
+
+#: ../rubisco/cli/main/ktrigger.py:557
+msgid "[dark_orange]Version:[/dark_orange] v[white]${{version}}[/white]"
+msgstr "[dark_orange]Version:[/dark_orange] v[white]${{version}}[/white]"
+
+#: ../rubisco/cli/main/ktrigger.py:570
+msgid "[dark_orange]Maintainers:[/dark_orange] ${{maintainers}}"
+msgstr "[dark_orange]Maintainers:[/dark_orange] ${{maintainers}}"
+
+#: ../rubisco/cli/main/ktrigger.py:574
+msgid "[yellow]Unknown[/yellow]"
+msgstr "[yellow]Unknown[/yellow]"
+
+#: ../rubisco/cli/main/ktrigger.py:577
+msgid "[dark_orange]License:[/dark_orange] ${{license}}"
+msgstr "[dark_orange]License:[/dark_orange] ${{license}}"
+
+#: ../rubisco/cli/main/ktrigger.py:583
+msgid "[dark_orange]Description:[/dark_orange] ${{desc}}"
+msgstr "[dark_orange]Description:[/dark_orange] ${{desc}}"
+
+#: ../rubisco/cli/main/ktrigger.py:588
+msgid "[dark_orange]Hooks:[/dark_orange]"
+msgstr "[dark_orange]Hooks:[/dark_orange]"
+
+#: ../rubisco/cli/main/ktrigger.py:596
+msgid "(${{num}} hooks)"
+msgstr "(${{num}} hooks)"
+
+#: ../rubisco/cli/main/ktrigger.py:613
+msgid "Creating symbolic link: ${{src}} -> ${{dst}} ..."
+msgstr "Creating symbolic link: ${{src}} -> ${{dst}} ..."
+
+#: ../rubisco/cli/main/ktrigger.py:625
+msgid "Creating hard link: ${{src}} -> ${{dst}} ..."
+msgstr "Creating hard link: ${{src}} -> ${{dst}} ..."
+
+#: ../rubisco/cli/main/ktrigger.py:638
+msgid "Creating Rubisco extension environment: ${{path}} ..."
+msgstr "Creating Rubisco extension environment: ${{path}} ..."
+
+#: ../rubisco/cli/main/ktrigger.py:652 ../rubisco/cli/main/ktrigger.py:700
+#: ../rubisco/cli/main/ktrigger.py:748 ../rubisco/cli/main/ktrigger.py:795
+#: ../rubisco/cli/main/extman_cmds.py:63
+msgid "global"
+msgstr "global"
+
+#: ../rubisco/cli/main/ktrigger.py:654 ../rubisco/cli/main/ktrigger.py:702
+#: ../rubisco/cli/main/ktrigger.py:750 ../rubisco/cli/main/ktrigger.py:797
+#: ../rubisco/cli/main/extman_cmds.py:65
+msgid "user"
+msgstr "user"
+
+#: ../rubisco/cli/main/ktrigger.py:656 ../rubisco/cli/main/ktrigger.py:704
+#: ../rubisco/cli/main/ktrigger.py:752 ../rubisco/cli/main/ktrigger.py:799
+#: ../rubisco/cli/main/extman_cmds.py:67
+msgid "workspace"
+msgstr "workspace"
+
+#: ../rubisco/cli/main/ktrigger.py:660
+msgid "Installing extension [green]${{name}}[/green]:[cyan]${{version}}[/cyan] to [yellow]${{dest}}[/yellow] (${{path}}) ..."
+msgstr "Installing extension [green]${{name}}[/green]:[cyan]${{version}}[/cyan] to [yellow]${{dest}}[/yellow] (${{path}}) ..."
+
+#: ../rubisco/cli/main/ktrigger.py:685
+msgid "Extension [green]${{name}}[/green]:[cyan]${{version}}[/cyan] was successfully installed."
+msgstr "Extension [green]${{name}}[/green]:[cyan]${{version}}[/cyan] was successfully installed."
+
+#: ../rubisco/cli/main/ktrigger.py:708
+msgid "Uninstalling extension [green]${{name}}[/green]:[cyan]${{version}}[/cyan] from [yellow]${{dest}}[/yellow] (${{path}}) ..."
+msgstr "Uninstalling extension [green]${{name}}[/green]:[cyan]${{version}}[/cyan] from [yellow]${{dest}}[/yellow] (${{path}}) ..."
+
+#: ../rubisco/cli/main/ktrigger.py:733
+msgid "Extension [green]${{name}}[/green]:[cyan]${{version}}[/cyan] was successfully uninstalled."
+msgstr "Extension [green]${{name}}[/green]:[cyan]${{version}}[/cyan] was successfully uninstalled."
+
+#: ../rubisco/cli/main/ktrigger.py:756
+msgid "Upgrading extension [green]${{name}}[/green]:[cyan]${{version}}[/cyan] from [yellow]${{dest}}[/yellow] (${{path}}) ..."
+msgstr "Upgrading extension [green]${{name}}[/green]:[cyan]${{version}}[/cyan] from [yellow]${{dest}}[/yellow] (${{path}}) ..."
+
+#: ../rubisco/cli/main/ktrigger.py:781
+msgid "Extension [green]${{name}}[/green]:[cyan]${{version}}[/cyan] was successfully upgraded."
+msgstr "Extension [green]${{name}}[/green]:[cyan]${{version}}[/cyan] was successfully upgraded."
+
+#: ../rubisco/cli/main/ktrigger.py:802
+msgid "The following extensions will be uninstalled from [yellow]${{dest}}[/yellow] (${{path}}):"
+msgstr "The following extensions will be uninstalled from [yellow]${{dest}}[/yellow] (${{path}}):"
+
+#: ../rubisco/cli/main/ktrigger.py:818
+msgid "Continue?"
+msgstr "Continue?"
+
+#: ../rubisco/cli/main/ktrigger.py:911
+msgid "Leaving directory ${{path}} ..."
+msgstr "Leaving directory ${{path}} ..."
+
+#: ../rubisco/cli/main/version_action.py:43
+msgid ""
+"[bold]Copyright (C) 2025 [link=https://github.com/cppp-project]The C++ Plus Project[/link].[/bold]\n"
+"License [bold]GPLv3+[/bold]: GNU GPL version [cyan]3[/cyan] or later <https://www.gnu.org/licenses/gpl.html>.\n"
+"This is free software: you are free to change and redistribute it.\n"
+"There is [yellow]NO WARRANTY[/yellow], to the extent permitted by law.\n"
+"Written by [link=https://github.com/ChenPi11]ChenPi11[/link]."
+msgstr ""
+"[bold]Copyright (C) 2025 [link=https://github.com/cppp-project]The C++ Plus Project[/link].[/bold]\n"
+"License [bold]GPLv3+[/bold]: GNU GPL version [cyan]3[/cyan] or later <https://www.gnu.org/licenses/gpl.html>.\n"
+"This is free software: you are free to change and redistribute it.\n"
+"There is [yellow]NO WARRANTY[/yellow], to the extent permitted by law.\n"
+"Written by [link=https://github.com/ChenPi11]ChenPi11[/link]."
+
+#: ../rubisco/cli/main/version_action.py:68
+msgid "Show program's version number and exit."
+msgstr "Show program's version number and exit."
+
+#: ../rubisco/cli/main/arg_parser.py:67
+msgid "Rubisco CommandEventFS Debugger CLI exited."
+msgstr "Rubisco CommandEventFS Debugger CLI exited."
+
+#: ../rubisco/cli/main/arg_parser.py:91
+msgid "Project root"
+msgstr "Project root"
+
+#: ../rubisco/cli/main/arg_parser.py:92
+msgid "The root directory of Rubisco project."
+msgstr "The root directory of Rubisco project."
+
+#: ../rubisco/cli/main/arg_parser.py:99
+msgid "Used prompt colors (for CLI)."
+msgstr "Used prompt colors (for CLI)."
+
+#: ../rubisco/cli/main/arg_parser.py:101 ../rubisco/cli/main/arg_parser.py:270
+msgid "Prompt colors used by rubisco parent process."
+msgstr "Prompt colors used by rubisco parent process."
+
+#: ../rubisco/cli/main/arg_parser.py:108
+msgid "Enable Rubisco log"
+msgstr "Enable Rubisco log"
+
+#: ../rubisco/cli/main/arg_parser.py:110
+msgid "Allow Rubisco to save log. Do not use this option directly. Use `--log` to allow Rubisco log. It will be saved to `.rubisco/rubisco.log`."
+msgstr "Allow Rubisco to save log. Do not use this option directly. Use `--log` to allow Rubisco log. It will be saved to `.rubisco/rubisco.log`."
+
+#: ../rubisco/cli/main/arg_parser.py:121
+msgid "Allow Rubisco to save log."
+msgstr "Allow Rubisco to save log."
+
+#: ../rubisco/cli/main/arg_parser.py:129
+msgid "Enable debug mode."
+msgstr "Enable debug mode."
+
+#: ../rubisco/cli/main/arg_parser.py:131
+msgid "Run rubisco in debug mode. Don't use this option directly. Use `--debug` to enable debug mode. It's parsed when Rubisco log system initializing."
+msgstr "Run rubisco in debug mode. Don't use this option directly. Use `--debug` to enable debug mode. It's parsed when Rubisco log system initializing."
+
+#: ../rubisco/cli/main/arg_parser.py:143
+msgid "Run rubisco in debug mode."
+msgstr "Run rubisco in debug mode."
+
+#: ../rubisco/cli/main/arg_parser.py:151
+msgid "Verbose"
+msgstr "Verbose"
+
+#: ../rubisco/cli/main/arg_parser.py:152 ../rubisco/cli/main/arg_parser.py:159
+msgid "Enable verbose output."
+msgstr "Enable verbose output."
+
+#: ../rubisco/cli/main/arg_parser.py:170
+msgid "Parse options in '/' and init Rubisco configs."
+msgstr "Parse options in '/' and init Rubisco configs."
+
+#: ../rubisco/cli/main/arg_parser.py:183
+msgid "Show version."
+msgstr "Show version."
+
+#: ../rubisco/cli/main/arg_parser.py:189
+msgid "Show Rubisco version."
+msgstr "Show Rubisco version."
+
+#: ../rubisco/cli/main/arg_parser.py:198
+msgid "Launch CommandEventFS Debugger."
+msgstr "Launch CommandEventFS Debugger."
+
+#: ../rubisco/cli/main/arg_parser.py:205
+msgid "Launch Rubisco CommandEventFS Debugger CLI."
+msgstr "Launch Rubisco CommandEventFS Debugger CLI."
+
+#: ../rubisco/cli/main/arg_parser.py:215
+msgid "Extension directory."
+msgstr "Extension directory."
+
+#: ../rubisco/cli/main/arg_parser.py:261
+msgid "Project root directory."
+msgstr "Project root directory."
+
+#: ../rubisco/cli/main/extman_cmds.py:69
+msgid "foreign-package"
+msgstr "foreign-package"
+
+#: ../rubisco/cli/main/extman_cmds.py:70
+msgid "unknown"
+msgstr "unknown"
+
+#: ../rubisco/cli/main/extman_cmds.py:96
+msgid "No environment exists or selected."
+msgstr "No environment exists or selected."
+
+#: ../rubisco/cli/main/extman_cmds.py:144
+msgid "Package: [green]${{name}}[/green]"
+msgstr "Package: [green]${{name}}[/green]"
+
+#: ../rubisco/cli/main/extman_cmds.py:151
+msgid "Version: [cyan]${{ver}}[/cyan]"
+msgstr "Version: [cyan]${{ver}}[/cyan]"
+
+#: ../rubisco/cli/main/extman_cmds.py:158
+msgid "Installation Location: ${{loc}}"
+msgstr "Installation Location: ${{loc}}"
+
+#: ../rubisco/cli/main/extman_cmds.py:165
+msgid "Maintainers: ${{maintainers}}"
+msgstr "Maintainers: ${{maintainers}}"
+
+#: ../rubisco/cli/main/extman_cmds.py:172
+msgid "Homepage: ${{homepage}}"
+msgstr "Homepage: ${{homepage}}"
+
+#: ../rubisco/cli/main/extman_cmds.py:179
+msgid "License: ${{license}}"
+msgstr "License: ${{license}}"
+
+#: ../rubisco/cli/main/extman_cmds.py:186
+msgid "Tags: ${{tags}}"
+msgstr "Tags: ${{tags}}"
+
+#: ../rubisco/cli/main/extman_cmds.py:193
+msgid "Description: ${{desc}}"
+msgstr "Description: ${{desc}}"
+
+#: ../rubisco/cli/main/extman_cmds.py:224
+msgid "No packages found."
+msgstr "No packages found."
+
+#: ../rubisco/cli/main/extman_cmds.py:258
+msgid "Invalid install destination: ${{dest}}. Supported destinations are 'workspace', 'user', 'global'."
+msgstr "Invalid install destination: ${{dest}}. Supported destinations are 'workspace', 'user', 'global'."
+
+#: ../rubisco/cli/main/extman_cmds.py:268
+msgid "No files found."
+msgstr "No files found."
+
+#: ../rubisco/cli/main/extman_cmds.py:299
+msgid "Invalid uninstall destination: ${{dest}}. Supported destinations are 'workspace', 'user', 'global'."
+msgstr "Invalid uninstall destination: ${{dest}}. Supported destinations are 'workspace', 'user', 'global'."
+
+#: ../rubisco/cli/main/extman_cmds.py:314
+#: ../rubisco/cli/main/extman_cmds.py:315
+#: ../rubisco/cli/main/extman_cmds.py:400
+#: ../rubisco/cli/main/extman_cmds.py:401
+#: ../rubisco/cli/main/extman_cmds.py:542
+#: ../rubisco/cli/main/extman_cmds.py:543
+msgid "Packages matching patterns."
+msgstr "Packages matching patterns."
+
+#: ../rubisco/cli/main/extman_cmds.py:322
+msgid "Default callback for list Rubisco extensions."
+msgstr "Default callback for list Rubisco extensions."
+
+#: ../rubisco/cli/main/extman_cmds.py:331
+#: ../rubisco/cli/main/extman_cmds.py:332
+#: ../rubisco/cli/main/extman_cmds.py:339
+#: ../rubisco/cli/main/extman_cmds.py:417
+#: ../rubisco/cli/main/extman_cmds.py:418
+#: ../rubisco/cli/main/extman_cmds.py:425
+msgid "Show workspace extensions."
+msgstr "Show workspace extensions."
+
+#: ../rubisco/cli/main/extman_cmds.py:344
+#: ../rubisco/cli/main/extman_cmds.py:430
+msgid "Hide workspace extensions."
+msgstr "Hide workspace extensions."
+
+#: ../rubisco/cli/main/extman_cmds.py:352
+#: ../rubisco/cli/main/extman_cmds.py:353
+#: ../rubisco/cli/main/extman_cmds.py:360
+#: ../rubisco/cli/main/extman_cmds.py:438
+#: ../rubisco/cli/main/extman_cmds.py:439
+#: ../rubisco/cli/main/extman_cmds.py:446
+msgid "Show user extensions."
+msgstr "Show user extensions."
+
+#: ../rubisco/cli/main/extman_cmds.py:365
+#: ../rubisco/cli/main/extman_cmds.py:451
+msgid "Hide user extensions."
+msgstr "Hide user extensions."
+
+#: ../rubisco/cli/main/extman_cmds.py:373
+#: ../rubisco/cli/main/extman_cmds.py:374
+#: ../rubisco/cli/main/extman_cmds.py:381
+#: ../rubisco/cli/main/extman_cmds.py:459
+#: ../rubisco/cli/main/extman_cmds.py:460
+#: ../rubisco/cli/main/extman_cmds.py:467
+msgid "Show global extensions."
+msgstr "Show global extensions."
+
+#: ../rubisco/cli/main/extman_cmds.py:386
+#: ../rubisco/cli/main/extman_cmds.py:472
+msgid "Hide global extensions."
+msgstr "Hide global extensions."
+
+#: ../rubisco/cli/main/extman_cmds.py:408
+msgid "Default callback for show Rubisco extensions."
+msgstr "Default callback for show Rubisco extensions."
+
+#: ../rubisco/cli/main/extman_cmds.py:413
+msgid "Show extensions info with matching patterns."
+msgstr "Show extensions info with matching patterns."
+
+#: ../rubisco/cli/main/extman_cmds.py:486
+#: ../rubisco/cli/main/extman_cmds.py:487
+msgid "Extension package files glob patterns."
+msgstr "Extension package files glob patterns."
+
+#: ../rubisco/cli/main/extman_cmds.py:494
+msgid "Default callback for install Rubisco extensions."
+msgstr "Default callback for install Rubisco extensions."
+
+#: ../rubisco/cli/main/extman_cmds.py:499
+msgid "Install extensions with matching patterns."
+msgstr "Install extensions with matching patterns."
+
+#: ../rubisco/cli/main/extman_cmds.py:504
+msgid "Install to destination."
+msgstr "Install to destination."
+
+#: ../rubisco/cli/main/extman_cmds.py:506
+msgid "Install extension packages to destination. support 'workspace', 'user', 'global'."
+msgstr "Install extension packages to destination. support 'workspace', 'user', 'global'."
+
+#: ../rubisco/cli/main/extman_cmds.py:515
+msgid "Install to workspace."
+msgstr "Install to workspace."
+
+#: ../rubisco/cli/main/extman_cmds.py:521
+msgid "Install to user."
+msgstr "Install to user."
+
+#: ../rubisco/cli/main/extman_cmds.py:527
+msgid "Install to global."
+msgstr "Install to global."
+
+#: ../rubisco/cli/main/extman_cmds.py:550
+msgid "Default callback for uninstall Rubisco extensions."
+msgstr "Default callback for uninstall Rubisco extensions."
+
+#: ../rubisco/cli/main/extman_cmds.py:555
+msgid "Uninstall extensions with matching patterns."
+msgstr "Uninstall extensions with matching patterns."
+
+#: ../rubisco/cli/main/extman_cmds.py:559
+msgid "Uninstall to destination."
+msgstr "Uninstall to destination."
+
+#: ../rubisco/cli/main/extman_cmds.py:561
+msgid "Uninstall extension packages to destination. support 'workspace', 'user', 'global'."
+msgstr "Uninstall extension packages to destination. support 'workspace', 'user', 'global'."
+
+#: ../rubisco/cli/main/extman_cmds.py:570
+msgid "Uninstall to workspace."
+msgstr "Uninstall to workspace."
+
+#: ../rubisco/cli/main/extman_cmds.py:576
+msgid "Uninstall to user."
+msgstr "Uninstall to user."
+
+#: ../rubisco/cli/main/extman_cmds.py:582
+msgid "Uninstall to global."
+msgstr "Uninstall to global."
+
+#: ../rubisco/cli/main/help_formatter.py:48
+msgid "Show this help message and exit."
+msgstr "Show this help message and exit."
+
+#: ../rubisco/cli/main/help_formatter.py:54
+#: ../rubisco/cli/cefs_dbg/helpmsg.py:149
+msgid "Usage:"
+msgstr "Usage:"
+
+#: ../rubisco/cli/main/help_formatter.py:57
+msgid "Positional Arguments:"
+msgstr "Positional Arguments:"
+
+#: ../rubisco/cli/main/help_formatter.py:60 ../rubisco/cli/cefs_dbg/cli.py:299
+msgid "Options:"
+msgstr "Options:"
+
+#: ../rubisco/cli/argparse_generator.py:137
+msgid "The advanced options must be a list."
+msgstr "The advanced options must be a list."
+
+#: ../rubisco/cli/argparse_generator.py:139
+msgid "Advanced options must be a list of `dict[str, list[str] | int | str | None]`."
+msgstr "Advanced options must be a list of `dict[str, list[str] | int | str | None]`."
+
+#: ../rubisco/cli/output.py:198
+msgid "[red]Error: ${{msg}}[/red]"
+msgstr "[red]Error: ${{msg}}[/red]"
+
+#: ../rubisco/cli/output.py:211
+msgid "[yellow]Warning: ${{msg}}[/yellow]"
+msgstr "[yellow]Warning: ${{msg}}[/yellow]"
+
+#: ../rubisco/cli/output.py:226
+msgid "[italic][magenta]Hint:[/magenta] ${{msg}}[/italic]"
+msgstr "[italic][magenta]Hint:[/magenta] ${{msg}}[/italic]"
+
+#: ../rubisco/cli/output.py:256
+msgid "Unknown error."
+msgstr "Unknown error."
+
+#: ../rubisco/cli/output.py:259 ../rubisco/envutils/packages.py:537
+msgid "Interrupted by user."
+msgstr "Interrupted by user."
+
+#: ../rubisco/cli/output.py:263
+msgid "JSON5 decode error."
+msgstr "JSON5 decode error."
+
+#: ../rubisco/cli/output.py:265
+msgid "Is may caused by a invalid JSON5 configuration file."
+msgstr "Is may caused by a invalid JSON5 configuration file."
+
+#: ../rubisco/cli/output.py:269
+msgid "Missing key: ${{msg}}"
+msgstr "Missing key: ${{msg}}"
+
+#: ../rubisco/cli/output.py:273
+msgid "Is may caused by a invalid configuration file."
+msgstr "Is may caused by a invalid configuration file."
+
+#: ../rubisco/cli/output.py:279
+msgid "Internal error: ${{type}}: ${{msg}}"
+msgstr "Internal error: ${{type}}: ${{msg}}"
+
+#: ../rubisco/cli/output.py:287
+msgid "See: ${{url}}"
+msgstr "See: ${{url}}"
+
+#: ../rubisco/cli/cefs_dbg/cli.py:132
+msgid "Command not found: ${{cmd}}"
+msgstr "Command not found: ${{cmd}}"
+
+#: ../rubisco/cli/cefs_dbg/cli.py:150 ../rubisco/cli/cefs_dbg/cli.py:263
+#: ../rubisco/cli/cefs_dbg/cli.py:292 ../rubisco/cli/cefs_dbg/cli.py:365
+#: ../rubisco/cli/cefs_dbg/cli.py:419
+msgid "Too many arguments."
+msgstr "Too many arguments."
+
+#: ../rubisco/cli/cefs_dbg/cli.py:154
+msgid "No such file or directory."
+msgstr "No such file or directory."
+
+#: ../rubisco/cli/cefs_dbg/cli.py:157
+msgid "Not a directory."
+msgstr "Not a directory."
+
+#: ../rubisco/cli/cefs_dbg/cli.py:194 ../rubisco/cli/cefs_dbg/helpmsg.py:151
+msgid "Arguments:"
+msgstr "Arguments:"
+
+#: ../rubisco/cli/cefs_dbg/cli.py:198 ../rubisco/cli/cefs_dbg/cli.py:250
+msgid "None."
+msgstr "None."
+
+#: ../rubisco/cli/cefs_dbg/cli.py:200
+msgid "Dynamic Arguments:"
+msgstr "Dynamic Arguments:"
+
+#: ../rubisco/cli/cefs_dbg/cli.py:204
+msgid "From ${{mincount}} to ${{maxcount}}."
+msgstr "From ${{mincount}} to ${{maxcount}}."
+
+#: ../rubisco/cli/cefs_dbg/cli.py:210
+msgid "unlimited"
+msgstr "unlimited"
+
+#: ../rubisco/cli/cefs_dbg/cli.py:221 ../rubisco/cli/cefs_dbg/cli.py:237
+#: ../rubisco/cli/cefs_dbg/cli.py:239
+msgid "Unknown."
+msgstr "Unknown."
+
+#: ../rubisco/cli/cefs_dbg/cli.py:224
+msgid "Callbacks:"
+msgstr "Callbacks:"
+
+#: ../rubisco/cli/cefs_dbg/cli.py:230
+msgid "Function: ${{repr}}"
+msgstr "Function: ${{repr}}"
+
+#: ../rubisco/cli/cefs_dbg/cli.py:245
+msgid "Source: ${{src}}"
+msgstr "Source: ${{src}}"
+
+#: ../rubisco/cli/cefs_dbg/cli.py:260 ../rubisco/cli/cefs_dbg/cli.py:362
+msgid "No file specified."
+msgstr "No file specified."
+
+#: ../rubisco/cli/cefs_dbg/cli.py:269 ../rubisco/cli/cefs_dbg/cli.py:371
+msgid "No such file or directory: ${{path}}"
+msgstr "No such file or directory: ${{path}}"
+
+#: ../rubisco/cli/cefs_dbg/cli.py:274
+msgid "Not a file."
+msgstr "Not a file."
+
+#: ../rubisco/cli/cefs_dbg/cli.py:305 ../rubisco/cli/cefs_dbg/cli.py:396
+msgid "Description: [yellow]${{description}}[/yellow]"
+msgstr "Description: [yellow]${{description}}[/yellow]"
+
+#: ../rubisco/cli/cefs_dbg/cli.py:312
+msgid "Type: [green]${{type}}[/green]"
+msgstr "Type: [green]${{type}}[/green]"
+
+#: ../rubisco/cli/cefs_dbg/cli.py:320
+msgid "Aliases: [blue]${{aliases}}[/blue]"
+msgstr "Aliases: [blue]${{aliases}}[/blue]"
+
+#: ../rubisco/cli/cefs_dbg/cli.py:328
+msgid "Default value: ${{default}}"
+msgstr "Default value: ${{default}}"
+
+#: ../rubisco/cli/cefs_dbg/cli.py:336
+msgid "Extra attributes: ${{ext_attributes}}"
+msgstr "Extra attributes: ${{ext_attributes}}"
+
+#: ../rubisco/cli/cefs_dbg/cli.py:347
+msgid "Current value: ${{value}}"
+msgstr "Current value: ${{value}}"
+
+#: ../rubisco/cli/cefs_dbg/cli.py:384
+msgid "File: ${{path}} ${{alias_to}}"
+msgstr "File: ${{path}} ${{alias_to}}"
+
+#: ../rubisco/cli/cefs_dbg/cli.py:390
+msgid "Type: ${{type}}"
+msgstr "Type: ${{type}}"
+
+#: ../rubisco/cli/cefs_dbg/cli.py:403
+msgid "Mount point: ${{path}}"
+msgstr "Mount point: ${{path}}"
+
+#: ../rubisco/cli/cefs_dbg/helpmsg.py:47
+msgid "Change the debugger's working directory."
+msgstr "Change the debugger's working directory."
+
+#: ../rubisco/cli/cefs_dbg/helpmsg.py:51
+msgid "Change the current directory to [italic]\\[PATH][/italic]. The default [italic]\\[PATH][/italic] is the root directory"
+msgstr "Change the current directory to [italic]\\[PATH][/italic]. The default [italic]\\[PATH][/italic] is the root directory"
+
+#: ../rubisco/cli/cefs_dbg/helpmsg.py:58
+msgid "Display the file's data."
+msgstr "Display the file's data."
+
+#: ../rubisco/cli/cefs_dbg/helpmsg.py:61
+msgid "The file path to display."
+msgstr "The file path to display."
+
+#: ../rubisco/cli/cefs_dbg/helpmsg.py:65
+msgid "Display file or directory status."
+msgstr "Display file or directory status."
+
+#: ../rubisco/cli/cefs_dbg/helpmsg.py:68
+msgid "The file path to display status."
+msgstr "The file path to display status."
+
+#: ../rubisco/cli/cefs_dbg/helpmsg.py:72
+msgid "List directory contents."
+msgstr "List directory contents."
+
+#: ../rubisco/cli/cefs_dbg/helpmsg.py:76
+msgid "List the directory contents of [italic]\\[PATH][/italic]. The default [italic]\\[PATH][/italic] is the current directory"
+msgstr "List the directory contents of [italic]\\[PATH][/italic]. The default [italic]\\[PATH][/italic] is the current directory"
+
+#: ../rubisco/cli/cefs_dbg/helpmsg.py:83
+msgid "Exit the debugger."
+msgstr "Exit the debugger."
+
+#: ../rubisco/cli/cefs_dbg/helpmsg.py:87
+msgid "Display information about builtin commands."
+msgstr "Display information about builtin commands."
+
+#: ../rubisco/cli/cefs_dbg/helpmsg.py:91
+msgid "The command to display help information. If not specified, display help information about all builtin commands."
+msgstr "The command to display help information. If not specified, display help information about all builtin commands."
+
+#: ../rubisco/cli/cefs_dbg/helpmsg.py:98
+msgid "Clear the terminal screen and scrollback buffer."
+msgstr "Clear the terminal screen and scrollback buffer."
+
+#: ../rubisco/cli/cefs_dbg/helpmsg.py:110
+msgid "Command"
+msgstr "Command"
+
+#: ../rubisco/cli/cefs_dbg/helpmsg.py:111
+msgid "Description"
+msgstr "Description"
+
+#: ../rubisco/cli/cefs_dbg/helpmsg.py:119
+msgid "Use [green]help[/green] [bold]<COMMAND>[/] to get more help."
+msgstr "Use [green]help[/green] [bold]<COMMAND>[/] to get more help."
+
+#: ../rubisco/cli/cefs_dbg/helpmsg.py:124
+msgid "`help` use \"[italic][COMMAND][/italic]\" for optional arguments. Use \"[bold]<COMMAND>[/bold]\" for required arguments."
+msgstr "`help` use \"[italic][COMMAND][/italic]\" for optional arguments. Use \"[bold]<COMMAND>[/bold]\" for required arguments."
+
+#: ../rubisco/envutils/packages.py:112
+msgid "'${{name}}' package must contain a directory with the same name as the package name and a '${{metafile}}' file."
+msgstr "'${{name}}' package must contain a directory with the same name as the package name and a '${{metafile}}' file."
+
+#: ../rubisco/envutils/packages.py:131
+msgid "'${{name}}' package contains files that not allowed in the root directory."
+msgstr "'${{name}}' package contains files that not allowed in the root directory."
+
+#: ../rubisco/envutils/packages.py:172
+msgid "Package name '${{name}}' invalid."
+msgstr "Package name '${{name}}' invalid."
+
+#: ../rubisco/envutils/packages.py:177
+msgid "Package name must be lowercase and only contain 0-9, a-z, A-Z, '_', '.' and '-'."
+msgstr "Package name must be lowercase and only contain 0-9, a-z, A-Z, '_', '.' and '-'."
+
+#: ../rubisco/envutils/packages.py:192
+msgid "Tags must be a list of strings."
+msgstr "Tags must be a list of strings."
+
+#: ../rubisco/envutils/packages.py:199
+msgid "Tags must be lowercase and only contain 0-9, a-z, A-Z, '_' and '-'."
+msgstr "Tags must be lowercase and only contain 0-9, a-z, A-Z, '_' and '-'."
+
+#: ../rubisco/envutils/packages.py:220
+msgid "${{path}} package configuration file is not a valid JSON5 file."
+msgstr "${{path}} package configuration file is not a valid JSON5 file."
+
+#: ../rubisco/envutils/packages.py:230
+msgid "${{path}} package configuration file is missing a required key: ${{key}}."
+msgstr "${{path}} package configuration file is missing a required key: ${{key}}."
+
+#: ../rubisco/envutils/packages.py:272
+msgid "${{path}} is not a valid Rubisco extension package."
+msgstr "${{path}} is not a valid Rubisco extension package."
+
+#: ../rubisco/envutils/packages.py:276
+msgid "Rubisco extension package must be a zip file."
+msgstr "Rubisco extension package must be a zip file."
+
+#: ../rubisco/envutils/packages.py:284
+msgid "Error while opening ${{metafile}} in ${{path}}: '${{msg}}'."
+msgstr "Error while opening ${{metafile}} in ${{path}}: '${{msg}}'."
+
+#: ../rubisco/envutils/packages.py:297
+msgid "${{path}} package configuration file is missing a required key: '${{key}}'."
+msgstr "${{path}} package configuration file is missing a required key: '${{key}}'."
+
+#: ../rubisco/envutils/packages.py:328
+msgid "Multiple instances of '${{name}}' extension found in the database. Selecting the last one."
+msgstr "Multiple instances of '${{name}}' extension found in the database. Selecting the last one."
+
+#: ../rubisco/envutils/packages.py:403
+msgid "${{path}} already exists in the filesystem."
+msgstr "${{path}} already exists in the filesystem."
+
+#: ../rubisco/envutils/packages.py:454
+msgid "No extension installed."
+msgstr "No extension installed."
+
+#: ../rubisco/envutils/packages.py:462
+msgid "No extension found matching '${{pattern}}'."
+msgstr "No extension found matching '${{pattern}}'."
+
+#: ../rubisco/envutils/packages.py:473
+msgid "Selected '${{name}}'."
+msgstr "Selected '${{name}}'."
+
+#: ../rubisco/envutils/packages.py:494
+msgid "Extension '${{name}}'(${{path}}) is not found in the filesystem."
+msgstr "Extension '${{name}}'(${{path}}) is not found in the filesystem."
+
+#: ../rubisco/envutils/packages.py:576 ../rubisco/envutils/packages.py:645
+msgid "The same version of '${{name}}' extension is already installed."
+msgstr "The same version of '${{name}}' extension is already installed."
+
+#: ../rubisco/envutils/packages.py:588 ../rubisco/envutils/packages.py:657
+msgid "The higher version of '${{name}}' extension is already installed."
+msgstr "The higher version of '${{name}}' extension is already installed."
+
+#: ../rubisco/envutils/packages.py:627
+msgid "Rubisco Binary Package (RuBP) '${{path}}' must be a zipfile with '.rubp' suffix."
+msgstr "Rubisco Binary Package (RuBP) '${{path}}' must be a zipfile with '.rubp' suffix."
+
+#: ../rubisco/envutils/env.py:118
+msgid "The database ${{path}} is broken."
+msgstr "The database ${{path}} is broken."
+
+#: ../rubisco/envutils/env.py:125
+msgid "Failed to check the environment."
+msgstr "Failed to check the environment."
+
+#: ../rubisco/envutils/env.py:128
+msgid "The ${{path}} is not a valid venv but exists.Please remove it and try again."
+msgstr "The ${{path}} is not a valid venv but exists.Please remove it and try again."
+
+#: ../rubisco/envutils/env.py:149
+msgid "Failed to create venv. Consider to check thepermissions of the path."
+msgstr "Failed to create venv. Consider to check thepermissions of the path."
+
+#: ../rubisco/envutils/env.py:157
+msgid "Failed to create the database for the environment."
+msgstr "Failed to create the database for the environment."
+
+#: ../rubisco/envutils/env.py:209
+msgid "Waiting for the environment to be unlocked (${{path}}): ${{seconds}} seconds."
+msgstr "Waiting for the environment to be unlocked (${{path}}): ${{seconds}} seconds."
+
+#: ../rubisco/envutils/env.py:255
+msgid "The environment ${{path}} is already locked by PID ${{pid}}. If you want to force unlock it, please remove the lock file ${{lockfile}} manually."
+msgstr "The environment ${{path}} is already locked by PID ${{pid}}. If you want to force unlock it, please remove the lock file ${{lockfile}} manually."
+
+#: ../rubisco/envutils/env.py:271
+msgid "The PID '${{pid}}' is not valid. Maybe the process has already exited. Remove the lock file if you believe the process has already exited."
+msgstr "The PID '${{pid}}' is not valid. Maybe the process has already exited. Remove the lock file if you believe the process has already exited."
+
+#: ../rubisco/envutils/env.py:303
+msgid "The lock file ${{path}} is broken."
+msgstr "The lock file ${{path}} is broken."
+
+#: ../rubisco/envutils/env.py:317
+msgid "Failed to read the lock file ${{path}}: ${{msg}}"
+msgstr "Failed to read the lock file ${{path}}: ${{msg}}"
+
+#: ../rubisco/envutils/env.py:375
+msgid "The environment ${{path}} is locked by another thread (PID ${{pid}}, Thread ${{thread}}). Unlock request is ignored."
+msgstr "The environment ${{path}} is locked by another thread (PID ${{pid}}, Thread ${{thread}}). Unlock request is ignored."
+
+#: ../rubisco/envutils/env.py:395
+msgid "Failed to unlock the extension environment ${{path}}: ${{msg}}"
+msgstr "Failed to unlock the extension environment ${{path}}: ${{msg}}"
+
+#: ../rubisco/envutils/env_db.py:142
+msgid "[SQLite3 Errorcode ${{codename}}(${{code}})]: ${{msg}}"
+msgstr "[SQLite3 Errorcode ${{codename}}(${{code}})]: ${{msg}}"
+
+#: ../rubisco/envutils/env_db.py:155
+msgid "Failed to open or operate on database ${{path}}: ${{exc}}"
+msgstr "Failed to open or operate on database ${{path}}: ${{exc}}"
+
+#: ../rubisco/envutils/env_db.py:290
+msgid "Invalid regex pattern: '${{pattern}}'."
+msgstr "Invalid regex pattern: '${{pattern}}'."
+
+#: ../rubisco/envutils/utils.py:79
+msgid "Failed to add ${{path}} to sys.path: ${{exc}}"
+msgstr "Failed to add ${{path}} to sys.path: ${{exc}}"
+
+#: ../rubisco/envutils/pip.py:78
+msgid "You are installing a extension to the global environment. Please make sure that you have the right permissions."
+msgstr "You are installing a extension to the global environment. Please make sure that you have the right permissions."
+
+#: /usr/lib/python3.13/argparse.py:227
 #, python-format
 msgid "%(heading)s:"
 msgstr "%(heading)s:"
 
-#: /usr/lib/python3.13/argparse.py:314
+#: /usr/lib/python3.13/argparse.py:300
 msgid "usage: "
 msgstr "usage: "
 
-#: /usr/lib/python3.13/argparse.py:690
+#: /usr/lib/python3.13/argparse.py:676
 #, python-format
 msgid " (default: %(default)s)"
 msgstr " (default: %(default)s)"
 
-#: /usr/lib/python3.13/argparse.py:752
+#: /usr/lib/python3.13/argparse.py:738
 #, python-format
 msgid "argument %(argument_name)s: %(message)s"
 msgstr "argument %(argument_name)s: %(message)s"
 
-#: /usr/lib/python3.13/argparse.py:861
+#: /usr/lib/python3.13/argparse.py:847
 msgid ".__call__() not defined"
 msgstr ".__call__() not defined"
 
-#: /usr/lib/python3.13/argparse.py:1152
+#: /usr/lib/python3.13/argparse.py:1138
 msgid "show program's version number and exit"
 msgstr "show program's version number and exit"
 
-#: /usr/lib/python3.13/argparse.py:1215
+#: /usr/lib/python3.13/argparse.py:1201
 #, python-format
 msgid "conflicting subparser: %s"
 msgstr "conflicting subparser: %s"
 
-#: /usr/lib/python3.13/argparse.py:1219
+#: /usr/lib/python3.13/argparse.py:1205
 #, python-format
 msgid "conflicting subparser alias: %s"
 msgstr "conflicting subparser alias: %s"
 
-#: /usr/lib/python3.13/argparse.py:1258
+#: /usr/lib/python3.13/argparse.py:1244
 #, python-format
 msgid "unknown parser %(parser_name)r (choices: %(choices)s)"
 msgstr "unknown parser %(parser_name)r (choices: %(choices)s)"
 
-#: /usr/lib/python3.13/argparse.py:1262
+#: /usr/lib/python3.13/argparse.py:1248
 #, python-format
 msgid "command '%(parser_name)s' is deprecated"
 msgstr "command '%(parser_name)s' is deprecated"
 
-#: /usr/lib/python3.13/argparse.py:1323
+#: /usr/lib/python3.13/argparse.py:1309
 #, python-format
 msgid "argument \"-\" with mode %r"
 msgstr "argument \"-\" with mode %r"
 
-#: /usr/lib/python3.13/argparse.py:1332
+#: /usr/lib/python3.13/argparse.py:1318
 #, python-format
 msgid "can't open '%(filename)s': %(error)s"
 msgstr "can't open '%(filename)s': %(error)s"
 
-#: /usr/lib/python3.13/argparse.py:1546
+#: /usr/lib/python3.13/argparse.py:1532
 #, python-format
 msgid "cannot merge actions - two groups are named %r"
 msgstr "cannot merge actions - two groups are named %r"
 
-#: /usr/lib/python3.13/argparse.py:1588
+#: /usr/lib/python3.13/argparse.py:1574
 msgid "'required' is an invalid argument for positionals"
 msgstr "'required' is an invalid argument for positionals"
 
-#: /usr/lib/python3.13/argparse.py:1609
+#: /usr/lib/python3.13/argparse.py:1595
 #, python-format
 msgid "invalid option string %(option)r: must start with a character %(prefix_chars)r"
 msgstr "invalid option string %(option)r: must start with a character %(prefix_chars)r"
 
-#: /usr/lib/python3.13/argparse.py:1627
+#: /usr/lib/python3.13/argparse.py:1613
 #, python-format
 msgid "dest= is required for options like %r"
 msgstr "dest= is required for options like %r"
 
-#: /usr/lib/python3.13/argparse.py:1644
+#: /usr/lib/python3.13/argparse.py:1630
 #, python-format
 msgid "invalid conflict_resolution value: %r"
 msgstr "invalid conflict_resolution value: %r"
 
-#: /usr/lib/python3.13/argparse.py:1662
+#: /usr/lib/python3.13/argparse.py:1648
 #, python-format
 msgid "conflicting option string: %s"
 msgid_plural "conflicting option strings: %s"
 msgstr[0] "conflicting option string: %s"
 msgstr[1] "conflicting option strings: %s"
 
-#: /usr/lib/python3.13/argparse.py:1737
+#: /usr/lib/python3.13/argparse.py:1723
 msgid "mutually exclusive arguments must be optional"
 msgstr "mutually exclusive arguments must be optional"
 
-#: /usr/lib/python3.13/argparse.py:1814
+#: /usr/lib/python3.13/argparse.py:1800
 msgid "positional arguments"
 msgstr "positional arguments"
 
-#: /usr/lib/python3.13/argparse.py:1815
+#: /usr/lib/python3.13/argparse.py:1801
 msgid "options"
 msgstr "options"
 
-#: /usr/lib/python3.13/argparse.py:1830
+#: /usr/lib/python3.13/argparse.py:1816
 msgid "show this help message and exit"
 msgstr "show this help message and exit"
 
-#: /usr/lib/python3.13/argparse.py:1861
+#: /usr/lib/python3.13/argparse.py:1847
 msgid "cannot have multiple subparser arguments"
 msgstr "cannot have multiple subparser arguments"
 
-#: /usr/lib/python3.13/argparse.py:1867
+#: /usr/lib/python3.13/argparse.py:1853
 msgid "subcommands"
 msgstr "subcommands"
 
-#: /usr/lib/python3.13/argparse.py:1914 /usr/lib/python3.13/argparse.py:2477
+#: /usr/lib/python3.13/argparse.py:1900 /usr/lib/python3.13/argparse.py:2463
 #, python-format
 msgid "unrecognized arguments: %s"
 msgstr "unrecognized arguments: %s"
 
-#: /usr/lib/python3.13/argparse.py:2020
+#: /usr/lib/python3.13/argparse.py:2006
 #, python-format
 msgid "not allowed with argument %s"
 msgstr "not allowed with argument %s"
 
-#: /usr/lib/python3.13/argparse.py:2039
+#: /usr/lib/python3.13/argparse.py:2025
 #, python-format
 msgid "ambiguous option: %(option)s could match %(matches)s"
 msgstr "ambiguous option: %(option)s could match %(matches)s"
 
-#: /usr/lib/python3.13/argparse.py:2071 /usr/lib/python3.13/argparse.py:2103
+#: /usr/lib/python3.13/argparse.py:2057 /usr/lib/python3.13/argparse.py:2089
 #, python-format
 msgid "ignored explicit argument %r"
 msgstr "ignored explicit argument %r"
 
-#: /usr/lib/python3.13/argparse.py:2123
+#: /usr/lib/python3.13/argparse.py:2109
 #, python-format
 msgid "option '%(option)s' is deprecated"
 msgstr "option '%(option)s' is deprecated"
 
-#: /usr/lib/python3.13/argparse.py:2155
+#: /usr/lib/python3.13/argparse.py:2141
 #, python-format
 msgid "argument '%(argument_name)s' is deprecated"
 msgstr "argument '%(argument_name)s' is deprecated"
 
-#: /usr/lib/python3.13/argparse.py:2248
+#: /usr/lib/python3.13/argparse.py:2234
 #, python-format
 msgid "the following arguments are required: %s"
 msgstr "the following arguments are required: %s"
 
-#: /usr/lib/python3.13/argparse.py:2263
+#: /usr/lib/python3.13/argparse.py:2249
 #, python-format
 msgid "one of the arguments %s is required"
 msgstr "one of the arguments %s is required"
 
-#: /usr/lib/python3.13/argparse.py:2307
+#: /usr/lib/python3.13/argparse.py:2293
 msgid "expected one argument"
 msgstr "expected one argument"
 
-#: /usr/lib/python3.13/argparse.py:2308
+#: /usr/lib/python3.13/argparse.py:2294
 msgid "expected at most one argument"
 msgstr "expected at most one argument"
 
-#: /usr/lib/python3.13/argparse.py:2309
+#: /usr/lib/python3.13/argparse.py:2295
 msgid "expected at least one argument"
 msgstr "expected at least one argument"
 
-#: /usr/lib/python3.13/argparse.py:2313
+#: /usr/lib/python3.13/argparse.py:2299
 #, python-format
 msgid "expected %s argument"
 msgid_plural "expected %s arguments"
 msgstr[0] "expected %s argument"
 msgstr[1] "expected %s arguments"
 
-#: /usr/lib/python3.13/argparse.py:2423
+#: /usr/lib/python3.13/argparse.py:2409
 #, python-format
 msgid "unexpected option string: %s"
 msgstr "unexpected option string: %s"
 
-#: /usr/lib/python3.13/argparse.py:2560
+#: /usr/lib/python3.13/argparse.py:2546
 #, python-format
 msgid "%r is not callable"
 msgstr "%r is not callable"
 
-#: /usr/lib/python3.13/argparse.py:2576
+#: /usr/lib/python3.13/argparse.py:2562
 #, python-format
 msgid "invalid %(type)s value: %(value)r"
 msgstr "invalid %(type)s value: %(value)r"
 
-#: /usr/lib/python3.13/argparse.py:2591
+#: /usr/lib/python3.13/argparse.py:2577
 #, python-format
 msgid "invalid choice: %(value)r (choose from %(choices)s)"
 msgstr "invalid choice: %(value)r (choose from %(choices)s)"
 
-#: /usr/lib/python3.13/argparse.py:2672
+#: /usr/lib/python3.13/argparse.py:2658
 #, python-format
 msgid "%(prog)s: error: %(message)s\n"
 msgstr "%(prog)s: error: %(message)s\n"
 
-#: /usr/lib/python3.13/argparse.py:2676
+#: /usr/lib/python3.13/argparse.py:2662
 #, python-format
 msgid "%(prog)s: warning: %(message)s\n"
 msgstr "%(prog)s: warning: %(message)s\n"

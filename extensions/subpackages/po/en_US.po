@@ -1,0 +1,116 @@
+# English translations for subpackages package.
+# Copyright (C) 2025 THE subpackages'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the subpackages package.
+# YiFei Chen <wushengwuxi-msctinoulk@outlook.com>, 2025.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: subpackages 0.1.0\n"
+"Report-Msgid-Bugs-To: wushengwuxi-msctinoulk@outlook.com\n"
+"POT-Creation-Date: 2025-08-11 20:29+0800\n"
+"PO-Revision-Date: 2025-08-11 21:02+0800\n"
+"Last-Translator: YiFei Chen <wushengwuxi-msctinoulk@outlook.com>\n"
+"Language-Team: English\n"
+"Language: en_US\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=ASCII\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: /workspaces/cppp/rubisco/extensions/subpackages/subpackages/events.py:54
+msgid "Invalid protocol: ${{protocol}}"
+msgstr "Invalid protocol: ${{protocol}}"
+
+#: /workspaces/cppp/rubisco/extensions/subpackages/subpackages/events.py:57
+msgid "We only support \"http\"(HTTP(s)) and \"ssh\"(SSH)."
+msgstr "We only support \"http\"(HTTP(s)) and \"ssh\"(SSH)."
+
+#: /workspaces/cppp/rubisco/extensions/subpackages/subpackages/events.py:84
+msgid "No subpackages found in ${{pkg}}."
+msgstr "No subpackages found in ${{pkg}}."
+
+#: /workspaces/cppp/rubisco/extensions/subpackages/subpackages/events.py:95
+msgid "Subpackages management."
+msgstr "Subpackages management."
+
+#: /workspaces/cppp/rubisco/extensions/subpackages/subpackages/events.py:102
+#: /workspaces/cppp/rubisco/extensions/subpackages/subpackages/events.py:179
+msgid "Fetch subpackages."
+msgstr "Fetch subpackages."
+
+#: /workspaces/cppp/rubisco/extensions/subpackages/subpackages/events.py:109
+msgid "Protocol"
+msgstr "Protocol"
+
+#: /workspaces/cppp/rubisco/extensions/subpackages/subpackages/events.py:110
+msgid "Protocol to use for fetching subpackages."
+msgstr "Protocol to use for fetching subpackages."
+
+#: /workspaces/cppp/rubisco/extensions/subpackages/subpackages/events.py:119
+msgid "Use HTTP(s) to fetch Git subpackages."
+msgstr "Use HTTP(s) to fetch Git subpackages."
+
+#: /workspaces/cppp/rubisco/extensions/subpackages/subpackages/events.py:126
+msgid "Use SSH to fetch Git subpackages."
+msgstr "Use SSH to fetch Git subpackages."
+
+#: /workspaces/cppp/rubisco/extensions/subpackages/subpackages/events.py:135
+msgid "Shallow"
+msgstr "Shallow"
+
+#: /workspaces/cppp/rubisco/extensions/subpackages/subpackages/events.py:136
+msgid "Use shallow clone."
+msgstr "Use shallow clone."
+
+#: /workspaces/cppp/rubisco/extensions/subpackages/subpackages/events.py:144
+msgid "Disable shallow mode to clone subpackages."
+msgstr "Disable shallow mode to clone subpackages."
+
+#: /workspaces/cppp/rubisco/extensions/subpackages/subpackages/events.py:153
+msgid "Use Mirror"
+msgstr "Use Mirror"
+
+#: /workspaces/cppp/rubisco/extensions/subpackages/subpackages/events.py:155
+msgid "Enable mirror speedtest and auto selection."
+msgstr "Enable mirror speedtest and auto selection."
+
+#: /workspaces/cppp/rubisco/extensions/subpackages/subpackages/events.py:164
+msgid "Use mirror to fetch Git subpackages."
+msgstr "Use mirror to fetch Git subpackages."
+
+#: /workspaces/cppp/rubisco/extensions/subpackages/subpackages/events.py:171
+msgid "Disable mirror speedtest and auto selection."
+msgstr "Disable mirror speedtest and auto selection."
+
+#: /workspaces/cppp/rubisco/extensions/subpackages/subpackages/events.py:186
+#: /workspaces/cppp/rubisco/extensions/subpackages/subpackages/events.py:199
+msgid "List subpackages."
+msgstr "List subpackages."
+
+#: /workspaces/cppp/rubisco/extensions/subpackages/subpackages/events.py:193
+msgid "Recursive"
+msgstr "Recursive"
+
+#: /workspaces/cppp/rubisco/extensions/subpackages/subpackages/events.py:194
+msgid "List subpackages recursively."
+msgstr "List subpackages recursively."
+
+#: /workspaces/cppp/rubisco/extensions/subpackages/subpackages/package.py:132
+msgid "Subpackage ${{name}} does not exist."
+msgstr "Subpackage ${{name}} does not exist."
+
+#: /workspaces/cppp/rubisco/extensions/subpackages/subpackages/package.py:135
+msgid "Please fetch the subpackage ITSELF first."
+msgstr "Please fetch the subpackage ITSELF first."
+
+#: /workspaces/cppp/rubisco/extensions/subpackages/subpackages/package.py:180
+msgid "Subpackage reference ${{name}} is not a dict."
+msgstr "Subpackage reference ${{name}} is not a dict."
+
+#: /workspaces/cppp/rubisco/extensions/subpackages/subpackages/package.py:193
+msgid "Subpackage reference ${{name}} has no path."
+msgstr "Subpackage reference ${{name}} has no path."
+
+#: /workspaces/cppp/rubisco/extensions/subpackages/subpackages/steps.py:48
+msgid "Missing URL for fetching subpackages."
+msgstr "Missing URL for fetching subpackages."

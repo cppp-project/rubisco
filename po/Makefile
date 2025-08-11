@@ -45,8 +45,7 @@ $(PACKAGE)$(POT_EXT):
 
 update-po: all $(srcdir)/*$(PO_EXT)
 	for file in $(srcdir)/*$(PO_EXT); do \
-		$(MSGMERGE_UPDATE) --backup=none --no-fuzzy-matching --no-wrap \
-		--width=79 --sort-output \
+		$(MSGMERGE_UPDATE) --backup=none --no-fuzzy-matching --no-wrap --width=80 \
 	    $$file $(PACKAGE)$(POT_EXT); \
 	done
 

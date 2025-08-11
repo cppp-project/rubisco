@@ -1,51 +1,59 @@
 # English translations for rubp-build package.
-# Copyright (C) 2025 THE rubp-build'S COPYRIGHT HOLDER
+# Copyright (C) 2025 The C++ Plus Project.
 # This file is distributed under the same license as the rubp-build package.
-#  <wushengwuxi-msctinoulk@outlook.com>, 2025.
+# YiFei Chen <wushengwuxi-msctinoulk@outlook.com>, 2025.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: rubp-build 0.1.0\n"
 "Report-Msgid-Bugs-To: wushengwuxi-msctinoulk@outlook.com\n"
-"POT-Creation-Date: 2025-07-31 14:32+0800\n"
-"PO-Revision-Date: 2025-07-31 14:33+0800\n"
-"Last-Translator:  <wushengwuxi-msctinoulk@outlook.com>\n"
+"POT-Creation-Date: 2025-08-10 15:32+0800\n"
+"PO-Revision-Date: 2025-08-11 21:22+0800\n"
+"Last-Translator: YiFei Chen <wushengwuxi-msctinoulk@outlook.com>\n"
 "Language-Team: English\n"
 "Language: en_US\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Type: text/plain; charset=ASCII\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: /workspaces/cppp/rubisco/extensions/rubp-build/rubp_build/packaging.py:108
-msgid "No readme file found."
-msgstr "No readme file found."
-
-#: /workspaces/cppp/rubisco/extensions/rubp-build/rubp_build/packaging.py:131
-msgid "No license file found."
-msgstr "No license file found."
-
-#: /workspaces/cppp/rubisco/extensions/rubp-build/rubp_build/packaging.py:156
-msgid "Generating requirements.txt from ${{path}} ..."
-msgstr "Generating requirements.txt from ${{path}} ..."
-
-#: /workspaces/cppp/rubisco/extensions/rubp-build/rubp_build/events.py:55
+#: /workspaces/cppp/rubisco/extensions/rubp-build/rubp_build/events.py:56
 msgid "Rubisco binary package builder. (Build RuBP from event is notsupported. Please use workflow to build RuBP.)"
 msgstr "Rubisco binary package builder. (Build RuBP from event is notsupported. Please use workflow to build RuBP.)"
 
-#: /workspaces/cppp/rubisco/extensions/rubp-build/rubp_build/events.py:63
+#: /workspaces/cppp/rubisco/extensions/rubp-build/rubp_build/events.py:64
 msgid "Project directory"
 msgstr "Project directory"
 
-#: /workspaces/cppp/rubisco/extensions/rubp-build/rubp_build/events.py:64
+#: /workspaces/cppp/rubisco/extensions/rubp-build/rubp_build/events.py:65
 msgid "Project directory path."
 msgstr "Project directory path."
 
-#: /workspaces/cppp/rubisco/extensions/rubp-build/rubp_build/events.py:71
-#: /workspaces/cppp/rubisco/extensions/rubp-build/rubp_build/events.py:75
+#: /workspaces/cppp/rubisco/extensions/rubp-build/rubp_build/events.py:72
+#: /workspaces/cppp/rubisco/extensions/rubp-build/rubp_build/events.py:76
 msgid "Get RuBP metadata."
 msgstr "Get RuBP metadata."
 
-#: /workspaces/cppp/rubisco/extensions/rubp-build/rubp_build/version.py:92
+#: /workspaces/cppp/rubisco/extensions/rubp-build/rubp_build/version.py:91
 msgid "Tag '${{tag}}' not found."
 msgstr "Tag '${{tag}}' not found."
+
+#: /workspaces/cppp/rubisco/extensions/rubp-build/rubp_build/packaging.py:97
+msgid "`dependencies` must be list of string"
+msgstr "`dependencies` must be list of string"
+
+#: /workspaces/cppp/rubisco/extensions/rubp-build/rubp_build/packaging.py:125
+msgid "No readme file found."
+msgstr "No readme file found."
+
+#: /workspaces/cppp/rubisco/extensions/rubp-build/rubp_build/packaging.py:151
+msgid "No license file found."
+msgstr "No license file found."
+
+#: /workspaces/cppp/rubisco/extensions/rubp-build/rubp_build/packaging.py:176
+msgid "Generating requirements.txt from ${{path}} ..."
+msgstr "Generating requirements.txt from ${{path}} ..."
+
+#: /workspaces/cppp/rubisco/extensions/rubp-build/rubp_build/deps/pyproject.py:111
+msgid "pyproject 'project' must be a dict."
+msgstr "pyproject 'project' must be a dict."
