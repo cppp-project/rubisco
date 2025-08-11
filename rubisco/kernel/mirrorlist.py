@@ -31,11 +31,11 @@ import json5 as json
 from urllib3.util import parse_url
 
 from rubisco.config import (
-    DEFAULT_CHARSET,
     GLOBAL_CONFIG_DIR,
     USER_CONFIG_DIR,
     WORKSPACE_CONFIG_DIR,
 )
+from rubisco.kernel.config_loader import RUConfiguration
 from rubisco.lib.exceptions import RUValueError
 from rubisco.lib.l10n import _
 from rubisco.lib.log import logger
@@ -59,10 +59,9 @@ for mirrorlist_file in [
 ]:
     if mirrorlist_file.exists():
         try:
-            with mirrorlist_file.open("r", encoding=DEFAULT_CHARSET) as f:
-                file_data = AutoFormatDict(json.load(f))
-                lower_data = {k.lower(): v for k, v in file_data.items()}
-                mirrorlist.merge(lower_data)
+            file_data = RUConfiguration.load_from_file(mirrorlist_file)
+            lower_data = {k.lower(): v for k, v in file_data.items()}
+            mirrorlist.merge(lower_data)
         except (OSError, json.JSON5DecodeError) as exc_:
             logger.warning(
                 "Failed to load mirrorlist file: %s: %s",

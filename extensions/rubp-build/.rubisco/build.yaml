@@ -2,7 +2,7 @@ name: 🛠️ Build rubp-build
 
 steps:
   - copy: rubp_build
-    to: .bindir/rubp-build
+    to: .bindir/rubp_build
     excludes: ["__pycache__", "*.pyc"]
 
   - workflow: .rubisco/po.yaml

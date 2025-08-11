@@ -2,7 +2,7 @@ name: 📄 Generate POT file.
 
 steps:
   - name: 📄 Find source files.
-    glob: "rubp_build/**/*.py"
+    glob: "subpackages/**/*.py"
     save-to: src-files
     recursive: True
 
@@ -14,8 +14,8 @@ steps:
       "--package-name=${{ project.name }}",
       "--package-version=${{ project.version }}",
       --msgid-bugs-address=wushengwuxi-msctinoulk@outlook.com,
-      --directory=rubp_build,
-      --output=po/rubp-build.pot,
+      --directory=subpackages,
+      --output=po/subpackages.pot,
       --keyword=_,
       --from-code=UTF-8,
       --width=80,

@@ -51,7 +51,7 @@ USER_REPO_CONFIG = Path("repo.json")
 if os.name == "nt":
     local_appdata_env = os.getenv("LOCALAPPDATA")
     if not local_appdata_env or not Path(local_appdata_env).exists():
-        local_appdata = Path.home() / "AppData" / "Loacal"
+        local_appdata = Path.home() / "AppData" / "Local"
     else:
         local_appdata = Path(local_appdata_env)
     USER_LIB_DIR = local_appdata / APP_NAME
