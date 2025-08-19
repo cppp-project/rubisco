@@ -1,0 +1,11 @@
+name: 🛠️ Build the extension
+
+steps:
+  - copy: changelog
+    to: .bindir/changelog
+    excludes: ["__pycache__", "*.pyc"]
+
+  - workflow: .rubisco/po.yaml
+
+  - name: 🛠️ Build RuBP.
+    type: rubp-pack

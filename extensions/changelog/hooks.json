@@ -3,29 +3,21 @@
     "lint": {
       "run": ".rubisco/lint.yaml"
     },
-    "update-po": {
-      "exec": "cd po && make update-po -B"
-    },
-    "build": {
-      "run": ".rubisco/build.yaml"
-    },
-    "format": {
-      "exec": "python -m ruff format rubisco"
-    },
-    "test": {
-      "run": ".rubisco/test.yaml"
+    "pot": {
+      "run": ".rubisco/pot.yaml"
     },
     "po": {
       "run": ".rubisco/po.yaml"
     },
-    "pack-exts": {
-      "run": ".rubisco/pack-exts.yaml"
+    "build": {
+      "run": ".rubisco/build.yaml"
     },
     "clean": {
       "workflow": [
         {
           "name": "Clean workflow",
           "remove": [
+            ".bindir",
             "build",
             "dist",
             "*/**/__pycache__",
@@ -33,13 +25,11 @@
             "*.7z",
             "*.gz",
             "*.xz",
-            "*.zip",
-            "rubisco-*"
+            "*.zip"
           ],
           "strict": false
         }
-      ],
-      "run": ".rubisco/clean.yaml"
+      ]
     }
   }
 }

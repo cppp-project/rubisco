@@ -1,0 +1,27 @@
+name: 🛠️ Build PO locale files.
+
+steps:
+  - name: 📄 Find po files.
+    glob: "po/*.po"
+    save-to: po-files
+
+  - var: supported-langs
+    value: $&{{ [x.stem for x in g('po-files')] }}
+
+  - echo: "Supported languages: ${{ supported-langs }}"
+
+  - mkdir: .bindir/res/locale
+
+  - matrix:
+      lang: ${{ supported-langs }}
+    steps:
+      - mkdir: .bindir/res/locale/${{ lang }}/LC_MESSAGES
+
+      - name: 🛠️ Build MO file for ${{ lang }}.
+        run:
+          [
+            msgfmt,
+            "--output-file=.bindir/res/locale/${{ lang }}/LC_MESSAGES/${{
+            project.name }}.mo",
+            "po/${{ lang }}.po",
+          ]

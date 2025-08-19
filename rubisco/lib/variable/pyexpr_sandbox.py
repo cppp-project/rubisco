@@ -20,6 +20,8 @@
 """Eval a python expression in a relatively safe container."""
 
 import builtins
+import pathlib
+import re
 from collections.abc import Callable
 from types import ModuleType
 from typing import Any, NoReturn
@@ -111,6 +113,10 @@ def eval_pyexpr(expr: str) -> Any:  # noqa: ANN401
     builtins_.__spec__ = None  # type: ignore[attr-defined]
     builtins_.__name__ = _("<rubisco inline python expression>")  # type: ignore[attr-defined]
     builtins_.SystemExit = None  # type: ignore[attr-defined]
+    builtins_.KeyboardInterrupt = None  # type: ignore[attr-defined]
+    builtins_.re = re  # type: ignore[attr-defined]
+    builtins_.pathlib = pathlib  # type: ignore[attr-defined]
+    builtins_.Path = pathlib.Path  # type: ignore[attr-defined]
 
     try:
         logger.info("Eval python expression: %s", expr)

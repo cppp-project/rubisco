@@ -143,5 +143,5 @@ result.json
 .#*
 \#*#
 
-# Auto generated files
-ChangeLog
+# rubp-build binary directory.
+.bindir

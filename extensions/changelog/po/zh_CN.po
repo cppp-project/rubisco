@@ -1,0 +1,48 @@
+# Chinese translations for changelog package
+# changelog 软件包的简体中文翻译.
+# Copyright (C) 2025 The C++ Plus Project
+# This file is distributed under the same license as the changelog package.
+# YiFei Chen <wushengwuxi-msctinoulk@outlook.com>, 2025.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: changelog 0.1.0\n"
+"Report-Msgid-Bugs-To: wushengwuxi-msctinoulk@outlook.com\n"
+"POT-Creation-Date: 2025-08-14 10:27+0800\n"
+"PO-Revision-Date: 2025-08-14 10:23+0800\n"
+"Last-Translator: YiFei Chen <wushengwuxi-msctinoulk@outlook.com>\n"
+"Language-Team: Chinese (simplified) <i18n-zh@googlegroups.com>\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: /workspaces/cppp/rubisco/extensions/changelog/changelog/events.py:61
+#: /workspaces/cppp/rubisco/extensions/changelog/changelog/events.py:62
+msgid "Repository path."
+msgstr "仓库路径."
+
+#: /workspaces/cppp/rubisco/extensions/changelog/changelog/events.py:68
+#: /workspaces/cppp/rubisco/extensions/changelog/changelog/events.py:82
+msgid "Generate changelog."
+msgstr "生成变更日志."
+
+#: /workspaces/cppp/rubisco/extensions/changelog/changelog/events.py:75
+msgid "Changelog file."
+msgstr "变更日志文件."
+
+#: /workspaces/cppp/rubisco/extensions/changelog/changelog/events.py:77
+msgid "Path to save the generated changelog."
+msgstr "生成变更日志的保存路径."
+
+#: /workspaces/cppp/rubisco/extensions/changelog/changelog/generator.py:216
+msgid "Failed to generate changelog: ${{exc}}"
+msgstr "生成变更日志失败: ${{exc}}."
+
+#: /workspaces/cppp/rubisco/extensions/changelog/changelog/generator.py:247
+msgid "Directory ${{repo}} is not a valid Rubisco project, treat as a regular Git repository: ${{exc}}"
+msgstr "目录 ${{repo}} 不是一个有效的 Rubisco 项目, 视为普通 Git 仓库: ${{exc}}."
+
+#: /workspaces/cppp/rubisco/extensions/changelog/changelog/generator.py:261
+msgid "Generating changelog for ${{repo}} ..."
+msgstr "正在为 ${{repo}} 生成变更日志 ..."

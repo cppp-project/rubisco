@@ -14,12 +14,10 @@ classifiers = [
 ]
 dependencies = [
   "pygit2 >= 1.18.1",
-  "tzlocal >= 5.3.1",
-  "packaging >= 25.0",
   "rubisco >= 0.1.0.post",
 ]
-description = "Rubisco binary package builder."
-name = "rubp-build"
+description = "Rubisco changelog generator."
+name = "changelog"
 readme = "README.md"
 requires-python = ">=3.11"
 version = "0.1.0"

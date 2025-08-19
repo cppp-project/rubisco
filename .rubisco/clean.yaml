@@ -1,0 +1,12 @@
+name: 🧹 Clean
+
+steps:
+  - glob: extensions/*
+    save-to: exts
+    regular: false
+
+  - matrix:
+      extension: ${{ exts }}
+    steps:
+      - run: rubisco clean
+        cwd: ${{ extension }}
