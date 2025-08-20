@@ -26,7 +26,7 @@ from typing import Any, cast
 
 from beartype import beartype
 
-from rubisco.config import APP_VERSION, USER_REPO_CONFIG
+from rubisco.config import APP_VERSION, WORKSPACE_REPO_CONFIG
 from rubisco.kernel.config_loader import RUConfiguration
 from rubisco.kernel.project_config.hook import ProjectHook
 from rubisco.kernel.project_config.maintainer import Maintainer
@@ -233,7 +233,7 @@ def load_project_config(project_dir: Path) -> ProjectConfigration:
         ProjectConfigration: The project configuration instance.
 
     """
-    return ProjectConfigration(project_dir / USER_REPO_CONFIG)
+    return ProjectConfigration(project_dir / WORKSPACE_REPO_CONFIG)
 
 
 _T = Path  # Make Ruff happy.

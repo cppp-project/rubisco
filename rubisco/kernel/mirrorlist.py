@@ -31,8 +31,8 @@ import json5 as json
 from urllib3.util import parse_url
 
 from rubisco.config import (
-    GLOBAL_CONFIG_DIR,
-    USER_CONFIG_DIR,
+    RUBISCO_GLOBAL_CONFIG_DIR,
+    RUBISCO_USER_CONFIG_DIR,
     WORKSPACE_CONFIG_DIR,
 )
 from rubisco.kernel.config_loader import RUConfiguration
@@ -47,8 +47,8 @@ from rubisco.shared.ktrigger import IKernelTrigger, call_ktrigger
 __all__ = ["get_url"]
 
 WORKSPACE_MIRRORLIST_FILE = WORKSPACE_CONFIG_DIR / "mirrorlist.json"
-USER_MIRRORLIST_FILE = USER_CONFIG_DIR / "mirrorlist.json"
-GLOBAL_MIRRORLIST_FILE = GLOBAL_CONFIG_DIR / "mirrorlist.json"
+USER_MIRRORLIST_FILE = RUBISCO_USER_CONFIG_DIR / "mirrorlist.json"
+GLOBAL_MIRRORLIST_FILE = RUBISCO_GLOBAL_CONFIG_DIR / "mirrorlist.json"
 
 mirrorlist = AutoFormatDict()
 

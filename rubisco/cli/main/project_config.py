@@ -24,7 +24,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, cast
 
-from rubisco.config import USER_REPO_CONFIG
+from rubisco.config import WORKSPACE_REPO_CONFIG
 from rubisco.kernel.command_event.callback import EventCallback
 from rubisco.kernel.command_event.event_file_data import EventFileData
 from rubisco.kernel.command_event.event_path import EventPath
@@ -151,6 +151,6 @@ def load_project() -> None:
             ),
             hint=fast_format_str(
                 _("${{path}} is not found."),
-                fmt={"path": make_pretty(USER_REPO_CONFIG.absolute())},
+                fmt={"path": make_pretty(WORKSPACE_REPO_CONFIG.absolute())},
             ),
         ) from exc

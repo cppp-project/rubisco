@@ -17,31 +17,15 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-"""Utils for Rubisco project."""
+"""Fetching package pool infomation."""
 
-from pathlib import Path
-
-from beartype import beartype
-
-from rubisco.config import WORKSPACE_REPO_CONFIG
-from rubisco.kernel.config_loader import SUPPORTED_EXTS
-
-__all__ = ["is_rubisco_project"]
+from dataclasses import dataclass
 
 
-@beartype
-def is_rubisco_project(project_dir: Path) -> bool:
-    """Check if the given directory is a Rubisco project.
+@dataclass
+class Package:
+    """Package information."""
 
-    Args:
-        project_dir (Path): The path to the project directory.
-
-    Returns:
-        bool: True if the directory is a Rubisco project, False otherwise.
-
-    """
-    path = project_dir / WORKSPACE_REPO_CONFIG
-    if path.is_file():
-        return True
-
-    return any(path.with_suffix(ext).is_file() for ext in SUPPORTED_EXTS)
+    name: str
+    description: str
+    version: str
